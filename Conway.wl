@@ -1,0 +1,326 @@
+(* ::Package:: *)
+
+(* ::Text:: *)
+(*Conway.wl (for Wolfram Mathematica 12.0)*)
+
+
+(* ::Text:: *)
+(*A Wolfram Language Package (.wl) with handy functions.*)
+(*(C) 2019 Conway*)
+(*ABSOLUTELY NO WARRANTY, i.e. "GOD SAVE YOU"*)
+
+
+(* ::Section:: *)
+(*TO BE DONE*)
+
+
+(* ::Item:: *)
+(*SeekRootBisection (bisection algorithm)*)
+
+
+(* ::Section:: *)
+(*Improve workflow*)
+
+
+(* ::Text:: *)
+(*Disable annoying floating elements (which pop up when I don't need them)*)
+(*and auto replacements (which result in unreadable \[...] in text editors).*)
+
+
+SetOptions[
+  $FrontEndSession,
+  CodeAssistOptions -> {
+    "FloatingElementEnable" -> False
+  },
+  InputAutoReplacements -> {
+    "eee" -> "==",
+    "ggg" -> ">=",
+    "lll" -> "<=",
+    "nnn" -> "!=",
+    "ddd" -> ":>",
+    "rrr" -> "->"
+  }
+];
+
+
+(* ::Section:: *)
+(*Package definitions*)
+
+
+(* ::Subsection:: *)
+(*Start of package*)
+
+
+BeginPackage["Conway`"];
+
+
+(* ::Subsection:: *)
+(*Clear existing definitions if any*)
+
+
+(* ::Text:: *)
+(*https://mathematica.stackexchange.com/a/128790*)
+(*https://mathematica.stackexchange.com/a/57506*)
+
+
+Unprotect["Conway`*"];
+ClearAll["Conway`*"];
+ClearAll["Conway`*`*"];
+
+
+(* ::Subsection:: *)
+(*Mention non-private symbols*)
+
+
+{
+  BoxedLabel,
+  DefaultColours,
+  DomainEnd,
+  DomainStart,
+  EmptyAxes,
+  EmptyFrame,
+  Italicised,
+  NoExtrapolation,
+  PlotOptions,
+  SeekRoot,
+  Way
+};
+
+
+(* ::Subsection:: *)
+(*Private scope*)
+
+
+(* ::Subsubsection:: *)
+(*Start of private scope*)
+
+
+Begin["`Private`"];
+
+
+(* ::Subsubsection:: *)
+(*BoxedLabel*)
+
+
+BoxedLabel::usage = (
+  "BoxedLabel[expr]\n"
+  <> "Returns framed version of the expression expr.\n"
+  <> "To be used for PlotLabel."
+);
+
+
+BoxedLabel[expr_] := Framed[expr, ImageMargins -> {{0, 0}, {10, 0}}];
+
+
+(* ::Subsubsection:: *)
+(*DefaultColours*)
+
+
+DefaultColours::usage = (
+  "DefaultColours\n"
+  <> "Returns the default colours for Plot since Version 10."
+);
+
+
+DefaultColours = ColorData[97, "ColorList"];
+
+
+(* ::Subsubsection:: *)
+(*DomainEnd*)
+
+
+DomainEnd::usage = (
+  "DomainEnd[iFun] or DomainEnd[{iFun, ...}]\n"
+  <> "Returns the end of the domain for the first coordinate "
+  <> "of the interpolating function iFun."
+);
+
+
+DomainEnd[iFun_InterpolatingFunction] := iFun["Domain"][[1, 2]];
+
+
+DomainEnd[{iFun_, ___}] := DomainEnd[iFun];
+
+
+(* ::Subsubsection:: *)
+(*DomainStart*)
+
+
+DomainStart::usage = (
+  "DomainStart[iFun] or DomainStart[{iFun, ...}]\n"
+  <> "Returns the start of the domain for the first coordinate "
+  <> "of the interpolating function iFun."
+);
+
+
+DomainStart[iFun_InterpolatingFunction] := iFun["Domain"][[1, 1]];
+
+
+DomainStart[{iFun_, ___}] := DomainStart[iFun];
+
+
+(* ::Subsubsection:: *)
+(*EmptyAxes*)
+
+
+EmptyAxes::usage = (
+  "EmptyAxes[{xMin, xMax}, {yMin, yMax}, opts]\n"
+  <> "Returns empty Plot with default options PlotOptions[Axes], "
+  <> "which may be overridden by options opts."
+);
+
+
+EmptyAxes[
+  {xMin_?NumericQ, xMax_?NumericQ},
+  {yMin_?NumericQ, yMax_?NumericQ},
+  opts : OptionsPattern[Plot]
+] :=
+  Plot[{}, {x, xMin, xMax},
+    opts,
+    PlotRange -> {{xMin, xMax}, {yMin, yMax}},
+    PlotOptions[Axes] // Evaluate
+  ];
+
+
+(* ::Subsubsection:: *)
+(*EmptyFrame*)
+
+
+EmptyFrame::usage = (
+  "EmptyFrame[{xMin, xMax}, {yMin, yMax}, opts]\n"
+  <> "Returns empty RegionPlot with default options PlotOptions[Frame], "
+  <> "which may be overridden by options opts."
+);
+
+
+EmptyFrame[
+  {xMin_?NumericQ, xMax_?NumericQ},
+  {yMin_?NumericQ, yMax_?NumericQ},
+  opts : OptionsPattern[RegionPlot]
+] :=
+  RegionPlot[{}, {x, xMin, xMax}, {y, yMin, yMax},
+    opts,
+    PlotOptions[Frame] // Evaluate
+  ];
+
+
+(* ::Subsubsection:: *)
+(*Italicised*)
+
+
+Italicised::usage = (
+  "Italicised[str]\n"
+  <> "Returns italicised version of str.\n"
+  <> "To be used for AxesLabel etc.\n"
+  <> "Automatically threads over lists."
+);
+
+
+Italicised[str_] := Style[str, Italic];
+
+
+SetAttributes[Italicised, Listable];
+
+
+(* ::Subsubsection:: *)
+(*NoExtrapolation*)
+
+
+(* ::Text:: *)
+(*https://mathematica.stackexchange.com/a/30946*)
+
+
+NoExtrapolation::usage = (
+  "NoExtrapolation\n"
+  <> "Undocumented option for preventing extrapolation "
+  <> "in InterpolatingFunction etc."
+);
+
+
+NoExtrapolation = (
+  "ExtrapolationHandler" -> {Indeterminate &, "WarningMessage" -> False}
+);
+
+
+(* ::Subsubsection:: *)
+(*PlotOptions*)
+
+
+PlotOptions::usage = (
+  "PlotOptions[type]\n"
+  <> "Returns sensible options for a plot of type type, "
+  <> "either Axes or Frame."
+);
+
+
+PlotOptions[Axes] = {
+  AxesLabel -> Italicised @ {"x", "y"},
+  LabelStyle -> Directive[Black, 16]
+};
+
+
+PlotOptions[Frame] = {
+  AspectRatio -> Automatic,
+  FrameLabel -> Italicised @ {"x", "y"},
+  LabelStyle -> Directive[Black, 16],
+  RotateLabel -> False
+};
+
+
+(* ::Subsubsection:: *)
+(*SeekRoot*)
+
+
+SeekRoot::usage = (
+  "SeekRoot[fun, {xMin, xMax}, num (def 1000)]\n"
+  <> "Seeks a numerical root of fun[x] == 0, using FindRoot, \n"
+  <> "over the search interval {xMin, xMax}\n"
+  <> "with num initial subdivisions to determine the best initial guess."
+);
+
+
+SeekRoot[fun_, {xMin_?NumericQ, xMax_?NumericQ}, num : _?NumericQ : 1000] :=
+  Module[{x, xInit},
+    xInit = First @ TakeSmallestBy[
+      Subdivide[xMin, xMax, num] // N, (* numericise for speed *)
+      Abs @* fun,
+      1,
+      ExcludedForms -> Except[_?NumericQ] (* exclude infinities *)
+    ];
+    x /. FindRoot[fun[x], {x, xInit}]
+  ];
+
+
+(* ::Subsubsection:: *)
+(*Way*)
+
+
+Way::usage = (
+  "Way[start, end, prop (def 1/2)]\n"
+  <> "Returns proportion prop of the way from start to end.\n"
+  <> "The default for prop is 1/2 (halfway)."
+);
+
+
+Way[start_, end_, prop_ : 1/2] := (1 - prop) start + (prop) end;
+
+
+(* ::Subsubsection:: *)
+(*End of private scope*)
+
+
+End[];
+
+
+(* ::Subsection:: *)
+(*Protect definitions*)
+
+
+Protect["Conway`*"];
+
+
+(* ::Subsection:: *)
+(*End of package*)
+
+
+EndPackage[];
