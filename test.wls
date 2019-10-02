@@ -6,7 +6,7 @@
 (*https://mathematica.stackexchange.com/a/155268*)
 
 
-SetDirectory @ NotebookDirectory[];
+SetDirectory @ NotebookDirectory[]
 
 
 (* ::Section:: *)
@@ -52,3 +52,45 @@ Way[0, 1]
 
 
 Way["x", "y", "p"]
+
+
+(* ::Section:: *)
+(*Testing Curvilinear.wl*)
+
+
+<< Curvilinear`
+
+
+With[{r = "r", phi = "\[Phi]", x = "x", y = "y"},
+  {
+    XPolar[r, phi],
+    YPolar[r, phi],
+    XYPolar[r, phi],
+    RPolar[x, y],
+    PhiPolar[x, y],
+    RPhiPolar[x, y],
+    HRPolar[r, phi],
+    HPhiPolar[r, phi],
+    ARPolar[r, phi],
+    APhiPolar[r, phi],
+    APhiPolar[r, phi] == Cross @ ARPolar[r, phi]
+  } // TableForm[#, TableDepth -> 1] &
+]
+
+
+With[{u = "u", v = "v", x = "x", y = "y"},
+  {
+    XBipolar[u, v],
+    YBipolar[u, v],
+    XYBipolar[u, v],
+    UBipolar[x, y],
+    VBipolar[x, y],
+    UVBipolar[x, y],
+    HBipolar[u, v],
+    HUBipolar[u, v],
+    HVBipolar[u, v],
+    AUBipolar[u, v],
+    AVBipolar[u, v],
+    AVBipolar[u, v] == Cross @ AUBipolar[u, v] // FullSimplify
+  } // TableForm[#, TableDepth -> 1] &
+]
