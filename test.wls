@@ -61,7 +61,7 @@ Way["x", "y", "p"]
 << Curvilinear`
 
 
-With[{r = "r", phi = "\[Phi]", x = "x", y = "y"},
+Module[{r = \[FormalR], phi = \[FormalPhi], x = \[FormalX], y = \[FormalY]},
   {
     XPolar[r, phi],
     YPolar[r, phi],
@@ -78,7 +78,7 @@ With[{r = "r", phi = "\[Phi]", x = "x", y = "y"},
 ]
 
 
-With[{u = "u", v = "v", x = "x", y = "y"},
+Module[{u = \[FormalU], v = \[FormalV], x = \[FormalX], y = \[FormalY]},
   {
     XBipolar[u, v],
     YBipolar[u, v],
