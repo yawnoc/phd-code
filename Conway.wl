@@ -11,20 +11,13 @@
 
 
 (* ::Section:: *)
-(*TO BE DONE*)
-
-
-(* ::Item:: *)
-(*SeekRootBisection (bisection algorithm)*)
-
-
-(* ::Section:: *)
 (*Improve workflow*)
 
 
 (* ::Text:: *)
 (*Disable annoying floating elements (which pop up when I don't need them)*)
-(*and auto replacements (which result in unreadable \[...] in text editors).*)
+(*and make alternative input auto replacements*)
+(*(to avoid unreadable \[...] representations in text editors).*)
 
 
 SetOptions[
@@ -83,6 +76,7 @@ ClearAll["Conway`*`*"];
   NoExtrapolation,
   PlotOptions,
   SeekRoot,
+  SeekRootBisection,
   Way
 };
 
@@ -272,22 +266,95 @@ PlotOptions[Frame] = {
 
 
 SeekRoot::usage = (
-  "SeekRoot[fun, {xMin, xMax}, num (def 1000)]\n"
-  <> "Seeks a numerical root of fun[x] == 0, using FindRoot, \n"
-  <> "over the search interval {xMin, xMax}\n"
-  <> "with num initial subdivisions to determine the best initial guess."
+  "SeekRoot[fun, {xMin, xMax}, num (def 1000), opts (def N -> True)]\n"
+  <> "Seeks a numerical root of fun[x] == 0, using FindRoot, "
+  <> "over the search interval {xMin, xMax} "
+  <> "with num initial subdivisions to determine the best initial guess.\n"
+  <> "Default option N -> True specifies that initial subdivision points "
+  <> "should be numericised (for speed) before fun is applied."
 );
 
 
-SeekRoot[fun_, {xMin_?NumericQ, xMax_?NumericQ}, num : _?NumericQ : 1000] :=
-  Module[{x, xInit},
+SeekRoot[
+  fun_,
+  {xMin_?NumericQ, xMax_?NumericQ},
+  num : Except[_?OptionQ, _?NumericQ] : 1000,
+  opts : OptionsPattern @ {N -> True}
+] :=
+  Module[{xInit, x},
     xInit = First @ TakeSmallestBy[
-      Subdivide[xMin, xMax, num] // N, (* numericise for speed *)
+      Subdivide[xMin, xMax, num] // If[TrueQ @ OptionValue[N], N, Identity],
       Abs @* fun,
       1,
       ExcludedForms -> Except[_?NumericQ] (* exclude infinities *)
     ];
     x /. FindRoot[fun[x], {x, xInit}]
+  ];
+
+
+(* ::Subsubsection:: *)
+(*SeekRootBisection*)
+
+
+SeekRootBisection::usage = (
+  "SeekRootBisection[fun, {xMin, xMax}, tol (def 10^-6), "
+  <> "opts (def N -> True, \"ReturnIterations\" -> False, "
+  <> "\"ToleranceType\" -> \"Absolute\")]\n"
+  <> "Seeks a numerical root of fun[x] == 0, using the bisection algorithm, "
+  <> "over the search interval {xMin, xMax} with tolerance tol.\n"
+  <> "Default option N -> True specifies that initial endpoints "
+  <> "should be numericised (for speed) before performing the iteration.\n"
+  <> "Default option \"ReturnIterations\" -> \"False\" "
+  <> "specifies that the number of iterations should not be returned.\n"
+  <> "Default option \"ToleranceType\" -> \"Absolute\" "
+  <> "specifies absolute tolerance. "
+  <> "Use \"ToleranceType\" -> \"Relative\" "
+  <> "for tolerance relative to the interval {xMin, xMax}."
+);
+
+
+SeekRootBisection[
+  fun_,
+  {xMin_?NumericQ, xMax_?NumericQ},
+  tol : Except[_?OptionQ, _?NumericQ] : 10^-6,
+  opts : OptionsPattern @ {
+    N -> True,
+    "ReturnIterations" -> False,
+    "ToleranceType" -> "Absolute"
+  }
+] :=
+  Module[{absTol, num, xLeft, xRight, xMid, xSol},
+    (* Tolerance in x *)
+    absTol = tol;
+    If[OptionValue["ToleranceType"] =!= "Absolute",
+      absTol *= xMax - xMin;
+    ];
+    (* Initialise *)
+    num = 1;
+    {xLeft, xRight} = (
+      MinMax @ {xMin, xMax} // If[TrueQ @ OptionValue[N], N, Identity]
+    );
+    While[num < $RecursionLimit,
+      (* New midpoint *)
+      xMid = Way[xLeft, xRight];
+      (* Break if within tolerance *)
+      If[(xRight - xLeft) / 2 < absTol,
+        xSol = xMid;
+        Break[];
+      ];
+      (* New interval *)
+      If[fun[xLeft] fun[xMid] > 0,
+        xLeft = xMid,
+        xRight = xMid
+      ];
+      (* Increment iteration count *)
+      num += 1;
+    ];
+    (* Return *)
+    If[TrueQ @ Not @ OptionValue["ReturnIterations"],
+      xSol,
+      {xSol, num}
+    ]
   ];
 
 

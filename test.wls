@@ -44,6 +44,10 @@ Module[{fun, x},
 ]
 
 
+SeekRootBisection[Cos[#] - # &, {0, 1}]
+SeekRootBisection[Cos[#] - # &, {0, 1}, "ReturnIterations" -> True]
+
+
 Way[0, 1]
 
 
