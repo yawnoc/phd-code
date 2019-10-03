@@ -170,7 +170,7 @@ EmptyAxes[
   {yMin_?NumericQ, yMax_?NumericQ},
   opts : OptionsPattern[Plot]
 ] :=
-  Plot[{}, {x, xMin, xMax},
+  Plot[Indeterminate, {x, xMin, xMax},
     opts,
     PlotRange -> {{xMin, xMax}, {yMin, yMax}},
     PlotOptions[Axes] // Evaluate
@@ -193,7 +193,7 @@ EmptyFrame[
   {yMin_?NumericQ, yMax_?NumericQ},
   opts : OptionsPattern[RegionPlot]
 ] :=
-  RegionPlot[{}, {x, xMin, xMax}, {y, yMin, yMax},
+  RegionPlot[False, {x, xMin, xMax}, {y, yMin, yMax},
     opts,
     PlotOptions[Frame] // Evaluate
   ];
