@@ -44,6 +44,9 @@ Module[{fun, x},
 ]
 
 
+"a + beta" // PrettyString["beta" -> "\[Beta]"]
+
+
 SeekRootBisection[Cos[#] - # &, {0, 1}]
 SeekRootBisection[Cos[#] - # &, {0, 1}, "ReturnIterations" -> True]
 

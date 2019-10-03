@@ -76,6 +76,7 @@ ClearAll["Conway`*`*"];
   Italicised,
   NoExtrapolation,
   PlotOptions,
+  PrettyString,
   SeekRoot,
   SeekRootBisection,
   Way
@@ -274,6 +275,22 @@ PlotOptions[Frame] = {
   LabelStyle -> Directive[Black, 16],
   RotateLabel -> False
 };
+
+
+(* ::Subsubsection:: *)
+(*PrettyString*)
+
+
+PrettyString::usage = (
+  "PrettyString[s1 -> sp1, s2 -> sp2, ...][expr]\n"
+  <> "Performs string replacements {s1 -> sp1, s2 -> sp2, ...} "
+  <> "on all string subparts of expr.\n"
+  <> "To be used to make pretty output with readable input."
+);
+
+
+PrettyString[ruleSeq___Rule][expr_] :=
+  expr /. s_String :> StringReplace[s, {ruleSeq}];
 
 
 (* ::Subsubsection:: *)
