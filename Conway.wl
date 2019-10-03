@@ -72,6 +72,7 @@ ClearAll["Conway`*`*"];
   DomainStart,
   EmptyAxes,
   EmptyFrame,
+  Ex,
   Italicised,
   NoExtrapolation,
   PlotOptions,
@@ -196,6 +197,20 @@ EmptyFrame[
     opts,
     PlotOptions[Frame] // Evaluate
   ];
+
+
+(* ::Subsubsection:: *)
+(*Ex*)
+
+
+Ex::usage = (
+  "Ex[dest, opts]\n"
+  <> "Operator form of Export, equivalent to "
+  <> "Export[dest, #, opts] &"
+);
+
+
+Ex[dest_, opts : OptionsPattern[Export]] := Export[dest, #, opts] &;
 
 
 (* ::Subsubsection:: *)
