@@ -174,11 +174,7 @@ phiTraDer[a_] := Function[{r},
 
 
 phiTraHot["outer"] =
-  With[
-   {a = aHot,
-    eps = 10^-6,
-    phi = \[FormalPhi]
-   },
+  With[{a = aHot, phi = \[FormalPhi]},
     Module[{rMin, rMax, rInit},
       rMin = rSharp[a];
       rMax = 1;
@@ -193,11 +189,7 @@ phiTraHot["outer"] =
 
 
 phiTraHot["inner"] =
-  With[
-   {a = aHot,
-    eps = 10^-6,
-    phi = \[FormalPhi]
-   },
+  With[{a = aHot, phi = \[FormalPhi]},
     Module[{rMin, rMax, rInit},
       rMin = 0;
       rMax = rFlat[a];
@@ -216,11 +208,7 @@ phiTraHot["inner"] =
 
 
 phiTraColdHot["outer"] =
-  With[
-   {a = aColdHot,
-    eps = 10^-6,
-    phi = \[FormalPhi]
-   },
+  With[{a = aColdHot, phi = \[FormalPhi]},
     Module[{rMin, rMax, rInit},
       rMin = rNat;
       rMax = 1;
@@ -235,11 +223,7 @@ phiTraColdHot["outer"] =
 
 
 phiTraColdHot["inner"] =
-  With[
-   {a = aColdHot,
-    eps = 10^-6,
-    phi = \[FormalPhi]
-   },
+  With[{a = aColdHot, phi = \[FormalPhi]},
     Module[{rMin, rMax, rInit},
       rMin = 0;
       rMax = rNat;
@@ -258,11 +242,7 @@ phiTraColdHot["inner"] =
 
 
 phiTraCold =
-  With[
-   {a = aCold,
-    eps = 10^-6,
-    phi = \[FormalPhi]
-   },
+  With[{a = aCold, phi = \[FormalPhi]},
     Module[{rMin, rMax, rInit},
       rMin = 0;
       rMax = 1;
@@ -295,7 +275,7 @@ gifOpts = Sequence[
 
 
 (* ::Subsection:: *)
-(*Global styles*)
+(*Global styles for plots*)
 
 
 textStyle = Style[#, 18] &;
@@ -309,6 +289,7 @@ flatStyle = Darker[Green];
 nonStyle = Directive[Opacity[0.7], LightGray];
 termStyle = Pink;
 unphysStyle = Black;
+inflStyle = Directive[Dashed, Green];
 
 
 upperStyle = Blue;
@@ -541,7 +522,7 @@ Module[
 (*Traced boundary algebra*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsection:: *)
 (*Curvature and radius of inflection*)
 
 
@@ -601,7 +582,7 @@ With[{r = \[FormalR], phi = \[FormalPhi], a = \[FormalCapitalA]},
 ] // Ex["line-curvature-inflection.pdf"]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsection:: *)
 (*Series solution for hot regime outer boundaries*)
 
 
@@ -635,12 +616,77 @@ With[{r = \[FormalR], xi = \[FormalXi], l = \[FormalCapitalL]},
       r -> Subscript[r, "sharp"]
     } // PrettyString["sharp" -> "\[Sharp]"]
   ]
-] // Ex["line-hot-outer-series.pdf"]
+] // Ex["line-hot-traced-outer-series.pdf"]
 
 
 (* ::Section:: *)
 (*Traced boundary plots*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsection:: *)
 (*Hot regime A < A_\[Natural]*)
+
+
+(* ::Subsubsection:: *)
+(*General*)
+
+
+Module[
+ {a,
+  phiOffsetValues,
+  eps, rMaxAss, rMaxUnphys, rMaxNonAss,
+  rMax, rMaxNon, phi
+ },
+  a = aHot;
+  phiOffsetValues = Range[0, 360, 30] Degree // Most;
+  eps = 0.1;
+  rMaxAss = Association[
+    "full" -> 1,
+    "zoom_1" -> rInfl,
+    "zoom_2" -> rFlat[a]
+  ];
+  rMaxNonAss = Association[
+    "full" -> rSharp[a],
+    "zoom_1" -> rInfl (1 + eps),
+    "zoom_2" -> rFlat[a] (1 + eps)
+  ];
+  rMaxUnphys = 1 + eps;
+  Table[
+    rMax = rMaxAss[zoom];
+    rMaxNon = rMaxNonAss[zoom];
+    Show[
+      EmptyFrame[{-rMax, rMax}, {-rMax, rMax},
+        PlotLabel -> BoxedLabel[aIt == a // transStyle[a]]
+      ],
+      (* Unphysical domain *)
+      RegionPlot[RPolar[x, y] > 1,
+        {x, -rMaxUnphys, rMaxUnphys}, {y, -rMaxUnphys, rMaxUnphys},
+        BoundaryStyle -> None,
+        PlotStyle -> unphysStyle
+      ],
+      (* Non-viable domain *)
+      RegionPlot[vi[a] @ RPolar[x, y] < 0,
+        {x, -rMaxNon, rMaxNon}, {y, -rMaxNon, rMaxNon},
+        BoundaryStyle -> termStyle,
+        PlotStyle -> nonStyle
+      ],
+      (* Traced boundaries *)
+      Table[
+        phi = phiTraHot[id];
+        ParametricPlot[
+          {
+            XYPolar[r, phi[r] + phiOffset],
+            XYPolar[r, -phi[r] + phiOffset]
+          } // Evaluate, {r, DomainStart[phi], DomainEnd[phi]},
+          PlotStyle -> {upperStyle, lowerStyle}
+        ]
+      , {phiOffset, phiOffsetValues}
+      , {id, {"outer", "inner"}}],
+      (* Radius of inflection *)
+      ContourPlot[RPolar[x, y] == rInfl,
+        {x, -rInfl, rInfl}, {y, -rInfl, rInfl},
+        ContourStyle -> inflStyle
+      ]
+    ] // Ex["line-hot-traced-" <> zoom <> ".pdf"]
+  , {zoom, Keys[rMaxAss]}]
+]
