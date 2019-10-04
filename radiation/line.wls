@@ -527,6 +527,70 @@ Module[
 
 
 (* ::Section:: *)
+(*Traced boundary algebra*)
+
+
+(* ::Subsubsection:: *)
+(*Curvature and radius of inflection*)
+
+
+(* ::Text:: *)
+(*See Page r2-8.*)
+
+
+With[{r = \[FormalR], phi = \[FormalPhi], a = \[FormalCapitalA]},
+  Module[
+   {ar, aphi, d, dSimp, vel, acc, comp, cur,
+    phiDer, phiDer2, curEval, rInfl,
+    brevity
+   },
+    (* Local orthogonal basis *)
+    {ar, aphi};
+    (* Abbreviation for r-derivative *)
+    d = Dt[#, r, Constants -> a] &;
+    (* Simplification rules *)
+    dSimp = {
+      d[ar] -> phi'[r] aphi,
+      d[aphi] -> -phi'[r] ar
+    };
+    (* Velocity and acceleration *)
+    vel = ar + r phi'[r] aphi;
+    acc = d[vel] /. dSimp;
+    (* Components for local (r, \[Phi], z) basis *)
+    comp = {
+      ar -> {1, 0, 0},
+      aphi -> {0, 1, 0}
+    };
+    {vel, acc} = {vel, acc} /. comp;
+    (* Curvature *)
+    cur = Last @ Cross[vel, acc];
+    (* \[Phi]' and \[Phi]'' *)
+    phiDer = phiTraDer[a][r];
+    phiDer2 = d[phiDer] // FullSimplify;
+    (* Curvature evaluated *)
+    curEval = cur /. {
+      phi'[r] -> phiDer,
+      phi''[r] -> phiDer2
+    } // FullSimplify;
+    (* Radius of inflection *)
+    rInfl = r /. Solve[curEval == 0 && 0 < r < 1, r];
+    (* For brevity *)
+    brevity = {Log[r] -> \[FormalCapitalL]};
+    (* Table of results *)
+    {
+      {"Curvature", cur},
+      {"phi'", phiDer},
+      {"phi''", phiDer2},
+      {"Curvature", curEval},
+      {"r_i", rInfl}
+    } /. brevity
+      // PrettyString["phi" -> "\[Phi]"]
+      // TableForm
+  ]
+] // Ex["line-curvature-inflection.pdf"]
+
+
+(* ::Section:: *)
 (*Traced boundary plots*)
 
 
