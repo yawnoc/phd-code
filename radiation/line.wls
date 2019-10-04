@@ -130,6 +130,17 @@ With[{a = \[FormalCapitalA]},
 
 
 (* ::Subsection:: *)
+(*r_i (inflection radius)*)
+
+
+(* ::Text:: *)
+(*See (r2.32).*)
+
+
+rInfl = Exp[-2];
+
+
+(* ::Subsection:: *)
 (*\[CapitalPhi] (viability)*)
 
 
@@ -588,6 +599,43 @@ With[{r = \[FormalR], phi = \[FormalPhi], a = \[FormalCapitalA]},
       // TableForm
   ]
 ] // Ex["line-curvature-inflection.pdf"]
+
+
+(* ::Subsubsection:: *)
+(*Series solution for hot regime outer boundaries*)
+
+
+(* ::Text:: *)
+(*See (r2.33) (Page r2-9).*)
+
+
+With[{r = \[FormalR], xi = \[FormalXi], l = \[FormalCapitalL]},
+  Module[{nMax, psiSeries, a, sqrtSeries, phiDerSeries, phiSeries, negLog},
+    nMax = 8;
+    (* Series for \[Psi](r_\[Sharp] + \[Xi]) *)
+    psiSeries = psi[r + xi] + O[xi] ^ nMax;
+    (* By construction, \[Psi](r_\[Sharp]) == A *)
+    a = psi[r];
+    (* Series for sqrt(A^2 - \[Psi]^2(r_\[Sharp] + \[Xi])) *)
+    sqrtSeries = Sqrt[a^2 - psiSeries^2];
+    (* Series for d\[Phi]/d\[Xi] (see (r2.23a)) *)
+    phiDerSeries = psiSeries / ((r + xi) sqrtSeries);
+    (* Series for \[Phi] *)
+    phiSeries = Integrate[phiDerSeries, xi];
+    (* Simplification *)
+    phiSeries = phiSeries /. {Log[r] -> -negLog};
+    phiSeries =
+      Block[{$Assumptions = rNat < r < 1 && 0 < negLog < 4},
+        FullSimplify /@ phiSeries
+      ];
+    phiSeries = phiSeries /. {negLog -> -Log[r]};
+    phiSeries = Factor /@ phiSeries;
+    phiSeries /. {
+      Log[r] -> Subscript[l, "sharp"],
+      r -> Subscript[r, "sharp"]
+    } // PrettyString["sharp" -> "\[Sharp]"]
+  ]
+] // Ex["line-hot-outer-series.pdf"]
 
 
 (* ::Section:: *)
