@@ -767,3 +767,59 @@ Module[
     ] // Ex["line-cold_hot-traced-" <> zoom <> ".pdf"]
   , {zoom, Keys[rMaxAss]}]
 ]
+
+
+(* ::Subsection:: *)
+(*Cold regime A > A_\[Natural]*)
+
+
+(* ::Subsubsection:: *)
+(*General*)
+
+
+Module[
+ {a,
+  phiOffsetValues,
+  eps, rMaxAss, rMaxUnphys,
+  rMax, phi
+ },
+  a = aCold;
+  phiOffsetValues = Range[0, 360, 30] Degree // Most;
+  eps = 0.1;
+  rMaxAss = Association[
+    "full" -> 1,
+    "zoom_1" -> rInfl,
+    "zoom_2" -> 2 rNat
+  ];
+  rMaxUnphys = 1 + eps;
+  Table[
+    rMax = rMaxAss[zoom];
+    Show[
+      EmptyFrame[{-rMax, rMax}, {-rMax, rMax},
+        PlotLabel -> BoxedLabel[aIt == a // transStyle[a]]
+      ],
+      (* Unphysical domain *)
+      RegionPlot[RPolar[x, y] > 1,
+        {x, -rMaxUnphys, rMaxUnphys}, {y, -rMaxUnphys, rMaxUnphys},
+        BoundaryStyle -> None,
+        PlotStyle -> unphysStyle
+      ],
+      (* Traced boundaries *)
+      Table[
+        phi = phiTraCold;
+        ParametricPlot[
+          {
+            XYPolar[r, phi[r] + phiOffset],
+            XYPolar[r, -phi[r] + phiOffset]
+          } // Evaluate, {r, DomainStart[phi], DomainEnd[phi]},
+          PlotStyle -> {upperStyle, lowerStyle}
+        ]
+      , {phiOffset, phiOffsetValues}],
+      (* Radius of inflection *)
+      ContourPlot[RPolar[x, y] == rInfl,
+        {x, -rInfl, rInfl}, {y, -rInfl, rInfl},
+        ContourStyle -> inflStyle
+      ]
+    ] // Ex["line-cold-traced-" <> zoom <> ".pdf"]
+  , {zoom, Keys[rMaxAss]}]
+]
