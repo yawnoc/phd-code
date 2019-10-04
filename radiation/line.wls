@@ -690,3 +690,80 @@ Module[
     ] // Ex["line-hot-traced-" <> zoom <> ".pdf"]
   , {zoom, Keys[rMaxAss]}]
 ]
+
+
+(* ::Subsection:: *)
+(*Cold-to-hot transition A = A_\[Natural]*)
+
+
+(* ::Subsubsection:: *)
+(*General*)
+
+
+Module[
+ {a,
+  phiOffsetValues,
+  eps, rMaxAss, rMaxNonAss, rMaxUnphys,
+  rMax, rMaxNon, phi
+ },
+  a = aColdHot;
+  phiOffsetValues = Range[0, 360, 30] Degree // Most;
+  eps = 0.1;
+  rMaxAss = Association[
+    "full" -> 1,
+    "zoom_1" -> rInfl,
+    "zoom_2" -> rFlat[a]
+  ];
+  rMaxNonAss = Association[
+    "full" -> rSharp[a],
+    "zoom_1" -> rInfl (1 + eps),
+    "zoom_2" -> rFlat[a] (1 + eps)
+  ];
+  rMaxUnphys = 1 + eps;
+  Table[
+    rMax = rMaxAss[zoom];
+    rMaxNon = rMaxNonAss[zoom];
+    Show[
+      EmptyFrame[{-rMax, rMax}, {-rMax, rMax},
+        PlotLabel -> BoxedLabel[aIt == N[a] // transStyle[a]]
+      ],
+      (* Unphysical domain *)
+      RegionPlot[RPolar[x, y] > 1,
+        {x, -rMaxUnphys, rMaxUnphys}, {y, -rMaxUnphys, rMaxUnphys},
+        BoundaryStyle -> None,
+        PlotStyle -> unphysStyle
+      ],
+      (* Non-viable domain *)
+      RegionPlot[vi[a] @ RPolar[x, y] < 0,
+        {x, -rMaxNon, rMaxNon}, {y, -rMaxNon, rMaxNon},
+        BoundaryStyle -> termStyle,
+        PlotStyle -> nonStyle
+      ],
+      (* Traced boundaries *)
+      Table[
+        phi = phiTraColdHot[id];
+        ParametricPlot[
+          {
+            XYPolar[r, phi[r] + phiOffset],
+            XYPolar[r, -phi[r] + phiOffset]
+          } // Evaluate, {r, DomainStart[phi], DomainEnd[phi]},
+          PlotStyle -> {upperStyle, lowerStyle},
+          RegionFunction -> Function[{x, y},
+            Abs[RPolar[x, y] - rNat] > 10^-3 // Evaluate
+          ]
+        ]
+      , {phiOffset, phiOffsetValues}
+      , {id, {"outer", "inner"}}],
+      (* Radius of inflection *)
+      ContourPlot[RPolar[x, y] == rInfl,
+        {x, -rInfl, rInfl}, {y, -rInfl, rInfl},
+        ContourStyle -> inflStyle
+      ],
+      (* Transition terminal curve *)
+      ContourPlot[RPolar[x, y] == rNat,
+        {x, -rMaxNon, rMaxNon}, {y, -rMaxNon, rMaxNon},
+        ContourStyle -> termStyle
+      ]
+    ] // Ex["line-cold_hot-traced-" <> zoom <> ".pdf"]
+  , {zoom, Keys[rMaxAss]}]
+]
