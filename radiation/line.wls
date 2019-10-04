@@ -140,6 +140,140 @@ vi[a_] := Function[{r},
 
 
 (* ::Subsection:: *)
+(*Representative values of A*)
+
+
+aHot = 3;
+aColdHot = aNat;
+aCold = 5;
+aHot < aColdHot < aCold
+
+
+(* ::Subsection:: *)
+(*Traced boundary \[Phi] = \[Phi](r)*)
+
+
+phiTraDer[a_] := Function[{r},
+  -psi[r] / (r Sqrt[a^2 - psi[r]^2]) // Evaluate
+] // Evaluate;
+
+
+(* ::Subsubsection:: *)
+(*Hot regime A < A_\[Natural]*)
+
+
+phiTraHot["outer"] =
+  With[
+   {a = aHot,
+    eps = 10^-6,
+    phi = \[FormalPhi]
+   },
+    Module[{rMin, rMax, rInit},
+      rMin = rSharp[a];
+      rMax = 1;
+      rInit = Way[rMin, rMax];
+      NDSolveValue[
+        {phi'[r] == phiTraDer[a][r], phi[rInit] == 0},
+        phi, {r, rMin, rMax},
+        NoExtrapolation
+      ]
+    ]
+  ];
+
+
+phiTraHot["inner"] =
+  With[
+   {a = aHot,
+    eps = 10^-6,
+    phi = \[FormalPhi]
+   },
+    Module[{rMin, rMax, rInit},
+      rMin = 0;
+      rMax = rFlat[a];
+      rInit = Way[rMin, rMax];
+      NDSolveValue[
+        {phi'[r] == phiTraDer[a][r], phi[rInit] == 0},
+        phi, {r, rMin, rMax},
+        NoExtrapolation
+      ]
+    ]
+  ];
+
+
+(* ::Subsubsection:: *)
+(*Cold-to-hot transition A = A_\[Natural]*)
+
+
+phiTraColdHot["outer"] =
+  With[
+   {a = aColdHot,
+    eps = 10^-6,
+    phi = \[FormalPhi]
+   },
+    Module[{rMin, rMax, rInit},
+      rMin = rNat;
+      rMax = 1;
+      rInit = Way[rMin, rMax];
+      NDSolveValue[
+        {phi'[r] == phiTraDer[a][r], phi[rInit] == 0},
+        phi, {r, rMin, rMax},
+        NoExtrapolation
+      ]
+    ]
+  ];
+
+
+phiTraColdHot["inner"] =
+  With[
+   {a = aColdHot,
+    eps = 10^-6,
+    phi = \[FormalPhi]
+   },
+    Module[{rMin, rMax, rInit},
+      rMin = 0;
+      rMax = rNat;
+      rInit = Way[rMin, rMax];
+      NDSolveValue[
+        {phi'[r] == phiTraDer[a][r], phi[rInit] == 0},
+        phi, {r, rMin, rMax},
+        NoExtrapolation
+      ]
+    ]
+  ];
+
+
+(* ::Subsubsection:: *)
+(*Cold regime A > A_\[Natural]*)
+
+
+phiTraCold =
+  With[
+   {a = aCold,
+    eps = 10^-6,
+    phi = \[FormalPhi]
+   },
+    Module[{rMin, rMax, rInit},
+      rMin = 0;
+      rMax = 1;
+      rInit = Way[rMin, rMax];
+      NDSolveValue[
+        {phi'[r] == phiTraDer[a][r], phi[rInit] == 0},
+        phi, {r, rMin, rMax},
+        NoExtrapolation
+      ]
+    ]
+  ];
+
+
+(* ::Subsection:: *)
+(*Italicised symbols*)
+
+
+aIt = Italicised["A"];
+rIt = Italicised["r"];
+
+
+(* ::Subsection:: *)
 (*Options for exported GIFS*)
 
 
@@ -166,7 +300,11 @@ termStyle = Pink;
 unphysStyle = Black;
 
 
-transStyle = Function[{a}, If[a == aNat, Style[#, Red] &, Identity]]
+upperStyle = Blue;
+lowerStyle = Red;
+
+
+transStyle = Function[{a}, If[a == aNat, Style[#, Red] &, Identity]];
 
 
 (* ::Section:: *)
@@ -202,43 +340,38 @@ With[{r = \[FormalR]},
 (*Plot*)
 
 
-With[
- {rIt = Italicised["r"],
-  aIt = Italicised["A"]
- },
-  Show[
-    (* psi *)
-    Plot[psi[r], {r, 0, 1},
-      AxesLabel -> {rIt, aIt},
-      PlotRange -> All,
-      PlotRangeClipping -> False,
-      PlotStyle -> Blue,
-      PlotOptions[Axes] // Evaluate
-    ],
-    (* rNat *)
-    Graphics @ {Directive[Dashed, natStyle],
-      Line @ {{rNat, 0}, {rNat, aNat}}
-    },
-    Graphics @ {natStyle,
-      Text[
-        Subscript[rIt, "Nat"] // textStyle,
-        {rNat, 0},
-        {-0.7, 0.8}
-      ]
-    },
-    (* aNat *)
-    Graphics @ {Directive[Dashed, natStyle],
-      Line @ {{rNat, aNat}, {0, aNat}}
-    },
-    Graphics @ {natStyle,
-      Text[
-        Subscript[aIt, "Nat"] // textStyle,
-        {0, aNat},
-        {1.3, 0}
-      ]
-    }
-  ] // PrettyString["Nat" -> "\[Natural]"]
-] // Ex["line-psi.pdf"]
+Show[
+  (* psi *)
+  Plot[psi[r], {r, 0, 1},
+    AxesLabel -> {rIt, aIt},
+    PlotRange -> All,
+    PlotRangeClipping -> False,
+    PlotStyle -> Blue,
+    PlotOptions[Axes] // Evaluate
+  ],
+  (* rNat *)
+  Graphics @ {Directive[Dashed, natStyle],
+    Line @ {{rNat, 0}, {rNat, aNat}}
+  },
+  Graphics @ {natStyle,
+    Text[
+      Subscript[rIt, "Nat"] // textStyle,
+      {rNat, 0},
+      {-0.7, 0.8}
+    ]
+  },
+  (* aNat *)
+  Graphics @ {Directive[Dashed, natStyle],
+    Line @ {{rNat, aNat}, {0, aNat}}
+  },
+  Graphics @ {natStyle,
+    Text[
+      Subscript[aIt, "Nat"] // textStyle,
+      {0, aNat},
+      {1.3, 0}
+    ]
+  }
+] // PrettyString["Nat" -> "\[Natural]"] // Ex["line-psi.pdf"]
 
 
 (* ::Section:: *)
@@ -249,11 +382,8 @@ With[
 (*Plot (radial space)*)
 
 
-With[
- {eps = 0.07,
-  rIt = Italicised["r"],
-  aIt = Italicised["A"]
- },
+Module[{eps},
+  eps = 0.07;
   Show[
     EmptyFrame[{0, (1 + eps) aNat}, {0, 1 + eps},
       AspectRatio -> 1,
@@ -304,103 +434,101 @@ With[
 (*Animations*)
 
 
-With[
- {eps = 0.1,
-  rIt = Italicised["r"],
-  aIt = Italicised["A"]
+Module[
+ {aMin, aMax, aStep,
+  aValues,
+  eps, rMax, rMaxUnphys, rMaxNon
  },
-  Module[
-   {aMin, aMax, aStep,
-    aValues,
-    rMax, rMaxUnphys, rMaxNon
-   },
-    (* Values of A *)
-    aMin = 1/5;
-    aMax = Ceiling[aNat];
-    aStep = 1/5;
-    aValues = Range[aMin, aMax, aStep];
-    aValues = Append[aValues, aNat] // Sort[#, Less] &;
-    (* Animation *)
-    Table[
-      rMax = 1;
-      rMaxUnphys = 1 + eps;
-      rMaxNon = If[a < aNat, rSharp[a], rNat];
-      Show[
-        EmptyFrame[{-rMax, rMax}, {-rMax, rMax},
-          PlotLabel -> BoxedLabel @ transStyle[a][aIt == N[a]]
-        ],
-        (* Unphysical domain *)
-        RegionPlot[RPolar[x, y] > 1,
-          {x, -rMaxUnphys, rMaxUnphys}, {y, -rMaxUnphys, rMaxUnphys},
-          BoundaryStyle -> None,
-          PlotStyle -> unphysStyle
-        ],
-        (* Non-viable domain *)
-        RegionPlot[vi[a] @ RPolar[x, y] < 0,
+  (* Values of A *)
+  aMin = 1/5;
+  aMax = Ceiling[aNat];
+  aStep = 1/5;
+  aValues = Range[aMin, aMax, aStep];
+  aValues = Append[aValues, aNat] // Sort[#, Less] &;
+  (* Animation *)
+  Table[
+    eps = 0.1;
+    rMax = 1;
+    rMaxUnphys = 1 + eps;
+    rMaxNon = If[a < aNat, rSharp[a], rNat];
+    Show[
+      EmptyFrame[{-rMax, rMax}, {-rMax, rMax},
+        PlotLabel -> BoxedLabel @ transStyle[a][aIt == N[a]]
+      ],
+      (* Unphysical domain *)
+      RegionPlot[RPolar[x, y] > 1,
+        {x, -rMaxUnphys, rMaxUnphys}, {y, -rMaxUnphys, rMaxUnphys},
+        BoundaryStyle -> None,
+        PlotStyle -> unphysStyle
+      ],
+      (* Non-viable domain *)
+      RegionPlot[vi[a] @ RPolar[x, y] < 0,
+        {x, -rMaxNon, rMaxNon}, {y, -rMaxNon, rMaxNon},
+        BoundaryStyle -> termStyle,
+        PlotStyle -> nonStyle
+      ],
+      (* Transition terminal curve *)
+      If[a == aNat,
+        ContourPlot[RPolar[x, y] == rNat,
           {x, -rMaxNon, rMaxNon}, {y, -rMaxNon, rMaxNon},
-          BoundaryStyle -> termStyle,
-          PlotStyle -> nonStyle
+          ContourStyle -> termStyle
         ],
-        (* Transition terminal curve *)
-        If[a == aNat,
-          ContourPlot[RPolar[x, y] == rNat,
-            {x, -rMaxNon, rMaxNon}, {y, -rMaxNon, rMaxNon},
-            ContourStyle -> termStyle
-          ],
-          {}
-        ]
+        {}
       ]
-    , {a, aValues}]
-  ]
+    ]
+  , {a, aValues}]
 ] // Ex["line-viable-full.gif", gifOpts]
 
 
-With[
- {eps = 0.1,
-  rIt = Italicised["r"],
-  aIt = Italicised["A"]
+Module[
+ {aMin, aMax, aStep,
+  aValues,
+  eps, rMax, rMaxUnphys, rMaxNon
  },
-  Module[
-   {aMin, aMax, aStep,
-    aValues,
-    rMax, rMaxUnphys, rMaxNon
-   },
-    (* Values of A *)
-    aMin = Floor[aNat];
-    aMax = Ceiling[aNat];
-    aStep = 1/10;
-    aValues = Range[aMin, aMax, aStep];
-    aValues = Append[aValues, aNat] // Sort[#, Less] &;
-    (* Animation *)
-    Table[
-      rMax = 2 rNat;
-      rMaxUnphys = 1 + eps;
-      rMaxNon = If[a < aNat, rSharp[a], rNat];
-      Show[
-        EmptyFrame[{-rMax, rMax}, {-rMax, rMax},
-          PlotLabel -> BoxedLabel @ transStyle[a][aIt == N[a]]
-        ],
-        (* Unphysical domain *)
-        RegionPlot[RPolar[x, y] > 1,
-          {x, -rMaxUnphys, rMaxUnphys}, {y, -rMaxUnphys, rMaxUnphys},
-          BoundaryStyle -> None,
-          PlotStyle -> unphysStyle
-        ],
-        (* Non-viable domain *)
-        RegionPlot[vi[a] @ RPolar[x, y] < 0,
+  (* Values of A *)
+  aMin = Floor[aNat];
+  aMax = Ceiling[aNat];
+  aStep = 1/10;
+  aValues = Range[aMin, aMax, aStep];
+  aValues = Append[aValues, aNat] // Sort[#, Less] &;
+  (* Animation *)
+  Table[
+    eps = 0.1;
+    rMax = 2 rNat;
+    rMaxUnphys = 1 + eps;
+    rMaxNon = If[a < aNat, rSharp[a], rNat];
+    Show[
+      EmptyFrame[{-rMax, rMax}, {-rMax, rMax},
+        PlotLabel -> BoxedLabel @ transStyle[a][aIt == N[a]]
+      ],
+      (* Unphysical domain *)
+      RegionPlot[RPolar[x, y] > 1,
+        {x, -rMaxUnphys, rMaxUnphys}, {y, -rMaxUnphys, rMaxUnphys},
+        BoundaryStyle -> None,
+        PlotStyle -> unphysStyle
+      ],
+      (* Non-viable domain *)
+      RegionPlot[vi[a] @ RPolar[x, y] < 0,
+        {x, -rMaxNon, rMaxNon}, {y, -rMaxNon, rMaxNon},
+        BoundaryStyle -> termStyle,
+        PlotStyle -> nonStyle
+      ],
+      (* Transition terminal curve *)
+      If[a == aNat,
+        ContourPlot[RPolar[x, y] == rNat,
           {x, -rMaxNon, rMaxNon}, {y, -rMaxNon, rMaxNon},
-          BoundaryStyle -> termStyle,
-          PlotStyle -> nonStyle
+          ContourStyle -> termStyle
         ],
-        (* Transition terminal curve *)
-        If[a == aNat,
-          ContourPlot[RPolar[x, y] == rNat,
-            {x, -rMaxNon, rMaxNon}, {y, -rMaxNon, rMaxNon},
-            ContourStyle -> termStyle
-          ],
-          {}
-        ]
+        {}
       ]
-    , {a, aValues}]
-  ]
+    ]
+  , {a, aValues}]
 ] // Ex["line-viable-zoom.gif", gifOpts]
+
+
+(* ::Section:: *)
+(*Traced boundary plots*)
+
+
+(* ::Subsubsection:: *)
+(*Hot regime A < A_\[Natural]*)
