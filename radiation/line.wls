@@ -139,6 +139,36 @@ vi[a_] := Function[{r},
 ] // Evaluate;
 
 
+(* ::Subsection:: *)
+(*Options for exported GIFS*)
+
+
+gifOpts = Sequence[
+  AnimationRepetitions -> Infinity,
+  "DisplayDurations" -> 0.5
+];
+
+
+(* ::Subsection:: *)
+(*Global styles*)
+
+
+textStyle = Style[#, 18] &;
+
+
+natStyle = Red;
+sharpStyle = Magenta;
+flatStyle = Darker[Green];
+
+
+nonStyle = Directive[Opacity[0.7], LightGray];
+termStyle = Pink;
+unphysStyle = Black;
+
+
+transStyle = Function[{a}, If[a == aNat, Style[#, Red] &, Identity]]
+
+
 (* ::Section:: *)
 (*\[Psi]*)
 
@@ -174,9 +204,7 @@ With[{r = \[FormalR]},
 
 With[
  {rIt = Italicised["r"],
-  aIt = Italicised["A"],
-  textStyle = Style[#, 18] &,
-  natStyle = Red
+  aIt = Italicised["A"]
  },
   Show[
     (* psi *)
@@ -224,12 +252,7 @@ With[
 With[
  {eps = 0.07,
   rIt = Italicised["r"],
-  aIt = Italicised["A"],
-  textStyle = Style[#, 18] &,
-  sharpStyle = Magenta,
-  flatStyle = Darker[Green],
-  nonStyle = LightGray,
-  unphysStyle = Black
+  aIt = Italicised["A"]
  },
   Show[
     EmptyFrame[{0, (1 + eps) aNat}, {0, 1 + eps},
@@ -275,3 +298,109 @@ With[
     }
   ] // PrettyString["Sharp" -> "\[Sharp]", "Flat" -> "\[Flat]"]
 ] // Ex["line-viable-r.pdf"]
+
+
+(* ::Subsection:: *)
+(*Animations*)
+
+
+With[
+ {eps = 0.1,
+  rIt = Italicised["r"],
+  aIt = Italicised["A"]
+ },
+  Module[
+   {aMin, aMax, aStep,
+    aValues,
+    rMax, rMaxUnphys, rMaxNon
+   },
+    (* Values of A *)
+    aMin = 1/5;
+    aMax = Ceiling[aNat];
+    aStep = 1/5;
+    aValues = Range[aMin, aMax, aStep];
+    aValues = Append[aValues, aNat] // Sort[#, Less] &;
+    (* Animation *)
+    Table[
+      rMax = 1;
+      rMaxUnphys = 1 + eps;
+      rMaxNon = If[a < aNat, rSharp[a], rNat];
+      Show[
+        EmptyFrame[{-rMax, rMax}, {-rMax, rMax},
+          PlotLabel -> BoxedLabel @ transStyle[a][aIt == N[a]]
+        ],
+        (* Unphysical domain *)
+        RegionPlot[RPolar[x, y] > 1,
+          {x, -rMaxUnphys, rMaxUnphys}, {y, -rMaxUnphys, rMaxUnphys},
+          BoundaryStyle -> None,
+          PlotStyle -> unphysStyle
+        ],
+        (* Non-viable domain *)
+        RegionPlot[vi[a] @ RPolar[x, y] < 0,
+          {x, -rMaxNon, rMaxNon}, {y, -rMaxNon, rMaxNon},
+          BoundaryStyle -> termStyle,
+          PlotStyle -> nonStyle
+        ],
+        (* Transition terminal curve *)
+        If[a == aNat,
+          ContourPlot[RPolar[x, y] == rNat,
+            {x, -rMaxNon, rMaxNon}, {y, -rMaxNon, rMaxNon},
+            ContourStyle -> termStyle
+          ],
+          {}
+        ]
+      ]
+    , {a, aValues}]
+  ]
+] // Ex["line-viable-full.gif", gifOpts]
+
+
+With[
+ {eps = 0.1,
+  rIt = Italicised["r"],
+  aIt = Italicised["A"]
+ },
+  Module[
+   {aMin, aMax, aStep,
+    aValues,
+    rMax, rMaxUnphys, rMaxNon
+   },
+    (* Values of A *)
+    aMin = Floor[aNat];
+    aMax = Ceiling[aNat];
+    aStep = 1/10;
+    aValues = Range[aMin, aMax, aStep];
+    aValues = Append[aValues, aNat] // Sort[#, Less] &;
+    (* Animation *)
+    Table[
+      rMax = 2 rNat;
+      rMaxUnphys = 1 + eps;
+      rMaxNon = If[a < aNat, rSharp[a], rNat];
+      Show[
+        EmptyFrame[{-rMax, rMax}, {-rMax, rMax},
+          PlotLabel -> BoxedLabel @ transStyle[a][aIt == N[a]]
+        ],
+        (* Unphysical domain *)
+        RegionPlot[RPolar[x, y] > 1,
+          {x, -rMaxUnphys, rMaxUnphys}, {y, -rMaxUnphys, rMaxUnphys},
+          BoundaryStyle -> None,
+          PlotStyle -> unphysStyle
+        ],
+        (* Non-viable domain *)
+        RegionPlot[vi[a] @ RPolar[x, y] < 0,
+          {x, -rMaxNon, rMaxNon}, {y, -rMaxNon, rMaxNon},
+          BoundaryStyle -> termStyle,
+          PlotStyle -> nonStyle
+        ],
+        (* Transition terminal curve *)
+        If[a == aNat,
+          ContourPlot[RPolar[x, y] == rNat,
+            {x, -rMaxNon, rMaxNon}, {y, -rMaxNon, rMaxNon},
+            ContourStyle -> termStyle
+          ],
+          {}
+        ]
+      ]
+    , {a, aValues}]
+  ]
+] // Ex["line-viable-zoom.gif", gifOpts]
