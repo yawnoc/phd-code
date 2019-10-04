@@ -862,6 +862,147 @@ Module[
 ] // Ex["line-hot-traced-convex-generic-with-known.png"]
 
 
+(* ::Subsubsection:: *)
+(*Convex (regular) without known solution*)
+
+
+Module[
+ {a, rSh,
+  mod2Pi,
+  phi,
+  rSpike, phiSpike, phiCentre, phiHalfWidth,
+  rMax, eps, rMaxNon
+ },
+  a = aHot;
+  rSh = rSharp[a];
+  Table[
+    mod2Pi = Mod[#, 2 Pi] &;
+    phi[r_] := phiTraHot["outer"][r];
+    rSpike = SeekRoot[
+      phi[(1 + 10^-6) rSh] -  phi[#] - Pi / nSpike &,
+      {rSh, rInfl}
+    ];
+    phiSpike = phi[rSpike];
+    phiHalfWidth = Pi / nSpike;
+    phiCentre[n_] := n * 2 phiHalfWidth;
+    rMax = rInfl;
+    eps = 0.1;
+    rMaxNon = rInfl (1 + eps);
+    Show[
+      EmptyFrame[{-rMax, rMax}, {-rMax, rMax},
+        PlotLabel -> BoxedLabel[aIt == a // transStyle[a]]
+      ],
+      (* Non-viable domain *)
+      RegionPlot[vi[a] @ RPolar[x, y] < 0,
+        {x, -rMaxNon, rMaxNon}, {y, -rMaxNon, rMaxNon},
+        BoundaryStyle -> termStyle,
+        PlotStyle -> nonStyle
+      ],
+      (* Traced boundaries (spikes) *)
+      Table[
+        phi[r_] := phiTraHot["outer"][r] - phiSpike;
+        ParametricPlot[
+          {
+            XYPolar[r, phiCentre[n] +  phi[r]],
+            XYPolar[r, phiCentre[n] -  phi[r]]
+          } // Evaluate, {r, rSh, rSpike},
+          PlotStyle -> convexStyle
+        ]
+      , {n, 0, nSpike - 1}],
+      (* Radius of inflection *)
+      ContourPlot[RPolar[x, y] == rInfl,
+        {x, -rInfl, rInfl}, {y, -rInfl, rInfl},
+        ContourStyle -> inflStyle
+      ]
+    ] // Ex[
+      "line-hot-traced-convex-regular-"
+      <> ToString[nSpike]
+      <> ".pdf"
+    ]
+  , {nSpike, 4, 8}]
+]
+
+
+(* ::Subsubsection:: *)
+(*Convex (regular) with known solution*)
+
+
+Module[
+ {a, rSh,
+  mod2Pi,
+  phi,
+  rSpike, phiSpike, phiCentre, phiHalfWidth,
+  rMax, eps, rMaxNon, rBath
+ },
+  a = aHot;
+  rSh = rSharp[a];
+  Table[
+    mod2Pi = Mod[#, 2 Pi] &;
+    phi[r_] := phiTraHot["outer"][r];
+    rSpike = SeekRoot[
+      phi[(1 + 10^-6) rSh] -  phi[#] - Pi / nSpike &,
+      {rSh, rInfl}
+    ];
+    phiSpike = phi[rSpike];
+    phiHalfWidth = Pi / nSpike;
+    phiCentre[n_] := n * 2 phiHalfWidth;
+    rMax = rInfl;
+    eps = 0.1;
+    rMaxNon = rInfl (1 + eps);
+    rBath = rSh / 2;
+    Show[
+      EmptyFrame[{-rMax, rMax}, {-rMax, rMax},
+        PlotLabel -> BoxedLabel[aIt == a // transStyle[a]]
+      ],
+      (* Non-viable domain *)
+      RegionPlot[vi[a] @ RPolar[x, y] < 0,
+        {x, -rMaxNon, rMaxNon}, {y, -rMaxNon, rMaxNon},
+        BoundaryStyle -> termStyle,
+        PlotStyle -> nonStyle
+      ],
+    (* Known solution *)
+    DensityPlot[-Log @ RPolar[x, y],
+      {x, -rMax, rMax}, {y, -rMax, rMax},
+      ColorFunction -> "TemperatureMap",
+      RegionFunction -> Function[{x, y},
+        RPolar[x, y] > rBath && Or[
+          RPolar[x, y] < rSh,
+          Sequence @@ Table[
+            phi[r_] := phiTraHot["outer"][r] - phiSpike;
+            Less[
+              phiCentre[n] - phi @ RPolar[x, y],
+              PhiPolar[x, y] // If[n > (nSpike - 1) / 2, mod2Pi, Identity],
+              phiCentre[n] + phi @ RPolar[x, y]
+            ]
+          , {n, 0, nSpike - 1}]
+        ] // Evaluate
+      ]
+    ],
+      (* Traced boundaries (spikes) *)
+      Table[
+        phi[r_] := phiTraHot["outer"][r] - phiSpike;
+        ParametricPlot[
+          {
+            XYPolar[r, phiCentre[n] +  phi[r]],
+            XYPolar[r, phiCentre[n] -  phi[r]]
+          } // Evaluate, {r, rSh, rSpike},
+          PlotStyle -> convexStyle
+        ]
+      , {n, 0, nSpike - 1}],
+      (* Radius of inflection *)
+      ContourPlot[RPolar[x, y] == rInfl,
+        {x, -rInfl, rInfl}, {y, -rInfl, rInfl},
+        ContourStyle -> inflStyle
+      ]
+    ] // Ex[
+      "line-hot-traced-convex-regular-"
+      <> ToString[nSpike]
+      <> "-with-known.png"
+    ]
+  , {nSpike, 4, 8}]
+]
+
+
 (* ::Subsection:: *)
 (*Cold-to-hot transition A = A_\[Natural]*)
 
