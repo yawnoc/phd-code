@@ -64,6 +64,9 @@ aNatPi = Function[{v}, 4 v^3 / Sinh[v]] @ vNatPi;
 (*See Sections 4.1.1 and 4.1.2 of r3 (Page r3-6).*)
 
 
+(* The argument a to vFlatPi and vSharpPi must be EXACT. *)
+
+
 vFlatPi[a_] /; a <= aNatPi :=
   InverseFunction[
     Function[{v},
@@ -128,6 +131,9 @@ aNat0 = Function[{v}, 4 v^3 / Sinh[v]] @ vNat0;
 (*See Sections 4.1.1 to 4.1.4 of r3 (Pages r3-6 and r3-7).*)
 
 
+(* The argument a to vFlat0 and vSharp0 must be EXACT. *)
+
+
 vFlat0[a_] /; a <= aNat0 :=
   InverseFunction[
     Function[{v},
@@ -164,6 +170,176 @@ vFlat0[aNat0] == vNat0 == vSharp0[aNat0]
 
 vi[a_] := Function[{u, v},
   (Cosh[v] - Cos[u])^2 - v^8 / a^2
+];
+
+
+(* ::Subsection:: *)
+(*Representative values of A*)
+
+
+aHot = 9;
+aWarmHot = aNatPi;
+aWarm = 9 + 1/2;
+aColdWarm = aNat0;
+aCold = 10;
+aHot < aWarmHot < aWarm < aColdWarm < aCold
+
+
+(* ::Subsection:: *)
+(*Traced boundary derivative dv/du*)
+
+
+(* ::Text:: *)
+(*See (r3.53) (Page r3-9).*)
+
+
+vTraDer[a_] := Function[{u, v},
+  (a / v^4) Sqrt @ vi[a][u, v] // Evaluate
+] // Evaluate;
+
+
+(* ::Subsection:: *)
+(*Starting points for boundary tracing*)
+
+
+(* ::Subsubsection:: *)
+(*System of ODES for terminal curve \[CapitalPhi] = 0*)
+
+
+(* ::Text:: *)
+(*See (57) and (58) (Page 13 of manuscripts/boundary-tracing.pdf)*)
+(*for arc length parametrisation of a contour.*)
+
+
+viContourSystem[a_, sSign_: 1] :=
+  With[{u = \[FormalU], v = \[FormalV], s = \[FormalS]},
+    Module[{h, fun, p, q, slope},
+      (* Scale factor for bipolar coordinates *)
+      h = HBipolar[u, v];
+      (* Scalar function \[CapitalPhi] whose contours are sought *)
+      fun = vi[a][u, v];
+      (* Components of the gradient vector *)
+      p = (1 / h) D[fun, u];
+      q = (1 / h) D[fun, v];
+      (* Magnitude of the gradient vector *)
+      slope = Sqrt[p^2 + q^2];
+      (* Return system of ODEs *)
+      {
+        u' == q / (h slope),
+        v' == -p / (h slope)
+      } /. {
+        u' -> Sign[sSign] u'[s],
+        v' -> Sign[sSign] v'[s],
+        u -> u[s],
+        v -> v[s],
+        List -> Sequence
+      }
+    ]
+  ] // Evaluate;
+
+
+(* ::Subsubsection:: *)
+(*Hot regime A < A_\[Natural]\[Pi]*)
+
+
+(* Starting points along outer terminal curve *)
+startUVHot["outer"] =
+  With[{u = \[FormalU], v = \[FormalV], s = \[FormalS]},
+    Module[{a, nmax, smax, uvTerm},
+      a = aHot;
+      nmax = 16;
+      (* Upper bound for arc length traversed *)
+      smax = 2 Pi (XBipolar[0, vFlat0[a]] - 1);
+      (* Outer terminal curve *)
+      uvTerm =
+        NDSolveValue[
+          {
+            viContourSystem[a, -1],
+            u[0] == 0, v[0] == vFlat0[a],
+            WhenEvent[u[s] == 2 Pi, "StopIntegration"]
+          }, {u, v}, {s, 0, smax},
+          NoExtrapolation
+        ];
+      (* Actual arc length traversed *)
+      smax = DomainEnd[uvTerm];
+      (* Starting points on the outer terminal curve *)
+      Table[
+        uvTerm[s] // Through // Rationalize[#, 0] &
+      , {s, Subdivide[0, smax, nmax]}] // Most
+    ]
+  ];
+
+
+(* Starting points along inner terminal curve *)
+startUVHot["inner"] =
+  With[{u = \[FormalU], v = \[FormalV], s = \[FormalS]},
+    Module[{a, nmax, smax, uvTerm},
+      a = aHot;
+      nmax = 16;
+      (* Upper bound for arc length traversed *)
+      smax = 2 Pi (XBipolar[0, vSharpPi[a]] - 1);
+      (* Outer terminal curve *)
+      uvTerm =
+        NDSolveValue[
+          {
+            viContourSystem[a],
+            u[0] == 0, v[0] == vSharp0[a],
+            WhenEvent[u[s] == 2 Pi, "StopIntegration"]
+          }, {u, v}, {s, 0, smax},
+          NoExtrapolation
+        ];
+      (* Actual arc length traversed *)
+      smax = DomainEnd[uvTerm];
+      (* Starting points on the outer terminal curve *)
+      Table[
+        uvTerm[s] // Through // Rationalize[#, 0] &
+      , {s, Subdivide[0, smax, nmax]}] // Most
+    ]
+  ];
+
+
+(* Starting points along axis *)
+startUVHot["axis"] =
+  Module[{a, xOuter, xValues},
+    a = aHot;
+    xOuter = XBipolar[0, vFlat0[a]];
+    xValues =
+      Join[
+        Subdivide[1, 17/16, 4],
+        {9/8, 5/4, 3/2, 2}
+      ] xOuter;
+    Table[{0, VBipolar[x, 0]}, {x, xValues}]
+  ];
+
+
+(* ::Subsection:: *)
+(*Traced boundary v = v(u)*)
+
+
+(* ::Subsubsection:: *)
+(*Hot regime A < A_\[Natural]\[Pi]*)
+
+
+With[{v = \[FormalV]},
+  Module[{a, uvInitList, viTol, uInit, vInit},
+    a = aHot;
+    Table[
+      uvInitList = startUVHot[id];
+      viTol = vi[a] @@@ uvInitList // Min;
+      vTraHot[id] =
+        Table[
+          {uInit, vInit} = uvInit;
+          NDSolveValue[
+            {
+              v'[u] == Re @ vTraDer[a][u, v[u]],
+              v[uInit] == vInit,
+              WhenEvent[vi[a][u, v[u]] < viTol, "StopIntegration"]
+            }, v, {u, uInit - 2 Pi, uInit + 2 Pi},
+            NoExtrapolation
+          ]
+        , {uvInit, uvInitList}];
+    , {id, {"outer", "inner", "axis"}}]
+  ];
 ];
 
 
