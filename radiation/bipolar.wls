@@ -419,3 +419,166 @@ Module[
     ]
   , {v, vValues}]
 ] // Ex["bipolar-sweep-v.gif", gifOpts]
+
+
+(* ::Section:: *)
+(*Critical terminal points*)
+
+
+(* TO BE CHECKED *)
+Module[
+ {aCold, aWarm, aHot,
+  vMin, vMax,
+  regList,
+  aAss,
+  a, nString,
+  pointAlongCurve, lineToAxis, textBelowAxis
+ },
+  (* Non-borderline representative values of A *)
+  aCold = Ceiling[1.1 aNat0, 1/2];
+  aWarm = Way[aNatPi, aNat0];
+  aHot = Floor[0.95 aNatPi, 1/2];
+  (* Horizontal plot range *)
+  vMin = Floor[vFlat0[aHot], 1/2];
+  vMax = Ceiling[vSharp0[aHot], 1/2];
+  (* List of regimes *)
+  regList = {"hot", "warm_hot", "warm", "cold_warm", "cold"};
+  (* Associations for various quantities *)
+  aAss = AssociationThread[regList -> {aHot, aNatPi, aWarm, aNat0, aCold}];
+  (* Plots for all five regimes *)
+  Table[
+    a = aAss[reg];
+    nString = ToString @ First @ FirstPosition[regList, reg];
+    pointAlongCurve = Point @ {#, #^4 / a} &;
+    lineToAxis = Line @ {{#, #^4 / a}, {#, 0}} &;
+    textBelowAxis = Function[{v, sub},
+      Text[
+        Subscript[
+          vIt,
+          sub // PrettyString[
+            "Sharp" -> "\[Sharp]",
+            "Nat" -> "\[Natural]",
+            "Flat" -> "\[Flat]",
+            "Pi" -> "\[Pi]"
+          ]
+        ] // textStyle,
+        {v, 0},
+        {0, 2.5}
+      ]
+    ];
+    Show[
+      (* Functions of v *)
+      Plot[{Cosh[v] + 1, Cosh[v] - 1, v^4 / a}, {v, vMin, vMax},
+        AxesLabel -> {vIt, Null},
+        ImageSize -> 640,
+        PlotLabel -> BoxedLabel[
+          Row[
+            {aIt == N[a], reg // PrettyString["_" -> "-to-"] // ""},
+            "  "
+          ] // transStyle[a]
+        ],
+        PlotLegends -> {
+          Row[{Cosh[vIt] + 1, uIt == Pi // ""}, "  "],
+          Row[{Cosh[vIt] - 1, uIt == 0 // ""}, "  "],
+          Row[{vIt^4, aIt}, "/"]
+        },
+        PlotRange -> All,
+        PlotRangeClipping -> False,
+        PlotStyle -> {lighter[Blue], lighter[Red], Black},
+        PlotOptions[Axes] // Evaluate
+      ],
+      (* Critical terminal points along u == 0 *)
+      Which[
+        (* Two distinct terminal points *)
+        a < aNat0,
+        {
+          (* v_\[Flat]0 *)
+          Graphics @ {Directive[flat0Style, pointStyle],
+            pointAlongCurve @ vFlat0[a]
+          },
+          Graphics @ {Directive[flat0Style, guideStyle],
+            lineToAxis @ vFlat0[a]
+          },
+          Graphics @ {flat0Style,
+            textBelowAxis[vFlat0[a], "Flat0"]
+          },
+          (* v_\[Sharp]0 *)
+          Graphics @ {Directive[sharp0Style, pointStyle],
+            pointAlongCurve @ vSharp0[a]
+          },
+          Graphics @ {Directive[sharp0Style, guideStyle],
+            lineToAxis @ vSharp0[a]
+          },
+          Graphics @ {sharp0Style,
+            textBelowAxis[vSharp0[a], "Sharp0"]
+          }
+        },
+        (* One terminal point *)
+        a == aNat0,
+        {
+          (* v_\[Natural]0 *)
+          Graphics @ {Directive[natStyle, pointStyle],
+            pointAlongCurve @ vNat0
+          },
+          Graphics @ {Directive[natStyle, guideStyle],
+            lineToAxis @ vNat0
+          },
+          Graphics @ {natStyle,
+            textBelowAxis[vNat0, "Nat0"]
+          }
+        },
+        (* Zero terminal points *)
+        True,
+        {}
+      ],
+      (* Critical terminal points along u == \[Pi] *)
+      Which[
+        (* Two distinct terminal points *)
+        a < aNatPi,
+        {
+          (* v_\[Flat]\[Pi] *)
+          Graphics @ {Directive[flatPiStyle, pointStyle],
+            pointAlongCurve @ vFlatPi[a]
+          },
+          Graphics @ {Directive[flatPiStyle, guideStyle],
+            lineToAxis @ vFlatPi[a]
+          },
+          Graphics @ {flatPiStyle,
+            textBelowAxis[vFlatPi[a], "FlatPi"]
+          },
+          (* v_\[Sharp]\[Pi] *)
+          Graphics @ {Directive[sharpPiStyle, pointStyle],
+            pointAlongCurve @ vSharpPi[a]
+          },
+          Graphics @ {Directive[sharpPiStyle, guideStyle],
+            lineToAxis @ vSharpPi[a]
+          },
+          Graphics @ {sharpPiStyle,
+            textBelowAxis[vSharpPi[a], "SharpPi"]
+          }
+        },
+        (* One terminal point *)
+        a == aNatPi,
+        {
+          (* v_\[Natural]\[Pi] *)
+          Graphics @ {Directive[natStyle, pointStyle],
+            pointAlongCurve @ vNatPi
+          },
+          Graphics @ {Directive[natStyle, guideStyle],
+            lineToAxis @ vNatPi
+          },
+          Graphics @ {natStyle,
+            textBelowAxis[vNatPi, "NatPi"]
+          }
+        },
+        (* Zero terminal points *)
+        True,
+        {
+          Graphics @ {Transparent (* for consistent plot height *),
+            textBelowAxis[vNatPi, "NatPi"]
+          }
+        }
+      ]
+    ] // Ex @ StringJoin["bipolar-critical-", nString, "-", reg, ".pdf"]
+  , {reg, regList}]
+]
