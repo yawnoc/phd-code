@@ -155,6 +155,19 @@ vFlat0[aNat0] == vNat0 == vSharp0[aNat0]
 
 
 (* ::Subsection:: *)
+(*\[CapitalPhi] (viability)*)
+
+
+(* ::Text:: *)
+(*See (r3.39) (Page r3-5).*)
+
+
+vi[a_] := Function[{u, v},
+  (Cosh[v] - Cos[u])^2 - v^8 / a^2
+];
+
+
+(* ::Subsection:: *)
 (*Italicised symbols*)
 
 
@@ -425,7 +438,6 @@ Module[
 (*Critical terminal points*)
 
 
-(* TO BE CHECKED *)
 Module[
  {aCold, aWarm, aHot,
   vMin, vMax,
@@ -582,3 +594,59 @@ Module[
     ] // Ex @ StringJoin["bipolar-critical-", nString, "-", reg, ".pdf"]
   , {reg, regList}]
 ]
+
+
+(* ::Section:: *)
+(*Viable domain animations*)
+
+
+Module[
+ {aMin, aMax, aStep,
+  aValues,
+  xMax, yMax,
+  eps, xMaxUnphys, yMaxUnphys,
+  xMinNon, xMaxNon, yMaxNon
+ },
+  (* Values of A *)
+  aMin = 1;
+  aMax = 10;
+  aStep = 1/4;
+  aValues = Range[aMin, aMax, aStep];
+  aValues = Join[aValues, {aNat0, aNatPi}] // Sort[#, Less] &;
+  (* Animation *)
+  Table[
+    (* Plot range *)
+    xMax = 3.5;
+    yMax = 2.5;
+    (* Plot range for unphysical domain *)
+    eps = 0.1;
+    xMaxUnphys = xMax (1 + eps);
+    yMaxUnphys = yMax (1 + eps);
+    (* Plot range for non-viable domain *)
+    (* (these bounds are merely guesses which work) *)
+    xMinNon = If[a < aNatPi, vFlatPi[a], vNatPi] // 0.9 XBipolar[Pi, #] &;
+    xMaxNon = If[a < aNat0, vFlat0[a], vNat0] // 1.01 XBipolar[0, #] &;
+    yMaxNon = (xMaxNon - xMinNon) / 2;
+    (* Plot *)
+    Show[
+      EmptyFrame[{-xMax, xMax}, {-yMax, yMax},
+        PlotLabel -> BoxedLabel @ transStyle[a][aIt == N[a]]
+      ],
+      (* Unphysical domain *)
+      RegionPlot[x < 0,
+        {x, -xMaxUnphys, eps}, {y, -yMaxUnphys, yMaxUnphys},
+        BoundaryStyle -> None,
+        PlotStyle -> unphysStyle
+      ],
+      (* All u-contours and v-contours *)
+      uContours,
+      vContours,
+      (* Non-viable domain *)
+      RegionPlot[vi[a] @@ UVBipolar[x, y] < 0,
+        {x, xMinNon, xMaxNon}, {y, -yMaxNon, yMaxNon},
+        BoundaryStyle -> termStyle,
+        PlotStyle -> nonStyle
+      ]
+    ]
+  , {a, aValues}]
+] // Ex["bipolar-viable-full.gif", gifOpts]
