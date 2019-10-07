@@ -99,13 +99,14 @@ Begin["`Private`"];
 
 
 BoxedLabel::usage = (
-  "BoxedLabel[expr]\n"
+  "BoxedLabel[expr, opts]\n"
   <> "Returns framed version of the expression expr.\n"
   <> "To be used for PlotLabel."
 );
 
 
-BoxedLabel[expr_] := Framed[expr, ImageMargins -> {{0, 0}, {10, 0}}];
+BoxedLabel[expr_, opts : OptionsPattern[Framed]] :=
+  Framed[expr, ImageMargins -> {{0, 0}, {10, 0}}, opts];
 
 
 (* ::Subsubsection:: *)
