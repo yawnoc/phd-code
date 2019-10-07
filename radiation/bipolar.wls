@@ -650,3 +650,134 @@ Module[
     ]
   , {a, aValues}]
 ] // Ex["bipolar-viable-full.gif", gifOpts]
+
+
+Module[
+ {aMin, aMax, aStep,
+  aValues,
+  pointAlongAxis, textAboveBelowAxis,
+  xMin, xMax, yMax,
+  xMinNon, xMaxNon, yMaxNon
+ },
+  (* Values of A *)
+  aMin = 8;
+  aMax = 10;
+  aStep = 1/10;
+  aValues = Range[aMin, aMax, aStep];
+  aValues = Join[aValues, {aNat0, aNatPi}] // Sort[#, Less] &;
+  (* Graphics abbreviations *)
+  pointAlongAxis[u_, v_] := Point @ {XYBipolar[u, v]};
+  textAboveBelowAxis[u_, v_, sub_, ysign_: 1] :=
+    Text[
+      Subscript[
+        vIt,
+        sub // PrettyString[
+          "Sharp" -> "\[Sharp]",
+          "Nat" -> "\[Natural]",
+          "Flat" -> "\[Flat]",
+          "Pi" -> "\[Pi]"
+        ]
+      ] // textStyle // BoxedLabel[#, Background -> White] &,
+      XYBipolar[u, v],
+      {0, -Sign[ysign] 1.7}
+    ];
+  (* Animation *)
+  Table[
+    (* Plot range *)
+    xMin = vFlatPi[aMin] // 0.99 XBipolar[Pi, #] &;
+    xMax = vFlat0[aMin] // 1.01 XBipolar[0, #] &;
+    yMax = (xMax - xMin) / 2;
+    (* Plot range for non-viable domain *)
+    (* (these bounds are merely guesses which work) *)
+    xMinNon = If[a < aNatPi, vFlatPi[a], vNatPi] // 0.9 XBipolar[Pi, #] &;
+    xMaxNon = If[a < aNat0, vFlat0[a], vNat0] // 1.01 XBipolar[0, #] &;
+    yMaxNon = (xMaxNon - xMinNon) / 2;
+    (* Plot *)
+    Show[
+      EmptyFrame[{xMin, xMax}, {-yMax, yMax},
+        ImageSize -> 480,
+        PlotLabel -> BoxedLabel @ transStyle[a][aIt == N[a]]
+      ],
+      (* All u-contours and v-contours *)
+      uContours,
+      vContours,
+      (* Non-viable domain *)
+      RegionPlot[vi[a] @@ UVBipolar[x, y] < 0,
+        {x, xMinNon, xMaxNon}, {y, -yMaxNon, yMaxNon},
+        BoundaryStyle -> termStyle,
+        PlotPoints -> 50,
+        PlotStyle -> nonStyle
+      ],
+      (* Critical terminal points along u == 0 *)
+      Which[
+        (* Two distinct terminal points *)
+        a < aNat0,
+        {
+          (* v_\[Flat]0 *)
+          Graphics @ {Directive[flat0Style, pointStyle],
+            pointAlongAxis[0, vFlat0[a]]
+          },
+          Graphics @ {flat0Style,
+            textAboveBelowAxis[0, vFlat0[a], "Flat0", -1]
+          },
+          (* v_\[Sharp]0 *)
+          Graphics @ {Directive[sharp0Style, pointStyle],
+            pointAlongAxis[0, vSharp0[a]]
+          },
+          Graphics @ {sharp0Style,
+            textAboveBelowAxis[0, vSharp0[a], "Sharp0"]
+          }
+        },
+        (* One terminal point *)
+        a == aNat0,
+        {
+          (* v_\[Natural]0 *)
+          Graphics @ {Directive[natStyle, pointStyle],
+            pointAlongAxis[0, vNat0]
+          },
+          Graphics @ {natStyle,
+            textAboveBelowAxis[0, vNat0, "Nat0"]
+          }
+        },
+        (* Zero terminal points *)
+        True,
+        {}
+      ],
+      (* Critical terminal points along u == \[Pi] *)
+      Which[
+        (* Two distinct terminal points *)
+        a < aNatPi,
+        {
+          (* v_\[Flat]\[Pi] *)
+          Graphics @ {Directive[flatPiStyle, pointStyle],
+            pointAlongAxis[Pi, vFlatPi[a]]
+          },
+          Graphics @ {flatPiStyle,
+            textAboveBelowAxis[Pi, vFlatPi[a], "FlatPi"]
+          },
+          (* v_\[Sharp]\[Pi] *)
+          Graphics @ {Directive[sharpPiStyle, pointStyle],
+            pointAlongAxis[Pi, vSharpPi[a]]
+          },
+          Graphics @ {sharpPiStyle,
+            textAboveBelowAxis[Pi, vSharpPi[a], "SharpPi", -1]
+          }
+        },
+        (* One terminal point *)
+        a == aNatPi,
+        {
+          (* v_\[Natural]\[Pi] *)
+          Graphics @ {Directive[natStyle, pointStyle],
+            pointAlongAxis[Pi, vNatPi]
+          },
+          Graphics @ {natStyle,
+            textAboveBelowAxis[Pi, vNatPi, "NatPi"]
+          }
+        },
+        (* Zero terminal points *)
+        True,
+        {}
+      ]
+    ]
+  , {a, aValues}]
+] // Ex["bipolar-viable-zoom.gif", gifOpts]
