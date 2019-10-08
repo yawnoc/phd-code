@@ -317,7 +317,7 @@ startUVHot["axis"] =
     xOuter = XBipolar[0, vFlat0[a]];
     xValues =
       Join[
-        Subdivide[1, 17/16, 4],
+        Subdivide[1, 17/16, 4] // Rest,
         {9/8, 5/4, 3/2, 2}
       ] xOuter;
     Table[{0, VBipolar[x, 0]}, {x, xValues}]
@@ -978,6 +978,58 @@ Module[
 
 (* ::Subsection:: *)
 (*Hot regime A < A_\[Natural]\[Pi]*)
+
+
+(* ::Subsubsection:: *)
+(*Starting points*)
+
+
+Module[
+ {a,
+  xMin, xMax, yMax,
+  xMinNon, xMaxNon, yMaxNon,
+  idList
+ },
+  a = aHot;
+  (* Plot range *)
+  xMin = vFlatPi[a] // 0.99 XBipolar[Pi, #] &;
+  xMax = vFlat0[a] // 1.07 XBipolar[0, #] &;
+  yMax = (xMax - xMin) / 2;
+  (* Plot range for non-viable domain *)
+  xMinNon = vFlatPi[a] // 0.9 XBipolar[Pi, #] &;
+  xMaxNon = vFlat0[a] // 1.01 XBipolar[0, #] &;
+  yMaxNon = (xMaxNon - xMinNon) / 2;
+  (* Group names *)
+  idList = {"outer", "inner", "axis", "hyperbolic"};
+  (* Plot *)
+  Show[
+    EmptyFrame[{xMin, xMax}, {-yMax, yMax},
+      ImageSize -> 480,
+      PlotLabel -> BoxedLabel @ transStyle[a][aIt == N[a]]
+    ],
+    (* All u-contours and v-contours *)
+    uContours,
+    vContours,
+    (* Non-viable domain *)
+    RegionPlot[vi[a] @@ UVBipolar[x, y] < 0,
+      {x, xMinNon, xMaxNon}, {y, -yMaxNon, yMaxNon},
+      BoundaryStyle -> termStyle,
+      PlotStyle -> nonStyle
+    ],
+    (* Starting points *)
+    ListPlot[
+      Table[
+        XYBipolar @@@ startUVHot[id]
+      , {id, idList}],
+      LabelingFunction -> Function @ Placed[
+        #2[[2]],
+        If[#2[[1]] == 4, Left, Center]
+      ],
+      PlotLegends -> idList,
+      PlotStyle -> Directive[Opacity[0.7], pointStyle]
+    ]
+  ]
+] // Ex["bipolar-hot-traced-starting.pdf"]
 
 
 (* ::Subsubsection:: *)
