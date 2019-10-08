@@ -290,7 +290,7 @@ startUVHot["inner"] =
       nmax = 16;
       (* Upper bound for arc length traversed *)
       smax = 2 Pi (XBipolar[0, vSharpPi[a]] - 1);
-      (* Outer terminal curve *)
+      (* Inner terminal curve *)
       uvTerm =
         NDSolveValue[
           {
@@ -314,6 +314,102 @@ startUVHot["inner"] =
 startUVHot["axis"] =
   Module[{a, xOuter, xValues},
     a = aHot;
+    xOuter = XBipolar[0, vFlat0[a]];
+    xValues =
+      Join[
+        Subdivide[1, 17/16, 4] // Rest,
+        {9/8, 5/4, 3/2, 2}
+      ] xOuter;
+    Table[{0, VBipolar[x, 0]}, {x, xValues}]
+  ];
+
+
+(* ::Subsubsection:: *)
+(*Warm-to-hot transition A = A_\[Natural]\[Pi]*)
+
+
+(* Starting points which are hyperbolic critical terminal points *)
+(* (the two critical terminal points along u == 0) *)
+startUVWarmHot["hyperbolic"] =
+  Module[{a},
+    a = aWarmHot;
+    {
+      {0, vSharp0[a]},
+      {0, vFlat0[a]}
+    } // N // Rationalize[#, 0] &
+  ];
+
+
+(* Starting points along outer terminal curve *)
+startUVWarmHot["outer"] =
+  With[{u = \[FormalU], v = \[FormalV], s = \[FormalS]},
+    Module[{a, nmax, smax, vPert, uvTerm},
+      a = aWarmHot;
+      nmax = 16;
+      (* Upper bound for arc length traversed *)
+      (* (between -smax and smax to avoid pincer at vNatPi) *)
+      smax = Pi (XBipolar[0, vFlat0[a]] - 1);
+      (* Prevent sharp turn at vNatPi *)
+      vPert = 10^-6;
+      (* Outer terminal curve *)
+      uvTerm =
+        NDSolveValue[
+          {
+            viContourSystem[a, -1],
+            u[0] == 0, v[0] == vFlat0[a] - vPert,
+            WhenEvent[Abs @ u[s] == Pi, "StopIntegration"]
+          }, {u, v}, {s, -smax, smax},
+          NoExtrapolation
+        ];
+      (* Actual arc length traversed *)
+      smax = DomainEnd[uvTerm];
+      (* Starting points on the outer terminal curve *)
+      Table[
+        uvTerm[s] // Through // Rationalize[#, 0] &
+      , {s, Subdivide[-smax, smax, nmax]}]
+        // Most
+        // RotateLeft[#, nmax / 2] &
+    ]
+  ];
+
+
+(* Starting points along inner terminal curve *)
+startUVWarmHot["inner"] =
+  With[{u = \[FormalU], v = \[FormalV], s = \[FormalS]},
+    Module[{a, nmax, smax, vPert, uvTerm},
+      a = aWarmHot;
+      nmax = 16;
+      (* Upper bound for arc length traversed *)
+      (* (between -smax and smax to avoid pincer at vNatPi) *)
+      smax = Pi (XBipolar[Pi, vSharpPi[a]] - 1);
+      (* Prevent sharp turn at vNatPi *)
+      vPert = 10^-6;
+      (* Inner terminal curve *)
+      uvTerm =
+        NDSolveValue[
+          {
+            viContourSystem[a],
+            u[0] == 0, v[0] == vSharp0[a] + vPert,
+            WhenEvent[Abs @ u[s] == Pi, "StopIntegration"]
+          }, {u, v}, {s, -smax, smax},
+          NoExtrapolation
+        ];
+      (* Actual arc length traversed *)
+      smax = DomainEnd[uvTerm];
+      (* Starting points on the outer terminal curve *)
+      Table[
+        uvTerm[s] // Through // Rationalize[#, 0] &
+      , {s, Subdivide[-smax, smax, nmax]}]
+        // Most
+        // RotateLeft[#, nmax / 2] &
+    ]
+  ];
+
+
+(* Starting points along axis *)
+startUVWarmHot["axis"] =
+  Module[{a, xOuter, xValues},
+    a = aWarmHot;
     xOuter = XBipolar[0, vFlat0[a]];
     xValues =
       Join[
@@ -1301,3 +1397,60 @@ Module[
     ]
   ]
 ] // Ex["bipolar-hot-traced-convex-with-known.png"]
+
+
+(* ::Subsection:: *)
+(*Warm-to-hot transition A = A_\[Natural]\[Pi]*)
+
+
+(* ::Subsubsection:: *)
+(*Starting points*)
+
+
+Module[
+ {a,
+  xMin, xMax, yMax,
+  xMinNon, xMaxNon, yMaxNon,
+  idList
+ },
+  a = aWarmHot;
+  (* Plot range *)
+  xMin = vFlatPi[a] // 0.99 XBipolar[Pi, #] &;
+  xMax = vFlat0[a] // 1.07 XBipolar[0, #] &;
+  yMax = (xMax - xMin) / 2;
+  (* Plot range for non-viable domain *)
+  xMinNon = vNatPi // 0.9 XBipolar[Pi, #] &;
+  xMaxNon = vFlat0[a] // 1.01 XBipolar[0, #] &;
+  yMaxNon = (xMaxNon - xMinNon) / 2;
+  (* Group names *)
+  idList = {"outer", "inner", "axis", "hyperbolic"};
+  (* Plot *)
+  Show[
+    EmptyFrame[{xMin, xMax}, {-yMax, yMax},
+      ImageSize -> 480,
+      PlotLabel -> BoxedLabel @ transStyle[a][aIt == N[a]]
+    ],
+    (* All u-contours and v-contours *)
+    uContours,
+    vContours,
+    (* Non-viable domain *)
+    RegionPlot[vi[a] @@ UVBipolar[x, y] < 0,
+      {x, xMinNon, xMaxNon}, {y, -yMaxNon, yMaxNon},
+      BoundaryStyle -> termStyle,
+      PlotPoints -> 50,
+      PlotStyle -> nonStyle
+    ],
+    (* Starting points *)
+    ListPlot[
+      Table[
+        XYBipolar @@@ startUVWarmHot[id]
+      , {id, idList}],
+      LabelingFunction -> Function @ Placed[
+        #2[[2]],
+        If[#2[[1]] == 4, Left, Center]
+      ],
+      PlotLegends -> idList,
+      PlotStyle -> Directive[Opacity[0.7], pointStyle]
+    ]
+  ]
+] // Ex["bipolar-warm_hot-traced-starting.pdf"]
