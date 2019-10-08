@@ -242,6 +242,18 @@ viContourSystem[a_, sSign_: 1] :=
 (*Hot regime A < A_\[Natural]\[Pi]*)
 
 
+(* Starting points which are hyperbolic critical terminal points *)
+(* (the two critical terminal points along u == 0) *)
+startUVHot["hyperbolic"] =
+  Module[{a},
+    a = aHot;
+    {
+      {0, vSharp0[a]},
+      {0, vFlat0[a]}
+    } // N // Rationalize[#, 0] &
+  ];
+
+
 (* Starting points along outer terminal curve *)
 startUVHot["outer"] =
   With[{u = \[FormalU], v = \[FormalV], s = \[FormalS]},
@@ -338,7 +350,7 @@ With[{v = \[FormalV]},
             NoExtrapolation
           ]
         , {uvInit, uvInitList}];
-    , {id, {"outer", "inner", "axis"}}]
+    , {id, {"hyperbolic", "outer", "inner", "axis"}}]
   ];
 ];
 
@@ -454,6 +466,7 @@ convexStyle = Black;
 
 guideStyle = Dashed;
 pointStyle = PointSize[Large];
+glowStyle = Directive[Thick, Yellow, Opacity[0.7]];
 
 
 uStyle = Blue;
@@ -957,3 +970,179 @@ Module[
     ]
   , {a, aValues}]
 ] // Ex["bipolar-viable-zoom.gif", gifOpts]
+
+
+(* ::Section:: *)
+(*Traced boundary plots*)
+
+
+(* ::Subsection:: *)
+(*Hot regime A < A_\[Natural]\[Pi]*)
+
+
+(* ::Subsubsection:: *)
+(*General*)
+
+
+Module[
+ {a,
+  xMin, xMax, yMax,
+  eps, xMaxUnphys, yMaxUnphys,
+  xMinNon, xMaxNon, yMaxNon
+ },
+  a = aHot;
+  (* Plot range *)
+  xMin = vFlatPi[a] // 0 XBipolar[Pi, #] &;
+  xMax = vFlat0[a] // 2 XBipolar[0, #] &;
+  yMax = (xMax - xMin) / 2;
+  (* Plot range for unphysical domain *)
+  eps = 0.1;
+  xMaxUnphys = xMax (1 + eps);
+  yMaxUnphys = yMax (1 + eps);
+  (* Plot range for non-viable domain *)
+  xMinNon = If[a < aNatPi, vFlatPi[a], vNatPi] // 0.9 XBipolar[Pi, #] &;
+  xMaxNon = If[a < aNat0, vFlat0[a], vNat0] // 1.01 XBipolar[0, #] &;
+  yMaxNon = (xMaxNon - xMinNon) / 2;
+  (* Plot *)
+  Show[
+    EmptyFrame[{xMin, xMax}, {-yMax, yMax},
+      PlotLabel -> BoxedLabel @ transStyle[a][aIt == N[a]]
+    ],
+    (* Unphysical domain *)
+    RegionPlot[x < 0,
+      {x, -xMaxUnphys, eps}, {y, -yMaxUnphys, yMaxUnphys},
+      BoundaryStyle -> None,
+      PlotStyle -> unphysStyle
+    ],
+    (* All u-contours and v-contours *)
+    uContours,
+    vContours,
+    (* Non-viable domain *)
+    RegionPlot[vi[a] @@ UVBipolar[x, y] < 0,
+      {x, xMinNon, xMaxNon}, {y, -yMaxNon, yMaxNon},
+      BoundaryStyle -> termStyle,
+      PlotStyle -> nonStyle
+    ],
+    (* Traced boundaries *)
+    Table[
+      Table[
+        ParametricPlot[
+          {XYBipolar[u, v[u]], XYBipolar[-u, v[u]]},
+          {u, DomainStart[v], DomainEnd[v]},
+          PlotStyle -> {upperStyle, lowerStyle}
+        ]
+      , {v, vTraHot[id]}]
+    , {id, {"outer", "inner", "axis"}}],
+    Table[
+      Table[
+        ParametricPlot[
+          {XYBipolar[u, v[u]], XYBipolar[-u, v[u]]},
+          {u, DomainStart[v], DomainEnd[v]},
+          PlotStyle -> glowStyle
+        ]
+      , {v, vTraHot[id]}]
+    , {id, {"hyperbolic"}}]
+  ]
+] // Ex["bipolar-hot-traced-full.pdf"]
+
+
+Module[
+ {a,
+  xMin, xMax, yMax,
+  xMinNon, xMaxNon, yMaxNon
+ },
+  a = aHot;
+  (* Plot range *)
+  xMin = vFlatPi[a] // 0.95 XBipolar[Pi, #] &;
+  xMax = vFlat0[a] // 1.05 XBipolar[0, #] &;
+  yMax = (xMax - xMin) / 2;
+  (* Plot range for non-viable domain *)
+  xMinNon = If[a < aNatPi, vFlatPi[a], vNatPi] // 0.9 XBipolar[Pi, #] &;
+  xMaxNon = If[a < aNat0, vFlat0[a], vNat0] // 1.01 XBipolar[0, #] &;
+  yMaxNon = (xMaxNon - xMinNon) / 2;
+  (* Plot *)
+  Show[
+    EmptyFrame[{xMin, xMax}, {-yMax, yMax},
+      PlotLabel -> BoxedLabel @ transStyle[a][aIt == N[a]]
+    ],
+    (* All u-contours and v-contours *)
+    uContours,
+    vContours,
+    (* Non-viable domain *)
+    RegionPlot[vi[a] @@ UVBipolar[x, y] < 0,
+      {x, xMinNon, xMaxNon}, {y, -yMaxNon, yMaxNon},
+      BoundaryStyle -> termStyle,
+      PlotStyle -> nonStyle
+    ],
+    (* Traced boundaries *)
+    Table[
+      Table[
+        ParametricPlot[
+          {XYBipolar[u, v[u]], XYBipolar[-u, v[u]]},
+          {u, DomainStart[v], DomainEnd[v]},
+          PlotStyle -> {upperStyle, lowerStyle}
+        ]
+      , {v, vTraHot[id]}]
+    , {id, {"outer", "inner", "axis"}}],
+    Table[
+      Table[
+        ParametricPlot[
+          {XYBipolar[u, v[u]], XYBipolar[-u, v[u]]},
+          {u, DomainStart[v], DomainEnd[v]},
+          PlotStyle -> glowStyle
+        ]
+      , {v, vTraHot[id]}]
+    , {id, {"hyperbolic"}}]
+  ]
+] // Ex["bipolar-hot-traced-zoom_1.pdf"]
+
+
+Module[
+ {a,
+  xMin, xMax, yMax,
+  xMinNon, xMaxNon, yMaxNon
+ },
+  a = aHot;
+  (* Plot range *)
+  xMin = vSharpPi[a] // 0.995 XBipolar[Pi, #] &;
+  xMax = vSharp0[a] // 1.005 XBipolar[0, #] &;
+  yMax = (xMax - xMin) / 2;
+  (* Plot range for non-viable domain *)
+  xMinNon = If[a < aNatPi, vFlatPi[a], vNatPi] // 0.9 XBipolar[Pi, #] &;
+  xMaxNon = If[a < aNat0, vFlat0[a], vNat0] // 1.01 XBipolar[0, #] &;
+  yMaxNon = (xMaxNon - xMinNon) / 2;
+  (* Plot *)
+  Show[
+    EmptyFrame[{xMin, xMax}, {-yMax, yMax},
+      PlotLabel -> BoxedLabel @ transStyle[a][aIt == N[a]]
+    ],
+    (* All u-contours and v-contours *)
+    uContours,
+    vContours,
+    (* Non-viable domain *)
+    RegionPlot[vi[a] @@ UVBipolar[x, y] < 0,
+      {x, xMinNon, xMaxNon}, {y, -yMaxNon, yMaxNon},
+      BoundaryStyle -> termStyle,
+      PlotStyle -> nonStyle
+    ],
+    (* Traced boundaries *)
+    Table[
+      Table[
+        ParametricPlot[
+          {XYBipolar[u, v[u]], XYBipolar[-u, v[u]]},
+          {u, DomainStart[v], DomainEnd[v]},
+          PlotStyle -> {upperStyle, lowerStyle}
+        ]
+      , {v, vTraHot[id]}]
+    , {id, {"inner"}}],
+    Table[
+      Table[
+        ParametricPlot[
+          {XYBipolar[u, v[u]], XYBipolar[-u, v[u]]},
+          {u, DomainStart[v], DomainEnd[v]},
+          PlotStyle -> glowStyle
+        ]
+      , {v, vTraHot[id]}]
+    , {id, {"hyperbolic"}}]
+  ]
+] // Ex["bipolar-hot-traced-zoom_2.pdf"]
