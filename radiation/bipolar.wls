@@ -1651,3 +1651,108 @@ Module[
     , {id, {"hyperbolic"}}]
   ]
 ] // Ex["bipolar-warm_hot-traced-zoom_2.pdf"]
+
+
+(* ::Subsubsection:: *)
+(*Convex without known solution*)
+
+
+Module[
+ {a,
+  xMin, xMax, yMax,
+  xMinNon, xMaxNon, yMaxNon,
+  v
+ },
+  a = aWarmHot;
+  (* Plot range *)
+  xMin = vNatPi // 0.995 XBipolar[Pi, #] &;
+  xMax = vSharp0[a] // 1.005 XBipolar[0, #] &;
+  yMax = (xMax - xMin) / 2;
+  (* Plot range for non-viable domain *)
+  xMinNon = vNatPi // 0.99 XBipolar[Pi, #] &;
+  xMaxNon = vSharp0[a] // 1.01 XBipolar[0, #] &;
+  yMaxNon = (xMaxNon - xMinNon) / 2;
+  (* Traced boundaries *)
+  v = vTraWarmHot["hyperbolic"] // First;
+  v = Function[{u}, v[-Abs @ u] // Evaluate];
+  (* Plot *)
+  Show[
+    EmptyFrame[{xMin, xMax}, {-yMax, yMax},
+      PlotLabel -> BoxedLabel @ transStyle[a][aIt == N[a]]
+    ],
+    (* All u-contours and v-contours *)
+    uContours,
+    vContours,
+    (* Non-viable domain *)
+    RegionPlot[vi[a] @@ UVBipolar[x, y] < 0,
+      {x, xMinNon, xMaxNon}, {y, -yMaxNon, yMaxNon},
+      BoundaryStyle -> termStyle,
+      PlotPoints -> 70,
+      PlotStyle -> nonStyle
+    ],
+    (* Traced boundaries *)
+    ParametricPlot[
+      XYBipolar[u, v[u]],
+      {u, -Pi, Pi},
+      PlotStyle -> convexStyle
+    ]
+  ]
+] // Ex["bipolar-warm_hot-traced-convex.pdf"]
+
+
+(* ::Subsubsection:: *)
+(*Convex with known solution*)
+
+
+Module[
+ {a,
+  xMin, xMax, yMax,
+  xMinNon, xMaxNon, yMaxNon,
+  v, vBath
+ },
+  a = aWarmHot;
+  (* Plot range *)
+  xMin = vNatPi // 0.995 XBipolar[Pi, #] &;
+  xMax = vSharp0[a] // 1.005 XBipolar[0, #] &;
+  yMax = (xMax - xMin) / 2;
+  (* Plot range for non-viable domain *)
+  xMinNon = vNatPi // 0.99 XBipolar[Pi, #] &;
+  xMaxNon = vSharp0[a] // 1.01 XBipolar[0, #] &;
+  yMaxNon = (xMaxNon - xMinNon) / 2;
+  (* Traced boundaries *)
+  v = vTraWarmHot["hyperbolic"] // First;
+  v = Function[{u}, v[-Abs @ u] // Evaluate];
+  (* Heat bath *)
+  vBath = 1.2 vSharp0[a];
+  (* Plot *)
+  Show[
+    EmptyFrame[{xMin, xMax}, {-yMax, yMax},
+      PlotLabel -> BoxedLabel @ transStyle[a][aIt == N[a]]
+    ],
+    (* All u-contours and v-contours *)
+    uContours,
+    vContours,
+    (* Non-viable domain *)
+    RegionPlot[vi[a] @@ UVBipolar[x, y] < 0,
+      {x, xMinNon, xMaxNon}, {y, -yMaxNon, yMaxNon},
+      BoundaryStyle -> termStyle,
+      PlotPoints -> 70,
+      PlotStyle -> nonStyle
+    ],
+    (* Known solution *)
+    DensityPlot[VBipolar[x, y],
+      {x, xMin, xMax}, {y, -yMax, yMax},
+      ColorFunction -> "TemperatureMap",
+      RegionFunction -> Function[{x, y},
+        v @ UBipolar[x, y] < VBipolar[x, y] < vBath
+          // Evaluate
+      ]
+    ],
+    (* Traced boundaries *)
+    ParametricPlot[
+      XYBipolar[u, v[u]],
+      {u, -Pi, Pi},
+      PlotStyle -> convexStyle
+    ]
+  ]
+] // Ex["bipolar-warm_hot-traced-convex-with-known.png"]
