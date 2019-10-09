@@ -1992,6 +1992,7 @@ Module[
     RegionPlot[vi[a] @@ UVBipolar[x, y] < 0,
       {x, xMinNon, xMaxNon}, {y, -yMaxNon, yMaxNon},
       BoundaryStyle -> termStyle,
+      PlotPoints -> 50,
       PlotStyle -> nonStyle
     ],
     (* Traced boundaries *)
