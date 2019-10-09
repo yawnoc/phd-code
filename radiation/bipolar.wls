@@ -478,6 +478,30 @@ startUVWarm["axis"] =
   ];
 
 
+(* ::Subsubsection:: *)
+(*Cold-to-warm transition A = A_\[Natural]0*)
+
+
+(* Starting point which is a hyperbolic critical terminal point *)
+(* (the lone critical terminal point along u == 0) *)
+startUVColdWarm["hyperbolic"] = {{0, vNat0}} // N // Rationalize[#, 0] &;
+
+
+(* Starting points along terminal curve *)
+(* (the terminal curve is degenerate: it is simply the point {0, vNat0}) *)
+
+
+(* Starting points along axis *)
+startUVColdWarm["axis"] =
+  Module[{nmax, xTerminal, xValues},
+    nmax = 16;
+    xTerminal = XBipolar[0, vNat0];
+    xValues = Subdivide[1, 2 xTerminal - 1, nmax];
+    xValues = xValues // Rest;
+    Table[{0, VBipolar[x, 0]}, {x, xValues}]
+  ];
+
+
 (* ::Subsection:: *)
 (*Traced boundary v = v(u)*)
 
@@ -2121,3 +2145,48 @@ Module[
     ]
   ]
 ] // Ex["bipolar-warm-traced-convex-with-known.png"]
+
+
+(* ::Subsection:: *)
+(*Cold-to-warm transition A = A_\[Natural]0*)
+
+
+(* ::Subsubsection:: *)
+(*Starting points*)
+
+
+Module[
+ {a,
+  xMin, xMax, yMax,
+  idList
+ },
+  a = aColdWarm;
+  (* Plot range *)
+  xMin = 0.99;
+  xMax = vNat0 // 2.01 XBipolar[0, #] - 1 &;
+  yMax = (xMax - xMin) / 2;
+  (* Group names *)
+  idList = {"axis", "hyperbolic"};
+  (* Plot *)
+  Show[
+    EmptyFrame[{xMin, xMax}, {-yMax, yMax},
+      ImageSize -> 480,
+      PlotLabel -> BoxedLabel @ transStyle[a][aIt == N[a]]
+    ],
+    (* All u-contours and v-contours *)
+    uContours,
+    vContours,
+    (* Starting points *)
+    ListPlot[
+      Table[
+        XYBipolar @@@ startUVColdWarm[id]
+      , {id, idList}],
+      LabelingFunction -> Function @ Placed[
+        #2[[2]],
+        If[#2[[1]] == 2, Right, Center]
+      ],
+      PlotLegends -> idList,
+      PlotStyle -> Directive[Opacity[0.7], pointStyle]
+    ]
+  ]
+] // Ex["bipolar-cold_warm-traced-starting.pdf"]
