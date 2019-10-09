@@ -381,7 +381,7 @@ startUVWarmHot["inner"] =
       nmax = 16;
       (* Upper bound for arc length traversed *)
       (* (between -smax and smax to avoid pincer at vNatPi) *)
-      smax = Pi (XBipolar[Pi, vSharpPi[a]] - 1);
+      smax = Pi (XBipolar[0, vSharpPi[a]] - 1);
       (* Prevent sharp turn at vNatPi *)
       vPert = 10^-6;
       (* Inner terminal curve *)
