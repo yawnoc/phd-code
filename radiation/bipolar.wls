@@ -2346,7 +2346,6 @@ Module[
 (*Pseudo-convex without known solution*)
 
 
-(* NOT COMPLETE: INFLECTION TANGENT LINE TO BE ADDED *)
 Module[
  {a,
   xMin, xMax, yMax,
@@ -2375,7 +2374,214 @@ Module[
       PlotStyle -> convexStyle
     ]
   ]
-](* // Ex["bipolar-cold_warm-traced-pseudo_convex.pdf"]*)
+] // Ex["bipolar-cold_warm-traced-pseudo_convex.pdf"]
+
+
+Module[
+ {a,
+  xMin, xMax, yMax,
+  v, uStart,
+  reflect, tanVec,
+  uInfl, vInfl, xyInfl,
+  tanVecInfl, tanLineInfl,
+  xyCorn, xyInt,
+  mark,
+  newLine = "\n",
+  concaveStyle = Red,
+  inflDotStyle = Directive[Yellow, Opacity[0.5], pointStyle],
+  inflMarkStyle = Directive[Thin, Darker[Green]],
+  tanStyle = Directive[Blue, Thin],
+  cornDotStyle = Directive[Black, Opacity[0.7], pointStyle],
+  cornMarkStyle = Directive[Red, Thin],
+  intDotStyle = Directive[Cyan, Opacity[0.5], pointStyle],
+  intMarkStyle = Directive[Blue, Opacity[0.7], Thin]
+ },
+  a = aColdWarm;
+  (* Plot range *)
+  xMin = 6/8;
+  xMax = 17/16;
+  yMax = (xMax - xMin) / 2;
+  (* Traced boundaries (NOTE: uStart is NEGATIVE) *)
+  v = vTraColdWarm["hyperbolic"] // First;
+  uStart = DomainStart[v];
+  v = Function[{u}, v[-Abs @ u] // Evaluate];
+  (* Reflection across x-axis *)
+  reflect[{x_, y_}] := {x, -y};
+  (* Cartesian components of tangent vector to traced boundary *)
+  tanVec[u_, v_] :=
+    HBipolar[u, v] Plus[
+      AUBipolar[u, v],
+      vTraDer[a][u, v] AVBipolar[u, v]
+    ] // Evaluate;
+  (* Points of inflection (NOTE: uInfl is NEGATIVE) *)
+  uInfl = SeekRoot[curTra[a][#, v[#]] &, {-Pi, 0}];
+  vInfl = v[uInfl];
+  xyInfl = XYBipolar[uInfl, vInfl];
+  tanVecInfl = tanVec[uInfl, vInfl];
+  tanLineInfl = InfiniteLine[xyInfl, tanVecInfl];
+  (* Corner formed by concave portions *)
+  xyCorn = XYBipolar[-Pi, v[-Pi]];
+  (* Intersection of tangent lines *)
+  xyInt =
+    With[{x = \[FormalX], y = \[FormalY]},
+      {x, y} /. First @ FindInstance[
+        And[
+          Element[{x, y}, tanLineInfl],
+          Element[{x, y}, reflect /@ tanLineInfl]
+        ]
+      , {x, y}]
+    ];
+  (* Marker *)
+  mark[{x_, y_}, rot_, len_: 0.01] := (
+    Line @ {{0, -len}, {0, len}}
+      // Rotate[#, rot] &
+      // Translate[#, {x, y}] &
+  );
+  (* Plots *)
+  {
+    (* Traced boundary convexity as a function of u *)
+    Show[
+      Plot[
+        curTra[a][u, v[u]] {
+          If[u < uInfl, 1, Indeterminate],
+          If[u > uInfl, 1, Indeterminate]
+        } // Evaluate, {u, -Pi, 0},
+        AxesLabel -> {uIt, "Cur."},
+        PlotRange -> Full,
+        PlotStyle -> {concaveStyle, convexStyle},
+        PlotOptions[Axes] // Evaluate
+      ],
+      (* Inflection *)
+      Graphics @ {inflDotStyle,
+        Point @ {uInfl, 0}
+      },
+      Graphics @ Text[
+        Subscript[uIt, "i"] == uInfl // textStyle,
+        {uInfl, 0},
+        {-1.1, -1.5}
+      ]
+    ] // Ex["bipolar-cold_warm-traced-pseudo_convex-curvature.pdf"],
+    (* Detailed plot demonstrating inflection and concavity *)
+    Show[
+      EmptyFrame[{xMin, xMax}, {-yMax, yMax},
+        PlotLabel -> BoxedLabel @ transStyle[a][aIt == N[a]]
+      ],
+      (* All u-contours and v-contours *)
+      uContours,
+      vContours,
+      (* Traced boundaries (convex portion) *)
+      ParametricPlot[
+        XYBipolar[u, v[u]],
+        {u, uInfl, -uInfl},
+        PlotStyle -> convexStyle
+      ],
+      (* Traced boundaries (concave portions) *)
+      ParametricPlot[
+        XYBipolar[u, v[u]],
+        {u, uStart, uInfl},
+        PlotStyle -> concaveStyle
+      ],
+      ParametricPlot[
+        XYBipolar[u, v[u]],
+        {u, -uInfl, -uStart},
+        PlotStyle -> concaveStyle
+      ],
+      (* Points of inflection *)
+      Graphics @ {inflDotStyle,
+        Point @ {xyInfl, xyInfl // reflect}
+      },
+      (* Mark at points of inflection *)
+      Graphics @ {inflMarkStyle,
+        mark[xyInfl, {{1, 0}, tanVecInfl}],
+        mark[xyInfl // reflect, {{1, 0}, tanVecInfl // reflect}]
+      },
+      (* Tangent line at points of inflection *)
+      Graphics @ {tanStyle,
+        tanLineInfl,
+        reflect /@ tanLineInfl
+      },
+      (* Corner formed by concave portions *)
+      Graphics @ {cornDotStyle,
+        Point @ {xyCorn}
+      },
+      (* Marker at corner *)
+      Graphics @ {cornMarkStyle,
+        mark[xyCorn, 0]
+      },
+      (* Intersection of tangent lines *)
+      Graphics @ {intDotStyle,
+        Point @ {xyInt}
+      },
+      (* Mark at intersection of tangent lines *)
+      Graphics @ {intMarkStyle,
+        mark[xyInt, 0]
+      },
+      (* Explanatory text *)
+      Graphics @ {
+        Text[
+          StringJoin[
+            "Black: convex portion of boundary", newLine,
+            "Red: concave portions of boundary", newLine,
+            "Green marks (yellow dots): points of inflection", newLine,
+            "Blue: tangent line at points of inflection", newLine,
+            "Red mark (black dot): corner formed by concave portions", newLine,
+            "Blue mark (cyan dot): intersection of tangent lines", newLine,
+            newLine,
+            "This PDF consists of vector graphics.", newLine,
+            "Zoom in to see the small gap between the red and blue marks."
+          ] // Style[#, 7, Background -> White] &,
+          {Way[xMin, xMax], Way[0, yMax, 7/10]}
+        ]
+      }
+    ] // Ex["bipolar-cold_warm-traced-pseudo_convex-detailed.pdf"]
+  }
+]
+
+
+(* ::Subsubsection:: *)
+(*Pseudo-convex with known solution*)
+
+
+Module[
+ {a,
+  xMin, xMax, yMax,
+  v, vBath
+ },
+  a = aColdWarm;
+  (* Plot range *)
+  xMin = 6/8;
+  xMax = 17/16;
+  yMax = (xMax - xMin) / 2;
+  (* Traced boundaries *)
+  v = vTraColdWarm["hyperbolic"] // First;
+  v = Function[{u}, v[-Abs @ u] // Evaluate];
+  (* Heat bath *)
+  vBath = 1.2 vSharp0[a];
+  (* Plot *)
+  Show[
+    EmptyFrame[{xMin, xMax}, {-yMax, yMax},
+      PlotLabel -> BoxedLabel @ transStyle[a][aIt == N[a]]
+    ],
+    (* All u-contours and v-contours *)
+    uContours,
+    vContours,
+    (* Known solution *)
+    DensityPlot[VBipolar[x, y],
+      {x, xMin, xMax}, {y, -yMax, yMax},
+      ColorFunction -> "TemperatureMap",
+      RegionFunction -> Function[{x, y},
+        v @ UBipolar[x, y] < VBipolar[x, y] < vBath
+          // Evaluate
+      ]
+    ],
+    (* Traced boundaries *)
+    ParametricPlot[
+      XYBipolar[u, v[u]],
+      {u, -Pi, Pi},
+      PlotStyle -> convexStyle
+    ]
+  ]
+] // Ex["bipolar-cold_warm-traced-pseudo_convex-with-known.png"]
 
 
 (* ::Section:: *)
