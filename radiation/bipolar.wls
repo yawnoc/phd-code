@@ -226,6 +226,96 @@ curTra[a_] := Function[{u, v},
 ] // Evaluate;
 
 
+(* ::Subsubsection:: *)
+(*v_i (inflection hyperbolic coordinate along u = -\[Pi])*)
+
+
+(* ::Text:: *)
+(*See (r3.65) (Page r3-11).*)
+
+
+vInfl = InverseFunction[
+    Function[{v},
+      ConditionalExpression[
+        v/2 Tanh[v/2] - 1,
+        v > 0
+      ] // Evaluate
+    ]
+  ][0];
+
+
+(* ::Subsubsection:: *)
+(*Candidate boundary*)
+
+
+(* ::Text:: *)
+(*See the bottom of Page r3-9.*)
+
+
+(* The entire upper branch of the boundary *)
+vTraCand[a_] /; 0 < a <= aNat0 :=
+  With[{v = \[FormalV]},
+    NDSolveValue[
+      {
+        v'[u] == Re @ vTraDer[a][u, v[u]],
+        v[0] == vSharp0[a],
+        WhenEvent[vi[a][u, v[u]] < 0, "StopIntegration"]
+      }, v, {u, -Pi, 0},
+      NoExtrapolation
+    ]
+  ];
+
+
+(* The hyperbolic coordinate (v) at u == -\[Pi] *)
+vTraCandCorn[a_] /; 0 < a <= aNat0 :=
+  With[{v = \[FormalV]},
+    NDSolveValue[
+      {
+        v'[u] == Re @ vTraDer[a][u, v[u]],
+        v[0] == vSharp0[a],
+        WhenEvent[vi[a][u, v[u]] < 0, "StopIntegration"]
+      }, v[-Pi], {u, -Pi, 0},
+      NoExtrapolation
+    ]
+  ];
+
+
+(* ::Subsubsection:: *)
+(*A_i (inflection dimensionless group)*)
+
+
+(* ::Text:: *)
+(*See (r3.68) and (r3.69) (Page r3-11).*)
+
+
+(* Compute A_i using the bisection algorithm *)
+aInfl = Module[{dest, a, aMin, aMax, num},
+  (* (This is really slow (~6 sec), so compute once and store.) *)
+  (* (Delete the file manually to compute from scratch.) *)
+  dest = "bipolar-a-inflection.txt";
+  If[FileExistsQ[dest],
+    (* If already stored, import *)
+    {a, num} = Import[dest] // Uncompress,
+    (* Otherwise compute and export for next time *)
+    (* (argument to vTraCandCorn must be EXACT) *)
+    aMin = aNat0 - 4/1000;
+    aMax = aNat0;
+    {a, num} = SeekRootBisection[
+      vTraCandCorn[#] - vInfl &,
+      {aMin, aMax},
+      10^-7,
+      N -> False,
+      "ReturnIterations" -> True
+    ];
+    {a, num} // Compress // Ex[dest]
+  ];
+  (* Print iterations used *)
+  Print["Bisection algorithm: " <> ToString[num] <> " iterations"];
+  (* Return value of A_i *)
+  a
+];
+
+
 (* ::Subsection:: *)
 (*Starting points for boundary tracing*)
 
@@ -744,6 +834,7 @@ sharpPiStyle = Orange;
 nonStyle = Directive[Opacity[0.7], LightGray];
 termStyle = Pink;
 unphysStyle = Black;
+inflStyle = Directive[Dashed, Green];
 
 
 upperStyle = Blue;
@@ -2588,12 +2679,16 @@ Module[
 (*Traced boundary algebra*)
 
 
+(* ::Text:: *)
+(*See Section 4.4 (Page r3-10).*)
+
+
 (* ::Subsection:: *)
 (*Check derivatives*)
 
 
 (* ::Text:: *)
-(*See Section 4.4 (Page r3-10).*)
+(*See (r3.56) to (r3.59)(Page r3-10).*)
 
 
 With[{u = \[FormalU], v = \[FormalV], a = \[FormalCapitalA]},
@@ -2640,6 +2735,10 @@ With[{u = \[FormalU], v = \[FormalV], a = \[FormalCapitalA]},
 
 (* ::Subsection:: *)
 (*Check curvature*)
+
+
+(* ::Text:: *)
+(*See (r3.62) and (r3.63) (Page r3-10).*)
 
 
 With[{u = \[FormalU], v = \[FormalV], a = \[FormalCapitalA]},
@@ -2701,3 +2800,91 @@ With[{u = \[FormalU], v = \[FormalV], a = \[FormalCapitalA]},
     } // TableForm
   ]
 ] // Ex["bipolar-check-curvature.pdf"]
+
+
+(* ::Subsection:: *)
+(*Curvature at u = -\[Pi]*)
+
+
+(* ::Text:: *)
+(*See (r3.64) to (r3.66) (Page r3-10).*)
+
+
+With[{v = \[FormalV], a = \[FormalCapitalA]},
+  {
+    {
+      "Cur. (u = -\[Pi])",
+      "(r3.65)",
+      curTra[a][-Pi, v] // FullSimplify
+    },
+    {
+      "v_i",
+      "(r3.66)",
+      vInfl // N
+    },
+    {
+      "",
+      "(check)",
+      curTra[a][-Pi, vInfl] == 0 // FullSimplify
+    }
+  } // TableForm
+] // Ex["bipolar-curvature-corner.pdf"]
+
+
+(* ::Subsection:: *)
+(*Hyperbolic coordinate at u = -\[Pi] for candidate boundaries*)
+
+
+Module[
+ {aMin, aMax, num, aValues,
+  dest, aVTable,
+  inflDotStyle = Directive[Red, Opacity[0.7], pointStyle]
+ },
+  (* Values of dimensionless group A *)
+  (* (argument to vTraCandCorn must be EXACT) *)
+  aMin = aNat0 - 4/1000;
+  aMax = aNat0;
+  num = 100;
+  aValues = Subdivide[aMin, aMax, num];
+  (* Compute table of (A, v(-\[Pi])) values *)
+  (* (This is really slow (~15 sec), so compute once and store.) *)
+  (* (Delete the file manually to compute from scratch.) *)
+  dest = "bipolar-candidate-v-corner.txt";
+  If[FileExistsQ[dest],
+    (* If already stored, import *)
+    aVTable = Import[dest] // Uncompress,
+    (* Otherwise compute and export for next time *)
+    aVTable = Table[
+      {a // N, vTraCandCorn[a]}
+    , {a, aValues}];
+    aVTable // Compress // Ex[dest]
+  ];
+  (* Plot *)
+  Show[
+    (* A vs v(-\[Pi]) *)
+    ListPlot[
+      aVTable,
+      AxesLabel -> {aIt, vIt[-Pi]},
+      Joined -> True,
+      PlotRange -> All,
+      PlotStyle -> Black,
+      PlotOptions[Axes] // Evaluate
+    ],
+    (* v_i *)
+    Plot[vInfl, {a, aMin, aMax},
+      PlotStyle -> inflStyle
+    ],
+    (* A_i *)
+    Graphics @ {inflDotStyle,
+      Point @ {aInfl, vInfl}
+    },
+    Graphics @ Text[
+      Column @ {
+        Subscript[aIt, "i"] == N[aInfl],
+        Subscript[vIt, "i"] == N[vInfl]
+      } // textStyle,
+      {aInfl, vInfl},
+      {-1.2, -1.2}
+    ]
+  ]
+] // Ex["bipolar-candidate-v-corner.pdf"]
