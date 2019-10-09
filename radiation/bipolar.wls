@@ -199,6 +199,34 @@ vTraDer[a_] := Function[{u, v},
 
 
 (* ::Subsection:: *)
+(*Traced boundary curvature*)
+
+
+(* ::Text:: *)
+(*See (r3.63) (Page r3-10).*)
+
+
+curTra[a_] := Function[{u, v},
+  Module[{d, dd, h, cur, vDer, vDer2},
+    (* Abbreviation for u-derivative *)
+    d = Dt[#, u, Constants -> a] &;
+    (* Abbreviations *)
+    h = HBipolar[u, v];
+    dd = Sinh[v] - d[v] Sin[u];
+    (* Curvature *)
+    cur = h^3 (dd (1 + d[v]^2) + d @ d[v] / h);
+    (* v' and v'' *)
+    vDer = vTraDer[a][u, v];
+    vDer2 = d[vDer];
+    (* Curvature evaluated *)
+    cur
+      /. {d @ d[v] -> vDer2}
+      /. {d[v] -> vDer}
+  ] // Evaluate
+] // Evaluate;
+
+
+(* ::Subsection:: *)
 (*Starting points for boundary tracing*)
 
 
@@ -2312,3 +2340,158 @@ Module[
     , {id, {"hyperbolic"}}]
   ]
 ] // Ex["bipolar-cold_warm-traced-zoom.pdf"]
+
+
+(* ::Subsubsection:: *)
+(*Pseudo-convex without known solution*)
+
+
+(* NOT COMPLETE: INFLECTION TANGENT LINE TO BE ADDED *)
+Module[
+ {a,
+  xMin, xMax, yMax,
+  v
+ },
+  a = aColdWarm;
+  (* Plot range *)
+  xMin = 6/8;
+  xMax = 17/16;
+  yMax = (xMax - xMin) / 2;
+  (* Traced boundaries *)
+  v = vTraColdWarm["hyperbolic"] // First;
+  v = Function[{u}, v[-Abs @ u] // Evaluate];
+  (* Plot *)
+  Show[
+    EmptyFrame[{xMin, xMax}, {-yMax, yMax},
+      PlotLabel -> BoxedLabel @ transStyle[a][aIt == N[a]]
+    ],
+    (* All u-contours and v-contours *)
+    uContours,
+    vContours,
+    (* Traced boundaries *)
+    ParametricPlot[
+      XYBipolar[u, v[u]],
+      {u, -Pi, Pi},
+      PlotStyle -> convexStyle
+    ]
+  ]
+](* // Ex["bipolar-cold_warm-traced-pseudo_convex.pdf"]*)
+
+
+(* ::Section:: *)
+(*Traced boundary algebra*)
+
+
+(* ::Subsection:: *)
+(*Check derivatives*)
+
+
+(* ::Text:: *)
+(*See Section 4.4 (Page r3-10).*)
+
+
+With[{u = \[FormalU], v = \[FormalV], a = \[FormalCapitalA]},
+  Module[
+   {au, av, d, ss, cc, h, dd, ee
+   },
+    (* Local orthogonal basis *)
+    au = AUBipolar[u, v];
+    av = AVBipolar[u, v];
+    (* Abbreviation for u-derivative *)
+    d = Dt[#, u, Constants -> a] &;
+    (* Abbreviations *)
+    ss = Sin[u] Sinh[v];
+    cc = Cos[u] Cosh[v] - 1;
+    h = HBipolar[u, v];
+    dd = Sinh[v] - d[v] Sin[u];
+    ee = d[v] Sinh[v] + Sin[u];
+    (* Table of results *)
+    {
+      {
+        "(h S)' == h^2 C D",
+        "(r3.56)",
+        d[h ss] == h^2 cc dd // FullSimplify
+      },
+      {
+        "(h C)' == -h^2 S D",
+        "(r3.57)",
+        d[h cc] == -h^2 ss dd // FullSimplify
+      },
+      {
+        "(a_u)' == h D a_v",
+        "(r3.58)",
+        d[au] == h dd av // FullSimplify
+      },
+      {
+        "(a_v)' == -h D a_u",
+        "(r3.59)",
+        d[av] == -h dd au // FullSimplify
+      }
+    } // TableForm
+  ]
+] // Ex["bipolar-check-derivatives.pdf"]
+
+
+(* ::Subsection:: *)
+(*Check curvature*)
+
+
+With[{u = \[FormalU], v = \[FormalV], a = \[FormalCapitalA]},
+  Module[
+   {au, av, d, ss, cc, h, dd, ee,
+    dSimp, vel, acc, comp, cur,
+    newLine = "\n  "
+   },
+    (* Local orthogonal basis *)
+    {au, av};
+    (* Abbreviation for u-derivative *)
+    d = Dt[#, u, Constants -> a] &;
+    (* Abbreviations *)
+    ss = Sin[u] Sinh[v];
+    cc = Cos[u] Cosh[v] - 1;
+    h = HBipolar[u, v];
+    dd = Sinh[v] - d[v] Sin[u];
+    ee = d[v] Sinh[v] + Sin[u];
+    (* Simplification rules *)
+    dSimp = {
+      d[au] -> h dd av,
+      d[av] -> -h dd au
+    };
+    (* Velocity and acceleration *)
+    vel = h au + h d[v] av;
+    acc = d[vel] /. dSimp;
+    (* Components for local (u, v, z) basis *)
+    comp = {
+      au -> {1, 0, 0},
+      av -> {0, 1, 0}
+    };
+    (* Curvature *)
+    cur = Last @ Cross[
+      vel /. comp,
+      acc /. comp
+    ];
+    (* Table of results *)
+    {
+      {
+        StringJoin[
+          "Acc. ==", newLine,
+          "- h^2 (D v' + E) a_u", newLine,
+          "+ h (v'' - h E v' + h D) a_v"
+        ],
+        "(r3.62)",
+        acc ==
+          - h^2 (dd d[v] + ee) au
+          + h (d @ d[v] - h ee d[v] + h dd) av
+          /. comp
+          // FullSimplify
+      },
+      {
+        "Cur. == h^3 (D (1 + v'^2) + v'' / h)",
+        "(r3.63)",
+        cur == h^3 (dd (1 + d[v]^2) + d @ d[v] / h)
+          /. comp 
+          // FullSimplify
+      }
+    } // TableForm
+  ]
+] // Ex["bipolar-check-curvature.pdf"]
