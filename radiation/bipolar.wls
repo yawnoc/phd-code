@@ -245,25 +245,11 @@ vInfl = InverseFunction[
 
 
 (* ::Subsubsection:: *)
-(*Candidate boundary*)
+(*Candidate boundary (at u = -\[Pi])*)
 
 
 (* ::Text:: *)
 (*See the bottom of Page r3-9.*)
-
-
-(* The entire upper branch of the boundary *)
-vTraCand[a_] /; 0 < a <= aNat0 :=
-  With[{v = \[FormalV]},
-    NDSolveValue[
-      {
-        v'[u] == Re @ vTraDer[a][u, v[u]],
-        v[0] == vSharp0[a],
-        WhenEvent[vi[a][u, v[u]] < 0, "StopIntegration"]
-      }, v, {u, -Pi, 0},
-      NoExtrapolation
-    ]
-  ];
 
 
 (* The hyperbolic coordinate (v) at u == -\[Pi] *)
@@ -275,7 +261,8 @@ vTraCandCorn[a_] /; 0 < a <= aNat0 :=
         v[0] == vSharp0[a],
         WhenEvent[vi[a][u, v[u]] < 0, "StopIntegration"]
       }, v[-Pi], {u, -Pi, 0},
-      NoExtrapolation
+      NoExtrapolation,
+      PreciseOptions[]
     ]
   ];
 
@@ -290,7 +277,7 @@ vTraCandCorn[a_] /; 0 < a <= aNat0 :=
 
 (* Compute A_i using the bisection algorithm *)
 aInfl = Module[{dest, a, aMin, aMax, num},
-  (* (This is really slow (~6 sec), so compute once and store.) *)
+  (* (This is really slow (~30 sec), so compute once and store.) *)
   (* (Delete the file manually to compute from scratch.) *)
   dest = "bipolar-a-inflection.txt";
   If[FileExistsQ[dest],
@@ -314,6 +301,7 @@ aInfl = Module[{dest, a, aMin, aMax, num},
   (* Return value of A_i *)
   a
 ];
+aInfl // N
 
 
 (* ::Subsection:: *)
@@ -2847,7 +2835,7 @@ Module[
   num = 100;
   aValues = Subdivide[aMin, aMax, num];
   (* Compute table of (A, v(-\[Pi])) values *)
-  (* (This is really slow (~15 sec), so compute once and store.) *)
+  (* (This is really slow (~25 sec), so compute once and store.) *)
   (* (Delete the file manually to compute from scratch.) *)
   dest = "bipolar-candidate-v-corner.txt";
   If[FileExistsQ[dest],
