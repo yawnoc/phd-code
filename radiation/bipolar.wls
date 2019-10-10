@@ -608,6 +608,24 @@ startUVColdWarm["axis"] =
   ];
 
 
+(* ::Subsubsection:: *)
+(*Cold regime A > A_\[Natural]0*)
+
+
+(* There are no critical terminal points; there is no terminal curve *)
+
+
+(* Starting points along axis *)
+
+
+startUVCold["axis"] =
+  Module[{nmax, xValues},
+    nmax = 16;
+    xValues = Subdivide[1, 2, nmax] // Rest;
+    Table[{0, VBipolar[x, 0]}, {x, xValues}]
+  ];
+
+
 (* ::Subsection:: *)
 (*Traced boundary v = v(u)*)
 
@@ -716,6 +734,33 @@ With[{v = \[FormalV]},
           ]
         , {uvInit, uvInitList}];
     , {id, {"hyperbolic", "axis"}}]
+  ];
+];
+
+
+(* ::Subsubsection:: *)
+(*Cold regime A > A_\[Natural]0*)
+
+
+With[{v = \[FormalV]},
+  Module[{a, uvInitList, viTol, uInit, vInit},
+    a = aCold;
+    Table[
+      uvInitList = startUVCold[id];
+      viTol = vi[a] @@@ uvInitList // Min;
+      vTraCold[id] =
+        Table[
+          {uInit, vInit} = uvInit;
+          NDSolveValue[
+            {
+              v'[u] == Re @ vTraDer[a][u, v[u]],
+              v[uInit] == vInit,
+              WhenEvent[vi[a][u, v[u]] < viTol, "StopIntegration"]
+            }, v, {u, uInit - 2 Pi, uInit + 2 Pi},
+            NoExtrapolation
+          ]
+        , {uvInit, uvInitList}];
+    , {id, {"axis"}}]
   ];
 ];
 
@@ -2661,6 +2706,128 @@ Module[
     ]
   ]
 ] // Ex["bipolar-cold_warm-traced-pseudo_convex-with-known.png"]
+
+
+(* ::Subsection:: *)
+(*Cold regime A > A_\[Natural]0*)
+
+
+(* ::Subsubsection:: *)
+(*Starting points*)
+
+
+Module[
+ {a,
+  xMin, xMax, yMax,
+  idList
+ },
+  a = aCold;
+  (* Plot range *)
+  xMin = 1;
+  xMax = 2;
+  yMax = (xMax - xMin) / 2;
+  (* Group names *)
+  idList = {"axis"};
+  (* Plot *)
+  Show[
+    EmptyFrame[{xMin, xMax}, {-yMax, yMax},
+      ImageSize -> 480,
+      PlotLabel -> BoxedLabel @ transStyle[a][aIt == N[a]]
+    ],
+    (* All u-contours and v-contours *)
+    uContours,
+    vContours,
+    (* Starting points *)
+    ListPlot[
+      Table[
+        XYBipolar @@@ startUVCold[id]
+      , {id, idList}],
+      LabelingFunction -> Function @ Placed[
+        #2[[2]],
+        If[#2[[1]] == 2, Right, Center]
+      ],
+      PlotLegends -> idList,
+      PlotStyle -> Directive[Opacity[0.7], pointStyle]
+    ]
+  ]
+] // Ex["bipolar-cold-traced-starting.pdf"]
+
+
+(* ::Subsubsection:: *)
+(*General*)
+
+
+Module[
+ {a,
+  xMin, xMax, yMax,
+  eps, xMaxUnphys, yMaxUnphys
+ },
+  a = aCold;
+  (* Plot range *)
+  xMin = vNatPi // 0 XBipolar[Pi, #] &;
+  xMax = vNat0 // 2 XBipolar[0, #] &;
+  yMax = (xMax - xMin) / 2;
+  (* Plot range for unphysical domain *)
+  eps = 0.1;
+  xMaxUnphys = xMax (1 + eps);
+  yMaxUnphys = yMax (1 + eps);
+  (* Plot *)
+  Show[
+    EmptyFrame[{xMin, xMax}, {-yMax, yMax},
+      PlotLabel -> BoxedLabel @ transStyle[a][aIt == N[a]]
+    ],
+    (* Unphysical domain *)
+    RegionPlot[x < 0,
+      {x, -xMaxUnphys, eps}, {y, -yMaxUnphys, yMaxUnphys},
+      BoundaryStyle -> None,
+      PlotStyle -> unphysStyle
+    ],
+    (* All u-contours and v-contours *)
+    uContours,
+    vContours,
+    (* Traced boundaries *)
+    Table[
+      Table[
+        ParametricPlot[
+          {XYBipolar[u, v[u]], XYBipolar[-u, v[u]]},
+          {u, DomainStart[v], DomainEnd[v]},
+          PlotStyle -> {upperStyle, lowerStyle}
+        ]
+      , {v, vTraCold[id]}]
+    , {id, {"axis"}}]
+  ]
+] // Ex["bipolar-cold-traced-full.pdf"]
+
+
+Module[
+ {a,
+  xMin, xMax, yMax
+ },
+  a = aCold;
+  (* Plot range *)
+  xMin = 0.95;
+  xMax = 1.25;
+  yMax = (xMax - xMin) / 2;
+  (* Plot *)
+  Show[
+    EmptyFrame[{xMin, xMax}, {-yMax, yMax},
+      PlotLabel -> BoxedLabel @ transStyle[a][aIt == N[a]]
+    ],
+    (* All u-contours and v-contours *)
+    uContours,
+    vContours,
+    (* Traced boundaries *)
+    Table[
+      Table[
+        ParametricPlot[
+          {XYBipolar[u, v[u]], XYBipolar[-u, v[u]]},
+          {u, DomainStart[v], DomainEnd[v]},
+          PlotStyle -> {upperStyle, lowerStyle}
+        ]
+      , {v, vTraCold[id]}]
+    , {id, {"axis"}}]
+  ]
+] // Ex["bipolar-cold-traced-zoom.pdf"]
 
 
 (* ::Section:: *)
