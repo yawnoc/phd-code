@@ -76,6 +76,7 @@ ClearAll["Conway`*`*"];
   Italicised,
   NoExtrapolation,
   PlotOptions,
+  PreciseOptions,
   PrettyString,
   SeekRoot,
   SeekRootBisection,
@@ -275,6 +276,26 @@ PlotOptions[Frame] = {
   FrameLabel -> Italicised @ {"x", "y"},
   LabelStyle -> Directive[Black, 16],
   RotateLabel -> False
+};
+
+
+(* ::Subsubsection:: *)
+(*PreciseOptions*)
+
+
+PreciseOptions::usage = (
+  "Precise[maxStepFrac (def 1/512)]\n"
+  <> "Returns options for high precision in NDSolve.\n"
+  <> "These may be overridden by options called before PreciseOptions."
+);
+
+
+PreciseOptions[maxStepFrac : _?NumericQ : 1/512] := {
+  MaxStepFraction -> maxStepFrac,
+  MaxSteps -> Infinity,
+  AccuracyGoal -> 16,
+  PrecisionGoal -> 16,
+  WorkingPrecision -> 2 MachinePrecision
 };
 
 
