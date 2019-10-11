@@ -315,6 +315,21 @@ aInfl = Module[{dest, a, aMin, aMax, num},
 aInfl // N
 
 
+(* ::Subsubsection:: *)
+(*Asymmetry*)
+
+
+(* ::Text:: *)
+(*See (r3.92) (Page r3-16).*)
+
+
+asymm[vSharp0_, vCorn_] :=
+  Divide[
+    1 - XBipolar[-Pi, vCorn],
+    XBipolar[0, vSharp0] - 1
+  ] // FullSimplify // Evaluate;
+
+
 (* ::Subsection:: *)
 (*Starting points for boundary tracing*)
 
@@ -3145,3 +3160,107 @@ Module[{omegaAsyOrigin, omegaAsyInfinity, vItSharp0},
       "sharp" -> "\[Sharp]"
     ]
 ] // Ex["bipolar-omega.pdf"]
+
+
+(* ::Section:: *)
+(*Physical asymmetry*)
+
+
+(* ::Subsection:: *)
+(*Check asymmetry*)
+
+
+(* ::Text:: *)
+(*See (r3.92) (Page r3-16).*)
+
+
+With[{v = \[FormalV]},
+  Module[{vSharp0, vCorn},
+    vSharp0 = Subscript[v, "sharp0"];
+    vCorn = v[-Pi];
+    {
+      {"Asymmetry", asymm[vSharp0, vCorn]},
+      {
+        "(r3.92)",
+        Equal[
+          asymm[vSharp0, vCorn],
+          Divide[
+            1 - Sinh[vCorn] / (Cosh[vCorn] + 1),
+            Sinh[vSharp0] / (Cosh[vSharp0] - 1) - 1
+          ]
+        ] // FullSimplify
+      }
+    }
+      // PrettyString["sharp" -> "\[Sharp]"]
+      // TableForm
+  ]
+] // Ex["bipolar-check-asymmetry.pdf"]
+
+
+(* ::Subsection:: *)
+(*Plot asymmetry*)
+
+
+Module[
+ {aMin, aMax, num, aValues,
+  dest, aAsymmTable, asymmNatPi, asymmNat0
+ },
+  (* Values of dimensionless group A *)
+  (* (argument to vTraCandCorn must be EXACT) *)
+  aMin = 8;
+  aMax = aNat0;
+  num = 100;
+  aValues = Subdivide[aMin, aMax, num];
+  (* Compute table of (A, asymmetry) values *)
+  (* (This is really slow (~35 sec), so compute once and store.) *)
+  (* (Delete the file manually to compute from scratch.) *)
+  dest = "bipolar-candidate-asymmetry.txt";
+  If[FileExistsQ[dest],
+    (* If already stored, import *)
+    {aAsymmTable, asymmNatPi, asymmNat0} = Import[dest] // Uncompress,
+    (* Otherwise compute and export for next time *)
+    aAsymmTable = Table[
+      {a // N, asymm[vSharp0[a], vTraCandCorn[a]]}
+    , {a, aValues}];
+    asymmNatPi = asymm[vSharp0[aNatPi], vTraCandCorn[aNatPi]];
+    asymmNat0 = Last[aAsymmTable][[2]];
+    {aAsymmTable, asymmNatPi, asymmNat0} // Compress // Ex[dest]
+  ];
+  (* Plot *)
+  Show[
+    (* A vs asymmetry *)
+    ListPlot[
+      aAsymmTable,
+      AxesLabel -> {aIt, "Asymm."},
+      Joined -> True,
+      PlotRange -> All,
+      PlotStyle -> Black,
+      PlotOptions[Axes] // Evaluate
+    ],
+    (* aNatPi *)
+    Graphics @ {Directive[natStyle, guideStyle],
+      Line @ {{aMin, asymmNatPi}, {aNatPi, asymmNatPi}, {aNatPi, 0}}
+    },
+    Graphics @ {natStyle,
+      Text[N[asymmNatPi], {aMin, asymmNatPi}, {1.2, 0}],
+      Text[Subscript[aIt, "natpi"] // textStyle, {aNatPi, 0}, {0, 2.3}]
+    },
+    (* aNat0 *)
+    Graphics @ {Directive[natStyle, guideStyle],
+      Line @ {{aMin, asymmNat0}, {aNat0, asymmNat0}, {aNat0, 0}}
+    },
+    Graphics @ {natStyle,
+      Text[N[asymmNat0], {aMin, asymmNat0}, {1.2, 0}],
+      Text[Subscript[aIt, "nat0"] // textStyle, {aNat0, 0}, {0, 2.3}]
+    },
+    (* Regime labels *)
+    Graphics @ {
+      Text["hot" // textStyle, {Way[aMin, aNatPi], 3/5}],
+      Text["warm" // textStyle, {Way[aNatPi, aNat0], 3/4}]
+    },
+    (* Don't chop labels *)
+    ImageMargins -> None,
+    PlotRange -> All,
+    PlotRangeClipping -> False
+  ] // PrettyString["nat" -> "\[Natural]", "pi" -> "\[Pi]"]
+] // Ex["bipolar-candidate-asymmetry.pdf"]
