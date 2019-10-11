@@ -174,6 +174,17 @@ vi[a_] := Function[{u, v},
 
 
 (* ::Subsection:: *)
+(*\[Omega] = \[Omega](v_\[Sharp]0)*)
+
+
+(* ::Text:: *)
+(*See (r3.86) (Page r3-14).*)
+
+
+omega[v_] := (Cosh[v] - 1) / (v Sinh[v]);
+
+
+(* ::Subsection:: *)
 (*Representative values of A*)
 
 
@@ -3043,3 +3054,94 @@ Module[
     ]
   ]
 ] // Ex["bipolar-candidate-v-corner.pdf"]
+
+
+(* ::Section:: *)
+(*Physical temperature range algebra*)
+
+
+(* ::Text:: *)
+(*See Section 5.1 (Page r3-14).*)
+
+
+(* ::Subsection:: *)
+(*\[Omega] properties*)
+
+
+With[{v = \[FormalV]},
+  Module[{omegaAsyInfinity},
+    omegaAsyInfinity[v_] := 1 / v - 2 Exp[-v] / v;
+    {
+      {"omega", omega[v]},
+      {"Small v series", omega[v] + O[v]^3},
+      {"Large v asymptotic", omegaAsyInfinity[v]},
+      {
+        "(check)",
+        And @@ (
+          Limit[#, v -> Infinity] == 1 & /@
+          {
+            (1 / v) / omega[v],
+            (omega[v] - (1 / v)) / (- 2 Exp[-v] / v)
+          }
+        )
+      },
+      {"domega/dv", omega'[v] // FullSimplify}
+    } /. {v -> Subscript[v, "sharp0"]}
+      // PrettyString["omega" -> "\[Omega]", "v" -> ToString[v] <> "_sharp0"]
+      // PrettyString["sharp" -> "\[Sharp]"]
+      // TableForm
+  ]
+] // Ex["bipolar-omega-properties.pdf"]
+
+
+(* ::Subsection:: *)
+(*\[Omega] plot*)
+
+
+Module[{omegaAsyOrigin, omegaAsyInfinity, vItSharp0},
+  omegaAsyOrigin[v_] := 1 / 2 - v^2 / 24;
+  omegaAsyInfinity[v_] := 1 / v - 2 Exp[-v] / v;
+  vItSharp0 = Subscript[vIt, "sharp0"];
+  Show[
+    Plot[
+      {
+        omega[v],
+        Piecewise @ {
+          {omegaAsyOrigin[v], v < 3.4},
+          {Indeterminate, True}
+        },
+        Piecewise @ {
+          {omegaAsyInfinity[v], v > 0.7},
+          {Indeterminate, True}
+        }
+      }, {v, 0, 10},
+      AxesLabel -> {vItSharp0, "omega"},
+      PlotLegends -> {
+        "omega"[vItSharp0],
+        omegaAsyOrigin[vItSharp0],
+        omegaAsyInfinity[vItSharp0]
+      },
+      PlotRange -> All,
+      PlotRangeClipping -> False,
+      PlotStyle -> {
+        Blue,
+        Directive[guideStyle, Darker[Green]],
+        Directive[guideStyle, Magenta]
+      },
+      PlotOptions[Axes] // Evaluate
+    ],
+    (* {vNat0, 1/4} *)
+    Graphics @ {Directive[guideStyle, natStyle],
+      Line @ {{0, 1/4}, {vNat0, 1/4}, {vNat0, 0}}
+    },
+    Graphics @ {natStyle,
+      Text[Row[{1, 4}, "/"] // textStyle, {0, 1/4}, {1.3, 0}],
+      Text[Subscript[vIt, "nat0"] // textStyle, {vNat0, 0}, {0, 2}]
+    }
+  ]
+    // PrettyString[
+      "omega" -> "\[Omega]",
+      "nat" -> "\[Natural]",
+      "sharp" -> "\[Sharp]"
+    ]
+] // Ex["bipolar-omega.pdf"]
