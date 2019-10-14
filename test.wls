@@ -51,6 +51,10 @@ SeekRootBisection[Cos[#] - # &, {0, 1}]
 SeekRootBisection[Cos[#] - # &, {0, 1}, "ReturnIterations" -> True]
 
 
+UniformRange[0, 1, 0.099]
+UniformRange[0, 2 Pi, 5 Degree]
+
+
 Way[0, 1]
 
 

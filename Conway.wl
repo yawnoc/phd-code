@@ -80,6 +80,7 @@ ClearAll["Conway`*`*"];
   PrettyString,
   SeekRoot,
   SeekRootBisection,
+  UniformRange,
   Way
 };
 
@@ -410,6 +411,21 @@ SeekRootBisection[
       {xSol, num}
     ]
   ];
+
+
+(* ::Subsubsection:: *)
+(*UniformRange*)
+
+
+UniformRange::usage = (
+  "UniformRange[start, end, maxStep]\n"
+  <> "Subdivides the interval from start to end uniformly "
+  <> "with step at most maxStep."
+);
+
+
+UniformRange[start_?NumericQ, end_?NumericQ, maxStep_?NumericQ] :=
+  Subdivide[start, end, (end - start) / maxStep // N // Ceiling]
 
 
 (* ::Subsubsection:: *)
