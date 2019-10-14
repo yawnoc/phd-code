@@ -14,6 +14,7 @@
 
 
 SetDirectory @ ParentDirectory @ NotebookDirectory[];
+<< NDSolve`FEM`
 << Conway`
 << Curvilinear`
 SetDirectory @ FileNameJoin @ {NotebookDirectory[], "line"}
@@ -257,6 +258,207 @@ phiTraCold =
 
 
 (* ::Subsection:: *)
+(*Numerical verification (finite elements)*)
+
+
+(* ::Subsubsection:: *)
+(*Generate finite element mesh*)
+
+
+(* ::Text:: *)
+(*This is the "generic" convex boundary plotted in*)
+(*"line-hot-traced-convex-generic-with-known.png".*)
+
+
+(* (This is not slow, nevertheless compute once and store.) *)
+(* (Delete the file manually to compute from scratch.) *)
+Module[{dest},
+  dest = "line-verification-mesh.txt";
+  If[Not @ FileExistsQ[dest],
+    Module[
+     {a, rSh,
+      nSpike, modNSpike, mod2Pi,
+      rSpike, phiSpike, phiCentre, phiHalfWidth,
+      rBath, rScale, tScale,
+      phSpacing, sSpacing,
+      phi, phValues,
+      extPointList, intPointList,
+      nExt, nInt, mod,
+      bMesh, mesh,
+      prExt, prInt
+     },
+      (* Dimensionless group *)
+      a = aHot;
+      (* Critical terminal curve *)
+      rSh = rSharp[a];
+      (* Spikes *)
+      nSpike = 3;
+      modNSpike = Mod[#, nSpike, 1] &;
+      mod2Pi = Mod[#, 2 Pi] &;
+      (* Spike radii *)
+      rSpike[1] = rInfl;
+      rSpike[2] = Way[rSh, rInfl, 3/4];
+      rSpike[3] = Way[rSh, rInfl, 1/4];
+      Table[
+        phiSpike[n] = phiTraHot["outer"] @ rSpike[n]
+      , {n, nSpike}];
+      (* Spike centres *)
+      phiCentre[1] = 0;
+      phiCentre[2] = 140 Degree;
+      phiCentre[3] = 250 Degree;
+      phiCentre[n_] := phiCentre[n // modNSpike];
+      (* Spike angular half-widths *)
+      Table[
+        phiHalfWidth[n] =
+          phiTraHot["outer"][(1 + 10^-6) rSh] - phiSpike[n]
+      , {n, nSpike}];
+      phiHalfWidth[n_] := phiHalfWidth[n // modNSpike];
+      (* Heat bath radius *)
+      rBath = rSh / 2;
+      (* Scale rInfl to become unit length *)
+      (* (i.e. put rTilde == r / rInfl and drop tildes) *)
+      rScale = rInfl;
+      (* Scale tBath to become unit temperature *)
+      tScale = Log[1 / rBath];
+      (* Spacing of boundary points *)
+      (* (roughly 1 boundary point every 5 degrees along the terminal curve) *)
+      phSpacing = 5 Degree;
+      sSpacing = (rSh / rScale) phSpacing;
+      (* External (radiation) boundary points *)
+      (*
+        I am lazy, so I am simply listing the boundary points from
+        "line-hot-traced-convex-generic-with-known.png",
+        then removing duplicates and sorting them by azimuthal angle.
+       *)
+      extPointList = Join[
+        (* Spikes *)
+        Join @@ Table[
+          phi[r_] := phiTraHot["outer"][r] - phiSpike[n];
+          Join @@ Table[
+            (* (here, # is r such that phi[r] equals ph) *)
+            SeekRoot[phi[#] - ph &, {rSh, rSpike[n]}, 5]
+            // {
+              XYPolar[# / rScale, phiCentre[n] +  phi[#]],
+              XYPolar[# / rScale, phiCentre[n] -  phi[#]]
+            } &
+          , {ph, UniformRange[0, phiHalfWidth[n], phSpacing]}]
+        , {n, nSpike}],
+        (* Terminal curve *)
+        Join @@ Table[
+          Table[
+            XYPolar[rSh / rScale, ph]
+          , {ph, UniformRange[
+            phiCentre[n] + phiHalfWidth[n] // mod2Pi,
+            phiCentre[n + 1] - phiHalfWidth[n + 1] // mod2Pi,
+            phSpacing
+          ]}]
+        , {n, nSpike}]
+      ];
+      extPointList = DeleteDuplicates[
+        extPointList,
+        Norm[#2 - #1] < sSpacing / 4 &
+      ];
+      extPointList = SortBy[
+        extPointList,
+        mod2Pi[ArcTan @@ #] &
+      ];
+      (* Internal (heat bath) boundary *)
+      intPointList = Table[
+        XYPolar[rBath / rScale, ph]
+      , {ph, UniformRange[0, 2 Pi, sSpacing / (rBath / rScale)]}];
+      (* Numbering *)
+      nExt = Length[extPointList];
+      nInt = Length[intPointList];
+      mod[n_] := Mod[#, n, 1] &;
+      (* Build boundary element mesh *)
+      bMesh = ToBoundaryMesh[
+        "Coordinates" -> Join[extPointList, intPointList],
+        "BoundaryElements" -> {
+          (* External *)
+          LineElement[
+            Table[{n, n + 1}, {n, nExt}] // mod[nExt]
+          ],
+          (* Internal *)
+          LineElement[
+            nExt + (Table[{n, n + 1}, {n, nInt}] // mod[nInt])
+          ]
+        }
+      ];
+      (* Build mesh *)
+      mesh = ToElementMesh[bMesh,
+        "ImproveBoundaryPosition" -> True,
+        "RegionHoles" -> {0, 0}
+      ];
+      (* Predicate functions for exterior and interior boundaries *)
+      prExt = Function[{x, y},
+        RPolar[x, y] > Way[rBath, rSh] / rScale // Evaluate
+      ];
+      prInt = Function[{x, y},
+        RPolar[x, y] < Way[rBath, rSh] / rScale // Evaluate
+      ];
+      {a, rSh, rBath, rScale, tScale, mesh, prExt, prInt}
+       // Compress // Ex[dest]
+    ];
+  ];
+];
+
+
+(* ::Subsubsection:: *)
+(*Solve boundary value problem*)
+
+
+(*
+  With the new scales
+    rScale == rInfl (length)
+    tScale == tBath (temperature),
+  and putting
+    rTilde == r / rScale
+    TTilde == T / tScale
+  and droppping tildes,
+  the boundary value problem becomes
+    del^2 T == 0
+    n . del T == (-rScale tScale^3 / A) T^4 (radiation)
+    T == 1 (heat bath)
+  and should have the solution
+    T == (1 / tScale) Log[1 / (rScale r)].
+ *)
+(* (This is not slow, nevertheless compute once and store.) *)
+(* (Delete the file manually to compute from scratch.) *)
+Module[{dest},
+  dest = "line-verification-solution.txt";
+  If[Not @ FileExistsQ[dest],
+    Module[
+     {source,
+      a, rSh, rBath, rScale, tScale, mesh, prExt, prInt,
+      tSol
+     },
+      (* Import mesh *)
+      source = "line-verification-mesh.txt";
+      {a, rSh, rBath, rScale, tScale, mesh, prExt, prInt} =
+        Import[source] // Uncompress;
+      (* Solve boundary value problem *)
+      With[{x = \[FormalX], y = \[FormalY], t = \[FormalCapitalT]},
+        tSol = NDSolveValue[
+          {
+            (* Steady state heat equation *)
+            -Laplacian[t[x, y], {x, y}] ==
+              (* External (radiation) boundary condition *)
+              NeumannValue[
+                (-rScale tScale^3 / a) t[x, y]^4,
+                prExt[x, y]
+              ],
+            (* Internal (heat bath) boundary condition *)
+            DirichletCondition[t[x, y] == 1, prInt[x, y]]
+          }, t, Element[{x, y}, mesh]
+        ]
+      ];
+      {rScale, tScale, tSol} // Compress // Ex[dest];
+    ];
+  ];
+];
+
+
+(* ::Subsection:: *)
 (*Italicised symbols*)
 
 
@@ -295,6 +497,9 @@ inflStyle = Directive[Dashed, Green];
 upperStyle = Blue;
 lowerStyle = Red;
 convexStyle = Black;
+
+
+pointStyle = PointSize[Large];
 
 
 transStyle = Function[{a}, If[a == aNat, Style[#, Red] &, Identity]];
@@ -1134,3 +1339,123 @@ Module[
     ] // Ex["line-cold-traced-" <> zoom <> ".pdf"]
   , {zoom, Keys[rMaxAss]}]
 ]
+
+
+(* ::Section:: *)
+(*Numerical verification plots*)
+
+
+(* ::Subsection:: *)
+(*Finite element mesh*)
+
+
+Module[
+ {source,
+  a, rSh, rBath, rScale, tScale, mesh, prExt, prInt,
+  bCoords, bCoordsExt, bCoordsInt
+ },
+  (* Import mesh *)
+  source = "line-verification-mesh.txt";
+  {a, rSh, rBath, rScale, tScale, mesh, prExt, prInt} =
+    Import[source] // Uncompress;
+  (* Boundary coordinates *)
+  bCoords = Part[
+    mesh["Coordinates"],
+    List @@ First @ mesh["BoundaryElements"] // Flatten // DeleteDuplicates
+  ];
+  bCoordsExt = Select[bCoords, prExt @@ # &];
+  bCoordsInt = Select[bCoords, prInt @@ # &];
+  (* Plot *)
+  Show[
+    mesh["Wireframe"],
+    ListPlot[{bCoordsExt, bCoordsInt},
+      PlotStyle -> (Directive[#, pointStyle] & /@ {Blue, Red})
+    ],
+    ImageSize -> 480
+  ]
+] // Ex["line-verification-mesh.pdf"]
+
+
+(* ::Subsection:: *)
+(*Numerical solution*)
+
+
+Module[
+ {source,
+  rScale, tScale, tSol,
+  mesh
+ },
+  (* Import solution *)
+  source = "line-verification-solution.txt";
+  {rScale, tScale, tSol} = Import[source] // Uncompress;
+  mesh = tSol["ElementMesh"];
+  (* Plot *)
+  With[{x = \[FormalX], y = \[FormalY]},
+    Plot3D[tSol[x, y], Element[{x, y}, mesh],
+      AxesLabel -> Italicised /@ {"x", "y", "T"},
+      PlotLabel -> "Numerical solution",
+      PlotRange -> Full,
+      PlotOptions[Axes] // Evaluate
+    ]
+  ]
+] // Ex["line-verification-solution.png"]
+
+
+(* ::Subsection:: *)
+(*Residual (3D)*)
+
+
+Module[
+ {source,
+  rScale, tScale, tSol,
+  mesh,
+  tExact
+ },
+  (* Import solution *)
+  source = "line-verification-solution.txt";
+  {rScale, tScale, tSol} = Import[source] // Uncompress;
+  mesh = tSol["ElementMesh"];
+  (* Known exact solution *)
+  tExact[x_, y_] := (1 / tScale) Log[1 / (rScale RPolar[x, y])];
+  (* Plot *)
+  With[{x = \[FormalX], y = \[FormalY]},
+    Plot3D[tSol[x, y] - tExact[x, y], Element[{x, y}, mesh],
+      AxesLabel -> Italicised /@ {"x", "y", "T"},
+      PlotLabel -> "Residual of numerical solution",
+      PlotRange -> Full,
+      PlotOptions[Axes] // Evaluate
+    ]
+  ]
+] // Ex["line-verification-residual-3d.png"]
+
+
+(* ::Subsection:: *)
+(*Residual (2D)*)
+
+
+Module[
+ {source,
+  rScale, tScale, tSol,
+  mesh,
+  tExact
+ },
+  (* Import solution *)
+  source = "line-verification-solution.txt";
+  {rScale, tScale, tSol} = Import[source] // Uncompress;
+  mesh = tSol["ElementMesh"];
+  (* Known exact solution *)
+  tExact[x_, y_] := (1 / tScale) Log[1 / (rScale RPolar[x, y])];
+  (* Plot *)
+  With[{x = \[FormalX], y = \[FormalY]},
+    Show[
+      DensityPlot[tSol[x, y] - tExact[x, y], Element[{x, y}, mesh],
+        ColorFunction -> "Rainbow",
+        PlotLabel -> "Residual of numerical solution",
+        PlotRange -> Full,
+        PlotLegends -> Automatic,
+        PlotOptions[Frame] // Evaluate
+      ],
+      mesh["Wireframe"]
+    ]
+  ]
+] // Ex["line-verification-residual-2d.png"]
