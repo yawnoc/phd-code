@@ -3681,7 +3681,7 @@ Module[{source, tSol, mesh},
 
 
 (* ::Subsection:: *)
-(*Residuals (3D and 2D)*)
+(*Relative errors (3D and 2D)*)
 
 
 (* ::Subsubsection:: *)
@@ -3697,14 +3697,13 @@ Module[{source, tSol, mesh, tExact},
   tExact[x_, y_] := VBipolar[x, y];
   (* Plot *)
   With[{x = \[FormalX], y = \[FormalY]},
-    Plot3D[tSol[x, y] - tExact[x, y], Element[{x, y}, mesh],
-      AxesLabel -> Italicised /@ {"x", "y", "T"},
-      PlotLabel -> "Residual of numerical solution",
+    Plot3D[tSol[x, y] / tExact[x, y] - 1, Element[{x, y}, mesh],
+      PlotLabel -> "Relative error of numerical solution",
       PlotRange -> Full,
       PlotOptions[Axes] // Evaluate
     ]
   ]
-] // Ex["bipolar-hot-verification-residual-3d.png"]
+] // Ex["bipolar-hot-verification-rel_error-3d.png"]
 
 
 Module[{source, tSol, mesh, tExact},
@@ -3717,9 +3716,9 @@ Module[{source, tSol, mesh, tExact},
   (* Plot *)
   With[{x = \[FormalX], y = \[FormalY]},
     Show[
-      DensityPlot[tSol[x, y] - tExact[x, y], Element[{x, y}, mesh],
+      DensityPlot[tSol[x, y] / tExact[x, y] - 1, Element[{x, y}, mesh],
         ColorFunction -> "Rainbow",
-        PlotLabel -> "Residual of numerical solution",
+        PlotLabel -> "Relative error of numerical solution",
         PlotRange -> Full,
         PlotLegends -> Automatic,
         PlotOptions[Frame] // Evaluate
@@ -3727,7 +3726,7 @@ Module[{source, tSol, mesh, tExact},
       mesh["Wireframe"]
     ]
   ]
-] // Ex["bipolar-hot-verification-residual-2d.png"]
+] // Ex["bipolar-hot-verification-rel_error-2d.png"]
 
 
 (* ::Subsubsection:: *)
@@ -3743,14 +3742,13 @@ Module[{source, tSol, mesh, tExact},
   tExact[x_, y_] := VBipolar[x, y];
   (* Plot *)
   With[{x = \[FormalX], y = \[FormalY]},
-    Plot3D[tSol[x, y] - tExact[x, y], Element[{x, y}, mesh],
-      AxesLabel -> Italicised /@ {"x", "y", "T"},
-      PlotLabel -> "Residual of numerical solution",
+    Plot3D[tSol[x, y] / tExact[x, y] - 1, Element[{x, y}, mesh],
+      PlotLabel -> "Relative error of numerical solution",
       PlotRange -> Full,
       PlotOptions[Axes] // Evaluate
     ]
   ]
-] // Ex["bipolar-warm_hot-verification-residual-3d.png"]
+] // Ex["bipolar-warm_hot-verification-rel_error-3d.png"]
 
 
 Module[{source, tSol, mesh, tExact},
@@ -3763,9 +3761,9 @@ Module[{source, tSol, mesh, tExact},
   (* Plot *)
   With[{x = \[FormalX], y = \[FormalY]},
     Show[
-      DensityPlot[tSol[x, y] - tExact[x, y], Element[{x, y}, mesh],
+      DensityPlot[tSol[x, y] / tExact[x, y] - 1, Element[{x, y}, mesh],
         ColorFunction -> "Rainbow",
-        PlotLabel -> "Residual of numerical solution",
+        PlotLabel -> "Relative error of numerical solution",
         PlotRange -> Full,
         PlotLegends -> Automatic,
         PlotOptions[Frame] // Evaluate
@@ -3773,4 +3771,4 @@ Module[{source, tSol, mesh, tExact},
       mesh["Wireframe"]
     ]
   ]
-] // Ex["bipolar-warm_hot-verification-residual-2d.png"]
+] // Ex["bipolar-warm_hot-verification-rel_error-2d.png"]
