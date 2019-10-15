@@ -931,6 +931,40 @@ Module[{dest},
 ]
 
 
+(* ::Subsubsection:: *)
+(*Solve PDE for hot regime A < A_\[Natural]\[Pi]*)
+
+
+Module[{dest},
+  dest = "bipolar-hot-verification-solution.txt";
+  If[Not @ FileExistsQ[dest],
+    Module[
+     {source,
+      a, vBath, mesh, prExt, prInt,
+      tSol
+     },
+      (* Import mesh *)
+      source = "bipolar-hot-verification-mesh.txt";
+      {a, vBath, mesh, prExt, prInt} = Import[source] // Uncompress;
+      (* Solve boundary value problem *)
+      With[{x = \[FormalX], y = \[FormalY], t = \[FormalCapitalT]},
+        tSol = NDSolveValue[
+          {
+            (* Steady state heat equation *)
+            -Laplacian[t[x, y], {x, y}] ==
+              (* External (radiation) boundary condition *)
+              NeumannValue[(-1 / a) t[x, y]^4, prExt[x, y]],
+            (* Internal (heat bath) boundary condition *)
+            DirichletCondition[t[x, y] == vBath, prInt[x, y]]
+          }, t, Element[{x, y}, mesh]
+        ]
+      ];
+      tSol // Compress // Ex[dest]
+    ]
+  ]
+]
+
+
 (* ::Subsection:: *)
 (*Italicised symbols*)
 
@@ -3442,3 +3476,78 @@ Module[
     ImageSize -> 480
   ]
 ] // Ex["bipolar-hot-verification-mesh.pdf"]
+
+
+(* ::Subsection:: *)
+(*Numerical solution*)
+
+
+(* ::Subsubsection:: *)
+(*Hot regime A < A_\[Natural]\[Pi]*)
+
+
+Module[{source, tSol, mesh},
+  (* Import solution *)
+  source = "bipolar-hot-verification-solution.txt";
+  tSol = Import[source] // Uncompress;
+  mesh = tSol["ElementMesh"];
+  (* Plot *)
+  With[{x = \[FormalX], y = \[FormalY]},
+    Plot3D[tSol[x, y], Element[{x, y}, mesh],
+      AxesLabel -> Italicised /@ {"x", "y", "T"},
+      PlotLabel -> "Numerical solution",
+      PlotRange -> Full,
+      PlotOptions[Axes] // Evaluate
+    ]
+  ]
+] // Ex["bipolar-hot-verification-solution.png"]
+
+
+(* ::Subsection:: *)
+(*Residuals (3D and 2D)*)
+
+
+(* ::Subsubsection:: *)
+(*Hot regime A < A_\[Natural]\[Pi]*)
+
+
+Module[{source, tSol, mesh, tExact},
+  (* Import solution *)
+  source = "bipolar-hot-verification-solution.txt";
+  tSol = Import[source] // Uncompress;
+  mesh = tSol["ElementMesh"];
+  (* Known exact solution *)
+  tExact[x_, y_] := VBipolar[x, y];
+  (* Plot *)
+  With[{x = \[FormalX], y = \[FormalY]},
+    Plot3D[tSol[x, y] - tExact[x, y], Element[{x, y}, mesh],
+      AxesLabel -> Italicised /@ {"x", "y", "T"},
+      PlotLabel -> "Residual of numerical solution",
+      PlotRange -> Full,
+      PlotOptions[Axes] // Evaluate
+    ]
+  ]
+] // Ex["bipolar-hot-verification-residual-3d.png"]
+
+
+Module[{source, tSol, mesh, tExact},
+  (* Import solution *)
+  source = "bipolar-hot-verification-solution.txt";
+  tSol = Import[source] // Uncompress;
+  mesh = tSol["ElementMesh"];
+  (* Known exact solution *)
+  tExact[x_, y_] := VBipolar[x, y];
+  (* Plot *)
+  With[{x = \[FormalX], y = \[FormalY]},
+    Show[
+      DensityPlot[tSol[x, y] - tExact[x, y], Element[{x, y}, mesh],
+        ColorFunction -> "Rainbow",
+        PlotLabel -> "Residual of numerical solution",
+        PlotRange -> Full,
+        PlotLegends -> Automatic,
+        PlotOptions[Frame] // Evaluate
+      ],
+      mesh["Wireframe"]
+    ]
+  ]
+] // Ex["bipolar-hot-verification-residual-2d.png"]
