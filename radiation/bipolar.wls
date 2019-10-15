@@ -897,7 +897,7 @@ Module[{dest},
       radBath = Csch[vBath];
       intPointList = Table[
         cenBath + XYPolar[radBath, ph]
-      , {ph, UniformRange[0, 2 Pi, sSpacing / radBath] // Most}];
+      , {ph, UniformRange[0, 2 Pi, sSpacing / radBath]}] // Most;
       (* Numbering *)
       nExt = Length[extPointList];
       nInt = Length[intPointList];
@@ -924,7 +924,7 @@ Module[{dest},
       (* Predicate functions for exterior and interior boundaries *)
       prExt = Function[{x, y}, VBipolar[x, y] < Way[vSh0, vBath] // Evaluate];
       prInt = Function[{x, y}, VBipolar[x, y] > Way[vSh0, vBath] // Evaluate];
-      {a, vSh0, vBath, mesh, prExt, prInt}
+      {a, vBath, mesh, prExt, prInt}
         // Compress // Ex[dest]
     ]
   ]
@@ -3420,12 +3420,12 @@ Module[
 
 Module[
  {source,
-  a, vSh0, vBath, mesh, prExt, prInt,
+  a, vBath, mesh, prExt, prInt,
   bCoords, bCoordsExt, bCoordsInt
  },
   (* Import mesh *)
   source = "bipolar-hot-verification-mesh.txt";
-  {a, vSh0, vBath, mesh, prExt, prInt} = Import[source] // Uncompress;
+  {a, vBath, mesh, prExt, prInt} = Import[source] // Uncompress;
   (* Boundary coordinates *)
   bCoords = Part[
     mesh["Coordinates"],
