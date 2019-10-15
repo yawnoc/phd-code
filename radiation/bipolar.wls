@@ -14,6 +14,7 @@
 
 
 SetDirectory @ ParentDirectory @ NotebookDirectory[];
+<< NDSolve`FEM`
 << Conway`
 << Curvilinear`
 SetDirectory @ FileNameJoin @ {NotebookDirectory[], "bipolar"}
@@ -789,6 +790,145 @@ With[{v = \[FormalV]},
     , {id, {"axis"}}]
   ];
 ];
+
+
+(* ::Subsection:: *)
+(*Numerical verification for candidate boundaries (finite elements)*)
+
+
+(* ::Text:: *)
+(*These are not slow, nevertheless compute once and store.*)
+(*Delete the corresponding file manually to compute from scratch.*)
+
+
+(* ::Subsubsection:: *)
+(*System of ODES for tracing by arc length parametrisation*)
+(*u = u(s), v = v(s)*)
+
+
+(* ::Text:: *)
+(*See (48) & (49) (Page 12) and (r3.34) to (r3.39) (Page 3-5).*)
+
+
+uvTraSystem[a_] :=
+  With[{u = \[FormalU], v = \[FormalV], s = \[FormalS]},
+    Module[{h, p, q, f, phi, grad2, uDer, vDer},
+      (* Scale factor for bipolar coordinates *)
+      h = HBipolar[u, v];
+      (* Properties of known solution T == v *)
+      p = 0;
+      q = 1 / h;
+      f = -v^4 / a;
+      phi = vi[a][u, v];
+      grad2 = p^2 + q^2;
+      (* Return system of ODEs *)
+      uDer = (-q f + p Re @ Sqrt[phi]) / (h grad2) // FullSimplify;
+      vDer = (+p f + q Re @ Sqrt[phi]) / (h grad2);
+      {u' == uDer, v' == vDer} /. {
+        u' -> u'[s],
+        v' -> v'[s],
+        u -> u[s],
+        v -> v[s],
+        List -> Sequence
+      }
+    ]
+  ] // Evaluate;
+
+
+(* ::Subsubsection:: *)
+(*Generate mesh for hot regime A < A_\[Natural]\[Pi]*)
+
+
+(* ::Text:: *)
+(*See "bipolar-hot-traced-convex-with-known.png".*)
+
+
+Module[{dest},
+  dest = "bipolar-hot-verification-mesh.txt";
+  If[Not @ FileExistsQ[dest],
+    Module[
+     {a, vSh0,
+      sMax, uv,
+      vBath,
+      radSh0, sSpacing,
+      sValues, reflect, extPointList,
+      cenBath, radBath, intPointList,
+      nExt, nInt, mod,
+      bMesh, mesh,
+      prExt, prInt
+     },
+      (* Dimensionless group *)
+      a = aHot;
+      (* Hyperbolic critical terminal point *)
+      vSh0 = vSharp0[a];
+      (* Upper bound for arc length traversed *)
+      sMax = Pi (1 - XBipolar[-Pi, vTraCandCorn[a]]);
+      (* Traced boundaries *)
+      uv = With[{u = \[FormalU], v = \[FormalV], s = \[FormalS]},
+        NDSolveValue[
+          {
+            uvTraSystem[a],
+            u[0] == 0, v[0] == vSh0,
+            WhenEvent[u[s] == -Pi, "StopIntegration"]
+          }, {u, v}, {s, -sMax, 0},
+          NoExtrapolation
+        ]
+      ];
+      (* Actual arc length traversed *)
+      sMax = -DomainStart[uv];
+      (* Heat bath coordinate *)
+      vBath = 1.2 vSh0;
+      (* Spacing of boundary points *)
+      (* (roughly 1 boundary point every 5 degrees along v == vSh0) *)
+      sSpacing = Csch[vSh0] * 5 Degree;
+      (* External (radiation) boundary points *)
+      sValues = UniformRange[-sMax, 0, sSpacing];
+      reflect[{x_, y_}] := {x, -y};
+      extPointList = Join[
+        Table[
+          XYBipolar @@ Through @ uv[s] // reflect
+        , {s, sValues}] // Reverse // Most,
+        Table[
+          XYBipolar @@ Through @ uv[s]
+        , {s, sValues}] // Most
+      ];
+      (* Internal (heat bath) boundary *)
+      cenBath = {Coth[vBath], 0};
+      radBath = Csch[vBath];
+      intPointList = Table[
+        cenBath + XYPolar[radBath, ph]
+      , {ph, UniformRange[0, 2 Pi, sSpacing / radBath] // Most}];
+      (* Numbering *)
+      nExt = Length[extPointList];
+      nInt = Length[intPointList];
+      mod[n_] := Mod[#, n, 1] &;
+      (* Build boundary element mesh *)
+      bMesh = ToBoundaryMesh[
+        "Coordinates" -> Join[extPointList, intPointList],
+        "BoundaryElements" -> {
+          (* External *)
+          LineElement[
+            Table[{n, n + 1}, {n, nExt}] // mod[nExt]
+          ],
+          (* Internal *)
+          LineElement[
+            nExt + (Table[{n, n + 1}, {n, nInt}] // mod[nInt])
+          ]
+        }
+      ];
+      (* Build mesh *)
+      mesh = ToElementMesh[bMesh,
+        "ImproveBoundaryPosition" -> True,
+        "RegionHoles" -> {1, 0}
+      ];
+      (* Predicate functions for exterior and interior boundaries *)
+      prExt = Function[{x, y}, VBipolar[x, y] < Way[vSh0, vBath] // Evaluate];
+      prInt = Function[{x, y}, VBipolar[x, y] > Way[vSh0, vBath] // Evaluate];
+      {a, vSh0, vBath, mesh, prExt, prInt}
+        // Compress // Ex[dest]
+    ]
+  ]
+]
 
 
 (* ::Subsection:: *)
@@ -3264,3 +3404,41 @@ Module[
     PlotRangeClipping -> False
   ] // PrettyString["nat" -> "\[Natural]", "pi" -> "\[Pi]"]
 ] // Ex["bipolar-candidate-asymmetry.pdf"]
+
+
+(* ::Section:: *)
+(*Numerical verification plots*)
+
+
+(* ::Subsection:: *)
+(*Finite element mesh*)
+
+
+(* ::Subsubsection:: *)
+(*Hot regime A < A_\[Natural]\[Pi]*)
+
+
+Module[
+ {source,
+  a, vSh0, vBath, mesh, prExt, prInt,
+  bCoords, bCoordsExt, bCoordsInt
+ },
+  (* Import mesh *)
+  source = "bipolar-hot-verification-mesh.txt";
+  {a, vSh0, vBath, mesh, prExt, prInt} = Import[source] // Uncompress;
+  (* Boundary coordinates *)
+  bCoords = Part[
+    mesh["Coordinates"],
+    List @@ First @ mesh["BoundaryElements"] // Flatten // DeleteDuplicates
+  ];
+  bCoordsExt = Select[bCoords, prExt @@ # &];
+  bCoordsInt = Select[bCoords, prInt @@ # &];
+  (* Plot *)
+  Show[
+    mesh["Wireframe"],
+    ListPlot[{bCoordsExt, bCoordsInt},
+      PlotStyle -> (Directive[#, pointStyle] & /@ {Blue, Red})
+    ],
+    ImageSize -> 480
+  ]
+] // Ex["bipolar-hot-verification-mesh.pdf"]
