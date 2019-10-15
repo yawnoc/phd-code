@@ -279,8 +279,7 @@ Module[{dest},
      {a, rSh,
       nSpike, modNSpike, mod2Pi,
       rSpike, phiSpike, phiCentre, phiHalfWidth,
-      rBath, rScale, tScale,
-      phSpacing, sSpacing,
+      rBath, tBath, phSpacing, sSpacing,
       phi, phValues,
       extPointList, intPointList,
       nExt, nInt, mod,
@@ -313,17 +312,13 @@ Module[{dest},
           phiTraHot["outer"][(1 + 10^-6) rSh] - phiSpike[n]
       , {n, nSpike}];
       phiHalfWidth[n_] := phiHalfWidth[n // modNSpike];
-      (* Heat bath radius *)
+      (* Heat bath *)
       rBath = rSh / 2;
-      (* Scale rInfl to become unit length *)
-      (* (i.e. put rTilde == r / rInfl and drop tildes) *)
-      rScale = rInfl;
-      (* Scale tBath to become unit temperature *)
-      tScale = Log[1 / rBath];
+      tBath = Log[1 / rBath];
       (* Spacing of boundary points *)
       (* (roughly 1 boundary point every 5 degrees along the terminal curve) *)
       phSpacing = 5 Degree;
-      sSpacing = (rSh / rScale) phSpacing;
+      sSpacing = rSh phSpacing;
       (* External (radiation) boundary points *)
       (*
         I am lazy, so I am simply listing the boundary points from
@@ -338,15 +333,15 @@ Module[{dest},
             (* (here, # is r such that phi[r] equals ph) *)
             SeekRoot[phi[#] - ph &, {rSh, rSpike[n]}, 5]
             // {
-              XYPolar[# / rScale, phiCentre[n] +  phi[#]],
-              XYPolar[# / rScale, phiCentre[n] -  phi[#]]
+              XYPolar[#, phiCentre[n] +  phi[#]],
+              XYPolar[#, phiCentre[n] -  phi[#]]
             } &
           , {ph, UniformRange[0, phiHalfWidth[n], phSpacing]}]
         , {n, nSpike}],
         (* Terminal curve *)
         Join @@ Table[
           Table[
-            XYPolar[rSh / rScale, ph]
+            XYPolar[rSh, ph]
           , {ph, UniformRange[
             phiCentre[n] + phiHalfWidth[n] // mod2Pi,
             phiCentre[n + 1] - phiHalfWidth[n + 1] // mod2Pi,
@@ -364,8 +359,8 @@ Module[{dest},
       ];
       (* Internal (heat bath) boundary *)
       intPointList = Table[
-        XYPolar[rBath / rScale, ph]
-      , {ph, UniformRange[0, 2 Pi, sSpacing / (rBath / rScale)]}];
+        XYPolar[rBath, ph]
+      , {ph, UniformRange[0, 2 Pi, sSpacing / rBath]}] // Most;
       (* Numbering *)
       nExt = Length[extPointList];
       nInt = Length[intPointList];
@@ -391,37 +386,22 @@ Module[{dest},
       ];
       (* Predicate functions for exterior and interior boundaries *)
       prExt = Function[{x, y},
-        RPolar[x, y] > Way[rBath, rSh] / rScale // Evaluate
+        RPolar[x, y] > Way[rBath, rSh] // Evaluate
       ];
       prInt = Function[{x, y},
-        RPolar[x, y] < Way[rBath, rSh] / rScale // Evaluate
+        RPolar[x, y] < Way[rBath, rSh] // Evaluate
       ];
-      {a, rSh, rBath, rScale, tScale, mesh, prExt, prInt}
+      {a, tBath, mesh, prExt, prInt}
        // Compress // Ex[dest]
-    ];
-  ];
-];
+    ]
+  ]
+]
 
 
 (* ::Subsubsection:: *)
 (*Solve boundary value problem*)
 
 
-(*
-  With the new scales
-    rScale == rInfl (length)
-    tScale == tBath (temperature),
-  and putting
-    rTilde == r / rScale
-    TTilde == T / tScale
-  and droppping tildes,
-  the boundary value problem becomes
-    del^2 T == 0
-    n . del T == (-rScale tScale^3 / A) T^4 (radiation)
-    T == 1 (heat bath)
-  and should have the solution
-    T == (1 / tScale) Log[1 / (rScale r)].
- *)
 (* (This is not slow, nevertheless compute once and store.) *)
 (* (Delete the file manually to compute from scratch.) *)
 Module[{dest},
@@ -429,13 +409,12 @@ Module[{dest},
   If[Not @ FileExistsQ[dest],
     Module[
      {source,
-      a, rSh, rBath, rScale, tScale, mesh, prExt, prInt,
+      a, tBath, mesh, prExt, prInt,
       tSol
      },
       (* Import mesh *)
       source = "line-verification-mesh.txt";
-      {a, rSh, rBath, rScale, tScale, mesh, prExt, prInt} =
-        Import[source] // Uncompress;
+      {a, tBath, mesh, prExt, prInt} = Import[source] // Uncompress;
       (* Solve boundary value problem *)
       With[{x = \[FormalX], y = \[FormalY], t = \[FormalCapitalT]},
         tSol = NDSolveValue[
@@ -443,19 +422,16 @@ Module[{dest},
             (* Steady state heat equation *)
             -Laplacian[t[x, y], {x, y}] ==
               (* External (radiation) boundary condition *)
-              NeumannValue[
-                (-rScale tScale^3 / a) t[x, y]^4,
-                prExt[x, y]
-              ],
+              NeumannValue[(-1 / a) t[x, y]^4, prExt[x, y]],
             (* Internal (heat bath) boundary condition *)
-            DirichletCondition[t[x, y] == 1, prInt[x, y]]
+            DirichletCondition[t[x, y] == tBath, prInt[x, y]]
           }, t, Element[{x, y}, mesh]
         ]
       ];
-      {rScale, tScale, tSol} // Compress // Ex[dest];
-    ];
-  ];
-];
+      tSol // Compress // Ex[dest]
+    ]
+  ]
+]
 
 
 (* ::Subsection:: *)
@@ -1351,13 +1327,12 @@ Module[
 
 Module[
  {source,
-  a, rSh, rBath, rScale, tScale, mesh, prExt, prInt,
+  a, tBath, mesh, prExt, prInt,
   bCoords, bCoordsExt, bCoordsInt
  },
   (* Import mesh *)
   source = "line-verification-mesh.txt";
-  {a, rSh, rBath, rScale, tScale, mesh, prExt, prInt} =
-    Import[source] // Uncompress;
+  {a, tBath, mesh, prExt, prInt} = Import[source] // Uncompress;
   (* Boundary coordinates *)
   bCoords = Part[
     mesh["Coordinates"],
@@ -1380,14 +1355,10 @@ Module[
 (*Numerical solution*)
 
 
-Module[
- {source,
-  rScale, tScale, tSol,
-  mesh
- },
+Module[{source, tSol, mesh},
   (* Import solution *)
   source = "line-verification-solution.txt";
-  {rScale, tScale, tSol} = Import[source] // Uncompress;
+  tSol = Import[source] // Uncompress;
   mesh = tSol["ElementMesh"];
   (* Plot *)
   With[{x = \[FormalX], y = \[FormalY]},
@@ -1405,18 +1376,13 @@ Module[
 (*Residual (3D)*)
 
 
-Module[
- {source,
-  rScale, tScale, tSol,
-  mesh,
-  tExact
- },
+Module[{source, tSol, mesh, tExact},
   (* Import solution *)
   source = "line-verification-solution.txt";
-  {rScale, tScale, tSol} = Import[source] // Uncompress;
+  tSol = Import[source] // Uncompress;
   mesh = tSol["ElementMesh"];
   (* Known exact solution *)
-  tExact[x_, y_] := (1 / tScale) Log[1 / (rScale RPolar[x, y])];
+  tExact[x_, y_] := Log[1 / RPolar[x, y]];
   (* Plot *)
   With[{x = \[FormalX], y = \[FormalY]},
     Plot3D[tSol[x, y] - tExact[x, y], Element[{x, y}, mesh],
@@ -1433,18 +1399,13 @@ Module[
 (*Residual (2D)*)
 
 
-Module[
- {source,
-  rScale, tScale, tSol,
-  mesh,
-  tExact
- },
+Module[{source, tSol, mesh, tExact},
   (* Import solution *)
   source = "line-verification-solution.txt";
-  {rScale, tScale, tSol} = Import[source] // Uncompress;
+  tSol = Import[source] // Uncompress;
   mesh = tSol["ElementMesh"];
   (* Known exact solution *)
-  tExact[x_, y_] := (1 / tScale) Log[1 / (rScale RPolar[x, y])];
+  tExact[x_, y_] := Log[1 / RPolar[x, y]];
   (* Plot *)
   With[{x = \[FormalX], y = \[FormalY]},
     Show[
