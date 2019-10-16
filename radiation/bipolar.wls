@@ -1024,6 +1024,98 @@ Module[{dest},
 
 
 (* ::Subsubsection:: *)
+(*Generate mesh for warm regime A_\[Natural]\[Pi] < A < A_\[Natural]0*)
+
+
+Module[{dest},
+  dest = "bipolar-warm-verification-mesh.txt";
+  If[Not @ FileExistsQ[dest],
+    Module[
+     {a, vSh0,
+      sMax, uv,
+      vBath,
+      radSh0, sSpacing,
+      sValues, reflect, extPointList,
+      cenBath, radBath, intPointList,
+      nExt, nInt, mod,
+      bMesh, mesh,
+      prExt, prInt
+     },
+      (* Dimensionless group *)
+      a = aWarm;
+      (* Hyperbolic critical terminal point *)
+      vSh0 = vSharp0[a];
+      (* Upper bound for arc length traversed *)
+      sMax = Pi (1 - XBipolar[-Pi, vTraCandCorn[a]]);
+      (* Traced boundaries *)
+      uv = With[{u = \[FormalU], v = \[FormalV], s = \[FormalS]},
+        NDSolveValue[
+          {
+            uvTraSystem[a],
+            u[0] == 0, v[0] == vSh0,
+            WhenEvent[u[s] == -Pi, "StopIntegration"]
+          }, {u, v}, {s, -sMax, 0},
+          NoExtrapolation
+        ]
+      ];
+      (* Actual arc length traversed *)
+      sMax = -DomainStart[uv];
+      (* Heat bath coordinate *)
+      vBath = 1.2 vSh0;
+      (* Spacing of boundary points *)
+      (* (roughly 1 boundary point every 5 degrees along v == vSh0) *)
+      sSpacing = Csch[vSh0] * 5 Degree;
+      (* External (radiation) boundary points *)
+      sValues = UniformRange[-sMax, 0, sSpacing];
+      reflect[{x_, y_}] := {x, -y};
+      extPointList = Join[
+        Table[
+          XYBipolar @@ Through @ uv[s] // reflect
+        , {s, sValues}] // Reverse // Most,
+        Table[
+          XYBipolar @@ Through @ uv[s]
+        , {s, sValues}] // Most
+      ];
+      (* Internal (heat bath) boundary *)
+      cenBath = {Coth[vBath], 0};
+      radBath = Csch[vBath];
+      intPointList = Table[
+        cenBath + XYPolar[radBath, ph]
+      , {ph, UniformRange[0, 2 Pi, sSpacing / radBath]}] // Most;
+      (* Numbering *)
+      nExt = Length[extPointList];
+      nInt = Length[intPointList];
+      mod[n_] := Mod[#, n, 1] &;
+      (* Build boundary element mesh *)
+      bMesh = ToBoundaryMesh[
+        "Coordinates" -> Join[extPointList, intPointList],
+        "BoundaryElements" -> {
+          (* External *)
+          LineElement[
+            Table[{n, n + 1}, {n, nExt}] // mod[nExt]
+          ],
+          (* Internal *)
+          LineElement[
+            nExt + (Table[{n, n + 1}, {n, nInt}] // mod[nInt])
+          ]
+        }
+      ];
+      (* Build mesh *)
+      mesh = ToElementMesh[bMesh,
+        "ImproveBoundaryPosition" -> True,
+        "RegionHoles" -> {1, 0}
+      ];
+      (* Predicate functions for exterior and interior boundaries *)
+      prExt = Function[{x, y}, VBipolar[x, y] < Way[vSh0, vBath] // Evaluate];
+      prInt = Function[{x, y}, VBipolar[x, y] > Way[vSh0, vBath] // Evaluate];
+      {a, vBath, mesh, prExt, prInt}
+        // Compress // Ex[dest]
+    ]
+  ]
+]
+
+
+(* ::Subsubsection:: *)
 (*Solve PDE for hot regime A < A_\[Natural]\[Pi]*)
 
 
@@ -1071,6 +1163,40 @@ Module[{dest},
      },
       (* Import mesh *)
       source = "bipolar-warm_hot-verification-mesh.txt";
+      {a, vBath, mesh, prExt, prInt} = Import[source] // Uncompress;
+      (* Solve boundary value problem *)
+      With[{x = \[FormalX], y = \[FormalY], t = \[FormalCapitalT]},
+        tSol = NDSolveValue[
+          {
+            (* Steady state heat equation *)
+            -Laplacian[t[x, y], {x, y}] ==
+              (* External (radiation) boundary condition *)
+              NeumannValue[(-1 / a) t[x, y]^4, prExt[x, y]],
+            (* Internal (heat bath) boundary condition *)
+            DirichletCondition[t[x, y] == vBath, prInt[x, y]]
+          }, t, Element[{x, y}, mesh]
+        ]
+      ];
+      tSol // Compress // Ex[dest]
+    ]
+  ]
+]
+
+
+(* ::Subsubsection:: *)
+(*Solve PDE for warm regime A_\[Natural]\[Pi] < A < A_\[Natural]0*)
+
+
+Module[{dest},
+  dest = "bipolar-warm-verification-solution.txt";
+  If[Not @ FileExistsQ[dest],
+    Module[
+     {source,
+      a, vBath, mesh, prExt, prInt,
+      tSol
+     },
+      (* Import mesh *)
+      source = "bipolar-warm-verification-mesh.txt";
       {a, vBath, mesh, prExt, prInt} = Import[source] // Uncompress;
       (* Solve boundary value problem *)
       With[{x = \[FormalX], y = \[FormalY], t = \[FormalCapitalT]},
@@ -3634,6 +3760,36 @@ Module[
 ] // Ex["bipolar-warm_hot-verification-mesh.pdf"]
 
 
+(* ::Subsubsection:: *)
+(*Warm regime A_\[Natural]\[Pi] < A < A_\[Natural]0*)
+
+
+Module[
+ {source,
+  a, vBath, mesh, prExt, prInt,
+  bCoords, bCoordsExt, bCoordsInt
+ },
+  (* Import mesh *)
+  source = "bipolar-warm-verification-mesh.txt";
+  {a, vBath, mesh, prExt, prInt} = Import[source] // Uncompress;
+  (* Boundary coordinates *)
+  bCoords = Part[
+    mesh["Coordinates"],
+    List @@ First @ mesh["BoundaryElements"] // Flatten // DeleteDuplicates
+  ];
+  bCoordsExt = Select[bCoords, prExt @@ # &];
+  bCoordsInt = Select[bCoords, prInt @@ # &];
+  (* Plot *)
+  Show[
+    mesh["Wireframe"],
+    ListPlot[{bCoordsExt, bCoordsInt},
+      PlotStyle -> (Directive[#, pointStyle] & /@ {Blue, Red})
+    ],
+    ImageSize -> 480
+  ]
+] // Ex["bipolar-warm-verification-mesh.pdf"]
+
+
 (* ::Subsection:: *)
 (*Numerical solution*)
 
@@ -3678,6 +3834,27 @@ Module[{source, tSol, mesh},
     ]
   ]
 ] // Ex["bipolar-warm_hot-verification-solution.png"]
+
+
+(* ::Subsubsection:: *)
+(*Warm regime A_\[Natural]\[Pi] < A < A_\[Natural]0*)
+
+
+Module[{source, tSol, mesh},
+  (* Import solution *)
+  source = "bipolar-warm-verification-solution.txt";
+  tSol = Import[source] // Uncompress;
+  mesh = tSol["ElementMesh"];
+  (* Plot *)
+  With[{x = \[FormalX], y = \[FormalY]},
+    Plot3D[tSol[x, y], Element[{x, y}, mesh],
+      AxesLabel -> Italicised /@ {"x", "y", "T"},
+      PlotLabel -> "Numerical solution",
+      PlotRange -> Full,
+      PlotOptions[Axes] // Evaluate
+    ]
+  ]
+] // Ex["bipolar-warm-verification-solution.png"]
 
 
 (* ::Subsection:: *)
@@ -3772,3 +3949,48 @@ Module[{source, tSol, mesh, tExact},
     ]
   ]
 ] // Ex["bipolar-warm_hot-verification-rel_error-2d.png"]
+
+
+(* ::Subsubsection:: *)
+(*Warm regime A_\[Natural]\[Pi] < A < A_\[Natural]0*)
+
+
+Module[{source, tSol, mesh, tExact},
+  (* Import solution *)
+  source = "bipolar-warm-verification-solution.txt";
+  tSol = Import[source] // Uncompress;
+  mesh = tSol["ElementMesh"];
+  (* Known exact solution *)
+  tExact[x_, y_] := VBipolar[x, y];
+  (* Plot *)
+  With[{x = \[FormalX], y = \[FormalY]},
+    Plot3D[tSol[x, y] / tExact[x, y] - 1, Element[{x, y}, mesh],
+      PlotLabel -> "Relative error of numerical solution",
+      PlotRange -> Full,
+      PlotOptions[Axes] // Evaluate
+    ]
+  ]
+] // Ex["bipolar-warm-verification-rel_error-3d.png"]
+
+
+Module[{source, tSol, mesh, tExact},
+  (* Import solution *)
+  source = "bipolar-warm-verification-solution.txt";
+  tSol = Import[source] // Uncompress;
+  mesh = tSol["ElementMesh"];
+  (* Known exact solution *)
+  tExact[x_, y_] := VBipolar[x, y];
+  (* Plot *)
+  With[{x = \[FormalX], y = \[FormalY]},
+    Show[
+      DensityPlot[tSol[x, y] / tExact[x, y] - 1, Element[{x, y}, mesh],
+        ColorFunction -> "Rainbow",
+        PlotLabel -> "Relative error of numerical solution",
+        PlotRange -> Full,
+        PlotLegends -> Automatic,
+        PlotOptions[Frame] // Evaluate
+      ],
+      mesh["Wireframe"]
+    ]
+  ]
+] // Ex["bipolar-warm-verification-rel_error-2d.png"]
