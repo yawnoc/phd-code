@@ -1,4 +1,3 @@
-#!/usr/bin/env wolframscript
 (* ::Package:: *)
 
 (* ::Text:: *)
@@ -399,7 +398,7 @@ Module[{dest},
 
 
 (* ::Subsubsection:: *)
-(*Solve boundary value problem*)
+(*Solve boundary value problem (Version 12 required)*)
 
 
 (* (This is not slow, nevertheless compute once and store.) *)

@@ -1,7 +1,7 @@
 (* ::Package:: *)
 
 (* ::Text:: *)
-(*Conway.wl (for Wolfram Mathematica 12.0)*)
+(*Conway.wl (for Wolfram Mathematica)*)
 
 
 (* ::Text:: *)

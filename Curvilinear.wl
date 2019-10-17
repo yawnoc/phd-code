@@ -1,7 +1,7 @@
 (* ::Package:: *)
 
 (* ::Text:: *)
-(*Curvilinear.wl (for Wolfram Mathematica 12.0)*)
+(*Curvilinear.wl (for Wolfram Mathematica)*)
 
 
 (* ::Text:: *)
