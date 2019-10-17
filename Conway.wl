@@ -326,7 +326,10 @@ SeekRoot::usage = (
   <> "over the search interval {xMin, xMax} "
   <> "with num initial subdivisions to determine the best initial guess.\n"
   <> "Default option N -> True specifies that initial subdivision points "
-  <> "should be numericised (for speed) before fun is applied."
+  <> "should be numericised (for speed) before fun is applied.\n\n"
+  <>
+  "SeekRoot[fun, xInit]\n"
+  <> "Uses initial guess xInit."
 );
 
 
@@ -336,13 +339,21 @@ SeekRoot[
   num : Except[_?OptionQ, _?NumericQ] : 1000,
   opts : OptionsPattern @ {N -> True}
 ] :=
-  Module[{xInit, x},
-    xInit = First @ TakeSmallestBy[
-      Subdivide[xMin, xMax, num] // If[TrueQ @ OptionValue[N], N, Identity],
-      Abs @* fun,
-      1,
-      ExcludedForms -> Except[_?NumericQ] (* exclude infinities *)
-    ];
+  With[{x = \[FormalX]},
+    Module[{xInit},
+      xInit = First @ TakeSmallestBy[
+        Subdivide[xMin, xMax, num] // If[TrueQ @ OptionValue[N], N, Identity],
+        Abs @* fun,
+        1,
+        ExcludedForms -> Except[_?NumericQ] (* exclude infinities *)
+      ];
+      x /. FindRoot[fun[x], {x, xInit}]
+    ]
+  ];
+
+
+SeekRoot[fun_, xInit_?NumericQ] :=
+  With[{x = \[FormalX]},
     x /. FindRoot[fun[x], {x, xInit}]
   ];
 

@@ -38,6 +38,9 @@ EmptyAxes[{0, 1}, {0, 1}]
 EmptyFrame[{0, 1}, {0, 1}]
 
 
+"a + beta" // PrettyString["beta" -> "\[Beta]"]
+
+
 Module[{fun, x},
   fun = Cos[#] - # &;
   x = SeekRoot[fun, {0, 1}];
@@ -45,7 +48,11 @@ Module[{fun, x},
 ]
 
 
-"a + beta" // PrettyString["beta" -> "\[Beta]"]
+Module[{fun, x},
+  fun = Cos[#] - # &;
+  x = SeekRoot[fun, 0.7];
+  {x, fun[x]}
+]
 
 
 SeekRootBisection[Cos[#] - # &, {0, 1}]
