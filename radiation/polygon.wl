@@ -69,6 +69,18 @@ With[{n = \[FormalN], zeta = \[FormalZeta]},
 
 
 (* ::Subsection:: *)
+(*Backward Schwarz--Christoffel transformation*)
+
+
+(* ::Text:: *)
+(*Solves z(\[Zeta]) = z by calling FindRoot with initial guess \[Zeta] = z.*)
+(*See tests in "Backward transformation" below.*)
+
+
+zetaMap[n_][z_] := SeekRoot[zMap[n][#] - z &, z];
+
+
+(* ::Subsection:: *)
 (*Geometric regions*)
 
 
