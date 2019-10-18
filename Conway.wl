@@ -339,23 +339,18 @@ SeekRoot[
   num : Except[_?OptionQ, _?NumericQ] : 1000,
   opts : OptionsPattern @ {N -> True}
 ] :=
-  With[{x = \[FormalX]},
-    Module[{xInit},
-      xInit = First @ TakeSmallestBy[
-        Subdivide[xMin, xMax, num] // If[TrueQ @ OptionValue[N], N, Identity],
-        Abs @* fun,
-        1,
-        ExcludedForms -> Except[_?NumericQ] (* exclude infinities *)
-      ];
-      x /. FindRoot[fun[x], {x, xInit}]
-    ]
+  Module[{xInit},
+    xInit = First @ TakeSmallestBy[
+      Subdivide[xMin, xMax, num] // If[TrueQ @ OptionValue[N], N, Identity],
+      Abs @* fun,
+      1,
+      ExcludedForms -> Except[_?NumericQ] (* exclude infinities *)
+    ];
+    First @ FindRoot[fun, {xInit}]
   ];
 
 
-SeekRoot[fun_, xInit_?NumericQ] :=
-  With[{x = \[FormalX]},
-    x /. FindRoot[fun[x], {x, xInit}]
-  ];
+SeekRoot[fun_, xInit_?NumericQ] := First @ FindRoot[fun, {xInit}];
 
 
 (* ::Subsubsection:: *)
