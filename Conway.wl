@@ -15,16 +15,15 @@
 
 
 (* ::Text:: *)
-(*Disable annoying floating elements (which pop up when I don't need them)*)
+(*Disable "smart" quotes and annoying floating elements*)
+(*(which pop up when I don't need them),*)
 (*and make alternative input auto replacements*)
 (*(to avoid unreadable \[...] representations in text editors).*)
 
 
-SetOptions[
-  $FrontEndSession,
-  CodeAssistOptions -> {
-    "FloatingElementEnable" -> False
-  },
+SetOptions[$FrontEndSession,
+  AutoQuoteCharacters -> {},
+  CodeAssistOptions -> {"FloatingElementEnable" -> False},
   InputAutoReplacements -> {
     "eee" -> "==",
     "ggg" -> ">=",
