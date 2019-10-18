@@ -219,3 +219,35 @@ Module[{nValues, zetaTestList, zValues, resValues},
 
 (* ::Text:: *)
 (*zetaTest1 has much smaller residuals.*)
+
+
+(* ::Subsubsection:: *)
+(*Timings*)
+
+
+Module[{nValues, zetaTestList, zValues, timingList},
+  nValues = Range[3, 7];
+  zetaTestList = {zetaTest1, zetaTest2};
+  timingList =
+    Transpose @ Table[
+      zValues = Complex @@@ polyPoints[n, 1000];
+      Table[
+        zMap[n] @ zetaTest[n] @ z - z
+      , {z, zValues}] // AbsoluteTiming // First
+    , {n, nValues}, {zetaTest, zetaTestList}];
+  ListPlot[timingList,
+    AxesLabel -> {Italicised["n"], "Timing"},
+    Joined -> True,
+    PlotLegends -> zetaTestList,
+    PlotRange -> All,
+    PlotOptions[Axes] // Evaluate
+  ]
+] // Ex["schwarz-christoffel-timings.pdf"]
+
+
+(* ::Subsubsection:: *)
+(*Conclusion*)
+
+
+(* ::Text:: *)
+(*zetaTest1 is faster (and the difference increases with n).*)
