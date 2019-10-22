@@ -210,6 +210,62 @@ rhoSharp[n_?NumericQ][a_?NumericQ][ph_?NumericQ] :=
 
 
 (* ::Subsection:: *)
+(*Starting points for boundary tracing*)
+
+
+(* ::Text:: *)
+(*We choose points with \[Rho] between \[Rho]_\[Sharp] and 1,*)
+(*and \[CurlyPhi] between 0 and 2 \[Pi] / n (since there is n-fold symmetry).*)
+
+
+(* ::Subsubsection:: *)
+(*Hot regime A values*)
+
+
+(* ::Text:: *)
+(*"Hot" means A < A_\[Natural] along \[CurlyPhi] = 0.*)
+(*We take A = A_\[Natural] / 2 as the representative value.*)
+
+
+aHot[n_] := aNat[n][0] / 2;
+
+
+(* ::Subsubsection:: *)
+(*Hot regime points*)
+
+
+Table[
+  startXYHot[n]["general"] =
+    Module[
+     {a,
+      phMax, phSpacing, phValues,
+      rhoMin, rhoMax, rhoBetw, rhoValues
+     },
+      a = aHot[n];
+      (* \[CurlyPhi] values *)
+      phMax = 2 Pi / n;
+      phSpacing = 30 Degree;
+      phValues = UniformRange[0, phMax, phSpacing] // Most;
+      (* Build table *)
+      Join @@ Table[
+        (* \[Rho] values *)
+        rhoMin = rhoSharp[n][a][ph];
+        rhoMax = 1;
+        rhoBetw = Way[rhoMin, rhoMax, 1/5];
+        rhoValues = Join[
+          Subdivide[rhoMin, rhoBetw, 4] // Most,
+          Subdivide[rhoBetw, rhoMax, 4] // Most
+        ] // Select[# <= 1 &];
+        (* {x, y} values *)
+        Table[
+          rho Exp[I ph] // zMap[n] // ReIm
+        , {rho, rhoValues}]
+      , {ph, phValues}]
+    ]
+, {n, 3, 7}];
+
+
+(* ::Subsection:: *)
 (*Geometric regions*)
 
 
@@ -509,4 +565,49 @@ Table[
     StringJoin["polygon-viable-zoom-", ToString[n],".gif"],
     gifOpts
   ]
+, {n, 3, 7}]
+
+
+(* ::Section:: *)
+(*Traced boundary plots*)
+
+
+(* ::Subsection:: *)
+(*Hot regime*)
+
+
+(* ::Subsubsection:: *)
+(*Starting points*)
+
+
+Table[
+  Module[{rSamp = 4, phiSamp = 4, idList},
+    (* Group names *)
+    idList = {"general"};
+    (* Plot *)
+    Show[
+      (* Domain with equipotentials *)
+      ParametricPlot[r Exp[I phi] // zMap[n] // ReIm,
+        {r, 0, 1}, {phi, 0, 2 Pi},
+        ImageSize -> 480,
+        Mesh -> {rSamp - 1, n phiSamp - 1},
+        PlotLabel -> BoxedLabel @ Row[
+          {aIt == N[aHot[n]], "hot" // ""},
+          "  "
+        ],
+        PlotPoints -> {rSamp, n phiSamp + 1},
+        PlotOptions[Frame] // Evaluate
+      ],
+      (* Starting points *)
+      ListPlot[
+        Table[startXYHot[n][id], {id, idList}],
+        LabelingFunction -> Function @ Placed[
+          #2[[2]],
+          Center
+        ],
+        PlotLegends -> idList,
+        PlotStyle -> Directive[Opacity[0.7], pointStyle]
+      ]
+    ]
+  ] // Ex @ StringJoin["polygon-hot-traced-starting-", ToString[n],".pdf"]
 , {n, 3, 7}]
