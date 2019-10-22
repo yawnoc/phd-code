@@ -29,11 +29,7 @@ ClearAll["Global`*"];
 
 
 (* ::Subsubsection:: *)
-(*H_n(\[Zeta])*)
-
-
-(* ::Text:: *)
-(*See (r4.8) (Page r4-2).*)
+(*h_n(\[Zeta])*)
 
 
 h[n_][zeta_] := Hypergeometric2F1[1/n, 2/n, 1 + 1/n, zeta ^ n];
@@ -43,10 +39,6 @@ h[n_][zeta_] := Hypergeometric2F1[1/n, 2/n, 1 + 1/n, zeta ^ n];
 (*dz/d\[Zeta]*)
 
 
-(* ::Text:: *)
-(*See (r4.11) (Page r4-3).*)
-
-
 zMapDer[n_][zeta_] := 1 / (h[n][1] (1 - zeta ^ n) ^ (2/n)) // Evaluate;
 
 
@@ -54,19 +46,11 @@ zMapDer[n_][zeta_] := 1 / (h[n][1] (1 - zeta ^ n) ^ (2/n)) // Evaluate;
 (*z = z(\[Zeta])*)
 
 
-(* ::Text:: *)
-(*See (r4.12) (Page r4-3).*)
-
-
 zMap[n_][zeta_] := zeta h[n][zeta] / h[n][1] // Evaluate;
 
 
 (* ::Subsubsection:: *)
 (*d\[Zeta]/dz*)
-
-
-(* ::Text:: *)
-(*See (r4.13) (Page r4-3).*)
 
 
 zetaMapDer[n_][zeta_] := h[n][1] (1 - zeta ^ n) ^ (2/n) // Evaluate;
@@ -90,10 +74,10 @@ With[{n = \[FormalN], zeta = \[FormalZeta]},
 
 (* ::Text:: *)
 (*Solves z(\[Zeta]) = z by calling FindRoot with initial guess \[Zeta] = z.*)
-(*See tests in "Backward transformation" below (zetaTest1 was best).*)
+(*See tests in "Backward transformation" below.*)
 
 
-zetaMap[n_][z_] := SeekRoot[zMap[n][#] - z &, z];
+zetaMap[n_?NumericQ][z_?NumericQ] := SeekRoot[zMap[n][#] - z &, z];
 
 
 (* ::Subsection:: *)
@@ -104,7 +88,7 @@ zetaMap[n_][z_] := SeekRoot[zMap[n][#] - z &, z];
 (*Unit disk (\[Zeta]-space)*)
 
 
-diskPoints[num_] := diskPoints[num] = (
+diskPoints[num_Integer] := diskPoints[num] = (
   SeedRandom[0];
   RandomPoint[Disk[], num]
 );
@@ -114,13 +98,13 @@ diskPoints[num_] := diskPoints[num] = (
 (*Regular n-gon (z-space)*)
 
 
-poly[n_] := RegularPolygon[{1, 2 Pi / n}, n];
+poly[n_Integer] := RegularPolygon[{1, 2 Pi / n}, n];
 
 
-polyVertices[n_] := CirclePoints[{1, 2 Pi / n}, n];
+polyVertices[n_Integer] := CirclePoints[{1, 2 Pi / n}, n];
 
 
-polyPoints[n_, num_] := polyPoints[n, num] = (
+polyPoints[n_Integer, num_Integer] := polyPoints[n, num] = (
   SeedRandom[0];
   RandomPoint[poly[n], num]
 )
