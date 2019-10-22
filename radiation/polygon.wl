@@ -29,7 +29,11 @@ ClearAll["Global`*"];
 
 
 (* ::Subsubsection:: *)
-(*h_n(\[Zeta])*)
+(*H_n(\[Zeta])*)
+
+
+(* ::Text:: *)
+(*See (r4.8) (Page r4-2).*)
 
 
 h[n_][zeta_] := Hypergeometric2F1[1/n, 2/n, 1 + 1/n, zeta ^ n];
@@ -39,6 +43,10 @@ h[n_][zeta_] := Hypergeometric2F1[1/n, 2/n, 1 + 1/n, zeta ^ n];
 (*dz/d\[Zeta]*)
 
 
+(* ::Text:: *)
+(*See (r4.11) (Page r4-3).*)
+
+
 zMapDer[n_][zeta_] := 1 / (h[n][1] (1 - zeta ^ n) ^ (2/n)) // Evaluate;
 
 
@@ -46,11 +54,19 @@ zMapDer[n_][zeta_] := 1 / (h[n][1] (1 - zeta ^ n) ^ (2/n)) // Evaluate;
 (*z = z(\[Zeta])*)
 
 
+(* ::Text:: *)
+(*See (r4.12) (Page r4-3).*)
+
+
 zMap[n_][zeta_] := zeta h[n][zeta] / h[n][1] // Evaluate;
 
 
 (* ::Subsubsection:: *)
 (*d\[Zeta]/dz*)
+
+
+(* ::Text:: *)
+(*See (r4.13) (Page r4-3).*)
 
 
 zetaMapDer[n_][zeta_] := h[n][1] (1 - zeta ^ n) ^ (2/n) // Evaluate;
@@ -74,7 +90,7 @@ With[{n = \[FormalN], zeta = \[FormalZeta]},
 
 (* ::Text:: *)
 (*Solves z(\[Zeta]) = z by calling FindRoot with initial guess \[Zeta] = z.*)
-(*See tests in "Backward transformation" below.*)
+(*See tests in "Backward transformation" below (zetaTest1 was best).*)
 
 
 zetaMap[n_?NumericQ][z_?NumericQ] := SeekRoot[zMap[n][#] - z &, z];
