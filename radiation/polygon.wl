@@ -14,6 +14,7 @@
 
 SetDirectory @ ParentDirectory @ NotebookDirectory[];
 << Conway`
+<< Curvilinear`
 SetDirectory @ FileNameJoin @ {NotebookDirectory[], "polygon"}
 
 
@@ -93,7 +94,119 @@ With[{n = \[FormalN], zeta = \[FormalZeta]},
 (*See tests in "Backward transformation" below (zetaTest1 was best).*)
 
 
-zetaMap[n_?NumericQ][z_?NumericQ] := SeekRoot[zMap[n][#] - z &, z];
+zetaMap[n_][z_] := SeekRoot[zMap[n][#] - z &, z];
+
+
+(* ::Subsection:: *)
+(*Known solution (in \[Zeta]-space)*)
+
+
+(* ::Subsubsection:: *)
+(*G = -log(\[Zeta])*)
+
+
+(* ::Text:: *)
+(*See (r4.14) (Page r4-3).*)
+
+
+g[zeta_] := -Log[zeta];
+
+
+(* ::Subsubsection:: *)
+(*dG/dz*)
+
+
+(* ::Text:: *)
+(*See (r4.23) (Page r4-4).*)
+
+
+gDer[n_][zeta_] := -h[n][1] (1 - zeta ^ n) ^ (2/n) / zeta // Evaluate;
+
+
+(* ::Subsection:: *)
+(*Viable domain*)
+
+
+(* ::Subsubsection:: *)
+(*\[CapitalPhi] (viability)*)
+
+
+(* ::Text:: *)
+(*See (r4.22) (Page r4-4).*)
+
+
+vi[n_][a_][zeta_] :=
+  Subtract[
+    (Abs @ gDer[n][zeta]) ^ 2,
+    (Re @ g[zeta]) ^ 8 / a^2
+  ] // Evaluate;
+
+
+(* ::Subsubsection:: *)
+(*\[Psi]*)
+
+
+(* ::Text:: *)
+(*See (r4.24) (Page r4-4).*)
+
+
+psi[n_][zeta_] := (Re @ g[zeta]) ^ 4 / (Abs @ gDer[n][zeta]);
+
+
+(* ::Subsubsection:: *)
+(*\[Rho]_\[Natural]*)
+
+
+(* ::Text:: *)
+(*The radius \[Rho] = |\[Zeta]| achieving the maximum \[Psi] along arg(\[Zeta]) = \[CurlyPhi].*)
+
+
+With[{n = \[FormalN], rho = \[FormalRho], ph = \[FormalCurlyPhi]},
+  Block[{$Assumptions = n > 2 && 0 < rho < 1 && -Pi < ph < Pi},
+    psi[n][rho Exp[I ph]]
+      // ComplexExpand
+      // FullSimplify
+      // D[#, rho] &
+      // FullSimplify
+  ]
+]
+
+
+rhoNat[n_?NumericQ][ph_?NumericQ] :=
+  SeekRoot[
+    -4 + 8 # ^ n Cos[n ph] + # ^ (2 n) (-4 + Log[#]) - Log[#] &,
+    {0, 0.1},
+    100
+  ]
+
+
+(* ::Subsubsection:: *)
+(*A_\[Natural]*)
+
+
+(* ::Text:: *)
+(*Maximum \[Psi] along arg(\[Zeta]) = \[CurlyPhi].*)
+
+
+aNat[n_?NumericQ][ph_?NumericQ] := psi[n][rhoNat[n][ph] Exp[I ph]];
+
+
+(* ::Subsubsection:: *)
+(*\[Rho]_\[Sharp]*)
+
+
+(* ::Text:: *)
+(*The larger solution to \[Psi] = A along arg(\[Zeta]) = \[CurlyPhi].*)
+
+
+rhoSharp[n_?NumericQ][a_?NumericQ][ph_?NumericQ] :=
+  Quiet[
+    SeekRoot[
+      psi[n][# Exp[I ph]] - a &,
+      {1, rhoNat[n][ph]},
+      100
+    ]
+  , {Power::infy, Infinity::indet}];
 
 
 (* ::Subsection:: *)
@@ -130,11 +243,27 @@ polyPoints[n_Integer, num_Integer] := polyPoints[n, num] = (
 (*Italicised symbols*)
 
 
+aIt = Italicised["A"];
 zIt = Italicised["z"];
 
 
 (* ::Subsection:: *)
+(*Options for exported GIFS*)
+
+
+gifOpts = Sequence[
+  AnimationRepetitions -> Infinity,
+  "DisplayDurations" -> 0.5
+];
+
+
+(* ::Subsection:: *)
 (*Global styles for plots*)
+
+
+nonStyle = Directive[Opacity[0.7], LightGray];
+termStyle = Pink;
+unphysStyle = Black;
 
 
 pointStyle = PointSize[Large];
@@ -279,3 +408,105 @@ Module[{nValues, zetaTestList, zValues, timingList},
 
 (* ::Text:: *)
 (*zetaTest1 is faster (and the difference increases with n).*)
+
+
+(* ::Section:: *)
+(*Viable domain*)
+
+
+(* ::Subsection:: *)
+(*Animations (\[Zeta]-space)*)
+
+
+Table[
+  Module[
+   {ph,
+    aN, aMin, aMax, aStep, aValues,
+    eps, rhoMax, rhoMaxUnphys, rhoMaxNon
+   },
+   (* Azimuthal angle in \[Zeta]-space *)
+   ph = 0;
+   (* Values of A *)
+   aN = aNat[n][ph];
+   aMin = 1/10;
+   aMax = Ceiling[aN];
+   aStep = 1/10;
+   aValues = Range[aMin, aMax, aStep];
+   aValues = Append[aValues, aN] // Sort[#, Less] &;
+   (* Animation *)
+   Table[
+     eps = 0.1;
+     rhoMax = 1;
+     rhoMaxUnphys = 1 + eps;
+     rhoMaxNon = If[a < aN, rhoSharp[n][a][ph], rhoNat[n][ph]];
+     Show[
+       EmptyFrame[{-rhoMax, rhoMax}, {-rhoMax, rhoMax},
+         FrameLabel -> {Re["zeta"], Im["zeta"]},
+         ImageSize -> 360,
+         PlotLabel -> BoxedLabel[aIt == N[a]]
+       ] // PrettyString["zeta" -> "\[Zeta]"],
+       (* Unphysical domain *)
+       RegionPlot[RPolar[reZeta, imZeta] > 1,
+         {reZeta, -rhoMaxUnphys, rhoMaxUnphys},
+         {imZeta, -rhoMaxUnphys, rhoMaxUnphys},
+         BoundaryStyle -> None,
+         PlotStyle -> unphysStyle
+       ],
+       (* Non-viable domain *)
+       RegionPlot[vi[n][a][reZeta + I imZeta] < 0,
+         {reZeta, -rhoMaxNon, rhoMaxNon},
+         {imZeta, -rhoMaxNon, rhoMaxNon},
+         BoundaryStyle -> termStyle,
+         PlotStyle -> nonStyle
+       ]
+     ]
+   , {a, aValues}]
+  ] // Ex[
+    StringJoin["polygon-viable-full-", ToString[n],".gif"],
+    gifOpts
+  ]
+, {n, 3, 7}]
+
+
+Table[
+  Module[
+   {ph,
+    aN, aStep, aMin, aMax, aValues,
+    eps, rhoN, rhoMax, rhoMaxUnphys, rhoMaxNon
+   },
+   (* Azimuthal angle in \[Zeta]-space *)
+   ph = 0;
+   (* Values of A *)
+   aN = aNat[n][ph];
+   aStep = 1/20;
+   aMin = Floor[aN - 5 aStep, aStep];
+   aMax = Ceiling[aN, aStep];
+   aValues = Range[aMin, aMax, aStep];
+   aValues = Append[aValues, aN] // Sort[#, Less] &;
+   (* Animation *)
+   Table[
+     eps = 0.1;
+     rhoN = rhoNat[n][ph];
+     rhoMax = 2 rhoN;
+     rhoMaxUnphys = 1 + eps;
+     rhoMaxNon = If[a < aN, rhoSharp[n][a][ph], rhoN];
+     Show[
+       EmptyFrame[{-rhoMax, rhoMax}, {-rhoMax, rhoMax},
+         FrameLabel -> {Re["zeta"], Im["zeta"]},
+         ImageSize -> 360,
+         PlotLabel -> BoxedLabel[aIt == N[a]]
+       ] // PrettyString["zeta" -> "\[Zeta]"],
+       (* Non-viable domain *)
+       RegionPlot[vi[n][a][reZeta + I imZeta] < 0,
+         {reZeta, -rhoMaxNon, rhoMaxNon},
+         {imZeta, -rhoMaxNon, rhoMaxNon},
+         BoundaryStyle -> termStyle,
+         PlotStyle -> nonStyle
+       ]
+     ]
+   , {a, aValues}]
+  ] // Ex[
+    StringJoin["polygon-viable-zoom-", ToString[n],".gif"],
+    gifOpts
+  ]
+, {n, 3, 7}]
