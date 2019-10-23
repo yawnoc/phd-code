@@ -902,3 +902,49 @@ Table[
     ]
   ] // Ex @ StringJoin["polygon_zeta-hot-traced-full-", ToString[n],".pdf"]
 , {n, 3, 7}]
+
+
+(* ::Subsubsection:: *)
+(*General (z-space)*)
+
+
+Table[
+  Module[{rSamp = 4, phiSamp = 4, idList},
+    (* Group names *)
+    idList = {"general"};
+    (* Plot *)
+    Show[
+      (* Domain with equipotentials (contours) *)
+      ParametricPlot[r Exp[I phi] // zMap[n] // ReIm,
+        {r, 0, 1}, {phi, 0, 2 Pi},
+        BoundaryStyle -> unphysStyle,
+        ImageSize -> 480,
+        Mesh -> {rSamp - 1, n phiSamp - 1},
+        MeshStyle -> contStyle,
+        PlotLabel -> BoxedLabel @ Row[
+          {aIt == N[aHot[n]], "hot" // ""},
+          "  "
+        ],
+        PlotPoints -> {rSamp, n phiSamp + 1},
+        PlotStyle -> physStyle,
+        PlotOptions[Frame] // Evaluate
+      ],
+      (* Traced boundaries *)
+      Table[
+        Table[
+          Table[
+            ParametricPlot[
+              zeta[s] Exp[I 2 Pi k / n]
+                // zMap[n]
+                // {#, Conjugate[#]} &
+                // ReIm
+                // Evaluate,
+              {s, DomainStart[zeta], DomainEnd[zeta]},
+              PlotStyle -> {upperStyle, lowerStyle}
+            ]
+          , {k, 0, n - 1}]
+        , {zeta, zetaTraHot[id]}]
+      , {id, idList}]
+    ]
+  ] // Ex @ StringJoin["polygon_z-hot-traced-full-", ToString[n],".pdf"]
+, {n, 3, 7}]
