@@ -269,6 +269,53 @@ Table[
 
 
 (* ::Subsection:: *)
+(*Traced boundaries z = z(s)*)
+
+
+(* ::Subsubsection:: *)
+(*Hot regime*)
+
+
+With[{zeta = \[FormalZeta]},
+  Table[
+    Module[{a, idList, zetaInitList, viTol},
+      (* A *)
+      a = aHot[n];
+      (* Group names *)
+      idList = {"general"};
+      (* Solve for traced boundaries *)
+      Table[
+        zetaInitList = startZetaHot[n][id];
+        viTol = vi[n][a] /@ zetaInitList // Min;
+        zetaTraHot[id] =
+          Table[
+            NDSolveValue[
+              {
+                zeta'[s] == (
+                  Divide[
+                    I f[a][#] + Sqrt @ vi[n][a][#],
+                    gDer[n][#]
+                  ] * zetaMapDer[n][#] & @ zeta[s]
+                ),
+                zeta[0] == zInit,
+                WhenEvent[
+                  Or[
+                    vi[n][a] @ zeta[s] < viTol,
+                    Abs @ zeta[s] > 1
+                  ],
+                  "StopIntegration"
+                ]
+              }, zeta, {s, -2 Pi, Pi},
+              NoExtrapolation
+            ]
+          , {zInit, zetaInitList}];
+      , {id, idList}];
+    ]
+  , {n, 3, 7}];
+];
+
+
+(* ::Subsection:: *)
 (*Geometric regions*)
 
 
@@ -326,6 +373,11 @@ nonStyle = Directive[Opacity[0.7], LightGray];
 termStyle = Pink;
 physStyle = LightGreen;
 unphysStyle = Black;
+
+
+upperStyle = Blue;
+lowerStyle = Red;
+convexStyle = Black;
 
 
 pointStyle = PointSize[Large];
@@ -790,4 +842,63 @@ Table[
 , {n, 3, 7}]
 
 
+(* ::Subsubsection:: *)
+(*General (\[Zeta]-space)*)
 
+
+Table[
+  Module[
+   {rSamp = 4, phiSamp = 4,
+    a, idList,
+    eps, rhoMax, rhoMaxUnphys, rhoMaxNon
+   },
+    a = aHot[n];
+    (* Group names *)
+    idList = {"general"};
+    (* Plot ranges *)
+    eps = 0.1;
+    rhoMax = 1;
+    rhoMaxUnphys = 1 + eps;
+    rhoMaxNon = rhoSharp[n][a][0];
+    (* Plot *)
+    Show[
+      EmptyFrame[{-rhoMax, rhoMax}, {-rhoMax, rhoMax},
+        FrameLabel -> {Re["zeta"], Im["zeta"]},
+        ImageSize -> 360,
+        PlotLabel -> BoxedLabel @ Row[
+          {aIt == N[aHot[n]], "hot" // ""},
+          "  "
+        ]
+      ] // PrettyString["zeta" -> "\[Zeta]"],
+      (* Unphysical domain *)
+      RegionPlot[RPolar[reZeta, imZeta] > 1,
+        {reZeta, -rhoMaxUnphys, rhoMaxUnphys},
+        {imZeta, -rhoMaxUnphys, rhoMaxUnphys},
+        BoundaryStyle -> None,
+        PlotStyle -> unphysStyle
+      ],
+      (* Non-viable domain *)
+      RegionPlot[vi[n][a][reZeta + I imZeta] < 0,
+        {reZeta, -rhoMaxNon, rhoMaxNon},
+        {imZeta, -rhoMaxNon, rhoMaxNon},
+        BoundaryStyle -> termStyle,
+        PlotStyle -> nonStyle
+      ],
+      (* Traced boundaries *)
+      Table[
+        Table[
+          Table[
+            ParametricPlot[
+              zeta[s] Exp[I 2 Pi k / n]
+                // {#, Conjugate[#]} &
+                // ReIm
+                // Evaluate,
+              {s, DomainStart[zeta], DomainEnd[zeta]},
+              PlotStyle -> {upperStyle, lowerStyle}
+            ]
+          , {k, 0, n - 1}]
+        , {zeta, zetaTraHot[id]}]
+      , {id, idList}]
+    ]
+  ] // Ex @ StringJoin["polygon_zeta-hot-traced-full-", ToString[n],".pdf"]
+, {n, 3, 7}]
