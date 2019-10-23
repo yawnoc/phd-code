@@ -159,17 +159,7 @@ psi[n_][zeta_] := (Re @ g[zeta]) ^ 4 / (Abs @ gDer[n][zeta]);
 
 (* ::Text:: *)
 (*The radius \[Rho] = |\[Zeta]| achieving the maximum \[Psi] along arg(\[Zeta]) = \[CurlyPhi].*)
-
-
-With[{n = \[FormalN], rho = \[FormalRho], ph = \[FormalCurlyPhi]},
-  Block[{$Assumptions = n > 2 && 0 < rho < 1 && -Pi < ph < Pi},
-    psi[n][rho Exp[I ph]]
-      // ComplexExpand
-      // FullSimplify
-      // D[#, rho] &
-      // FullSimplify
-  ]
-]
+(*See the expression for \[PartialD]\[Psi]/\[PartialD]\[Rho] in "polygon-psi-algebra.pdf".*)
 
 
 rhoNat[n_?NumericQ][ph_?NumericQ] :=
@@ -210,16 +200,7 @@ rhoSharp[n_?NumericQ][a_?NumericQ][ph_?NumericQ] :=
 
 
 (* ::Subsection:: *)
-(*Starting points for boundary tracing*)
-
-
-(* ::Text:: *)
-(*We choose points with \[Rho] between \[Rho]_\[Sharp] and 1,*)
-(*and \[CurlyPhi] between 0 and 2 \[Pi] / n (since there is n-fold symmetry).*)
-
-
-(* ::Subsubsection:: *)
-(*Hot regime A values*)
+(*Representative values of A*)
 
 
 (* ::Text:: *)
@@ -230,8 +211,17 @@ rhoSharp[n_?NumericQ][a_?NumericQ][ph_?NumericQ] :=
 aHot[n_] := aNat[n][0] / 2;
 
 
+(* ::Subsection:: *)
+(*Starting points for boundary tracing*)
+
+
+(* ::Text:: *)
+(*We choose points with \[Rho] between \[Rho]_\[Sharp] and 1,*)
+(*and \[CurlyPhi] between 0 and 2 \[Pi] / n (since there is n-fold symmetry).*)
+
+
 (* ::Subsubsection:: *)
-(*Hot regime points*)
+(*Hot regime*)
 
 
 Table[
@@ -300,6 +290,7 @@ polyPoints[n_Integer, num_Integer] := polyPoints[n, num] = (
 
 
 aIt = Italicised["A"];
+nIt = Italicised["n"];
 zIt = Italicised["z"];
 
 
@@ -464,6 +455,30 @@ Module[{nValues, zetaTestList, zValues, timingList},
 
 (* ::Text:: *)
 (*zetaTest1 is faster (and the difference increases with n).*)
+
+
+(* ::Section:: *)
+(*Algebra*)
+
+
+(* ::Subsection:: *)
+(*\[Psi]*)
+
+
+With[{n = \[FormalN], rho = \[FormalRho], ph = \[FormalCurlyPhi]},
+  Block[{$Assumptions = n > 2 && 0 < rho < 1 && -Pi < ph < Pi},
+    Module[{psiExpr, psiDerExpr},
+      psiExpr = psi[n][rho Exp[I ph]] // ComplexExpand // FullSimplify;
+      psiDerExpr = psiExpr // D[#, rho] & // FullSimplify;
+      {
+        {"psi", psiExpr},
+        {"dpsi/dr", psiDerExpr}
+      } /. {Gamma -> "\[CapitalGamma]"}
+        // PrettyString["d" -> "\[PartialD]", "psi" -> "\[Psi]"]
+        // TableForm
+    ]
+  ]
+] // Ex["polygon-psi-algebra.pdf"]
 
 
 (* ::Section:: *)
