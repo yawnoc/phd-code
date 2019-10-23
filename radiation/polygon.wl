@@ -124,6 +124,21 @@ gDer[n_][zeta_] := -h[n][1] (1 - zeta ^ n) ^ (2/n) / zeta // Evaluate;
 
 
 (* ::Subsection:: *)
+(*Flux*)
+
+
+(* ::Subsubsection:: *)
+(*F*)
+
+
+(* ::Text:: *)
+(*See (r4.21) (Page r4-4).*)
+
+
+f[a_][zeta_] := - (Re @ g[zeta]) ^ 4 / a // Evaluate;
+
+
+(* ::Subsection:: *)
 (*Viable domain*)
 
 
@@ -225,7 +240,7 @@ aHot[n_] := aNat[n][0] / 2;
 
 
 Table[
-  startXYHot[n]["general"] =
+  startZetaHot[n]["general"] =
     Module[
      {a,
       phMax, phSpacing, phValues,
@@ -246,10 +261,8 @@ Table[
           Subdivide[rhoMin, rhoBetw, 4] // Most,
           Subdivide[rhoBetw, rhoMax, 4] // Most
         ] // Select[# <= 1 &];
-        (* {x, y} values *)
-        Table[
-          rho Exp[I ph] // zMap[n] // ReIm
-        , {rho, rhoValues}]
+        (* \[Zeta] values *)
+        Table[rho Exp[I ph], {rho, rhoValues}]
       , {ph, phValues}]
     ]
 , {n, 3, 7}];
@@ -308,8 +321,10 @@ gifOpts = Sequence[
 (*Global styles for plots*)
 
 
+contStyle = Gray;
 nonStyle = Directive[Opacity[0.7], LightGray];
 termStyle = Pink;
+physStyle = LightGreen;
 unphysStyle = Black;
 
 
@@ -620,7 +635,7 @@ Table[
      ]
    , {a, aValues}]
   ] // Ex[
-    StringJoin["polygon-viable-full-", ToString[n],".gif"],
+    StringJoin["polygon_zeta-viable-full-", ToString[n],".gif"],
     gifOpts
   ]
 , {n, 3, 7}]
@@ -664,7 +679,7 @@ Table[
      ]
    , {a, aValues}]
   ] // Ex[
-    StringJoin["polygon-viable-zoom-", ToString[n],".gif"],
+    StringJoin["polygon_zeta-viable-zoom-", ToString[n],".gif"],
     gifOpts
   ]
 , {n, 3, 7}]
@@ -679,30 +694,50 @@ Table[
 
 
 (* ::Subsubsection:: *)
-(*Starting points*)
+(*Starting points (\[Zeta]-space)*)
 
 
 Table[
-  Module[{rSamp = 4, phiSamp = 4, idList},
+  Module[
+   {rSamp = 4, phiSamp = 4,
+    a, idList,
+    eps, rhoMax, rhoMaxUnphys, rhoMaxNon
+   },
+    a = aHot[n];
     (* Group names *)
     idList = {"general"};
+    (* Plot ranges *)
+    eps = 0.1;
+    rhoMax = 1;
+    rhoMaxUnphys = 1 + eps;
+    rhoMaxNon = rhoSharp[n][a][0];
     (* Plot *)
     Show[
-      (* Domain with equipotentials *)
-      ParametricPlot[r Exp[I phi] // zMap[n] // ReIm,
-        {r, 0, 1}, {phi, 0, 2 Pi},
-        ImageSize -> 480,
-        Mesh -> {rSamp - 1, n phiSamp - 1},
+      EmptyFrame[{-rhoMax, rhoMax}, {-rhoMax, rhoMax},
+        FrameLabel -> {Re["zeta"], Im["zeta"]},
+        ImageSize -> 360,
         PlotLabel -> BoxedLabel @ Row[
           {aIt == N[aHot[n]], "hot" // ""},
           "  "
-        ],
-        PlotPoints -> {rSamp, n phiSamp + 1},
-        PlotOptions[Frame] // Evaluate
+        ]
+      ] // PrettyString["zeta" -> "\[Zeta]"],
+      (* Unphysical domain *)
+      RegionPlot[RPolar[reZeta, imZeta] > 1,
+        {reZeta, -rhoMaxUnphys, rhoMaxUnphys},
+        {imZeta, -rhoMaxUnphys, rhoMaxUnphys},
+        BoundaryStyle -> None,
+        PlotStyle -> unphysStyle
+      ],
+      (* Non-viable domain *)
+      RegionPlot[vi[n][a][reZeta + I imZeta] < 0,
+        {reZeta, -rhoMaxNon, rhoMaxNon},
+        {imZeta, -rhoMaxNon, rhoMaxNon},
+        BoundaryStyle -> termStyle,
+        PlotStyle -> nonStyle
       ],
       (* Starting points *)
       ListPlot[
-        Table[startXYHot[n][id], {id, idList}],
+        Table[startZetaHot[n][id] // ReIm, {id, idList}],
         LabelingFunction -> Function @ Placed[
           #2[[2]],
           Center
@@ -711,5 +746,48 @@ Table[
         PlotStyle -> Directive[Opacity[0.7], pointStyle]
       ]
     ]
-  ] // Ex @ StringJoin["polygon-hot-traced-starting-", ToString[n],".pdf"]
+  ] // Ex @ StringJoin["polygon_zeta-hot-traced-starting-", ToString[n],".pdf"]
 , {n, 3, 7}]
+
+
+(* ::Subsubsection:: *)
+(*Starting points (z-space)*)
+
+
+Table[
+  Module[{rSamp = 4, phiSamp = 4, idList},
+    (* Group names *)
+    idList = {"general"};
+    (* Plot *)
+    Show[
+      (* Domain with equipotentials (contours) *)
+      ParametricPlot[r Exp[I phi] // zMap[n] // ReIm,
+        {r, 0, 1}, {phi, 0, 2 Pi},
+        BoundaryStyle -> unphysStyle,
+        ImageSize -> 480,
+        Mesh -> {rSamp - 1, n phiSamp - 1},
+        MeshStyle -> contStyle,
+        PlotLabel -> BoxedLabel @ Row[
+          {aIt == N[aHot[n]], "hot" // ""},
+          "  "
+        ],
+        PlotPoints -> {rSamp, n phiSamp + 1},
+        PlotStyle -> physStyle,
+        PlotOptions[Frame] // Evaluate
+      ],
+      (* Starting points *)
+      ListPlot[
+        Table[startZetaHot[n][id] // zMap[n] // ReIm, {id, idList}],
+        LabelingFunction -> Function @ Placed[
+          #2[[2]],
+          Center
+        ],
+        PlotLegends -> idList,
+        PlotStyle -> Directive[Opacity[0.7], pointStyle]
+      ]
+    ]
+  ] // Ex @ StringJoin["polygon_z-hot-traced-starting-", ToString[n],".pdf"]
+, {n, 3, 7}]
+
+
+
