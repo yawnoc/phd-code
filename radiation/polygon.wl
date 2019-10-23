@@ -159,7 +159,7 @@ psi[n_][zeta_] := (Re @ g[zeta]) ^ 4 / (Abs @ gDer[n][zeta]);
 
 (* ::Text:: *)
 (*The radius \[Rho] = |\[Zeta]| achieving the maximum \[Psi] along arg(\[Zeta]) = \[CurlyPhi].*)
-(*See the expression for \[PartialD]\[Psi]/\[PartialD]\[Rho] in "polygon-psi-algebra.pdf".*)
+(*See (r4.30) (Page r4-6) and "polygon-psi-algebra.pdf".*)
 
 
 rhoNat[n_?NumericQ][ph_?NumericQ] :=
@@ -458,11 +458,11 @@ Module[{nValues, zetaTestList, zValues, timingList},
 
 
 (* ::Section:: *)
-(*Algebra*)
+(*\[Psi]*)
 
 
 (* ::Subsection:: *)
-(*\[Psi]*)
+(*Algebra*)
 
 
 With[{n = \[FormalN], rho = \[FormalRho], ph = \[FormalCurlyPhi]},
@@ -471,14 +471,101 @@ With[{n = \[FormalN], rho = \[FormalRho], ph = \[FormalCurlyPhi]},
       psiExpr = psi[n][rho Exp[I ph]] // ComplexExpand // FullSimplify;
       psiDerExpr = psiExpr // D[#, rho] & // FullSimplify;
       {
-        {"psi", psiExpr},
-        {"dpsi/dr", psiDerExpr}
+        {"psi", "(r4.29)", psiExpr},
+        {"dpsi/dr", "(r4.30)", psiDerExpr}
       } /. {Gamma -> "\[CapitalGamma]"}
         // PrettyString["d" -> "\[PartialD]", "psi" -> "\[Psi]"]
         // TableForm
     ]
   ]
 ] // Ex["polygon-psi-algebra.pdf"]
+
+
+(* ::Subsection:: *)
+(*\[Psi] plot*)
+
+
+Module[{phValues},
+  Table[
+    (* \[CurlyPhi] values *)
+    phValues = Subdivide[0, Pi / n, 4];
+    (* Plot *)
+    Plot[
+      Table[
+        psi[n][rho Exp[I ph]]
+      , {ph, phValues}] // Evaluate,
+      {rho, 0, 1},
+      AxesLabel -> {"rho", "psi"},
+      ImageSize -> 360,
+      PlotLabel -> nIt == n,
+      PlotLegends -> LineLegend[
+        phValues,
+        LegendLabel -> "ph"
+      ],
+      PlotRange -> Full,
+      PlotOptions[Axes] // Evaluate
+    ] // PrettyString[
+      "rho" -> "\[Rho]",
+      "ph" -> "\[CurlyPhi]",
+      "psi" -> "\[Psi]"
+    ] // Ex @ StringJoin["polygon-psi-", ToString[n], ".pdf"]
+  , {n, 3, 7}]
+]
+
+
+(* ::Subsection:: *)
+(*\[Rho]_\[Natural] angular dependence plot*)
+
+
+Table[
+  Plot[rhoNat[n][ph], {ph, 0, 2 Pi},
+    AxesLabel -> {"ph", Subscript["rho", "Nat"]},
+    ImageSize -> 360,
+    PlotLabel -> Column[
+      {
+        nIt == n,
+        Equal[
+          Row[{Max, Min}, "/"] - 1,
+          rhoNat[n][0] / rhoNat[n][Pi / n] - 1
+        ]
+      },
+      Alignment -> Center
+    ],
+    PlotRange -> Full,
+    PlotOptions[Axes] // Evaluate
+  ] // PrettyString[
+    "rho" -> "\[Rho]",
+    "ph" -> "\[CurlyPhi]",
+    "Nat" -> "\[Natural]"
+  ] // Ex @ StringJoin["polygon-rho-nat-", ToString[n], ".pdf"]
+, {n, 3, 7}]
+
+
+(* ::Subsection:: *)
+(*A_\[Natural] angular dependence plot*)
+
+
+Table[
+  Plot[aNat[n][ph], {ph, 0, 2 Pi},
+    AxesLabel -> {"ph", Subscript[aIt, "Nat"]},
+    ImageSize -> 360,
+    PlotLabel -> Column[
+      {
+        nIt == n,
+        Equal[
+          Row[{Max, Min}, "/"] - 1,
+          aNat[n][0] / aNat[n][Pi / n] - 1
+        ]
+      },
+      Alignment -> Center
+    ],
+    PlotRange -> Full,
+    PlotOptions[Axes] // Evaluate
+  ] // PrettyString[
+    "ph" -> "\[CurlyPhi]",
+    "Nat" -> "\[Natural]"
+  ] // Ex @ StringJoin["polygon-a-nat-", ToString[n], ".pdf"]
+, {n, 3, 7}]
 
 
 (* ::Section:: *)
