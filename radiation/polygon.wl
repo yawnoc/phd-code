@@ -272,7 +272,7 @@ Table[
         Table[rho Exp[I ph], {rho, rhoValues}]
       , {ph, phValues}]
     ]
-, {n, 3, 7}];
+, {n, 3, 5}];
 
 
 (* ::Subsection:: *)
@@ -322,7 +322,7 @@ With[{zeta = \[FormalZeta]},
           , {zInit, zetaInitList}];
       , {id, idList}];
     ]
-  , {n, 3, 7}];
+  , {n, 3, 5}];
 ];
 
 
@@ -438,13 +438,9 @@ Table[
     rMax = 1;
     Show[
       EmptyFrame[{-rMax, rMax}, {-rMax, rMax}],
-      (* Unphysical domain *)
-      Graphics @ {unphysStyle,
-        polyComplement[n]
-      },
       (* Equipotentials (T == const) *)
       rNum = 4;
-      rValues = Subdivide[0, 1, rNum];
+      rValues = Subdivide[0, 1, rNum] // Most;
       ParametricPlot[
         Table[
           r Exp[I phi] // zMap[n] // ReIm
@@ -460,8 +456,12 @@ Table[
           r Exp[I phi] // zMap[n] // ReIm
         , {phi, phiValues}] // Evaluate,
         {r, 0, 1},
-        PlotStyle -> contStyle
-      ]
+        PlotStyle -> streamStyle
+      ],
+      (* Unphysical domain *)
+      Graphics @ {unphysStyle,
+        polyComplement[n]
+      }
     ]
   ] // Ex @ StringJoin["schwarz-christoffel-forward-", ToString[n], ".pdf"]
 , {n, 3, 7}]
@@ -631,7 +631,7 @@ Module[{phValues},
       "ph" -> "\[CurlyPhi]",
       "psi" -> "\[Psi]"
     ] // Ex @ StringJoin["polygon-psi-", ToString[n], ".pdf"]
-  , {n, 3, 7}]
+  , {n, 3, 5}]
 ]
 
 
@@ -660,7 +660,7 @@ Table[
     "ph" -> "\[CurlyPhi]",
     "Nat" -> "\[Natural]"
   ] // Ex @ StringJoin["polygon-rho-nat-", ToString[n], ".pdf"]
-, {n, 3, 7}]
+, {n, 3, 5}]
 
 
 (* ::Subsection:: *)
@@ -687,7 +687,7 @@ Table[
     "ph" -> "\[CurlyPhi]",
     "Nat" -> "\[Natural]"
   ] // Ex @ StringJoin["polygon-a-nat-", ToString[n], ".pdf"]
-, {n, 3, 7}]
+, {n, 3, 5}]
 
 
 (* ::Section:: *)
@@ -745,7 +745,7 @@ Table[
     StringJoin["polygon_zeta-viable-full-", ToString[n],".gif"],
     gifOpts
   ]
-, {n, 3, 7}]
+, {n, 3, 5}]
 
 
 Table[
@@ -789,7 +789,7 @@ Table[
     StringJoin["polygon_zeta-viable-zoom-", ToString[n],".gif"],
     gifOpts
   ]
-, {n, 3, 7}]
+, {n, 3, 5}]
 
 
 (* ::Section:: *)
@@ -854,7 +854,7 @@ Table[
       ]
     ]
   ] // Ex @ StringJoin["polygon_zeta-hot-traced-starting-", ToString[n],".pdf"]
-, {n, 3, 7}]
+, {n, 3, 5}]
 
 
 (* ::Subsubsection:: *)
@@ -894,7 +894,7 @@ Table[
       ]
     ]
   ] // Ex @ StringJoin["polygon_z-hot-traced-starting-", ToString[n],".pdf"]
-, {n, 3, 7}]
+, {n, 3, 5}]
 
 
 (* ::Subsubsection:: *)
@@ -956,7 +956,7 @@ Table[
       , {id, idList}]
     ]
   ] // Ex @ StringJoin["polygon_zeta-hot-traced-full-", ToString[n],".pdf"]
-, {n, 3, 7}]
+, {n, 3, 5}]
 
 
 (* ::Subsubsection:: *)
@@ -1002,4 +1002,4 @@ Table[
       , {id, idList}]
     ]
   ] // Ex @ StringJoin["polygon_z-hot-traced-full-", ToString[n],".pdf"]
-, {n, 3, 7}]
+, {n, 3, 5}]
