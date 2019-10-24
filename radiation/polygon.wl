@@ -250,27 +250,20 @@ Table[
   startZetaHot[n]["general"] =
     Module[
      {a,
-      phMax, phSpacing, phValues,
-      rhoMin, rhoMax, rhoBetw, rhoValues
+      rhoMin, rhoMax, rho,
+      phMax, phSpacing, phValues
      },
       a = aHot[n];
+      (* \[Rho] *)
+      rhoMin = rhoSharp[n][a][0];
+      rhoMax = 1;
+      rho = Way[rhoMin, rhoMax, 1/2];
       (* \[CurlyPhi] values *)
       phMax = 2 Pi / n;
       phSpacing = 30 Degree;
       phValues = UniformRange[0, phMax, phSpacing] // Most;
       (* Build table *)
-      Join @@ Table[
-        (* \[Rho] values *)
-        rhoMin = rhoSharp[n][a][ph];
-        rhoMax = 1;
-        rhoBetw = Way[rhoMin, rhoMax, 1/5];
-        rhoValues = Join[
-          Subdivide[rhoMin, rhoBetw, 4] // Most,
-          Subdivide[rhoBetw, rhoMax, 4] // Most
-        ] // Select[# <= 1 &];
-        (* \[Zeta] values *)
-        Table[rho Exp[I ph], {rho, rhoValues}]
-      , {ph, phValues}]
+      Table[rho Exp[I ph], {ph, phValues}]
     ]
 , {n, 3, 5}];
 
@@ -289,7 +282,7 @@ Table[
 
 With[{zeta = \[FormalZeta]},
   Table[
-    Module[{a, idList, zetaInitList, viTol},
+    Module[{a, idList, zetaInitList},
       (* A *)
       a = aHot[n];
       (* Group names *)
@@ -297,8 +290,7 @@ With[{zeta = \[FormalZeta]},
       (* Solve for traced boundaries *)
       Table[
         zetaInitList = startZetaHot[n][id];
-        viTol = vi[n][a] /@ zetaInitList // Min;
-        zetaTraHot[id] =
+        zetaTraHot[n][id] =
           Table[
             NDSolveValue[
               {
@@ -311,7 +303,7 @@ With[{zeta = \[FormalZeta]},
                 zeta[0] == zInit,
                 WhenEvent[
                   Or[
-                    vi[n][a] @ zeta[s] < viTol,
+                    vi[n][a] @ zeta[s] < 0,
                     Abs @ zeta[s] > 1
                   ],
                   "StopIntegration"
@@ -438,7 +430,7 @@ Table[
    {rMax,
     rNum, rValues,
     phiNum, phiValues
-  },
+   },
     rMax = 1;
     Show[
       EmptyFrame[{-rMax, rMax}, {-rMax, rMax}],
@@ -900,19 +892,19 @@ Table[
           "  "
         ]
       ] // PrettyString["zeta" -> "\[Zeta]"],
-      (* Unphysical domain *)
-      RegionPlot[RPolar[reZeta, imZeta] > 1,
-        {reZeta, -rhoMaxUnphys, rhoMaxUnphys},
-        {imZeta, -rhoMaxUnphys, rhoMaxUnphys},
-        BoundaryStyle -> None,
-        PlotStyle -> unphysStyle
-      ],
       (* Non-viable domain *)
       RegionPlot[vi[n][a][reZeta + I imZeta] < 0,
         {reZeta, -rhoMaxNon, rhoMaxNon},
         {imZeta, -rhoMaxNon, rhoMaxNon},
         BoundaryStyle -> termStyle,
         PlotStyle -> nonStyle
+      ],
+      (* Unphysical domain *)
+      RegionPlot[RPolar[reZeta, imZeta] > 1,
+        {reZeta, -rhoMaxUnphys, rhoMaxUnphys},
+        {imZeta, -rhoMaxUnphys, rhoMaxUnphys},
+        BoundaryStyle -> None,
+        PlotStyle -> unphysStyle
       ],
       (* Starting points *)
       ListPlot[
@@ -934,26 +926,42 @@ Table[
 
 
 Table[
-  Module[{rSamp = 4, phiSamp = 4, idList},
+  Module[
+   {idList,
+    rMax,
+    rNum, rValues,
+    phiNum, phiValues
+   },
     (* Group names *)
     idList = {"general"};
     (* Plot *)
+    rMax = 1;
     Show[
-      (* Domain with equipotentials (contours) *)
-      ParametricPlot[r Exp[I phi] // zMap[n] // ReIm,
-        {r, 0, 1}, {phi, 0, 2 Pi},
-        BoundaryStyle -> unphysStyle,
-        ImageSize -> 480,
-        Mesh -> {rSamp - 1, n phiSamp - 1},
-        MeshStyle -> contStyle,
-        PlotLabel -> BoxedLabel @ Row[
-          {aIt == N[aHot[n]], "hot" // ""},
-          "  "
-        ],
-        PlotPoints -> {rSamp, n phiSamp + 1},
-        PlotStyle -> physStyle,
-        PlotOptions[Frame] // Evaluate
+      EmptyFrame[{-rMax, rMax}, {-rMax, rMax}],
+      (* Equipotentials (T == const) *)
+      rNum = 4;
+      rValues = Subdivide[0, 1, rNum] // Most;
+      ParametricPlot[
+        Table[
+          r Exp[I phi] // zMap[n] // ReIm
+        , {r, rValues}] // Evaluate,
+        {phi, 0, 2 Pi},
+        PlotStyle -> contStyle
       ],
+      (* Streamlines (parallel to \[Del]T) *)
+      phiNum = 4;
+      phiValues = Subdivide[0, 2 Pi, n phiNum] // Most;
+      ParametricPlot[
+        Table[
+          r Exp[I phi] // zMap[n] // ReIm
+        , {phi, phiValues}] // Evaluate,
+        {r, 0, 1},
+        PlotStyle -> streamStyle
+      ],
+      (* Unphysical domain *)
+      Graphics @ {unphysStyle,
+        polyComplement[n]
+      },
       (* Starting points *)
       ListPlot[
         Table[startZetaHot[n][id] // zMap[n] // ReIm, {id, idList}],
@@ -975,8 +983,7 @@ Table[
 
 Table[
   Module[
-   {rSamp = 4, phiSamp = 4,
-    a, idList,
+   {a, idList,
     eps, rhoMax, rhoMaxUnphys, rhoMaxNon
    },
     a = aHot[n];
@@ -997,13 +1004,6 @@ Table[
           "  "
         ]
       ] // PrettyString["zeta" -> "\[Zeta]"],
-      (* Unphysical domain *)
-      RegionPlot[RPolar[reZeta, imZeta] > 1,
-        {reZeta, -rhoMaxUnphys, rhoMaxUnphys},
-        {imZeta, -rhoMaxUnphys, rhoMaxUnphys},
-        BoundaryStyle -> None,
-        PlotStyle -> unphysStyle
-      ],
       (* Non-viable domain *)
       RegionPlot[vi[n][a][reZeta + I imZeta] < 0,
         {reZeta, -rhoMaxNon, rhoMaxNon},
@@ -1024,8 +1024,15 @@ Table[
               PlotStyle -> {upperStyle, lowerStyle}
             ]
           , {k, 0, n - 1}]
-        , {zeta, zetaTraHot[id]}]
-      , {id, idList}]
+        , {zeta, zetaTraHot[n][id]}]
+      , {id, idList}],
+      (* Unphysical domain *)
+      RegionPlot[RPolar[reZeta, imZeta] > 1,
+        {reZeta, -rhoMaxUnphys, rhoMaxUnphys},
+        {imZeta, -rhoMaxUnphys, rhoMaxUnphys},
+        BoundaryStyle -> None,
+        PlotStyle -> unphysStyle
+      ]
     ]
   ] // Ex @ StringJoin["polygon_zeta-hot-traced-full-", ToString[n],".pdf"]
 , {n, 3, 5}]
@@ -1036,25 +1043,37 @@ Table[
 
 
 Table[
-  Module[{rSamp = 4, phiSamp = 4, idList},
+  Module[
+   {idList,
+    rMax,
+    rNum, rValues,
+    phiNum, phiValues
+   },
     (* Group names *)
     idList = {"general"};
     (* Plot *)
+    rMax = 1;
     Show[
-      (* Domain with equipotentials (contours) *)
-      ParametricPlot[r Exp[I phi] // zMap[n] // ReIm,
-        {r, 0, 1}, {phi, 0, 2 Pi},
-        BoundaryStyle -> unphysStyle,
-        ImageSize -> 480,
-        Mesh -> {rSamp - 1, n phiSamp - 1},
-        MeshStyle -> contStyle,
-        PlotLabel -> BoxedLabel @ Row[
-          {aIt == N[aHot[n]], "hot" // ""},
-          "  "
-        ],
-        PlotPoints -> {rSamp, n phiSamp + 1},
-        PlotStyle -> physStyle,
-        PlotOptions[Frame] // Evaluate
+      EmptyFrame[{-rMax, rMax}, {-rMax, rMax}],
+      (* Equipotentials (T == const) *)
+      rNum = 4;
+      rValues = Subdivide[0, 1, rNum] // Most;
+      ParametricPlot[
+        Table[
+          r Exp[I phi] // zMap[n] // ReIm
+        , {r, rValues}] // Evaluate,
+        {phi, 0, 2 Pi},
+        PlotStyle -> contStyle
+      ],
+      (* Streamlines (parallel to \[Del]T) *)
+      phiNum = 4;
+      phiValues = Subdivide[0, 2 Pi, n phiNum] // Most;
+      ParametricPlot[
+        Table[
+          r Exp[I phi] // zMap[n] // ReIm
+        , {phi, phiValues}] // Evaluate,
+        {r, 0, 1},
+        PlotStyle -> streamStyle
       ],
       (* Traced boundaries *)
       Table[
@@ -1070,8 +1089,12 @@ Table[
               PlotStyle -> {upperStyle, lowerStyle}
             ]
           , {k, 0, n - 1}]
-        , {zeta, zetaTraHot[id]}]
-      , {id, idList}]
+        , {zeta, zetaTraHot[n][id]}]
+      , {id, idList}],
+      (* Unphysical domain *)
+      Graphics @ {unphysStyle,
+        polyComplement[n]
+      }
     ]
   ] // Ex @ StringJoin["polygon_z-hot-traced-full-", ToString[n],".pdf"]
 , {n, 3, 5}]
