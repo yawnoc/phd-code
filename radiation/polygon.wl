@@ -262,8 +262,19 @@ Table[
       phMax = 2 Pi / n;
       phSpacing = 30 Degree;
       phValues = UniformRange[0, phMax, phSpacing] // Most;
-      (* Build table *)
+      (* Build list of values *)
       Table[rho Exp[I ph], {ph, phValues}]
+    ]
+, {n, 3, 5}];
+
+
+Table[
+  startZetaHot[n]["hyperbolic"] =
+    Module[{a, rhoSh},
+      a = aHot[n];
+      (* Build list of values *)
+      (* (only need singleton due to rotational symmetry) *)
+      {rhoSharp[n][a][0]}
     ]
 , {n, 3, 5}];
 
@@ -286,7 +297,7 @@ With[{zeta = \[FormalZeta]},
       (* A *)
       a = aHot[n];
       (* Group names *)
-      idList = {"general"};
+      idList = {"general", "hyperbolic"};
       (* Solve for traced boundaries *)
       Table[
         zetaInitList = startZetaHot[n][id];
@@ -397,7 +408,6 @@ contStyle = LightGray;
 streamStyle = LightGray;
 nonStyle = Directive[Opacity[0.7], LightGray];
 termStyle = Pink;
-physStyle = LightGreen;
 unphysStyle = Black;
 
 
@@ -411,6 +421,7 @@ convexStyle = Black;
 
 
 pointStyle = PointSize[Large];
+glowStyle = Directive[Thick, Yellow, Opacity[0.7]];
 
 
 (* ::Section:: *)
@@ -870,13 +881,12 @@ Table[
 
 Table[
   Module[
-   {rSamp = 4, phiSamp = 4,
-    a, idList,
+   {a, idList,
     eps, rhoMax, rhoMaxUnphys, rhoMaxNon
    },
     a = aHot[n];
     (* Group names *)
-    idList = {"general"};
+    idList = {"general", "hyperbolic"};
     (* Plot ranges *)
     eps = 0.1;
     rhoMax = 1;
@@ -909,10 +919,7 @@ Table[
       (* Starting points *)
       ListPlot[
         Table[startZetaHot[n][id] // ReIm, {id, idList}],
-        LabelingFunction -> Function @ Placed[
-          #2[[2]],
-          Center
-        ],
+        LabelingFunction -> Function @ Placed[#2[[2]], Center],
         PlotLegends -> idList,
         PlotStyle -> Directive[Opacity[0.7], pointStyle]
       ]
@@ -933,7 +940,7 @@ Table[
     phiNum, phiValues
    },
     (* Group names *)
-    idList = {"general"};
+    idList = {"general", "hyperbolic"};
     (* Plot *)
     rMax = 1;
     Show[
@@ -965,10 +972,7 @@ Table[
       (* Starting points *)
       ListPlot[
         Table[startZetaHot[n][id] // zMap[n] // ReIm, {id, idList}],
-        LabelingFunction -> Function @ Placed[
-          #2[[2]],
-          Center
-        ],
+        LabelingFunction -> Function @ Placed[#2[[2]], Center],
         PlotLegends -> idList,
         PlotStyle -> Directive[Opacity[0.7], pointStyle]
       ]
@@ -983,12 +987,10 @@ Table[
 
 Table[
   Module[
-   {a, idList,
+   {a,
     eps, rhoMax, rhoMaxUnphys, rhoMaxNon
    },
     a = aHot[n];
-    (* Group names *)
-    idList = {"general"};
     (* Plot ranges *)
     eps = 0.1;
     rhoMax = 1;
@@ -1025,7 +1027,21 @@ Table[
             ]
           , {k, 0, n - 1}]
         , {zeta, zetaTraHot[n][id]}]
-      , {id, idList}],
+      , {id, {"general"}}],
+      Table[
+        Table[
+          Table[
+            ParametricPlot[
+              zeta[s] Exp[I 2 Pi k / n]
+                // {#, Conjugate[#]} &
+                // ReIm
+                // Evaluate,
+              {s, DomainStart[zeta], DomainEnd[zeta]},
+              PlotStyle -> glowStyle
+            ]
+          , {k, 0, n - 1}]
+        , {zeta, zetaTraHot[n][id]}]
+      , {id, {"hyperbolic"}}],
       (* Unphysical domain *)
       RegionPlot[RPolar[reZeta, imZeta] > 1,
         {reZeta, -rhoMaxUnphys, rhoMaxUnphys},
@@ -1044,13 +1060,10 @@ Table[
 
 Table[
   Module[
-   {idList,
-    rMax,
+   {rMax,
     rNum, rValues,
     phiNum, phiValues
    },
-    (* Group names *)
-    idList = {"general"};
     (* Plot *)
     rMax = 1;
     Show[
@@ -1090,7 +1103,22 @@ Table[
             ]
           , {k, 0, n - 1}]
         , {zeta, zetaTraHot[n][id]}]
-      , {id, idList}],
+      , {id, {"general"}}],
+      Table[
+        Table[
+          Table[
+            ParametricPlot[
+              zeta[s] Exp[I 2 Pi k / n]
+                // zMap[n]
+                // {#, Conjugate[#]} &
+                // ReIm
+                // Evaluate,
+              {s, DomainStart[zeta], DomainEnd[zeta]},
+              PlotStyle -> glowStyle
+            ]
+          , {k, 0, n - 1}]
+        , {zeta, zetaTraHot[n][id]}]
+      , {id, {"hyperbolic"}}],
       (* Unphysical domain *)
       Graphics @ {unphysStyle,
         polyComplement[n]
