@@ -356,6 +356,28 @@ polyPoints[n_Integer, num_Integer] := polyPoints[n, num] = (
 )
 
 
+(* ::Subsubsection:: *)
+(*Complement of regular n-gon (z-space)*)
+
+
+(* ::Text:: *)
+(*This is quicker to plot than using RegionDifference with FullRegion.*)
+
+
+polyComplement[n_Integer] :=
+  Module[{mid},
+    Table[
+      (* Midpoint of k-th edge *)
+      mid = Way[
+        AngleVector[2 Pi (k - 1) / n],
+        AngleVector[2 Pi k / n]
+      ];
+      (* Corresponding half space *)
+      HalfSpace[-mid, mid]
+    , {k, n}]
+  ];
+
+
 (* ::Subsection:: *)
 (*Italicised symbols*)
 
@@ -379,7 +401,8 @@ gifOpts = Sequence[
 (*Global styles for plots*)
 
 
-contStyle = Gray;
+contStyle = LightGray;
+streamStyle = LightGray;
 nonStyle = Directive[Opacity[0.7], LightGray];
 termStyle = Pink;
 physStyle = LightGreen;
@@ -407,17 +430,38 @@ pointStyle = PointSize[Large];
 
 
 Table[
-  Module[{rSamp = 4, phiSamp = 4},
+  Module[
+   {rMax,
+    rNum, rValues,
+    phiNum, phiValues
+  },
+    rMax = 1;
     Show[
-      ParametricPlot[r Exp[I phi] // zMap[n] // ReIm,
-        {r, 0, 1}, {phi, 0, 2 Pi},
-        Mesh -> {rSamp - 1, n phiSamp - 1},
-        PlotPoints -> {rSamp, n phiSamp + 1},
-        PlotOptions[Frame] // Evaluate
+      EmptyFrame[{-rMax, rMax}, {-rMax, rMax}],
+      (* Unphysical domain *)
+      Graphics @ {unphysStyle,
+        polyComplement[n]
+      },
+      (* Equipotentials (T == const) *)
+      rNum = 4;
+      rValues = Subdivide[0, 1, rNum];
+      ParametricPlot[
+        Table[
+          r Exp[I phi] // zMap[n] // ReIm
+        , {r, rValues}] // Evaluate,
+        {phi, 0, 2 Pi},
+        PlotStyle -> contStyle
       ],
-      Graphics @ {Directive[Red, pointStyle],
-        Point @ polyVertices[n]
-      }
+      (* Streamlines (parallel to \[Del]T) *)
+      phiNum = 4;
+      phiValues = Subdivide[0, 2 Pi, n phiNum] // Most;
+      ParametricPlot[
+        Table[
+          r Exp[I phi] // zMap[n] // ReIm
+        , {phi, phiValues}] // Evaluate,
+        {r, 0, 1},
+        PlotStyle -> contStyle
+      ]
     ]
   ] // Ex @ StringJoin["schwarz-christoffel-forward-", ToString[n], ".pdf"]
 , {n, 3, 7}]
