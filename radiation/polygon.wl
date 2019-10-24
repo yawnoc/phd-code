@@ -123,6 +123,13 @@ g[zeta_] := -Log[zeta];
 gDer[n_][zeta_] := -h[n][1] (1 - zeta ^ n) ^ (2/n) / zeta // Evaluate;
 
 
+(* ::Subsubsection:: *)
+(*dG/d\[Zeta]*)
+
+
+gDerZeta[zeta_] := D[g[zeta], zeta] // Evaluate;
+
+
 (* ::Subsection:: *)
 (*Flux*)
 
@@ -269,7 +276,11 @@ Table[
 
 
 (* ::Subsection:: *)
-(*Traced boundaries z = z(s)*)
+(*Traced boundaries \[Zeta] = \[Zeta](s)*)
+
+
+(* ::Text:: *)
+(*See (r4.38) (Page r4-8).*)
 
 
 (* ::Subsubsection:: *)
@@ -294,8 +305,8 @@ With[{zeta = \[FormalZeta]},
                 zeta'[s] == (
                   Divide[
                     I f[a][#] + Sqrt @ vi[n][a][#],
-                    gDer[n][#]
-                  ] * zetaMapDer[n][#] & @ zeta[s]
+                    gDerZeta[#]
+                  ] & @ zeta[s]
                 ),
                 zeta[0] == zInit,
                 WhenEvent[
