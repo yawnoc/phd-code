@@ -344,10 +344,10 @@ diskPoints[num_Integer] := diskPoints[num] = (
 (*Regular n-gon (z-space)*)
 
 
-poly[n_Integer] := RegularPolygon[{1, 2 Pi / n}, n];
+poly[n_Integer] := RegularPolygon[{1, 0}, n];
 
 
-polyVertices[n_Integer] := CirclePoints[{1, 2 Pi / n}, n];
+polyVertices[n_Integer] := CirclePoints[{1, 0}, n];
 
 
 polyPoints[n_Integer, num_Integer] := polyPoints[n, num] = (
@@ -407,6 +407,10 @@ nonStyle = Directive[Opacity[0.7], LightGray];
 termStyle = Pink;
 physStyle = LightGreen;
 unphysStyle = Black;
+
+
+ellStyle = Darker[Green];
+hypStyle = Magenta;
 
 
 upperStyle = Blue;
@@ -789,6 +793,74 @@ Table[
     StringJoin["polygon_zeta-viable-zoom-", ToString[n],".gif"],
     gifOpts
   ]
+, {n, 3, 5}]
+
+
+(* ::Subsection:: *)
+(*Small A plot (\[Zeta]-space)*)
+
+
+(* ::Text:: *)
+(*Plots to exaggerate \[CurlyPhi]-dependence.*)
+(*We see that hyperbolic critical terminal points occur along \[CurlyPhi] = 2\[Pi] k/n,*)
+(*whereas elliptic critical terminal points occur along \[CurlyPhi] = 2\[Pi] (k - 1/2)/n.*)
+
+
+Table[
+  Module[
+   {a,
+    eps, rhoN,
+    rhoMax, rhoMaxUnphys,
+    rhoMaxNon, rhoMinNon
+   },
+    (* Small value of A *)
+    a = aNat[n][0] / 10^3;
+    (* Plot *)
+    eps = 0.1;
+    rhoMax = 1;
+    rhoMaxUnphys = 1 + eps;
+    rhoMaxNon = rhoSharp[n][a][0];
+    rhoMinNon = rhoSharp[n][a][Pi / n];
+    Show[
+      EmptyFrame[{-rhoMax, rhoMax}, {-rhoMax, rhoMax},
+        FrameLabel -> {Re["zeta"], Im["zeta"]},
+        ImageSize -> 360,
+        PlotLabel -> BoxedLabel[aIt == N[a]]
+      ] // PrettyString["zeta" -> "\[Zeta]"],
+      (* Unphysical domain *)
+      RegionPlot[RPolar[reZeta, imZeta] > 1,
+        {reZeta, -rhoMaxUnphys, rhoMaxUnphys},
+        {imZeta, -rhoMaxUnphys, rhoMaxUnphys},
+        BoundaryStyle -> None,
+        PlotStyle -> unphysStyle
+      ],
+      (* Non-viable domain *)
+      RegionPlot[vi[n][a][reZeta + I imZeta] < 0,
+        {reZeta, -rhoMaxNon, rhoMaxNon},
+        {imZeta, -rhoMaxNon, rhoMaxNon},
+        BoundaryStyle -> termStyle,
+        PlotStyle -> nonStyle
+      ],
+      (* Hyperbolic critical terminal points *)      
+      (* (\[CurlyPhi] == 2 Pi k / n) *)
+      Graphics @ {Directive[hypStyle, pointStyle],
+        Point @ CirclePoints[{rhoMaxNon, 0}, n]
+      },
+      (* (corresponding contour) *)
+      Graphics @ {hypStyle,
+        Circle[{0, 0}, rhoMaxNon]
+      },
+      (* Elliptic critical terminal points *)
+      (* (\[CurlyPhi] == 2 Pi (k - 1/2) / n) *)
+      Graphics @ {Directive[ellStyle, pointStyle],
+        Point @ CirclePoints[{rhoMinNon, Pi / n}, n]
+      },
+      (* (corresponding contour) *)
+      Graphics @ {ellStyle,
+        Circle[{0, 0}, rhoMinNon]
+      }
+    ]
+  ] // Ex @ StringJoin["polygon_zeta-viable-small-a-", ToString[n],".pdf"]
 , {n, 3, 5}]
 
 
