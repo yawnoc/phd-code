@@ -91,7 +91,6 @@ With[{n = \[FormalN], zeta = \[FormalZeta]},
 
 (* ::Text:: *)
 (*Solves z(\[Zeta]) = z by calling FindRoot with initial guess \[Zeta] = z.*)
-(*See tests in "Backward transformation" below (zetaTest1 was best).*)
 
 
 zetaMap[n_][z_] := SeekRoot[zMap[n][#] - z &, z];
@@ -360,12 +359,6 @@ poly[n_Integer] := RegularPolygon[{1, 0}, n];
 polyVertices[n_Integer] := CirclePoints[{1, 0}, n];
 
 
-polyPoints[n_Integer, num_Integer] := polyPoints[n, num] = (
-  SeedRandom[0];
-  RandomPoint[poly[n], num]
-)
-
-
 (* ::Subsubsection:: *)
 (*Complement of regular n-gon (z-space)*)
 
@@ -479,118 +472,6 @@ Table[
     ]
   ] // Ex @ StringJoin["schwarz-christoffel-forward-", ToString[n], ".pdf"]
 , {n, 3, 7}]
-
-
-(* ::Subsection:: *)
-(*Backward transformation: polygon (z-space) to disk (\[Zeta]-space)*)
-
-
-(* ::Subsubsection:: *)
-(*Test method 1: call FindRoot (via SeekRoot)*)
-
-
-zetaTest1[n_][z0_] := SeekRoot[zMap[n][#] - z0 &, z0];
-
-
-(* ::Subsubsection:: *)
-(*Test method 2: integrate d\[Zeta]/dz from 0 to z*)
-
-
-zetaTest2[n_][z0_] :=
-  With[{zeta = \[FormalW]}, (* NOTE: \[FormalZeta] doesn't work *)
-    NDSolveValue[
-      {
-        (* Integrate d\[Zeta]/dz along straight line from z == 0 to z0 *)
-        (* but put z == z_0 * t so that t is real *)
-        zeta'[t] == zetaMapDer[n] @ zeta[t] * z0,
-        zeta[0] == 0
-      }, zeta[1], {t, 0, 1}
-    ]
-  ];
-
-
-(* ::Subsubsection:: *)
-(*Residuals from disk: \[Zeta]_test(z(\[Zeta])) - \[Zeta]*)
-
-
-Module[{nValues, zetaValues, zetaTestList, resValues},
-  nValues = Range[3, 7];
-  zetaValues = Complex @@@ diskPoints[100];
-  zetaTestList = {zetaTest1, zetaTest2};
-  Table[
-    resValues =
-      Table[
-        zetaTest[n] @ zMap[n] @ zeta - zeta
-      , {zeta, zetaValues}] // Abs;
-    ListPlot[resValues,
-      Joined -> True,
-      PlotRange -> All
-    ]
-  , {n, nValues}, {zetaTest, zetaTestList}]
-   // TableForm[#, TableHeadings -> {nValues, zetaTestList}] &
-] // Ex["schwarz-christoffel-residuals-disk.pdf"]
-
-
-(* ::Subsubsection:: *)
-(*Residuals from polygon: z(\[Zeta]_test(z)) - z*)
-
-
-Module[{nValues, zetaTestList, zValues, resValues},
-  nValues = Range[3, 7];
-  zetaTestList = {zetaTest1, zetaTest2};
-  Table[
-    zValues = Complex @@@ polyPoints[n, 100];
-    resValues =
-      Table[
-        zMap[n] @ zetaTest[n] @ z - z
-      , {z, zValues}] // Abs;
-    ListPlot[resValues,
-      Joined -> True,
-      PlotRange -> All
-    ]
-  , {n, nValues}, {zetaTest, zetaTestList}]
-   // TableForm[#, TableHeadings -> {nValues, zetaTestList}] &
-] // Ex["schwarz-christoffel-residuals-poly.pdf"]
-
-
-(* ::Subsubsection:: *)
-(*Conclusion*)
-
-
-(* ::Text:: *)
-(*zetaTest1 has much smaller residuals.*)
-
-
-(* ::Subsubsection:: *)
-(*Timings*)
-
-
-Module[{nValues, zetaTestList, zValues, timingList},
-  nValues = Range[3, 7];
-  zetaTestList = {zetaTest1, zetaTest2};
-  timingList =
-    Transpose @ Table[
-      zValues = Complex @@@ polyPoints[n, 1000];
-      Table[
-        zMap[n] @ zetaTest[n] @ z - z
-      , {z, zValues}] // AbsoluteTiming // First
-    , {n, nValues}, {zetaTest, zetaTestList}];
-  ListPlot[timingList,
-    AxesLabel -> {Italicised["n"], "Timing"},
-    Joined -> True,
-    PlotLegends -> zetaTestList,
-    PlotRange -> All,
-    PlotOptions[Axes] // Evaluate
-  ]
-] // Ex["schwarz-christoffel-timings.pdf"]
-
-
-(* ::Subsubsection:: *)
-(*Conclusion*)
-
-
-(* ::Text:: *)
-(*zetaTest1 is faster (and the difference increases with n).*)
 
 
 (* ::Section:: *)
