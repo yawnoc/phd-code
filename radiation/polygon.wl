@@ -283,8 +283,33 @@ Table[
 (*Traced boundaries \[Zeta] = \[Zeta](s)*)
 
 
+(* ::Subsubsection:: *)
+(*Solver for traced boundaries*)
+
+
 (* ::Text:: *)
 (*See (r4.38) (Page r4-8).*)
+
+
+With[{zeta = \[FormalZeta]},
+  zetaTrace[n_][a_][zetaInit_] :=
+    NDSolveValue[
+      {
+        zeta'[s] == (
+          Divide[
+            I f[a][#] + Sqrt @ vi[n][a][#],
+            gDerZeta[#]
+          ] & @ zeta[s]
+        ),
+        zeta[0] == zetaInit,
+        WhenEvent[
+          vi[n][a] @ zeta[s] < 0 || Abs @ zeta[s] > 1,
+          "StopIntegration"
+        ]
+      }, zeta, {s, -2 Pi, Pi},
+      NoExtrapolation
+    ]
+];
 
 
 (* ::Subsubsection:: *)
@@ -303,26 +328,8 @@ With[{zeta = \[FormalZeta]},
         zetaInitList = startZetaHot[n][id];
         zetaTraHot[n][id] =
           Table[
-            NDSolveValue[
-              {
-                zeta'[s] == (
-                  Divide[
-                    I f[a][#] + Sqrt @ vi[n][a][#],
-                    gDerZeta[#]
-                  ] & @ zeta[s]
-                ),
-                zeta[0] == zInit,
-                WhenEvent[
-                  Or[
-                    vi[n][a] @ zeta[s] < 0,
-                    Abs @ zeta[s] > 1
-                  ],
-                  "StopIntegration"
-                ]
-              }, zeta, {s, -2 Pi, Pi},
-              NoExtrapolation
-            ]
-          , {zInit, zetaInitList}];
+            zetaTrace[n][a][zetaInit]
+          , {zetaInit, zetaInitList}];
       , {id, idList}];
     ]
   , {n, 3, 5}];
