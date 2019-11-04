@@ -312,6 +312,17 @@ With[{zeta = \[FormalZeta]},
 
 
 (* ::Subsubsection:: *)
+(*Solver for hyperbolic traced boundaries*)
+
+
+zetaTraceHyperbolic[n_][a_] :=
+  Module[{rhoClearance},
+    rhoClearance = 10^-8;
+    zetaTrace[n][a] @ (rhoSharp[n][a][0] + rhoClearance)
+  ];
+
+
+(* ::Subsubsection:: *)
 (*Hot regime*)
 
 
@@ -1013,4 +1024,76 @@ Table[
       }
     ]
   ] // Ex @ StringJoin["polygon_z-hot-traced-full-", ToString[n],".pdf"]
+, {n, 3, 5}]
+
+
+(* ::Subsubsection:: *)
+(*Hyperbolic-only animations (\[Zeta]-space)*)
+
+
+Table[
+  Module[
+   {ph,
+    aN, aMin, aMax, aStep, aValues,
+    eps, rhoMax, rhoMaxUnphys, rhoMaxNon,
+    zeta
+   },
+    (* Azimuthal angle in \[Zeta]-space *)
+    ph = 0;
+    (* Values of A *)
+    aN = aNat[n][ph];
+    aMin = 1/10;
+    aStep = 1/10;
+    aMax = Floor[aN, aStep];
+    aValues = Range[aMin, aMax, aStep];
+    aValues = Append[aValues, aN] // Sort[#, Less] &;
+    (* Animation *)
+    Table[
+      eps = 0.1;
+      rhoMax = 1;
+      rhoMaxUnphys = 1 + eps;
+      rhoMaxNon = If[a < aN, rhoSharp[n][a][ph], rhoNat[n][ph]];
+      Show[
+        EmptyFrame[{-rhoMax, rhoMax}, {-rhoMax, rhoMax},
+          FrameLabel -> {Re["zeta"], Im["zeta"]},
+          ImageSize -> 360,
+          PlotLabel -> BoxedLabel[aIt == N[a]]
+        ] // PrettyString["zeta" -> "\[Zeta]"],
+        (* Unphysical domain *)
+        RegionPlot[RPolar[reZeta, imZeta] > 1,
+          {reZeta, -rhoMaxUnphys, rhoMaxUnphys},
+          {imZeta, -rhoMaxUnphys, rhoMaxUnphys},
+          BoundaryStyle -> None,
+          PlotStyle -> unphysStyle
+        ],
+        (* Non-viable domain *)
+        RegionPlot[vi[n][a][reZeta + I imZeta] < 0,
+          {reZeta, -rhoMaxNon, rhoMaxNon},
+          {imZeta, -rhoMaxNon, rhoMaxNon},
+          BoundaryStyle -> termStyle,
+          PlotStyle -> nonStyle
+        ],
+        (* Traced boundaries *)
+        If[a < aN,
+          (* If still in hot regime, plot *)
+          zeta = zetaTraceHyperbolic[n][a];
+          Table[
+            ParametricPlot[
+              zeta[s] Exp[I 2 Pi k / n]
+                // {#, Conjugate[#]} &
+                // ReIm
+                // Evaluate,
+              {s, DomainStart[zeta], DomainEnd[zeta]},
+              PlotStyle -> hypStyle
+            ]
+          , {k, 0, n - 1}],
+          (* Otherwise don't plot *)
+          {}
+        ]
+      ]
+    , {a, aValues}]
+  ] // Ex[
+    StringJoin["polygon_zeta-traced-hyperbolic-", ToString[n],".gif"],
+    gifOpts
+  ]
 , {n, 3, 5}]
