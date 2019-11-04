@@ -1097,3 +1097,84 @@ Table[
     gifOpts
   ]
 , {n, 3, 5}]
+
+
+(* ::Subsubsection:: *)
+(*Hyperbolic-only animations (z-space)*)
+
+
+Table[
+  Module[
+   {ph,
+    aN, aMin, aMax, aStep, aValues,
+    rMax,
+    rNum, rValues,
+    phiNum, phiValues,
+    zeta
+   },
+    (* Azimuthal angle in \[Zeta]-space *)
+    ph = 0;
+    (* Values of A *)
+    aN = aNat[n][ph];
+    aMin = 1/10;
+    aStep = 1/10;
+    aMax = Floor[aN, aStep];
+    aValues = Range[aMin, aMax, aStep];
+    aValues = Append[aValues, aN] // Sort[#, Less] &;
+    (* Animation *)
+    Table[
+      rMax = 1;
+      Show[
+        EmptyFrame[{-rMax, rMax}, {-rMax, rMax},
+          ImageSize -> 360,
+          PlotLabel -> BoxedLabel[aIt == N[a]]
+        ],
+        (* Equipotentials (T == const) *)
+        rNum = 4;
+        rValues = Subdivide[0, 1, rNum] // Most;
+        ParametricPlot[
+          Table[
+            r Exp[I phi] // zMap[n] // ReIm
+          , {r, rValues}] // Evaluate,
+          {phi, 0, 2 Pi},
+          PlotStyle -> contStyle
+        ],
+        (* Streamlines (parallel to \[Del]T) *)
+        phiNum = 4;
+        phiValues = Subdivide[0, 2 Pi, n phiNum] // Most;
+        ParametricPlot[
+          Table[
+            r Exp[I phi] // zMap[n] // ReIm
+          , {phi, phiValues}] // Evaluate,
+          {r, 0, 1},
+          PlotStyle -> streamStyle
+        ],
+        (* Traced boundaries *)
+        If[a < aN,
+          (* If still in hot regime, plot *)
+          zeta = zetaTraceHyperbolic[n][a];
+          Table[
+            ParametricPlot[
+              zeta[s] Exp[I 2 Pi k / n]
+                // zMap[n]
+                // {#, Conjugate[#]} &
+                // ReIm
+                // Evaluate,
+              {s, DomainStart[zeta], DomainEnd[zeta]},
+              PlotStyle -> hypStyle
+            ]
+          , {k, 0, n - 1}],
+          (* Otherwise don't plot *)
+          {}
+        ],
+        (* Unphysical domain *)
+        Graphics @ {unphysStyle,
+          polyComplement[n]
+        }
+      ]
+    , {a, aValues}]
+  ] // Ex[
+    StringJoin["polygon_z-traced-hyperbolic-", ToString[n],".gif"],
+    gifOpts
+  ]
+, {n, 3, 5}]
