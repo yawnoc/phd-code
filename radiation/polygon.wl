@@ -283,6 +283,21 @@ Table[
 
 
 (* ::Subsubsection:: *)
+(*\[Zeta]' = d\[Zeta]/ds*)
+
+
+(* ::Text:: *)
+(*See (r4.38) (Page r4-8).*)
+
+
+zetaVel[n_][a_][zeta_] :=
+  Divide[
+    I f[a][zeta] + Sqrt @ vi[n][a][zeta],
+    gDerZeta[zeta]
+  ] // Evaluate;
+
+
+(* ::Subsubsection:: *)
 (*Solver for traced boundaries*)
 
 
@@ -294,12 +309,7 @@ With[{zeta = \[FormalZeta]},
   zetaTrace[n_][a_][zetaInit_] :=
     NDSolveValue[
       {
-        zeta'[s] == (
-          Divide[
-            I f[a][#] + Sqrt @ vi[n][a][#],
-            gDerZeta[#]
-          ] & @ zeta[s]
-        ),
+        zeta'[s] == zetaVel[n][a] @ zeta[s],
         zeta[0] == zetaInit,
         WhenEvent[
           vi[n][a] @ zeta[s] < 0 || Abs @ zeta[s] > 1,
