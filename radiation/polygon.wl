@@ -438,7 +438,7 @@ aMeet // N
 
 
 With[{zeta = \[FormalZeta]},
-  zetaTraceCandidate[n_][a_] :=
+  zetaTraceCand[n_][a_] :=
     Module[{rhoClearance},
       rhoClearance = 10^-8;
       NDSolveValue[
@@ -546,6 +546,21 @@ curTra[n_][a_][zeta_] :=
     {xAcc, yAcc} = zAcc[n][a][zeta] // ReIm;
     xVel yAcc - yVel xAcc
   ] // Evaluate;
+
+
+(* ::Subsubsection:: *)
+(*Curvature at \[CurlyPhi] = \[Pi]/n*)
+
+
+(* ::Text:: *)
+(*The curvature evaluated at the corners formed by the candidate boundaries.*)
+
+
+curCandCorner[n_][a_] /; aMeet[n] <= a < aNat[n][0] :=
+  Module[{zeta},
+    zeta = zetaTraceCand[n][a];
+    zeta @ DomainStart[zeta] // curTra[n][a]
+  ];
 
 
 (* ::Subsection:: *)
@@ -1334,7 +1349,7 @@ Table[
 Table[
   Module[{a, zeta},
     a = aMeet[n];
-    zeta = zetaTraceCandidate[n][a];
+    zeta = zetaTraceCand[n][a];
     Show[
       (* Equipotentials and streamlines *)
       equipStream[n,
@@ -1357,3 +1372,46 @@ Table[
     ]
   ] // Ex @ StringJoin["polygon_z-candidate-meeting-", ToString[n], ".pdf"]
 , {n, 3, 5}]
+
+
+(* ::Subsubsection:: *)
+(*Curvature at \[CurlyPhi] = \[Pi]/n*)
+
+
+Module[
+ {nValues, dest, aCurTables,
+  aMin, aMax, num, aValues
+ },
+  nValues = Range[3, 5];
+  (* Compute tables of (A, cur.) values *)
+  (* (This is slightly slow (~4 sec), so compute once and store.) *)
+  (* (Delete the file manually to compute from scratch.) *)
+  dest = "polygon-candidate-curvature-corner.txt";
+  If[FileExistsQ[dest],
+    (* If already stored, import *)
+    aCurTables = Import[dest] // Uncompress,
+    (* Otherwise compute and store for next time *)
+    aCurTables = Table[
+      aMin = aMeet[n];
+      aMax = Min[aNat[n][0], 3];
+      num = 100;
+      aValues = Subdivide[aMin, aMax, num] // Most;
+      Table[
+        {a, curCandCorner[n][a]}
+      , {a, aValues}]
+    , {n, nValues}];
+    aCurTables // Compress // Ex[dest]
+  ];
+  (* Plot *)
+  Show[
+    (* A vs corner curvature *)
+    ListPlot[
+      aCurTables,
+      AxesLabel -> {aIt, "Corner cur."},
+      Joined -> True,
+      PlotLegends -> LineLegend[nValues, LegendLabel -> nIt],
+      PlotRange -> {{All, 3}, {All, 5}},
+      PlotOptions[Axes] // Evaluate
+    ]
+  ] // Ex["polygon-candidate-curvature-corner.pdf"]
+]
