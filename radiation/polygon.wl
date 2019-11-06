@@ -13,6 +13,7 @@
 
 
 SetDirectory @ ParentDirectory @ NotebookDirectory[];
+<< NDSolve`FEM`
 << Conway`
 << Curvilinear`
 SetDirectory @ FileNameJoin @ {NotebookDirectory[], "polygon"}
@@ -626,6 +627,98 @@ aInfl // N
 aConvex[n_] := Ceiling[aInfl[n] + 0.25, 0.1];
 Table[
   aConvex[n] < aNat[n][0]
+, {n, 3, 5}]
+
+
+(* ::Subsection:: *)
+(*Numerical verification for convex domains (finite elements)*)
+
+
+(* ::Text:: *)
+(*These are not slow, nevertheless compute once and store.*)
+(*Delete the corresponding file manually to compute from scratch.*)
+
+
+(* ::Subsubsection:: *)
+(*Generate meshes*)
+
+
+Table[
+  Module[{dest},
+    dest = "polygon-convex-verification-mesh-" <> ToString[n] <> ".txt";
+    If[Not @ FileExistsQ[dest],
+      Module[
+       {a, rhoSh, rSh, zeta, sMax, rhoBath, rBath,
+        sSpacing, rotate, sValues,
+        extPointList, intPointList,
+        nExt, nInt, mod,
+        bMesh, mesh,
+        prExt, prInt
+       },
+        (* Dimensionless group *)
+        a = aConvex[n];
+        (* Hyperbolic critical terminal radius (\[Zeta]-space and z-space) *)
+        rhoSh = rhoSharp[n][a][0];
+        rSh = rhoSh // zMap[n];
+        (* Traced boundary \[Zeta] == \[Zeta](s) *)
+        zeta = zetaTraceCand[n][a];
+        (* Half of arc length along one candidate boundary *)
+        (* (which is one of the n boundaries of the domain) *)
+        sMax = DomainStart[zeta] // Abs;
+        (* Heat bath radius (\[Zeta]-space and z-space) *)
+        rhoBath = 0.5 rhoSh;
+        rBath = rhoBath // zMap[n];
+        (* Spacing of boundary points *)
+        (* (roughly 1 boundary point every 5 degrees along rho == rhoSh) *)
+        sSpacing = rhoSh * 5 Degree;
+        (* External (radiation) boundary points *)
+        sValues = UniformRange[-sMax, 0, sSpacing];
+        rotate[k_] := Exp[I 2 Pi k / n] # &;
+        extPointList = Join @@ Table[
+          Join[
+            Table[
+              zeta[-Abs @ s] // zMap[n] // rotate[k] // ReIm
+            , {s, sValues}] // Most,
+            Table[
+              zeta[-Abs @ s] // zMap[n] // Conjugate // rotate[k] // ReIm
+            , {s, sValues}] // Reverse // Most
+          ]
+        , {k, 0, n - 1}];
+        (* Internal (heat bath) boundary *)
+        intPointList = Table[
+          XYPolar[rBath, ph]
+        , {ph, UniformRange[0, 2 Pi, sSpacing / rBath]}] // Most;
+        (* Numbering *)
+        nExt = Length[extPointList];
+        nInt = Length[intPointList];
+        mod[n_] := Mod[#, n, 1] &;
+        (* Build boundary element mesh *)
+        bMesh = ToBoundaryMesh[
+          "Coordinates" -> Join[extPointList, intPointList],
+          "BoundaryElements" -> {
+            (* External *)
+            LineElement[
+              Table[{n, n + 1}, {n, nExt}] // mod[nExt]
+            ],
+            (* Internal *)
+            LineElement[
+              nExt + (Table[{n, n + 1}, {n, nInt}] // mod[nInt])
+            ]
+          }
+        ];
+        (* Build mesh *)
+        mesh = ToElementMesh[bMesh,
+          "ImproveBoundaryPosition" -> True,
+          "RegionHoles" -> {0, 0}
+        ];
+        (* Predicate functions for exterior and interior boundaries *)
+        prExt = Function[{x, y}, RPolar[x, y] > Way[rBath, rSh] // Evaluate];
+        prInt = Function[{x, y}, RPolar[x, y] < Way[rBath, rSh] // Evaluate];
+        {a, rBath, mesh, prExt, prInt}
+          // Compress // Ex[dest]
+      ]
+    ]
+  ]
 , {n, 3, 5}]
 
 
@@ -1401,7 +1494,7 @@ Table[
 
 
 (* ::Subsection:: *)
-(*Convex domain*)
+(*Convex domains*)
 
 
 (* ::Subsubsection:: *)
@@ -1559,4 +1652,40 @@ Table[
       , {k, 0, n - 1}]
     ]
   ] // Ex @ StringJoin["polygon_z-candidate-inflection-", ToString[n], ".pdf"]
+, {n, 3, 5}]
+
+
+(* ::Section:: *)
+(*Numerical verification plots*)
+
+
+(* ::Subsection:: *)
+(*Finite element mesh*)
+
+
+Table[
+  Module[
+   {source,
+    a, rBath, mesh, prExt, prInt,
+    bCoords, bCoordsExt, bCoordsInt
+   },
+    (* Import mesh *)
+    source = "polygon-convex-verification-mesh-" <> ToString[n] <> ".txt";
+    {a, rBath, mesh, prExt, prInt} = Import[source] // Uncompress;
+    (* Boundary coordinates *)
+    bCoords = Part[
+      mesh["Coordinates"],
+      List @@ First @ mesh["BoundaryElements"] // Flatten // DeleteDuplicates
+    ];
+    bCoordsExt = Select[bCoords, prExt @@ # &];
+    bCoordsInt = Select[bCoords, prInt @@ # &];
+    (* Plot *)
+    Show[
+      mesh["Wireframe"],
+      ListPlot[{bCoordsExt, bCoordsInt},
+        PlotStyle -> (Directive[#, pointStyle] & /@ {Blue, Red})
+      ],
+      ImageSize -> 480
+    ]
+  ] // Ex @ StringJoin["polygon-convex-verification-mesh-", ToString[n], ".pdf"]
 , {n, 3, 5}]
