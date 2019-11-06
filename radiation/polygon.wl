@@ -549,6 +549,50 @@ pointStyle = PointSize[Large];
 glowStyle = Directive[Thick, Yellow, Opacity[0.7]];
 
 
+(* ::Subsection:: *)
+(*Repeated plots*)
+
+
+(* ::Subsubsection:: *)
+(*Equipotentials and streamlines (z-space)*)
+
+
+equipStream[n_, opts : OptionsPattern[RegionPlot]] :=
+  Module[{rMax, rhoNum, rhoValues, phNum, phValues},
+    rMax = 1;
+    Show[
+      EmptyFrame[{-rMax, rMax}, {-rMax, rMax}, opts],
+      (* Equipotentials (T == const) *)
+      rhoNum = 4;
+      rhoValues = Subdivide[0, 1, rhoNum] // Most;
+      ParametricPlot[
+        Table[
+          rho Exp[I ph] // zMap[n] // ReIm
+        , {rho, rhoValues}] // Evaluate,
+        {ph, 0, 2 Pi},
+        PlotStyle -> contStyle
+      ],
+      (* Streamlines (parallel to \[Del]T) *)
+      phNum = 4;
+      phValues = Subdivide[0, 2 Pi, n phNum] // Most;
+      ParametricPlot[
+        Table[
+          rho Exp[I ph] // zMap[n] // ReIm
+        , {ph, phValues}] // Evaluate,
+        {rho, 0, 1},
+        PlotStyle -> streamStyle
+      ]
+    ]
+  ];
+
+
+(* ::Subsubsection:: *)
+(*Unphysical domain (z-space)*)
+
+
+unphysDomain[n_] := Graphics @ {unphysStyle, polyComplement[n]};
+
+
 (* ::Section:: *)
 (*Schwarz--Christoffel transformation*)
 
@@ -562,39 +606,11 @@ glowStyle = Directive[Thick, Yellow, Opacity[0.7]];
 
 
 Table[
-  Module[
-   {rMax,
-    rNum, rValues,
-    phiNum, phiValues
-   },
-    rMax = 1;
-    Show[
-      EmptyFrame[{-rMax, rMax}, {-rMax, rMax}],
-      (* Equipotentials (T == const) *)
-      rNum = 4;
-      rValues = Subdivide[0, 1, rNum] // Most;
-      ParametricPlot[
-        Table[
-          r Exp[I phi] // zMap[n] // ReIm
-        , {r, rValues}] // Evaluate,
-        {phi, 0, 2 Pi},
-        PlotStyle -> contStyle
-      ],
-      (* Streamlines (parallel to \[Del]T) *)
-      phiNum = 4;
-      phiValues = Subdivide[0, 2 Pi, n phiNum] // Most;
-      ParametricPlot[
-        Table[
-          r Exp[I phi] // zMap[n] // ReIm
-        , {phi, phiValues}] // Evaluate,
-        {r, 0, 1},
-        PlotStyle -> streamStyle
-      ],
-      (* Unphysical domain *)
-      Graphics @ {unphysStyle,
-        polyComplement[n]
-      }
-    ]
+  Show[
+    (* Equipotentials and streamlines *)
+    equipStream[n],
+    (* Unphysical domain *)
+    unphysDomain[n]
   ] // Ex @ StringJoin["schwarz-christoffel-forward-", ToString[n], ".pdf"]
 , {n, 3, 7}]
 
@@ -946,42 +962,15 @@ Table[
 
 
 Table[
-  Module[
-   {idList,
-    rMax,
-    rNum, rValues,
-    phiNum, phiValues
-   },
+  Module[{idList},
     (* Group names *)
     idList = {"general", "hyperbolic"};
     (* Plot *)
-    rMax = 1;
     Show[
-      EmptyFrame[{-rMax, rMax}, {-rMax, rMax}],
-      (* Equipotentials (T == const) *)
-      rNum = 4;
-      rValues = Subdivide[0, 1, rNum] // Most;
-      ParametricPlot[
-        Table[
-          r Exp[I phi] // zMap[n] // ReIm
-        , {r, rValues}] // Evaluate,
-        {phi, 0, 2 Pi},
-        PlotStyle -> contStyle
-      ],
-      (* Streamlines (parallel to \[Del]T) *)
-      phiNum = 4;
-      phiValues = Subdivide[0, 2 Pi, n phiNum] // Most;
-      ParametricPlot[
-        Table[
-          r Exp[I phi] // zMap[n] // ReIm
-        , {phi, phiValues}] // Evaluate,
-        {r, 0, 1},
-        PlotStyle -> streamStyle
-      ],
+      (* Equipotentials and streamlines *)
+      equipStream[n],
       (* Unphysical domain *)
-      Graphics @ {unphysStyle,
-        polyComplement[n]
-      },
+      unphysDomain[n],
       (* Starting points *)
       ListPlot[
         Table[startZetaHot[n][id] // zMap[n] // ReIm, {id, idList}],
@@ -1072,35 +1061,10 @@ Table[
 
 
 Table[
-  Module[
-   {rMax,
-    rNum, rValues,
-    phiNum, phiValues
-   },
-    (* Plot *)
-    rMax = 1;
+  Module[{},
     Show[
-      EmptyFrame[{-rMax, rMax}, {-rMax, rMax}],
-      (* Equipotentials (T == const) *)
-      rNum = 4;
-      rValues = Subdivide[0, 1, rNum] // Most;
-      ParametricPlot[
-        Table[
-          r Exp[I phi] // zMap[n] // ReIm
-        , {r, rValues}] // Evaluate,
-        {phi, 0, 2 Pi},
-        PlotStyle -> contStyle
-      ],
-      (* Streamlines (parallel to \[Del]T) *)
-      phiNum = 4;
-      phiValues = Subdivide[0, 2 Pi, n phiNum] // Most;
-      ParametricPlot[
-        Table[
-          r Exp[I phi] // zMap[n] // ReIm
-        , {phi, phiValues}] // Evaluate,
-        {r, 0, 1},
-        PlotStyle -> streamStyle
-      ],
+      (* Equipotentials and streamlines *)
+      equipStream[n],
       (* Traced boundaries *)
       Table[
         Table[
@@ -1133,9 +1097,7 @@ Table[
         , {zeta, zetaTraHot[n][id]}]
       , {id, {"hyperbolic"}}],
       (* Unphysical domain *)
-      Graphics @ {unphysStyle,
-        polyComplement[n]
-      }
+      unphysDomain[n]
     ]
   ] // Ex @ StringJoin["polygon_z-hot-traced-full-", ToString[n],".pdf"]
 , {n, 3, 5}]
@@ -1221,9 +1183,6 @@ Table[
   Module[
    {ph,
     aN, aMin, aMax, aStep, aValues,
-    rMax,
-    rNum, rValues,
-    phiNum, phiValues,
     zeta
    },
     (* Azimuthal angle in \[Zeta]-space *)
@@ -1237,31 +1196,11 @@ Table[
     aValues = Append[aValues, aN] // Sort[#, Less] &;
     (* Animation *)
     Table[
-      rMax = 1;
       Show[
-        EmptyFrame[{-rMax, rMax}, {-rMax, rMax},
+        (* Equipotentials and streamlines *)
+        equipStream[n,
           ImageSize -> 360,
           PlotLabel -> BoxedLabel[aIt == N[a]]
-        ],
-        (* Equipotentials (T == const) *)
-        rNum = 4;
-        rValues = Subdivide[0, 1, rNum] // Most;
-        ParametricPlot[
-          Table[
-            r Exp[I phi] // zMap[n] // ReIm
-          , {r, rValues}] // Evaluate,
-          {phi, 0, 2 Pi},
-          PlotStyle -> contStyle
-        ],
-        (* Streamlines (parallel to \[Del]T) *)
-        phiNum = 4;
-        phiValues = Subdivide[0, 2 Pi, n phiNum] // Most;
-        ParametricPlot[
-          Table[
-            r Exp[I phi] // zMap[n] // ReIm
-          , {phi, phiValues}] // Evaluate,
-          {r, 0, 1},
-          PlotStyle -> streamStyle
         ],
         (* Traced boundaries *)
         If[a < aN,
@@ -1282,9 +1221,7 @@ Table[
           {}
         ],
         (* Unphysical domain *)
-        Graphics @ {unphysStyle,
-          polyComplement[n]
-        }
+        unphysDomain[n]
       ]
     , {a, aValues}]
   ] // Ex[
