@@ -1482,3 +1482,35 @@ Module[
     ]
   ] // Ex["polygon-candidate-curvature-corner.pdf"]
 ]
+
+
+(* ::Subsubsection:: *)
+(*Inflection (A = A_i) (z-space)*)
+
+
+Table[
+  Module[{a, zeta, rMax},
+    a = aInfl[n];
+    zeta = zetaTraceCand[n][a];
+    rMax = 0.15;
+    Show[
+      (* Equipotentials and streamlines *)
+      equipStream[n,
+        PlotLabel -> BoxedLabel[aIt == N[a]],
+        PlotRange -> {{-rMax, rMax}, {-rMax, rMax}}
+      ],
+      (* Candidate traced boundaries *)
+      Table[
+        ParametricPlot[
+          zeta[s] Exp[I 2 Pi k / n]
+            // zMap[n]
+            // {#, Conjugate[#]} &
+            // ReIm
+            // Evaluate,
+          {s, DomainStart[zeta], DomainEnd[zeta]},
+          PlotStyle -> hypStyle
+        ]
+      , {k, 0, n - 1}]
+    ]
+  ] // Ex @ StringJoin["polygon_z-candidate-inflection-", ToString[n], ".pdf"]
+, {n, 3, 5}]
