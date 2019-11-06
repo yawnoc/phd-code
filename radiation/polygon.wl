@@ -361,6 +361,17 @@ With[{zeta = \[FormalZeta]},
 
 
 (* ::Subsubsection:: *)
+(*\[CurlyPhi](\[Rho] = 1)*)
+
+
+phEnd[n_][a_] :=
+  Module[{zeta},
+    zeta = zetaTraceHyperbolic[n][a];
+    zeta @ DomainStart[zeta] // Conjugate // Arg
+  ];
+
+
+(* ::Subsubsection:: *)
 (*A_m (meeting dimensionless group)*)
 
 
@@ -372,11 +383,11 @@ With[{zeta = \[FormalZeta]},
 (* Compute A_m using the bisection algorithm *)
 aMeet = Module[
  {dest, nValues,
-  aMin, aMax, phEnd,
+  aMin, aMax,
   a, num,
   aAss, numAss
  },
-  (* (!!!!, so compute once and store.) *)
+  (* (This is not slow, nevertheless compute once and store.) *)
   (* (Delete the file manually to compute from scratch.) *)
   dest = "polygon-a-meet.txt";
   nValues = Range[3, 5];
@@ -389,12 +400,8 @@ aMeet = Module[
     aMin = 5/10;
     aMax = 12/10;
     Table[
-      phEnd[a_] := Module[{zeta},
-        zeta = zetaTraceHyperbolic[n][a];
-        zeta @ DomainStart[zeta] // Conjugate // Arg
-      ];
       {a, num} = SeekRootBisection[
-        phEnd[#] - Pi / n &,
+        phEnd[n][#] - Pi / n &,
         {aMin, aMax},
         "ReturnIterations" -> True
       ];
