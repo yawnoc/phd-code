@@ -315,7 +315,7 @@ With[{zeta = \[FormalZeta]},
           vi[n][a] @ zeta[s] < 0 || Abs @ zeta[s] > 1,
           "StopIntegration"
         ]
-      }, zeta, {s, -2 Pi, Pi},
+      }, zeta, {s, -Pi, Pi},
       NoExtrapolation
     ]
 ];
@@ -453,7 +453,7 @@ With[{zeta = \[FormalZeta]},
             ],
             "StopIntegration"
           ]
-        }, zeta, {s, -2 Pi, 0},
+        }, zeta, {s, -Pi, 0},
         NoExtrapolation
       ]
     ];
