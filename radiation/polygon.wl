@@ -1233,3 +1233,39 @@ Table[
 
 (* ::Section:: *)
 (*Traced boundary curvature*)
+
+
+(* ::Subsection:: *)
+(*Candidate boundaries*)
+
+
+(* ::Subsubsection:: *)
+(*Meeting (A = A_m) (z-space)*)
+
+
+Table[
+  Module[{a, zeta},
+    a = aMeet[n];
+    zeta = zetaTraceCandidate[n][a];
+    Show[
+      (* Equipotentials and streamlines *)
+      equipStream[n,
+        PlotLabel -> BoxedLabel[aIt == N[a]]
+      ],
+      (* Candidate traced boundaries *)
+      Table[
+        ParametricPlot[
+          zeta[s] Exp[I 2 Pi k / n]
+            // zMap[n]
+            // {#, Conjugate[#]} &
+            // ReIm
+            // Evaluate,
+          {s, DomainStart[zeta], DomainEnd[zeta]},
+          PlotStyle -> hypStyle
+        ]
+      , {k, 0, n - 1}],
+      (* Unphysical domain *)
+      unphysDomain[n]
+    ]
+  ] // Ex @ StringJoin["polygon_z-candidate-meeting-", ToString[n], ".pdf"]
+, {n, 3, 5}]
