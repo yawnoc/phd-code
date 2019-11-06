@@ -357,6 +357,69 @@ With[{zeta = \[FormalZeta]},
 
 
 (* ::Subsection:: *)
+(*Traced boundary curvature*)
+
+
+(* ::Subsubsection:: *)
+(*A_m (meeting dimensionless group)*)
+
+
+(* ::Text:: *)
+(*This is the smallest A > 0 for which \[CurlyPhi] = \[Pi]/n at \[Rho] = 1.*)
+(*See Page r4-10.*)
+
+
+(* Compute A_m using the bisection algorithm *)
+aMeet = Module[
+ {dest, nValues,
+  aMin, aMax, phEnd,
+  a, num,
+  aAss, numAss
+ },
+  (* (!!!!, so compute once and store.) *)
+  (* (Delete the file manually to compute from scratch.) *)
+  dest = "polygon-a-meet.txt";
+  nValues = Range[3, 5];
+  If[FileExistsQ[dest],
+    (* If already stored, import *)
+    {aAss, numAss} = Import[dest] // Uncompress,
+    (* Otherwise compute and export for next time *)
+    aAss = Association[];
+    numAss = Association[];
+    aMin = 5/10;
+    aMax = 12/10;
+    Table[
+      phEnd[a_] := Module[{zeta},
+        zeta = zetaTraceHyperbolic[n][a];
+        zeta @ DomainStart[zeta] // Conjugate // Arg
+      ];
+      {a, num} = SeekRootBisection[
+        phEnd[#] - Pi / n &,
+        {aMin, aMax},
+        "ReturnIterations" -> True
+      ];
+      aAss = aAss // Append[n -> a];
+      numAss = numAss // Append[n -> num];
+    , {n, nValues}];
+    {aAss, numAss} // Compress // Ex[dest]
+  ];
+  (* Print iterations used *)
+  Table[
+    Print[
+      "n == {n} bisection algorithm: {num} iterations"
+        // PrettyString[
+          "{n}" -> ToString[n],
+          "{num}" -> ToString @ numAss[n]
+        ]
+    ];
+  , {n, nValues}];
+  (* Return A_m values *)
+  aAss
+];
+aMeet // N
+
+
+(* ::Subsection:: *)
 (*Geometric regions*)
 
 
@@ -1188,3 +1251,7 @@ Table[
     gifOpts
   ]
 , {n, 3, 5}]
+
+
+(* ::Section:: *)
+(*Traced boundary curvature*)
