@@ -460,6 +460,94 @@ With[{zeta = \[FormalZeta]},
 ];
 
 
+(* ::Subsubsection:: *)
+(*z' = dz/ds*)
+
+
+(* ::Text:: *)
+(*See (r4.39) (Page r4-11).*)
+
+
+zVel[n_][a_][zeta_] :=
+  Divide[
+    I f[a][zeta] + Sqrt @ vi[n][a][zeta],
+    gDer[n][zeta]
+  ] // Evaluate;
+
+
+(* ::Subsubsection:: *)
+(*z'' = d^2(z)/ds^2*)
+
+
+(* ::Text:: *)
+(*See (r4.40) to (r4.43) (Pages r4-11 & r4-12).*)
+
+
+zAcc[n_][a_][zeta_] := Plus[
+  (* 1st term of (r4.40) *)
+  Times[
+    (* i F + sqrt(\[CapitalPhi]) *)
+    I f[a][zeta] + Sqrt @ vi[n][a][zeta],
+    (* d\[Zeta]/ds *)
+    zetaVel[n][a][zeta],
+    (* d/d\[Zeta] (1 / (dG/dz)) *)
+    D[1 / gDer[n][zeta], zeta]
+  ],
+  (* 2nd term of (r4.40) *)
+  Divide[
+    Plus[
+      (* i F' *)
+      Times[
+        I,
+        -4 (Re @ g[zeta])^3 / a,
+        Re @ (zetaVel[n][a][zeta] gDerZeta[zeta])
+      ],
+      (* (sqrt(\[CapitalPhi]))' \[Equal] \[CapitalPhi]' / (2 sqrt(\[CapitalPhi]))  *)
+      Divide[
+        Plus[
+          (* 1st term of (r4.43) *)
+          Times[
+            2,
+            Re @ gDer[n][zeta],
+            Re @ (zetaVel[n][a][zeta] D[gDer[n][zeta], zeta])
+          ],
+          (* 2nd term of (r4.43) *)
+          Times[
+            2,
+            Im @ gDer[n][zeta],
+            Im @ (zetaVel[n][a][zeta] D[gDer[n][zeta], zeta])
+          ],
+          (* 3rd term of (r4.43) *)
+          Times[
+            -8 (Re @ g[zeta])^7 / a^2,
+            Re @ (zetaVel[n][a][zeta] gDerZeta[zeta])
+          ]
+        ],
+        2 Sqrt @ vi[n][a][zeta]
+      ]
+    ],
+    (* dG/dz *)
+    gDer[n][zeta]
+  ]
+] // Evaluate;
+
+
+(* ::Subsubsection:: *)
+(*Curvature x' y'' - y' x''*)
+
+
+(* ::Text:: *)
+(*See (r4.39a) (Page r4-11).*)
+
+
+curTra[n_][a_][zeta_] :=
+  Module[{xVel, yVel, xAcc, yAcc},
+    {xVel, yVel} = zVel[n][a][zeta] // ReIm;
+    {xAcc, yAcc} = zAcc[n][a][zeta] // ReIm;
+    xVel yAcc - yVel xAcc
+  ] // Evaluate;
+
+
 (* ::Subsection:: *)
 (*Geometric regions*)
 
