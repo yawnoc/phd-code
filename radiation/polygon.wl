@@ -1655,6 +1655,17 @@ Table[
 , {n, 3, 5}]
 
 
+(* ::Subsection:: *)
+(*Table of critical A values*)
+
+
+Table[
+  {n, aMeet[n], aInfl[n], aNat[n][0]}
+, {n, 3, 5}] // TableForm[#,
+  TableHeadings -> {None, {"n", "A_m", "A_i", "A_\[Natural]"}}
+] & // Ex["polygon-a-critical.pdf"]
+
+
 (* ::Section:: *)
 (*Numerical verification plots*)
 
