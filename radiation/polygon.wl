@@ -389,7 +389,7 @@ aMeet = Module[
  },
   (* (This is not slow, nevertheless compute once and store.) *)
   (* (Delete the file manually to compute from scratch.) *)
-  dest = "polygon-a-meet.txt";
+  dest = "polygon-a-meeting.txt";
   nValues = Range[3, 5];
   If[FileExistsQ[dest],
     (* If already stored, import *)
