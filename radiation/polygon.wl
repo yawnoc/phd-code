@@ -1492,7 +1492,7 @@ Table[
   Module[{a, zeta, rMax},
     a = aInfl[n];
     zeta = zetaTraceCand[n][a];
-    rMax = 0.15;
+    rMax = zeta @ DomainStart[zeta] // zMap[n] // 1.2 Abs[#] &;
     Show[
       (* Equipotentials and streamlines *)
       equipStream[n,
