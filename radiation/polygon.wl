@@ -399,6 +399,7 @@ aMeet = Module[
     numAss = Association[];
     aMin = 5/10;
     aMax = 12/10;
+    (* NOTE: these may not work for n > 5 *)
     Table[
       {a, num} = SeekRootBisection[
         phEnd[n][#] - Pi / n &,
@@ -424,6 +425,39 @@ aMeet = Module[
   aAss
 ];
 aMeet // N
+
+
+(* ::Subsubsection:: *)
+(*Solver for candidate traced boundaries*)
+
+
+(* ::Text:: *)
+(*This is essentially the same as zetaTraceHyperbolic,*)
+(*but with an added termination condition \[CurlyPhi] at = \[Pi]/n*)
+(*so that this need not be solved for later.*)
+
+
+With[{zeta = \[FormalZeta]},
+  zetaTraceCandidate[n_][a_] :=
+    Module[{rhoClearance},
+      rhoClearance = 10^-8;
+      NDSolveValue[
+        {
+          zeta'[s] == zetaVel[n][a] @ zeta[s],
+          zeta[0] == rhoSharp[n][a][0] + rhoClearance,
+          WhenEvent[
+            Or[
+              Arg @ Conjugate @ zeta[s] > Pi / n,
+              vi[n][a] @ zeta[s] < 0,
+              Abs @ zeta[s] > 1
+            ],
+            "StopIntegration"
+          ]
+        }, zeta, {s, -2 Pi, 0},
+        NoExtrapolation
+      ]
+    ];
+];
 
 
 (* ::Subsection:: *)
