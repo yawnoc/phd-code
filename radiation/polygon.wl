@@ -563,6 +563,62 @@ curCandCorner[n_][a_] /; aMeet[n] <= a < aNat[n][0] :=
   ];
 
 
+(* ::Subsubsection:: *)
+(*A_i (inflection dimensionless group)*)
+
+
+(* ::Text:: *)
+(*This is the smallest A > 0 for which \[CurlyPhi] = \[Pi]/n at \[Rho] = 1.*)
+(*See Page r4-10.*)
+
+
+(* Compute A_i using the bisection algorithm *)
+aInfl = Module[
+ {dest, nValues,
+  aMin, aMax,
+  a, num,
+  aAss, numAss
+ },
+  (* (This is not slow, nevertheless compute once and store.) *)
+  (* (Delete the file manually to compute from scratch.) *)
+  dest = "polygon-a-inflection.txt";
+  nValues = Range[3, 5];
+  If[FileExistsQ[dest],
+    (* If already stored, import *)
+    {aAss, numAss} = Import[dest] // Uncompress,
+    (* Otherwise compute and export for next time *)
+    aAss = Association[];
+    numAss = Association[];
+    aMin = 15/10;
+    aMax = 25/10;
+    (* NOTE: these may not work for n > 5 *)
+    Table[
+      {a, num} = SeekRootBisection[
+        curCandCorner[n][#] &,
+        {aMin, aMax},
+        "ReturnIterations" -> True
+      ];
+      aAss = aAss // Append[n -> a];
+      numAss = numAss // Append[n -> num];
+    , {n, nValues}];
+    {aAss, numAss} // Compress // Ex[dest]
+  ];
+  (* Print iterations used *)
+  Table[
+    Print[
+      "n == {n} bisection algorithm: {num} iterations"
+        // PrettyString[
+          "{n}" -> ToString[n],
+          "{num}" -> ToString @ numAss[n]
+        ]
+    ];
+  , {n, nValues}];
+  (* Return A_i values *)
+  aAss
+];
+aInfl // N
+
+
 (* ::Subsection:: *)
 (*Geometric regions*)
 
@@ -1380,7 +1436,8 @@ Table[
 
 Module[
  {nValues, dest, aCurTables,
-  aMin, aMax, num, aValues
+  aMin, aMax, num, aValues,
+  inflDotStyle = Directive[Red, Opacity[0.7], pointStyle]
  },
   nValues = Range[3, 5];
   (* Compute tables of (A, cur.) values *)
@@ -1412,6 +1469,16 @@ Module[
       PlotLegends -> LineLegend[nValues, LegendLabel -> nIt],
       PlotRange -> {{All, 3}, {All, 5}},
       PlotOptions[Axes] // Evaluate
+    ],
+    (* A_i (inflection) *)
+    Graphics @ {inflDotStyle,
+      Point @ Table[{aInfl[n], 0}, {n, nValues}]
+    },
+    Graphics @ Text[
+      Table[{n, aInfl[n]}, {n, nValues}]
+        // TableForm[#, TableHeadings -> {{}, {nIt, Subscript[aIt, "i"]}}] &
+        // Style[#, 17] &,
+      {aMeet[3] + 0.15, 3}
     ]
   ] // Ex["polygon-candidate-curvature-corner.pdf"]
 ]
