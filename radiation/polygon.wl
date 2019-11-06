@@ -1405,7 +1405,7 @@ Table[
 
 
 (* ::Subsubsection:: *)
-(*Without known solution*)
+(*Without known solution (z-space)*)
 
 
 Table[
@@ -1419,7 +1419,7 @@ Table[
         PlotLabel -> BoxedLabel[aIt == N[a]],
         PlotRange -> {{-rMax, rMax}, {-rMax, rMax}}
       ],
-      (* Candidate traced boundaries *)
+      (* Traced boundaries *)
       Table[
         ParametricPlot[
           zeta[s] Exp[I 2 Pi k / n]
