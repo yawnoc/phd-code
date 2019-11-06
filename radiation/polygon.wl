@@ -1659,6 +1659,10 @@ Table[
 (*Table of critical A values*)
 
 
+(* ::Text:: *)
+(*This is the table of values on Page r4-12.*)
+
+
 Table[
   {n, aMeet[n], aInfl[n], aNat[n][0]}
 , {n, 3, 5}] // TableForm[#,
