@@ -620,6 +620,16 @@ aInfl // N
 
 
 (* ::Subsection:: *)
+(*Representative values of A for a convex domain*)
+
+
+aConvex[n_] := Ceiling[aInfl[n] + 0.25, 0.1];
+Table[
+  aConvex[n] < aNat[n][0]
+, {n, 3, 5}]
+
+
+(* ::Subsection:: *)
 (*Geometric regions*)
 
 
@@ -1387,6 +1397,42 @@ Table[
     StringJoin["polygon_z-traced-hyperbolic-", ToString[n],".gif"],
     gifOpts
   ]
+, {n, 3, 5}]
+
+
+(* ::Subsection:: *)
+(*Convex domain*)
+
+
+(* ::Subsubsection:: *)
+(*Without known solution*)
+
+
+Table[
+  Module[{a, zeta, rMax},
+    a = aConvex[n];
+    zeta = zetaTraceCand[n][a];
+    rMax = zeta @ DomainStart[zeta] // zMap[n] // 1.2 Abs[#] &;
+    Show[
+      (* Equipotentials and streamlines *)
+      equipStream[n,
+        PlotLabel -> BoxedLabel[aIt == N[a]],
+        PlotRange -> {{-rMax, rMax}, {-rMax, rMax}}
+      ],
+      (* Candidate traced boundaries *)
+      Table[
+        ParametricPlot[
+          zeta[s] Exp[I 2 Pi k / n]
+            // zMap[n]
+            // {#, Conjugate[#]} &
+            // ReIm
+            // Evaluate,
+          {s, DomainStart[zeta], DomainEnd[zeta]},
+          PlotStyle -> convexStyle
+        ]
+      , {k, 0, n - 1}]
+    ]
+  ] // Ex @ StringJoin["polygon_z-convex-", ToString[n], ".pdf"]
 , {n, 3, 5}]
 
 
