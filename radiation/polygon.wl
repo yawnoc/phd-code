@@ -1031,6 +1031,56 @@ Table[
 
 
 (* ::Subsection:: *)
+(*Interactive visualiser (\[Zeta]-space)*)
+
+
+DynamicModule[
+ {nValues, nInit,
+  ph, aN, aMin, aMax, aInit,
+  eps, rhoMax, rhoMaxUnphys, rhoMaxNon
+ },
+  nValues = Range[3, 5];
+  nInit = First[nValues];
+  Manipulate[
+    (* Azimuthal angle in \[Zeta]-space *)
+    ph = 0;
+    (* Values of A *)
+    aN = aNat[n][ph];
+    aMin = 1/1000;
+    aMax = aN;
+    aInit = aMin;
+    Manipulate[
+      eps = 0.1;
+      rhoMax = 1;
+      rhoMaxUnphys = 1 + eps;
+      rhoMaxNon = If[a < aN, rhoSharp[n][a][ph], rhoNat[n][ph]];
+      Show[
+        EmptyFrame[{-rhoMax, rhoMax}, {-rhoMax, rhoMax},
+          FrameLabel -> {Re["zeta"], Im["zeta"]},
+          ImageSize -> 360,
+          PlotLabel -> BoxedLabel[aIt == N[a]]
+        ] // PrettyString["zeta" -> "\[Zeta]"],
+        (* Unphysical domain *)
+        RegionPlot[RPolar[reZeta, imZeta] > 1,
+          {reZeta, -rhoMaxUnphys, rhoMaxUnphys},
+          {imZeta, -rhoMaxUnphys, rhoMaxUnphys},
+          BoundaryStyle -> None,
+          PlotStyle -> unphysStyle
+        ],
+        (* Non-viable domain *)
+        RegionPlot[vi[n][a][reZeta + I imZeta] < 0,
+          {reZeta, -rhoMaxNon, rhoMaxNon},
+          {imZeta, -rhoMaxNon, rhoMaxNon},
+          BoundaryStyle -> termStyle,
+          PlotStyle -> nonStyle
+        ]
+      ]
+    , {{a, aInit, aIt}, aMin, aMax}]
+  , {{n, nInit, nIt}, nValues}]
+]
+
+
+(* ::Subsection:: *)
 (*Animations (\[Zeta]-space)*)
 
 
