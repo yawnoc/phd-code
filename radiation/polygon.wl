@@ -1793,3 +1793,35 @@ Table[
     "polygon-convex-verification-rel_error-3d-", ToString[n], ".png"
   ]
 , {n, 3, 5}]
+
+
+(* ::Subsection:: *)
+(*Relative errors (2D)*)
+
+
+Table[
+  Module[{source, tSol, mesh, tExact},
+    (* Import solution *)
+    source = "polygon-convex-verification-solution-" <> ToString[n] <> ".txt";
+    tSol = Import[source] // Uncompress;
+    mesh = tSol["ElementMesh"];
+    (* Known exact solution *)
+    tExact[x_, y_] := Re @ g @ zetaMap[n][x + I y];
+    (* Plot *)
+    With[{x = \[FormalX], y = \[FormalY]},
+      Show[
+        DensityPlot[tSol[x, y] / tExact[x, y] - 1, Element[{x, y}, mesh],
+          ColorFunction -> "Rainbow",
+          Exclusions -> None,
+          PlotLabel -> "Relative error of numerical solution",
+          PlotRange -> Full,
+          PlotLegends -> Automatic,
+          PlotOptions[Frame] // Evaluate
+        ],
+        mesh["Wireframe"]
+      ]
+    ]
+  ] // Ex @ StringJoin[
+    "polygon-convex-verification-rel_error-2d-", ToString[n], ".png"
+  ]
+, {n, 3, 5}]
