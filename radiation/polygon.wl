@@ -1765,3 +1765,31 @@ Table[
     ]
   ] // Ex @ StringJoin["polygon-convex-verification-solution-", ToString[n], ".png"]
 , {n, 3, 5}]
+
+
+(* ::Subsection:: *)
+(*Relative errors (3D)*)
+
+
+(* (These are slow (~12 sec).) *)
+Table[
+  Module[{source, tSol, mesh, tExact},
+    (* Import solution *)
+    source = "polygon-convex-verification-solution-" <> ToString[n] <> ".txt";
+    tSol = Import[source] // Uncompress;
+    mesh = tSol["ElementMesh"];
+    (* Known exact solution *)
+    tExact[x_, y_] := Re @ g @ zetaMap[n][x + I y];
+    (* Plot *)
+    With[{x = \[FormalX], y = \[FormalY]},
+      Plot3D[tSol[x, y] / tExact[x, y] - 1, Element[{x, y}, mesh],
+        Exclusions -> None,
+        PlotLabel -> "Relative error of numerical solution",
+        PlotRange -> Full,
+        PlotOptions[Axes] // Evaluate
+      ]
+    ]
+  ] // Ex @ StringJoin[
+    "polygon-convex-verification-rel_error-3d-", ToString[n], ".png"
+  ]
+, {n, 3, 5}]
