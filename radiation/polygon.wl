@@ -648,7 +648,7 @@ Table[
     dest = "polygon-convex-verification-mesh-" <> ToString[n] <> ".txt";
     If[Not @ FileExistsQ[dest],
       Module[
-       {a, rhoSh, rSh, zeta, sMax, rhoBath, rBath,
+       {a, rhoSh, rSh, zeta, sMax, rhoBath, rBath, tBath,
         sSpacing, rotate, sValues,
         extPointList, intPointList,
         nExt, nInt, mod,
@@ -668,6 +668,8 @@ Table[
         (* Heat bath radius (\[Zeta]-space and z-space) *)
         rhoBath = 0.5 rhoSh;
         rBath = rhoBath // zMap[n];
+        (* Heat bath temperature *)
+        tBath = -Log @ rhoBath;
         (* Spacing of boundary points *)
         (* (roughly 1 boundary point every 5 degrees along rho == rhoSh) *)
         sSpacing = rhoSh * 5 Degree;
@@ -686,7 +688,7 @@ Table[
         , {k, 0, n - 1}];
         (* Internal (heat bath) boundary *)
         intPointList = Table[
-          XYPolar[rBath, ph]
+          rhoBath Exp[I ph] // zMap[n] // ReIm
         , {ph, UniformRange[0, 2 Pi, sSpacing / rBath]}] // Most;
         (* Numbering *)
         nExt = Length[extPointList];
@@ -714,7 +716,7 @@ Table[
         (* Predicate functions for exterior and interior boundaries *)
         prExt = Function[{x, y}, RPolar[x, y] > Way[rBath, rSh] // Evaluate];
         prInt = Function[{x, y}, RPolar[x, y] < Way[rBath, rSh] // Evaluate];
-        {a, rBath, mesh, prExt, prInt}
+        {a, tBath, mesh, prExt, prInt}
           // Compress // Ex[dest]
       ]
     ]
@@ -1681,12 +1683,12 @@ Table[
 Table[
   Module[
    {source,
-    a, rBath, mesh, prExt, prInt,
+    a, tBath, mesh, prExt, prInt,
     bCoords, bCoordsExt, bCoordsInt
    },
     (* Import mesh *)
     source = "polygon-convex-verification-mesh-" <> ToString[n] <> ".txt";
-    {a, rBath, mesh, prExt, prInt} = Import[source] // Uncompress;
+    {a, tBath, mesh, prExt, prInt} = Import[source] // Uncompress;
     (* Boundary coordinates *)
     bCoords = Part[
       mesh["Coordinates"],
