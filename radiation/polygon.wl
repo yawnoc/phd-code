@@ -724,6 +724,42 @@ Table[
 , {n, 3, 5}]
 
 
+(* ::Subsubsection:: *)
+(*Solve PDEs (Version 12 required)*)
+
+
+Table[
+  Module[{dest},
+    dest = "polygon-convex-verification-solution-" <> ToString[n] <> ".txt";
+    If[Not @ FileExistsQ[dest],
+      Module[
+       {source,
+        a, tBath, mesh, prExt, prInt,
+        tSol
+       },
+        (* Import mesh *)
+        source = "polygon-convex-verification-mesh-" <> ToString[n] <> ".txt";
+        {a, tBath, mesh, prExt, prInt} = Import[source] // Uncompress;
+        (* Solve boundary value problem *)
+        With[{x = \[FormalX], y = \[FormalY], t = \[FormalCapitalT]},
+          tSol = NDSolveValue[
+            {
+              (* Steady state heat equation *)
+              -Laplacian[t[x, y], {x, y}] ==
+                (* External (radiation) boundary condition *)
+                NeumannValue[(-1 / a) t[x, y]^4, prExt[x, y]],
+              (* Internal (heat bath) boundary condition *)
+              DirichletCondition[t[x, y] == tBath, prInt[x, y]]
+            }, t, Element[{x, y}, mesh]
+          ]
+        ];
+        tSol // Compress // Ex[dest]
+      ]
+    ]
+  ]
+, {n, 3, 5}]
+
+
 (* ::Subsection:: *)
 (*Geometric regions*)
 
@@ -1705,4 +1741,27 @@ Table[
       ImageSize -> 480
     ]
   ] // Ex @ StringJoin["polygon-convex-verification-mesh-", ToString[n], ".pdf"]
+, {n, 3, 5}]
+
+
+(* ::Subsection:: *)
+(*Numerical solution*)
+
+
+Table[
+  Module[{source, tSol, mesh},
+    (* Import solution *)
+    source = "polygon-convex-verification-solution-" <> ToString[n] <> ".txt";
+    tSol = Import[source] // Uncompress;
+    mesh = tSol["ElementMesh"];
+    (* Plot *)
+    With[{x = \[FormalX], y = \[FormalY]},
+      Plot3D[tSol[x, y], Element[{x, y}, mesh],
+        AxesLabel -> Italicised /@ {"x", "y", "T"},
+        PlotLabel -> "Numerical solution",
+        PlotRange -> Full,
+        PlotOptions[Axes] // Evaluate
+      ]
+    ]
+  ] // Ex @ StringJoin["polygon-convex-verification-solution-", ToString[n], ".png"]
 , {n, 3, 5}]
