@@ -849,6 +849,7 @@ polyComplement[n_Integer] :=
 
 
 aIt = Italicised["A"];
+gIt = Style["\[Gamma]"];
 nIt = Italicised["n"];
 zIt = Italicised["z"];
 
@@ -1041,6 +1042,45 @@ Module[{phValues},
       "psi" -> "\[Psi]"
     ] // Ex @ StringJoin["polygon-psi-", ToString[n], ".pdf"]
   , {n, 3, 5}]
+]
+
+
+(* ::Subsection:: *)
+(*\[Psi] plot (offset version)*)
+
+
+Module[{gammaValues, phValues, rhoMax},
+  (* \[Gamma] values *)
+  gammaValues = {1, 2, 4};
+  Table[
+    (* \[CurlyPhi] values *)
+    phValues = Subdivide[0, Pi / n, 4];
+    (* Plot *)
+    rhoMax = Min[Exp[gamma], 3];
+    Plot[
+      Table[
+        psiOffset[gamma][n][rho Exp[I ph]]
+      , {ph, phValues}] // Evaluate,
+      {rho, 0, rhoMax},
+      AxesLabel -> {"rho", "psi"},
+      ImageSize -> 360,
+      PlotLabel -> Row[{nIt == n, gIt == gamma}, ","],
+      PlotLegends -> LineLegend[
+        phValues,
+        LegendLabel -> "ph"
+      ],
+      PlotRange -> Full,
+      PlotOptions[Axes] // Evaluate
+    ] // PrettyString[
+      "rho" -> "\[Rho]",
+      "ph" -> "\[CurlyPhi]",
+      "psi" -> "\[Psi]"
+    ] // Ex @ StringJoin[
+      "polygon_offset-psi-", ToString[n],
+      "-gamma-", ToString[gamma],
+      ".pdf"
+    ]
+  , {n, 3, 5}, {gamma, gammaValues}]
 ]
 
 
