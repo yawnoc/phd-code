@@ -978,6 +978,41 @@ With[{n = \[FormalN], rho = \[FormalRho], ph = \[FormalCurlyPhi]},
 
 
 (* ::Subsection:: *)
+(*Algebra (offset version)*)
+
+
+With[
+ {n = \[FormalN],
+  rho = \[FormalRho], ph = \[FormalCurlyPhi],
+  gamma = \[FormalGamma],
+  xi = \[FormalXi]
+ },
+  Block[{$Assumptions = n > 2 && 0 < rho < Exp[gamma] && -Pi < ph < Pi},
+    Module[{psiExpr, pert},
+      psiExpr = (
+        psiOffset[gamma][n][rho Exp[I ph]]
+          // ComplexExpand
+          // FullSimplify
+      );
+      pert = (# /. {rho -> 1 + xi}) + O[xi]^2 &;
+      {
+        {"psi", "(r4.54)", psiExpr},
+        {Log["rho"], "(r4.56)", Log[rho] // pert},
+        {"rho" ^ "n", "(r4.56)", rho ^ n // pert}
+      } /. {Gamma -> "\[CapitalGamma]"}
+        // PrettyString[
+          "d" -> "\[PartialD]",
+          "psi" -> "\[Psi]",
+          "gamma" -> "\[Gamma]",
+          "rho" -> "\[Rho]"
+        ]
+        // TableForm
+    ]
+  ]
+] // Ex["polygon_offset-psi-algebra.pdf"]
+
+
+(* ::Subsection:: *)
 (*\[Psi] plot*)
 
 
