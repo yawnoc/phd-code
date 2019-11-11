@@ -1194,6 +1194,60 @@ DynamicModule[
 
 
 (* ::Subsection:: *)
+(*Interactive visualiser (\[Zeta]-space) (offset version)*)
+
+
+DynamicModule[
+ {nValues, nInit,
+  gammaValues, gammaInit,
+  aMin, aMax, aInit,
+  eps, rhoMax, rhoMaxUnphys, rhoMaxNon
+ },
+  (* Values of n *)
+  nValues = Range[3, 5];
+  nInit = First[nValues];
+  (* Values of \[Gamma] *)
+  gammaValues = {1, 2, 4};
+  gammaInit = First[gammaValues];
+  (* Values of A *)
+  aMin = 1/10;
+  aMax = 3;
+  aInit = 1.66;
+    (* non-viable islands at vertices of polygon in z-space *)
+  Manipulate[
+    eps = 0.1;
+    rhoMax = Exp[gamma];
+    rhoMaxUnphys = rhoMax + eps;
+    rhoMaxNon = rhoMax;
+    Show[
+      EmptyFrame[{-rhoMax, rhoMax}, {-rhoMax, rhoMax},
+        FrameLabel -> {Re["zeta"], Im["zeta"]},
+        ImageSize -> 360,
+        PlotLabel -> BoxedLabel[aIt == N[a]]
+      ] // PrettyString["zeta" -> "\[Zeta]"],
+      (* Unphysical domain *)
+      RegionPlot[RPolar[reZeta, imZeta] > Exp[gamma],
+        {reZeta, -rhoMaxUnphys, rhoMaxUnphys},
+        {imZeta, -rhoMaxUnphys, rhoMaxUnphys},
+        BoundaryStyle -> None,
+        PlotStyle -> unphysStyle
+      ],
+      (* Non-viable domain *)
+      RegionPlot[viOffset[gamma][n][a][reZeta + I imZeta] < 0,
+        {reZeta, -rhoMaxNon, rhoMaxNon},
+        {imZeta, -rhoMaxNon, rhoMaxNon},
+        BoundaryStyle -> termStyle,
+        PlotPoints -> 50,
+        PlotStyle -> nonStyle
+      ]
+    ]
+  , {{n, nInit, nIt}, nValues}
+  , {{gamma, gammaInit, gIt}, gammaValues}
+  , {{a, aInit, aIt}, aMin, aMax}]
+]
+
+
+(* ::Subsection:: *)
 (*Animations (\[Zeta]-space)*)
 
 
