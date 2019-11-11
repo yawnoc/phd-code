@@ -113,6 +113,18 @@ g[zeta_] := -Log[zeta];
 
 
 (* ::Subsubsection:: *)
+(*G = \[Gamma] - log(\[Zeta]) (offset version)*)
+
+
+(* ::Text:: *)
+(*See (r4.50) (Page r4-14).*)
+(*Derivatives of G are unaffected by the offset.*)
+
+
+gOffset[gamma_][zeta_] := gamma - Log[zeta];
+
+
+(* ::Subsubsection:: *)
 (*dG/dz*)
 
 
@@ -145,6 +157,13 @@ gDerZeta[zeta_] := D[g[zeta], zeta] // Evaluate;
 f[a_][zeta_] := - (Re @ g[zeta]) ^ 4 / a // Evaluate;
 
 
+(* ::Subsubsection:: *)
+(*F (offset version)*)
+
+
+fOffset[gamma_][a_][zeta_] := - (Re @ gOffset[gamma][zeta]) ^ 4 / a // Evaluate;
+
+
 (* ::Subsection:: *)
 (*Viable domain*)
 
@@ -165,6 +184,17 @@ vi[n_][a_][zeta_] :=
 
 
 (* ::Subsubsection:: *)
+(*\[CapitalPhi] (viability) (offset version)*)
+
+
+viOffset[gamma_][n_][a_][zeta_] :=
+  Subtract[
+    (Abs @ gDer[n][zeta]) ^ 2,
+    (Re @ gOffset[gamma][zeta]) ^ 8 / a^2
+  ] // Evaluate;
+
+
+(* ::Subsubsection:: *)
 (*\[Psi]*)
 
 
@@ -173,6 +203,14 @@ vi[n_][a_][zeta_] :=
 
 
 psi[n_][zeta_] := (Re @ g[zeta]) ^ 4 / (Abs @ gDer[n][zeta]);
+
+
+(* ::Subsubsection:: *)
+(*\[Psi] (offset version)*)
+
+
+psiOffset[gamma_][n_][zeta_] :=
+  (Re @ gOffset[gamma][zeta]) ^ 4 / (Abs @ gDer[n][zeta]) // Evaluate;
 
 
 (* ::Subsubsection:: *)
