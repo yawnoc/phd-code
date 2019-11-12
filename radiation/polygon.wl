@@ -2460,6 +2460,69 @@ Module[
 ] // Ex["polygon_offset_zeta-joined-traced-full.pdf"]
 
 
+(* ::Subsubsection:: *)
+(*General (z-space) for A = 1.5 (joined)*)
+
+
+Module[
+ {n, gamma, a, rhoSharp, idList,
+  eps, rhoMax, rhoMaxUnphys, rhoMaxNon
+ },
+  n = nOffset;
+  gamma = gammaOffset;
+  a = aOffsetJoined;
+  rhoSharp = rhoOffsetJoinedSharp;
+  (* Group names *)
+  idList = {"terminal", "hyperbolic"};
+  (* Plot ranges *)
+  eps = 0.1;
+  rhoMax = Exp[gamma];
+  rhoMaxUnphys = rhoMax + eps;
+  rhoMaxNon = rhoSharp + eps;
+  (* Plot *)
+  Show[
+    equipStream[n,
+      PlotLabel -> BoxedLabel[aIt == N[a]]
+    ],
+    (* \[Rho] == 1 *)
+    Graphics @ {Directive[EdgeForm[contStyle], FaceForm[None]],
+      poly[3]
+    },
+    (* Traced boundaries *)
+    Table[
+      Table[
+        Table[
+          ParametricPlot[
+            zeta[s] Exp[I 2 Pi k / n]
+              // zMap[n]
+              // {#, Conjugate[#]} &
+              // ReIm
+              // Evaluate,
+            {s, DomainStart[zeta], DomainEnd[zeta]},
+            PlotStyle -> {upperStyle, lowerStyle}
+          ]
+        , {k, 0, n - 1}]
+      , {zeta, zetaTraOffsetJoined[id]}]
+    , {id, {"terminal"}}],
+    Table[
+      Table[
+        Table[
+          ParametricPlot[
+            zeta[s] Exp[I 2 Pi k / n]
+              // zMap[n]
+              // {#, Conjugate[#]} &
+              // ReIm
+              // Evaluate,
+            {s, DomainStart[zeta], DomainEnd[zeta]},
+            PlotStyle -> glowStyle
+          ]
+        , {k, 0, n - 1}]
+      , {zeta, zetaTraOffsetJoined[id]}]
+    , {id, {"hyperbolic"}}]
+  ]
+] // Ex["polygon_offset_z-joined-traced-full.pdf"]
+
+
 (* ::Section:: *)
 (*Traced boundary curvature*)
 
