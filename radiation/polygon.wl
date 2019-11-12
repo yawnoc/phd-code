@@ -951,6 +951,32 @@ Module[{n, gamma, a, rhoSharp, idList, zetaInitList},
 ];
 
 
+(* ::Subsubsection:: *)
+(*A = 1.7 (split)*)
+
+
+Module[{n, gamma, a, rhoSharp, idList, zetaInitList},
+  n = nOffset;
+  gamma = gammaOffset;
+  a = aOffsetSplit;
+  (* Group names *)
+  idList = {
+    "terminal-main",
+    "terminal-island",
+    "hyperbolic-main",
+    "hyperbolic-island"
+  };
+  (* Solve for traced boundaries *)
+  Table[
+    zetaInitList = startZetaOffsetSplit[id];
+    zetaTraOffsetSplit[id] =
+      Table[
+        zetaTraceOffset[gamma][n][a][zetaInit]
+      , {zetaInit, zetaInitList}];
+  , {id, idList}];
+];
+
+
 (* ::Subsection:: *)
 (*Numerical verification for convex domains (finite elements)*)
 
@@ -2521,6 +2547,78 @@ Module[
     , {id, {"hyperbolic"}}]
   ]
 ] // Ex["polygon_offset_z-joined-traced-full.pdf"]
+
+
+(* ::Subsubsection:: *)
+(*General (\[Zeta]-space) for A = 1.7 (split)*)
+
+
+Module[
+ {n, gamma, a, rhoSharp,
+  eps, rhoMax, rhoMaxUnphys, rhoMaxNon
+ },
+  n = nOffset;
+  gamma = gammaOffset;
+  a = aOffsetSplit;
+  rhoSharp = rhoOffsetSplitSharp;
+  (* Plot ranges *)
+  eps = 0.1;
+  rhoMax = Exp[gamma];
+  rhoMaxUnphys = rhoMax + eps;
+  rhoMaxNon = rhoSharp + eps;
+  (* Plot *)
+  Show[
+    EmptyFrame[{-rhoMax, rhoMax}, {-rhoMax, rhoMax},
+      FrameLabel -> {Re["zeta"], Im["zeta"]},
+      ImageSize -> 360,
+      PlotLabel -> BoxedLabel[aIt == N[a]]
+    ] // PrettyString["zeta" -> "\[Zeta]"],
+    (* Unphysical domain *)
+    RegionPlot[RPolar[reZeta, imZeta] > Exp[gamma],
+      {reZeta, -rhoMaxUnphys, rhoMaxUnphys},
+      {imZeta, -rhoMaxUnphys, rhoMaxUnphys},
+      BoundaryStyle -> None,
+      PlotStyle -> unphysStyle
+    ],
+    (* Non-viable domain *)
+    RegionPlot[viOffset[gamma][n][a][reZeta + I imZeta] < 0,
+      {reZeta, -rhoMaxNon, rhoMaxNon},
+      {imZeta, -rhoMaxNon, rhoMaxNon},
+      BoundaryStyle -> termStyle,
+      PlotPoints -> 50,
+      PlotStyle -> nonStyle
+    ],
+    (* Traced boundaries *)
+    Table[
+      Table[
+        Table[
+          ParametricPlot[
+            zeta[s] Exp[I 2 Pi k / n]
+              // {#, Conjugate[#]} &
+              // ReIm
+              // Evaluate,
+            {s, DomainStart[zeta], DomainEnd[zeta]},
+            PlotStyle -> {upperStyle, lowerStyle}
+          ]
+        , {k, 0, n - 1}]
+      , {zeta, zetaTraOffsetSplit[id]}]
+    , {id, {"terminal-main", "terminal-island"}}],
+    Table[
+      Table[
+        Table[
+          ParametricPlot[
+            zeta[s] Exp[I 2 Pi k / n]
+              // {#, Conjugate[#]} &
+              // ReIm
+              // Evaluate,
+            {s, DomainStart[zeta], DomainEnd[zeta]},
+            PlotStyle -> glowStyle
+          ]
+        , {k, 0, n - 1}]
+      , {zeta, zetaTraOffsetSplit[id]}]
+    , {id, {"hyperbolic-main", "hyperbolic-island"}}]
+  ]
+] // Ex["polygon_offset_zeta-split-traced-full.pdf"]
 
 
 (* ::Section:: *)
