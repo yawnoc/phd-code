@@ -919,7 +919,7 @@ With[{zeta = \[FormalZeta]},
         zeta[0] == zetaInit,
         WhenEvent[
           Or[
-            viOffset[gamma][n][a] @ zeta[s] < 0,
+            viOffset[gamma][n][a] @ zeta[s] < -10^-6,
             Abs @ zeta[s] > Exp[gamma]
           ],
           "StopIntegration"
