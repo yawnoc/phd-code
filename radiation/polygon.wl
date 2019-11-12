@@ -669,6 +669,16 @@ Table[
 
 
 (* ::Subsection:: *)
+(*Representative values for offset version*)
+
+
+nOffset = 3;
+gammaOffset = 1;
+aOffsetJoined = 16/10;
+aOffsetSplit = 17/10;
+
+
+(* ::Subsection:: *)
 (*Numerical verification for convex domains (finite elements)*)
 
 
@@ -1343,6 +1353,57 @@ Table[
     gifOpts
   ]
 , {n, 3, 5}]
+
+
+(* ::Subsection:: *)
+(*Animation (\[Zeta]-space) (offset version)*)
+
+
+Module[
+ {n, gamma,
+  aMin, aMax, aStep, aValues,
+  eps, rhoMax, rhoMaxUnphys, rhoMaxNon
+ },
+  n = nOffset;
+  gamma = gammaOffset;
+  (* Values of A *)
+  aMin = 1/10;
+  aMax = 3;
+  aStep = 1/10;
+  aValues = Range[aMin, aMax, aStep];
+  (* Animation *)
+  eps = 0.1;
+  rhoMax = Exp[gamma];
+  rhoMaxUnphys = rhoMax + eps;
+  Table[
+    rhoMaxNon = SeekRoot[
+      viOffset[gamma][n][a], (* viability \[CapitalPhi] *)
+      {rhoMax, 1} (* seek largest \[Rho] *)
+    ] + eps;
+    Show[
+      EmptyFrame[{-rhoMax, rhoMax}, {-rhoMax, rhoMax},
+        FrameLabel -> {Re["zeta"], Im["zeta"]},
+        ImageSize -> 360,
+        PlotLabel -> BoxedLabel[aIt == N[a]]
+      ] // PrettyString["zeta" -> "\[Zeta]"],
+      (* Unphysical domain *)
+      RegionPlot[RPolar[reZeta, imZeta] > Exp[gamma],
+        {reZeta, -rhoMaxUnphys, rhoMaxUnphys},
+        {imZeta, -rhoMaxUnphys, rhoMaxUnphys},
+        BoundaryStyle -> None,
+        PlotStyle -> unphysStyle
+      ],
+      (* Non-viable domain *)
+      RegionPlot[viOffset[gamma][n][a][reZeta + I imZeta] < 0,
+        {reZeta, -rhoMaxNon, rhoMaxNon},
+        {imZeta, -rhoMaxNon, rhoMaxNon},
+        BoundaryStyle -> termStyle,
+        PlotPoints -> 50,
+        PlotStyle -> nonStyle
+      ]
+    ]
+  , {a, aValues}]
+] // Ex["polygon_offset_zeta-viable.gif", gifOpts]
 
 
 (* ::Subsection:: *)
