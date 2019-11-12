@@ -782,7 +782,7 @@ rhoOffsetSplitA < rhoOffsetSplitB < 1 < rhoOffsetSplitSharp
 
 (* Starting points along terminal curve *)
 (* (i.e. outer boundary of non-viable domain) *)
-startZetaOffsetSplit["terminal"] =
+startZetaOffsetJoined["terminal"] =
   Module[
    {n, gamma, a, rhoSharp,
     phMax, phSpacing, phValues,
@@ -808,7 +808,7 @@ startZetaOffsetSplit["terminal"] =
 
 
 (* Starting point which is hyperbolic critical terminal point *)
-startZetaOffsetSplit["hyperbolic"] = {rhoOffsetJoinedSharp};
+startZetaOffsetJoined["hyperbolic"] = {rhoOffsetJoinedSharp};
 
 
 (* ::Subsection:: *)
@@ -2178,7 +2178,7 @@ Module[
     ],
     (* Starting points *)
     ListPlot[
-      Table[startZetaOffsetSplit[id] // ReIm, {id, idList}],
+      Table[startZetaOffsetJoined[id] // ReIm, {id, idList}],
       LabelingFunction -> Function @ Placed[#2[[2]], Center],
       PlotLegends -> idList,
       PlotStyle -> Directive[Opacity[0.7], pointStyle]
