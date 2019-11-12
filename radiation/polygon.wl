@@ -2489,15 +2489,13 @@ Module[
 
 
 Module[
- {n, gamma, a, rhoSharp, idList,
+ {n, gamma, a, rhoSharp,
   eps, rhoMax, rhoMaxUnphys, rhoMaxNon
  },
   n = nOffset;
   gamma = gammaOffset;
   a = aOffsetJoined;
   rhoSharp = rhoOffsetJoinedSharp;
-  (* Group names *)
-  idList = {"terminal", "hyperbolic"};
   (* Plot ranges *)
   eps = 0.1;
   rhoMax = Exp[gamma];
