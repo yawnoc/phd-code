@@ -672,10 +672,100 @@ Table[
 (*Representative values for offset version*)
 
 
+(* ::Subsubsection:: *)
+(*n and \[Gamma]*)
+
+
 nOffset = 3;
 gammaOffset = 1;
-aOffsetJoined = 16/10;
+
+
+(* ::Subsubsection:: *)
+(*A = 1.5 (joined)*)
+
+
+(* ::Text:: *)
+(*Non-viable neighbourhoods at \[Rho] = 1, \[CurlyPhi] = 2\[Pi]k/n*)
+(*are still joined to the main non-viable moat.*)
+
+
+aOffsetJoined = 15/10;
+
+
+(* ::Text:: *)
+(*\[Rho]_\[Sharp] is the largest critical terminal \[Rho] along \[CurlyPhi] = 0.*)
+
+
+rhoOffsetJoinedSharp =
+  Module[{n, gamma, a},
+    n = nOffset;
+    gamma = gammaOffset;
+    a = aOffsetJoined;
+    (* Compute \[Rho]_\[Sharp] *)
+    SeekRoot[viOffset[gamma][n][a], {Exp[gamma], 1}]
+  ];
+rhoOffsetJoinedSharp > 1
+
+
+(* ::Subsubsection:: *)
+(*A = 1.7 (split)*)
+
+
+(* ::Text:: *)
+(*Non-viable neighbourhoods at \[Rho] = 1, \[CurlyPhi] = 2\[Pi]k/n*)
+(*pincer off into islands.*)
+
+
 aOffsetSplit = 17/10;
+
+
+(* ::Text:: *)
+(*\[Rho]_\[Sharp] is the largest critical terminal \[Rho] along \[CurlyPhi] = 0.*)
+
+
+rhoOffsetSplitSharp =
+  Module[{n, gamma, a},
+    n = nOffset;
+    gamma = gammaOffset;
+    a = aOffsetSplit;
+    (* Compute \[Rho]_\[Sharp] *)
+    SeekRoot[viOffset[gamma][n][a], {Exp[gamma], 1}]
+  ];
+
+
+(* ::Text:: *)
+(*\[Rho]_b is the 2nd largest critical terminal \[Rho] along \[CurlyPhi] = 0.*)
+
+
+rhoOffsetSplitB =
+  Module[{n, gamma, a},
+    n = nOffset;
+    gamma = gammaOffset;
+    a = aOffsetSplit;
+    (* Compute \[Rho]_\[Sharp] *)
+    SeekRoot[viOffset[gamma][n][a], {1, 8/10}]
+  ];
+
+
+(* ::Text:: *)
+(*\[Rho]_a is the 3rd largest critical terminal \[Rho] along \[CurlyPhi] = 0.*)
+
+
+rhoOffsetSplitA =
+  Module[{n, gamma, a},
+    n = nOffset;
+    gamma = gammaOffset;
+    a = aOffsetSplit;
+    (* Compute \[Rho]_\[Sharp] *)
+    SeekRoot[viOffset[gamma][n][a], {8/10, 1/2}]
+  ];
+
+
+(* ::Text:: *)
+(*Check:*)
+
+
+rhoOffsetSplitA < rhoOffsetSplitB < 1 < rhoOffsetSplitSharp
 
 
 (* ::Subsection:: *)
@@ -878,11 +968,21 @@ gifOpts = Sequence[
 (*Global styles for plots*)
 
 
+textStyle = Style[#, 18] &;
+
+
 contStyle = LightGray;
 streamStyle = LightGray;
 nonStyle = Directive[Opacity[0.7], LightGray];
 termStyle = Pink;
 unphysStyle = Black;
+
+
+psiStyle = Blue;
+aStyle = Purple;
+
+
+critStyle = Red;
 
 
 ellStyle = Darker[Green];
@@ -894,6 +994,7 @@ lowerStyle = Red;
 convexStyle = Black;
 
 
+guideStyle = Dashed;
 pointStyle = PointSize[Large];
 glowStyle = Directive[Thick, Yellow, Opacity[0.7]];
 
@@ -1092,6 +1193,148 @@ Module[{gammaValues, phValues, rhoMax},
     ]
   , {n, 3, 5}, {gamma, gammaValues}]
 ]
+
+
+(* ::Subsubsection:: *)
+(*A = 1.5 (joined)*)
+
+
+Module[{n, gamma, a, rhoSharp, rhoMax},
+  (* Values of n, \[Gamma] and A *)
+  n = nOffset;
+  gamma = gammaOffset;
+  a = aOffsetJoined;
+  (* \[Rho]_\[Sharp] *)
+  rhoSharp = rhoOffsetJoinedSharp;
+  (* Plot *)
+  rhoMax = 2;
+  Show[
+    Plot[
+      {psiOffset[gamma][n][rho], a} // Evaluate,
+      {rho, 0, rhoMax},
+      AxesLabel -> {"rho", "psi"},
+      PlotRange -> {0, 7.5},
+      PlotLabel -> Row[
+        {nIt == n, gIt == gamma, aIt == N[a]},
+        ","
+      ],
+      PlotStyle -> {psiStyle, aStyle},
+      PlotOptions[Axes] // Evaluate
+    ],
+    (* A *)
+    Graphics @ {aStyle,
+      Text[aIt // textStyle, {0, a}, {3, 0}]
+    },
+    (* \[Rho]_\[Sharp] *)
+    Graphics @ {Directive[critStyle, pointStyle],
+      Point @ {rhoSharp, a}
+    },
+    Graphics @ {Directive[critStyle, guideStyle],
+      Line @ {{rhoSharp, a}, {rhoSharp, 0}}
+    },
+    Graphics @ {critStyle,
+      Text[
+        Subscript["rho", "sharp"] // textStyle,
+        {rhoSharp, 0},
+        {0, 2.2}
+      ]
+    },
+    (* Plot range *)
+    PlotRange -> All,
+    PlotRangeClipping -> False
+  ] // PrettyString[
+    "rho" -> "\[Rho]",
+    "ph" -> "\[CurlyPhi]",
+    "psi" -> "\[Psi]",
+    "sharp" -> "\[Sharp]"
+  ]
+] // Ex["polygon_offset-psi-joined.pdf"]
+
+
+(* ::Subsubsection:: *)
+(*A = 1.7 (split)*)
+
+
+Module[{n, gamma, a, rhoSharp, rhoB, rhoA, rhoMax},
+  (* Values of n, \[Gamma] and A *)
+  n = nOffset;
+  gamma = gammaOffset;
+  a = aOffsetSplit;
+  (* \[Rho]_\[Sharp], \[Rho]_b and \[Rho]_a *)
+  rhoSharp = rhoOffsetSplitSharp;
+  rhoB = rhoOffsetSplitB;
+  rhoA = rhoOffsetSplitA;
+  (* Plot *)
+  rhoMax = 2;
+  Show[
+    Plot[
+      {psiOffset[gamma][n][rho], a} // Evaluate,
+      {rho, 0, rhoMax},
+      AxesLabel -> {"rho", "psi"},
+      PlotRange -> {0, 7.5},
+      PlotLabel -> Row[
+        {nIt == n, gIt == gamma, aIt == N[a]},
+        ","
+      ],
+      PlotStyle -> {psiStyle, aStyle},
+      PlotOptions[Axes] // Evaluate
+    ],
+    (* A *)
+    Graphics @ {aStyle,
+      Text[aIt // textStyle, {0, a}, {3, 0}]
+    },
+    (* \[Rho]_\[Sharp] *)
+    Graphics @ {Directive[critStyle, pointStyle],
+      Point @ {rhoSharp, a}
+    },
+    Graphics @ {Directive[critStyle, guideStyle],
+      Line @ {{rhoSharp, a}, {rhoSharp, 0}}
+    },
+    Graphics @ {critStyle,
+      Text[
+        Subscript["rho", "sharp"] // textStyle,
+        {rhoSharp, 0},
+        {0, 2.2}
+      ]
+    },
+    (* \[Rho]_b *)
+    Graphics @ {Directive[critStyle, pointStyle],
+      Point @ {rhoB, a}
+    },
+    Graphics @ {Directive[critStyle, guideStyle],
+      Line @ {{rhoB, a}, {rhoB, 0}}
+    },
+    Graphics @ {critStyle,
+      Text[
+        Subscript["rho", "b"] // textStyle,
+        {rhoB, 0},
+        {0, 2.2}
+      ]
+    },
+    (* \[Rho]_a *)
+    Graphics @ {Directive[critStyle, pointStyle],
+      Point @ {rhoA, a}
+    },
+    Graphics @ {Directive[critStyle, guideStyle],
+      Line @ {{rhoA, a}, {rhoA, 0}}
+    },
+    Graphics @ {critStyle,
+      Text[
+        Subscript["rho", "a"] // textStyle,
+        {rhoA, 0},
+        {0, 2.2}
+      ]
+    },
+    (* Plot range *)
+    PlotRange -> All,
+    PlotRangeClipping -> False
+  ] // PrettyString[
+    "rho" -> "\[Rho]",
+    "ph" -> "\[CurlyPhi]",
+    "psi" -> "\[Psi]",
+    "sharp" -> "\[Sharp]"
+  ]
+] // Ex["polygon_offset-psi-split.pdf"]
 
 
 (* ::Subsection:: *)
