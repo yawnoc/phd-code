@@ -804,11 +804,84 @@ startZetaOffsetJoined["terminal"] =
       ];
       rho Exp[I ph]
     , {ph, phValues}]
-  ]
+  ];
 
 
 (* Starting point which is hyperbolic critical terminal point *)
 startZetaOffsetJoined["hyperbolic"] = {rhoOffsetJoinedSharp};
+
+
+(* ::Subsubsection:: *)
+(*A = 1.7 (split)*)
+
+
+(* Starting points along main terminal curve *)
+(* (i.e. outer boundary of main non-viable moat) *)
+startZetaOffsetSplit["terminal-main"] =
+  Module[
+   {n, gamma, a, rhoSharp, rhoB, rhoA,
+    phMax, phSpacing, phValues,
+    rho
+   },
+    n = nOffset;
+    gamma = gammaOffset;
+    a = aOffsetSplit;
+    rhoSharp = rhoOffsetSplitSharp;
+    rhoB = rhoOffsetSplitB;
+    rhoA = rhoOffsetSplitA;
+    (* \[CurlyPhi] values *)
+    phMax = 2 Pi / n;
+    phSpacing = 30 Degree;
+    phValues = UniformRange[0, phMax, phSpacing] // Most;
+    (* Build list of values *)
+    Table[
+      rho = SeekRoot[
+        viOffset[gamma][n][a][# Exp[I ph]] &,
+        {rhoA, 1/2}
+      ];
+      rho Exp[I ph]
+    , {ph, phValues}]
+  ];
+
+
+(* Starting points along island terminal curve *)
+startZetaOffsetSplit["terminal-island"] =
+  Module[
+   {n, gamma, a, rhoSharp, rhoB, rhoA,
+    rhoBetween, phBetween
+   },
+    n = nOffset;
+    gamma = gammaOffset;
+    a = aOffsetSplit;
+    rhoSharp = rhoOffsetSplitSharp;
+    rhoB = rhoOffsetSplitB;
+    rhoA = rhoOffsetSplitA;
+    (* Build list of values *)
+    {
+      (* Island point furthest from origin *)
+      rhoSharp,
+      (* Island point in-between *)
+      rhoBetween = Way[rhoB, rhoSharp];
+      phBetween = SeekRoot[
+        viOffset[gamma][n][a][rhoBetween Exp[I #]] &,
+        {0, Pi / n}
+      ];
+      rhoBetween Exp[I phBetween],
+      (* Island point closest to origin *)
+      rhoB
+    }
+  ];
+
+
+(* Starting point along main terminal curve which is hyperbolic critical *)
+startZetaOffsetSplit["hyperbolic-main"] = {rhoOffsetSplitA};
+
+
+(* Starting points along island terminal curve which are hyperbolic critical *)
+startZetaOffsetSplit["hyperbolic-island"] = {
+  rhoOffsetSplitB,
+  rhoOffsetSplitSharp
+};
 
 
 (* ::Subsection:: *)
@@ -2185,6 +2258,65 @@ Module[
     ]
   ]
 ] // Ex["polygon_offset_zeta-joined-traced-starting.pdf"]
+
+
+(* ::Subsubsection:: *)
+(*Starting points (\[Zeta]-space) for A = 1.7 (split)*)
+
+
+Module[
+ {n, gamma, a, rhoSharp, rhoB, rhoA, idList,
+  eps, rhoMax, rhoMaxUnphys, rhoMaxNon
+ },
+  n = nOffset;
+  gamma = gammaOffset;
+  a = aOffsetSplit;
+  rhoSharp = rhoOffsetSplitSharp;
+  rhoB = rhoOffsetSplitB;
+  rhoA = rhoOffsetSplitA;
+  (* Group names *)
+  idList = {
+    "terminal-main",
+    "terminal-island",
+    "hyperbolic-main",
+    "hyperbolic-island"
+  };
+  (* Plot ranges *)
+  eps = 0.1;
+  rhoMax = Exp[gamma];
+  rhoMaxUnphys = rhoMax + eps;
+  rhoMaxNon = rhoSharp + eps;
+  (* Plot *)
+  Show[
+    EmptyFrame[{-rhoMax, rhoMax}, {-rhoMax, rhoMax},
+      FrameLabel -> {Re["zeta"], Im["zeta"]},
+      ImageSize -> 360,
+      PlotLabel -> BoxedLabel[aIt == N[a]]
+    ] // PrettyString["zeta" -> "\[Zeta]"],
+    (* Unphysical domain *)
+    RegionPlot[RPolar[reZeta, imZeta] > Exp[gamma],
+      {reZeta, -rhoMaxUnphys, rhoMaxUnphys},
+      {imZeta, -rhoMaxUnphys, rhoMaxUnphys},
+      BoundaryStyle -> None,
+      PlotStyle -> unphysStyle
+    ],
+    (* Non-viable domain *)
+    RegionPlot[viOffset[gamma][n][a][reZeta + I imZeta] < 0,
+      {reZeta, -rhoMaxNon, rhoMaxNon},
+      {imZeta, -rhoMaxNon, rhoMaxNon},
+      BoundaryStyle -> termStyle,
+      PlotPoints -> 50,
+      PlotStyle -> nonStyle
+    ],
+    (* Starting points *)
+    ListPlot[
+      Table[startZetaOffsetSplit[id] // ReIm, {id, idList}],
+      LabelingFunction -> Function @ Placed[#2[[2]], Center],
+      PlotLegends -> idList,
+      PlotStyle -> Directive[Opacity[0.7], pointStyle]
+    ]
+  ]
+] // Ex["polygon_offset_zeta-split-traced-starting.pdf"]
 
 
 (* ::Section:: *)
