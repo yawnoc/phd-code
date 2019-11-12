@@ -769,6 +769,49 @@ rhoOffsetSplitA < rhoOffsetSplitB < 1 < rhoOffsetSplitSharp
 
 
 (* ::Subsection:: *)
+(*Starting points for boundary tracing (offset version)*)
+
+
+(* ::Text:: *)
+(*We choose points with \[CurlyPhi] between 0 and 2 \[Pi] / n (since there is n-fold symmetry).*)
+
+
+(* ::Subsubsection:: *)
+(*A = 1.5 (joined)*)
+
+
+(* Starting points along terminal curve *)
+(* (i.e. outer boundary of non-viable domain) *)
+startZetaOffsetSplit["terminal"] =
+  Module[
+   {n, gamma, a, rhoSharp,
+    phMax, phSpacing, phValues,
+    rho
+   },
+    n = nOffset;
+    gamma = gammaOffset;
+    a = aOffsetJoined;
+    rhoSharp = rhoOffsetJoinedSharp;
+    (* \[CurlyPhi] values *)
+    phMax = 2 Pi / n;
+    phSpacing = 30 Degree;
+    phValues = UniformRange[0, phMax, phSpacing] // Most;
+    (* Build list of values *)
+    Table[
+      rho = SeekRoot[
+        viOffset[gamma][n][a][# Exp[I ph]] &,
+        {rhoSharp, 1/2}
+      ];
+      rho Exp[I ph]
+    , {ph, phValues}]
+  ]
+
+
+(* Starting point which is hyperbolic critical terminal point *)
+startZetaOffsetSplit["hyperbolic"] = {rhoOffsetJoinedSharp};
+
+
+(* ::Subsection:: *)
 (*Numerical verification for convex domains (finite elements)*)
 
 
@@ -2086,6 +2129,62 @@ Table[
     ]
   ] // Ex @ StringJoin["polygon_z-convex-", ToString[n], ".pdf"]
 , {n, 3, 5}]
+
+
+(* ::Subsection:: *)
+(*Offset version*)
+
+
+(* ::Subsubsection:: *)
+(*Starting points (\[Zeta]-space) for A = 1.5 (joined)*)
+
+
+Module[
+ {n, gamma, a, rhoSharp, idList,
+  eps, rhoMax, rhoMaxUnphys, rhoMaxNon
+ },
+  n = nOffset;
+  gamma = gammaOffset;
+  a = aOffsetJoined;
+  rhoSharp = rhoOffsetJoinedSharp;
+  (* Group names *)
+  idList = {"terminal", "hyperbolic"};
+  (* Plot ranges *)
+  eps = 0.1;
+  rhoMax = Exp[gamma];
+  rhoMaxUnphys = rhoMax + eps;
+  rhoMaxNon = rhoSharp + eps;
+  (* Plot *)
+  Show[
+    EmptyFrame[{-rhoMax, rhoMax}, {-rhoMax, rhoMax},
+      FrameLabel -> {Re["zeta"], Im["zeta"]},
+      ImageSize -> 360,
+      PlotLabel -> BoxedLabel[aIt == N[a]]
+    ] // PrettyString["zeta" -> "\[Zeta]"],
+    (* Unphysical domain *)
+    RegionPlot[RPolar[reZeta, imZeta] > Exp[gamma],
+      {reZeta, -rhoMaxUnphys, rhoMaxUnphys},
+      {imZeta, -rhoMaxUnphys, rhoMaxUnphys},
+      BoundaryStyle -> None,
+      PlotStyle -> unphysStyle
+    ],
+    (* Non-viable domain *)
+    RegionPlot[viOffset[gamma][n][a][reZeta + I imZeta] < 0,
+      {reZeta, -rhoMaxNon, rhoMaxNon},
+      {imZeta, -rhoMaxNon, rhoMaxNon},
+      BoundaryStyle -> termStyle,
+      PlotPoints -> 50,
+      PlotStyle -> nonStyle
+    ],
+    (* Starting points *)
+    ListPlot[
+      Table[startZetaOffsetSplit[id] // ReIm, {id, idList}],
+      LabelingFunction -> Function @ Placed[#2[[2]], Center],
+      PlotLegends -> idList,
+      PlotStyle -> Directive[Opacity[0.7], pointStyle]
+    ]
+  ]
+] // Ex["polygon_offset_zeta-joined-traced-starting.pdf"]
 
 
 (* ::Section:: *)
