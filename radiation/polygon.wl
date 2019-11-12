@@ -1661,7 +1661,7 @@ DynamicModule[
 
 DynamicModule[
  {nValues, nInit,
-  gammaValues, gammaInit,
+  gammaMin, gammaMax, gammaInit,
   aMin, aMax, aInit,
   eps, rhoMax, rhoMaxUnphys, rhoMaxNon
  },
@@ -1669,23 +1669,30 @@ DynamicModule[
   nValues = Range[3, 5];
   nInit = First[nValues];
   (* Values of \[Gamma] *)
-  gammaValues = {1, 2, 4};
-  gammaInit = First[gammaValues];
+  gammaMin = 0.1;
+  gammaMax = 4;
+  gammaInit = 0.5;
   (* Values of A *)
-  aMin = 1/10;
+  aMin = 0.01;
   aMax = 3;
-  aInit = 1.66;
+  aInit = 0.17;
     (* non-viable islands at vertices of polygon in z-space *)
   Manipulate[
     eps = 0.1;
     rhoMax = Exp[gamma];
     rhoMaxUnphys = rhoMax + eps;
-    rhoMaxNon = rhoMax;
+    rhoMaxNon = SeekRoot[
+      viOffset[gamma][n][a], (* viability \[CapitalPhi] *)
+      {rhoMax, 1} (* seek largest \[Rho] *)
+    ] + eps;
     Show[
       EmptyFrame[{-rhoMax, rhoMax}, {-rhoMax, rhoMax},
         FrameLabel -> {Re["zeta"], Im["zeta"]},
         ImageSize -> 360,
-        PlotLabel -> BoxedLabel[aIt == N[a]]
+        PlotLabel -> BoxedLabel @ Row[
+          {gIt == N[gamma], aIt == N[a]},
+          ","
+        ]
       ] // PrettyString["zeta" -> "\[Zeta]"],
       (* Unphysical domain *)
       RegionPlot[RPolar[reZeta, imZeta] > Exp[gamma],
@@ -1704,7 +1711,7 @@ DynamicModule[
       ]
     ]
   , {{n, nInit, nIt}, nValues}
-  , {{gamma, gammaInit, gIt}, gammaValues}
+  , {{gamma, gammaInit, gIt}, gammaMin, gammaMax}
   , {{a, aInit, aIt}, aMin, aMax}]
 ]
 
