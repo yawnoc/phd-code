@@ -1684,7 +1684,6 @@ Module[{n, gamma, a, rhoSharp, rhoMax},
     PlotRangeClipping -> False
   ] // PrettyString[
     "rho" -> "\[Rho]",
-    "ph" -> "\[CurlyPhi]",
     "psi" -> "\[Psi]",
     "sharp" -> "\[Sharp]"
   ]
@@ -1770,7 +1769,6 @@ Module[{n, gamma, a, rhoSharp, rhoB, rhoA, rhoMax},
     PlotRangeClipping -> False
   ] // PrettyString[
     "rho" -> "\[Rho]",
-    "ph" -> "\[CurlyPhi]",
     "psi" -> "\[Psi]",
     "sharp" -> "\[Sharp]"
   ]
@@ -2856,19 +2854,9 @@ Module[
 (*General (z-space) for A = 1.5 (joined)*)
 
 
-Module[
- {n, gamma, a, rhoSharp,
-  eps, rhoMax, rhoMaxUnphys, rhoMaxNon
- },
+Module[{n, a},
   n = nOffset;
-  gamma = gammaOffset;
   a = aOffsetJoined;
-  rhoSharp = rhoOffsetJoinedSharp;
-  (* Plot ranges *)
-  eps = 0.1;
-  rhoMax = Exp[gamma];
-  rhoMaxUnphys = rhoMax + eps;
-  rhoMaxNon = rhoSharp + eps;
   (* Plot *)
   Show[
     equipStream[n,
@@ -2989,19 +2977,9 @@ Module[
 (*General (z-space) for A = 1.7 (split)*)
 
 
-Module[
- {n, gamma, a, rhoSharp,
-  eps, rhoMax, rhoMaxUnphys, rhoMaxNon
- },
+Module[{n, a},
   n = nOffset;
-  gamma = gammaOffset;
   a = aOffsetSplit;
-  rhoSharp = rhoOffsetSplitSharp;
-  (* Plot ranges *)
-  eps = 0.1;
-  rhoMax = Exp[gamma];
-  rhoMaxUnphys = rhoMax + eps;
-  rhoMaxNon = rhoSharp + eps;
   (* Plot *)
   Show[
     equipStream[n,
@@ -3186,19 +3164,9 @@ Module[
 (*General (z-space)*)
 
 
-Module[
- {n, gamma, a, rhoSharp,
-  eps, rhoMax, rhoMaxUnphys, rhoMaxNon
- },
+Module[{n, a},
   n = nOffsetConvex;
-  gamma = gammaOffsetConvex;
   a = aOffsetConvex;
-  rhoSharp = rhoOffsetConvexSharp;
-  (* Plot ranges *)
-  eps = 0.1;
-  rhoMax = Exp[gamma];
-  rhoMaxUnphys = rhoMax + eps;
-  rhoMaxNon = rhoSharp + eps;
   (* Plot *)
   Show[
     equipStream[n,
@@ -3248,19 +3216,9 @@ Module[
 (*Hyperbolic from moat (z-space)*)
 
 
-Module[
- {n, gamma, a, rhoSharp,
-  eps, rhoMax, rhoMaxUnphys, rhoMaxNon
- },
+Module[{n, a},
   n = nOffsetConvex;
-  gamma = gammaOffsetConvex;
   a = aOffsetConvex;
-  rhoSharp = rhoOffsetConvexSharp;
-  (* Plot ranges *)
-  eps = 0.1;
-  rhoMax = Exp[gamma];
-  rhoMaxUnphys = rhoMax + eps;
-  rhoMaxNon = rhoSharp + eps;
   (* Plot *)
   Show[
     equipStream[n,
@@ -3295,12 +3253,11 @@ Module[
 
 
 Module[
- {n, gamma, a, rhoA,
+ {n, a, rhoA,
   rA, rMax,
   zeta
  },
   n = nOffsetConvex;
-  gamma = gammaOffsetConvex;
   a = aOffsetConvex;
   rhoA = rhoOffsetConvexA;
   (* Plot range *)
@@ -3338,12 +3295,11 @@ Module[
 
 
 Module[
- {n, gamma, a, rhoA,
+ {n, a, rhoA,
   rA, rMax,
   zeta
  },
   n = nOffsetConvex;
-  gamma = gammaOffsetConvex;
   a = aOffsetConvex;
   rhoA = rhoOffsetConvexA;
   (* Plot range *)
