@@ -980,6 +980,84 @@ Module[{n, gamma, a, rhoSharp, idList, zetaInitList},
 
 
 (* ::Subsection:: *)
+(*Representative values for convex offset version*)
+
+
+(* ::Text:: *)
+(*Chosen so that convex domains result.*)
+
+
+(* ::Subsubsection:: *)
+(*n, \[Gamma] and A*)
+
+
+nOffsetConvex = 3;
+gammaOffsetConvex = 1.6;
+aOffsetConvex = 12;
+
+
+(* ::Subsubsection:: *)
+(*\[Rho]_\[Sharp], \[Rho]_b and \[Rho]_a*)
+
+
+(* ::Text:: *)
+(*Non-viable neighbourhoods at \[Rho] = 1, \[CurlyPhi] = 2\[Pi]k/n pincer off into lakes.*)
+(*Along \[CurlyPhi] = 0:*)
+(*  \[Rho]_a is on the tip of the moat*)
+(*  \[Rho]_b is on the tip of the lake which is nearest to the origin*)
+(*  \[Rho]_\[Sharp] is on the tip of the lake which is furthest from the origin*)
+
+
+(* ::Text:: *)
+(*\[Rho]_\[Sharp] is the largest critical terminal \[Rho] along \[CurlyPhi] = 0.*)
+
+
+rhoOffsetConvexSharp =
+  Module[{n, gamma, a},
+    n = nOffsetConvex;
+    gamma = gammaOffsetConvex;
+    a = aOffsetConvex;
+    (* Compute \[Rho]_\[Sharp] *)
+    SeekRoot[viOffset[gamma][n][a], {Exp[gamma], 1}]
+  ];
+
+
+(* ::Text:: *)
+(*\[Rho]_b is the 2nd largest critical terminal \[Rho] along \[CurlyPhi] = 0.*)
+
+
+rhoOffsetConvexB =
+  Module[{n, gamma, a},
+    n = nOffsetConvex;
+    gamma = gammaOffsetConvex;
+    a = aOffsetConvex;
+    (* Compute \[Rho]_\[Sharp] *)
+    SeekRoot[viOffset[gamma][n][a], {1, 1/2}]
+  ];
+
+
+(* ::Text:: *)
+(*\[Rho]_a is the 3rd largest critical terminal \[Rho] along \[CurlyPhi] = 0.*)
+
+
+rhoOffsetConvexA =
+  Module[{n, gamma, a},
+    n = nOffsetConvex;
+    gamma = gammaOffsetConvex;
+    a = aOffsetConvex;
+    (* Compute \[Rho]_\[Sharp] *)
+    SeekRoot[viOffset[gamma][n][a], {1/2, 1/5}]
+  ];
+
+
+(* ::Text:: *)
+(*Check:*)
+
+
+rhoOffsetConvexA < rhoOffsetConvexB < 1 < rhoOffsetConvexSharp
+
+
+(* ::Subsection:: *)
 (*Numerical verification for convex domains (finite elements)*)
 
 
@@ -1591,6 +1669,91 @@ DynamicModule[
   , {{gamma, gammaInit, gIt}, gammaMin, gammaMax}
   , {{a, aInit, aIt}, aMin, aMax}]
 ]
+
+
+(* ::Subsection:: *)
+(*\[Psi] plot (convex offset version)*)
+
+
+Module[{n, gamma, a, rhoSharp, rhoB, rhoA, rhoMax},
+  (* Values of n, \[Gamma] and A *)
+  n = nOffsetConvex;
+  gamma = gammaOffsetConvex;
+  a = aOffsetConvex;
+  (* \[Rho]_\[Sharp], \[Rho]_b and \[Rho]_a *)
+  rhoSharp = rhoOffsetConvexSharp;
+  rhoB = rhoOffsetConvexB;
+  rhoA = rhoOffsetConvexA;
+  (* Plot *)
+  rhoMax = 2;
+  Show[
+    Plot[
+      {psiOffset[gamma][n][rho], a} // Evaluate,
+      {rho, 0, rhoMax},
+      AxesLabel -> {"rho", "psi"},
+      PlotRange -> Automatic,
+      PlotLabel -> Row[
+        {nIt == n, gIt == N[gamma], aIt == N[a]},
+        ","
+      ],
+      PlotStyle -> {psiStyle, aStyle},
+      PlotOptions[Axes] // Evaluate
+    ],
+    (* A *)
+    Graphics @ {aStyle,
+      Text[aIt // textStyle, {0, a}, {4.5, 0}]
+    },
+    (* \[Rho]_\[Sharp] *)
+    Graphics @ {Directive[critStyle, pointStyle],
+      Point @ {rhoSharp, a}
+    },
+    Graphics @ {Directive[critStyle, guideStyle],
+      Line @ {{rhoSharp, a}, {rhoSharp, 0}}
+    },
+    Graphics @ {critStyle,
+      Text[
+        Subscript["rho", "sharp"] // textStyle,
+        {rhoSharp, 0},
+        {0, 2.2}
+      ]
+    },
+    (* \[Rho]_b *)
+    Graphics @ {Directive[critStyle, pointStyle],
+      Point @ {rhoB, a}
+    },
+    Graphics @ {Directive[critStyle, guideStyle],
+      Line @ {{rhoB, a}, {rhoB, 0}}
+    },
+    Graphics @ {critStyle,
+      Text[
+        Subscript["rho", "b"] // textStyle,
+        {rhoB, 0},
+        {0, 2.2}
+      ]
+    },
+    (* \[Rho]_a *)
+    Graphics @ {Directive[critStyle, pointStyle],
+      Point @ {rhoA, a}
+    },
+    Graphics @ {Directive[critStyle, guideStyle],
+      Line @ {{rhoA, a}, {rhoA, 0}}
+    },
+    Graphics @ {critStyle,
+      Text[
+        Subscript["rho", "a"] // textStyle,
+        {rhoA, 0},
+        {0, 2.2}
+      ]
+    },
+    (* Plot range *)
+    PlotRange -> All,
+    PlotRangeClipping -> False
+  ] // PrettyString[
+    "rho" -> "\[Rho]",
+    "psi" -> "\[Psi]",
+    "sharp" -> "\[Sharp]"
+  ]
+] // Ex["polygon_offset-psi-convex.pdf"]
 
 
 (* ::Subsection:: *)
