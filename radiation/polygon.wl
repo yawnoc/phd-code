@@ -1437,6 +1437,106 @@ Module[{dest},
 
 
 (* ::Subsubsection:: *)
+(*Mesh (elongated)*)
+
+
+Module[{dest},
+  dest = "polygon_offset-convex-verification-mesh-elongated.txt";
+  If[Not @ FileExistsQ[dest],
+    Module[
+     {n, gamma, a,
+      rhoA, rA, rhoBath, rBath, tBath,
+      zeta, sSpacing, k, sValues,
+      extPointList, intPointList,
+      nExt, nInt, mod,
+      bMesh, mesh,
+      prExt, prInt
+     },
+      n = nOffsetConvex;
+      gamma = gammaOffsetConvex;
+      a = aOffsetConvex;
+      (* Hyperbolic critical terminal radius (tip of moat) *)
+      (* (both \[Zeta]-space and z-space) *)
+      rhoA = rhoOffsetConvexA;
+      rA = rhoA // zMap[n];
+      (* Heat bath radius (\[Zeta]-space and z-space) *)
+      rhoBath = 0.5 rhoA;
+      rBath = rhoBath // zMap[n];
+      (* Heat bath temperature *)
+      tBath = gOffset[gamma][rhoBath];
+      (* Traced boundary \[Zeta] == \[Zeta](s) *)
+      zeta = zetaTraOffsetConvex["hyperbolic-moat"] // First;
+      (* Spacing of boundary points *)
+      (* (roughly 1 boundary point every 5 degrees along r == rA) *)
+      sSpacing = rA * 5 Degree;
+      (* External (radiation) boundary points *)
+      (*
+        I am lazy, so I am simply listing the boundary points from
+        "polygon_offset_z-convex-traced-elongated.pdf",
+        then removing duplicates and sorting them by azimuthal angle.
+       *)
+      extPointList = (
+        Join[
+          (* Boundaries to the right *)
+          k = 1;
+          sValues = UniformRange[sOffsetConvex["elongated"], 0, sSpacing];
+          Join @@ Table[
+            zeta[s] Exp[I 2 Pi k / n]
+              // zMap[n]
+              // {#, Conjugate[#]} &
+              // ReIm
+          , {s, sValues}],
+          (* Boundaries to the left *)
+          k = 2;
+          sValues = UniformRange[sOffsetConvex["rotund"], 0, sSpacing];
+          Join @@ Table[
+            zeta[s] Exp[I 2 Pi k / n]
+              // zMap[n]
+              // {#, Conjugate[#]} &
+              // ReIm
+          , {s, sValues}]
+        ]
+          // DeleteNearbyPoints[sSpacing / 4]
+          // SortByPhi
+      );
+      (* Internal (heat bath) boundary points *)
+      intPointList = Table[
+        rhoBath Exp[I ph] // zMap[n] // ReIm
+      , {ph, UniformRange[0, 2 Pi, sSpacing / rBath]}] // Most;
+      (* Numbering *)
+      nExt = Length[extPointList];
+      nInt = Length[intPointList];
+      mod[n_] := Mod[#, n, 1] &;
+      (* Build boundary element mesh *)
+      bMesh = ToBoundaryMesh[
+        "Coordinates" -> Join[extPointList, intPointList],
+        "BoundaryElements" -> {
+          (* External *)
+          LineElement[
+            Table[{n, n + 1}, {n, nExt}] // mod[nExt]
+          ],
+          (* Internal *)
+          LineElement[
+            nExt + (Table[{n, n + 1}, {n, nInt}] // mod[nInt])
+          ]
+        }
+      ];
+      (* Build mesh *)
+      mesh = ToElementMesh[bMesh,
+        "ImproveBoundaryPosition" -> True,
+        "RegionHoles" -> {0, 0}
+      ];
+      (* Predicate functions for exterior and interior boundaries *)
+      prExt = Function[{x, y}, RPolar[x, y] > Way[rBath, rA] // Evaluate];
+      prInt = Function[{x, y}, RPolar[x, y] < Way[rBath, rA] // Evaluate];
+      {a, tBath, mesh, prExt, prInt}
+        // Compress // Ex[dest]
+    ]
+  ]
+]
+
+
+(* ::Subsubsection:: *)
 (*Solve PDE (rotund) (Version 12 required)*)
 
 
@@ -3767,6 +3867,36 @@ Module[
     ImageSize -> 480
   ]
 ] // Ex["polygon_offset-convex-verification-mesh-rotund.pdf"]
+
+
+(* ::Subsubsection:: *)
+(*Elongated convex domain*)
+
+
+Module[
+ {source,
+  a, tBath, mesh, prExt, prInt,
+  bCoords, bCoordsExt, bCoordsInt
+ },
+  (* Import mesh *)
+  source = "polygon_offset-convex-verification-mesh-elongated.txt";
+  {a, tBath, mesh, prExt, prInt} = Import[source] // Uncompress;
+  (* Boundary coordinates *)
+  bCoords = Part[
+    mesh["Coordinates"],
+    List @@ First @ mesh["BoundaryElements"] // Flatten // DeleteDuplicates
+  ];
+  bCoordsExt = Select[bCoords, prExt @@ # &];
+  bCoordsInt = Select[bCoords, prInt @@ # &];
+  (* Plot *)
+  Show[
+    mesh["Wireframe"],
+    ListPlot[{bCoordsExt, bCoordsInt},
+      PlotStyle -> (Directive[#, pointStyle] & /@ {Blue, Red})
+    ],
+    ImageSize -> 480
+  ]
+] // Ex["polygon_offset-convex-verification-mesh-elongated.pdf"]
 
 
 (* ::Subsection:: *)
