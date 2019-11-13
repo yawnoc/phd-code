@@ -4008,6 +4008,31 @@ Module[{n, gamma, source, tSol, mesh, tExact},
 ] // Ex["polygon_offset-convex-verification-rel_error-3d-rotund.png"]
 
 
+(* ::Subsubsection:: *)
+(*Rotund convex domain*)
+
+
+Module[{n, gamma, source, tSol, mesh, tExact},
+  n = nOffsetConvex;
+  gamma = gammaOffsetConvex;
+  (* Import solution *)
+  source = "polygon_offset-convex-verification-solution-elongated.txt";
+  tSol = Import[source] // Uncompress;
+  mesh = tSol["ElementMesh"];
+  (* Known exact solution *)
+  tExact[x_, y_] := Re @ gOffset[gamma] @ zetaMap[n][x + I y];
+  (* Plot *)
+  With[{x = \[FormalX], y = \[FormalY]},
+    Plot3D[tSol[x, y] / tExact[x, y] - 1, Element[{x, y}, mesh],
+      Exclusions -> None,
+      PlotLabel -> "Relative error of numerical solution",
+      PlotRange -> Full,
+      PlotOptions[Axes] // Evaluate
+    ]
+  ]
+] // Ex["polygon_offset-convex-verification-rel_error-3d-elongated.png"]
+
+
 (* ::Subsection:: *)
 (*Relative errors (2D)*)
 
@@ -4040,3 +4065,34 @@ Module[{n, gamma, source, tSol, mesh, tExact},
     ]
   ]
 ] // Ex["polygon_offset-convex-verification-rel_error-2d-rotund.png"]
+
+
+(* ::Subsubsection:: *)
+(*Rotund convex domain*)
+
+
+Module[{n, gamma, source, tSol, mesh, tExact},
+  n = nOffsetConvex;
+  gamma = gammaOffsetConvex;
+  (* Import solution *)
+  source = "polygon_offset-convex-verification-solution-elongated.txt";
+  tSol = Import[source] // Uncompress;
+  mesh = tSol["ElementMesh"];
+  (* Known exact solution *)
+  tExact[x_, y_] := Re @ gOffset[gamma] @ zetaMap[n][x + I y];
+  (* Plot *)
+  With[{x = \[FormalX], y = \[FormalY]},
+    Show[
+      DensityPlot[tSol[x, y] / tExact[x, y] - 1, Element[{x, y}, mesh],
+        AspectRatio -> Automatic,
+        ColorFunction -> "Rainbow",
+        Exclusions -> None,
+        PlotLabel -> "Relative error of numerical solution",
+        PlotLegends -> Automatic,
+        PlotRange -> Full,
+        PlotOptions[Axes] // Evaluate
+      ],
+      mesh["Wireframe"]
+    ]
+  ]
+] // Ex["polygon_offset-convex-verification-rel_error-2d-elongated.png"]
