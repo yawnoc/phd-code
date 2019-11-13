@@ -4009,7 +4009,7 @@ Module[{n, gamma, source, tSol, mesh, tExact},
 
 
 (* ::Subsubsection:: *)
-(*Rotund convex domain*)
+(*Elongated convex domain*)
 
 
 Module[{n, gamma, source, tSol, mesh, tExact},
@@ -4068,7 +4068,7 @@ Module[{n, gamma, source, tSol, mesh, tExact},
 
 
 (* ::Subsubsection:: *)
-(*Rotund convex domain*)
+(*Elongated convex domain*)
 
 
 Module[{n, gamma, source, tSol, mesh, tExact},
