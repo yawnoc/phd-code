@@ -1184,6 +1184,31 @@ Module[{n, gamma, a, rhoSharp, idList, zetaInitList},
 
 
 (* ::Subsection:: *)
+(*Convex offset joining arc lengths*)
+
+
+(* ::Text:: *)
+(*Values of s for constructing the "rotund" and "elongated" convex offset domains.*)
+(*See:*)
+(*  polygon_offset_z-convex-traced-hyperbolic_moat.pdf*)
+(*  polygon_offset_z-convex-traced-rotund.pdf*)
+(*  polygon_offset_z-convex-traced-elongated.pdf*)
+
+
+(* (Assumes traced boundaries does not make a full turn) *)
+Module[{n, zeta, fun, sInterval},
+  n = nOffsetConvex;
+  zeta = zetaTraOffsetConvex["hyperbolic-moat"] // First;
+  fun[phi_] := Arg @ Conjugate @ zeta[#] - phi &;
+  sInterval = {0, DomainStart[zeta]};
+  (* Rotund, or disk-like (like a rounded regular polygon) *)
+  sOffsetConvex["rotund"] = SeekRoot[fun[Pi / n], sInterval];
+  (* Elongated, or lemon-like (like an eye) *)
+  sOffsetConvex["elongated"] = SeekRoot[fun[2 Pi / n], sInterval];
+];
+
+
+(* ::Subsection:: *)
 (*Numerical verification for convex domains (finite elements)*)
 
 
@@ -3263,6 +3288,103 @@ Module[
     , {id, {"hyperbolic-moat"}}]
   ]
 ] // Ex["polygon_offset_z-convex-traced-hyperbolic_moat.pdf"]
+
+
+(* ::Subsubsection:: *)
+(*Rotund convex domain*)
+
+
+Module[
+ {n, gamma, a, rhoA,
+  rA, rMax,
+  zeta
+ },
+  n = nOffsetConvex;
+  gamma = gammaOffsetConvex;
+  a = aOffsetConvex;
+  rhoA = rhoOffsetConvexA;
+  (* Plot range *)
+  rA = rhoA // zMap[n];
+  rMax = 2 rA;
+  (* Plot *)
+  Show[
+    equipStream[n,
+      PlotLabel -> BoxedLabel[aIt == N[a]],
+      PlotRange -> {{-rMax, rMax}, {-rMax, rMax}}
+    ],
+    (* \[Rho] == 1 *)
+    Graphics @ {Directive[EdgeForm[contStyle], FaceForm[None]],
+      poly[3]
+    },
+    (* Traced boundaries *)
+    zeta = zetaTraOffsetConvex["hyperbolic-moat"] // First;
+    Table[
+      ParametricPlot[
+        zeta[s] Exp[I 2 Pi k / n]
+          // zMap[n]
+          // {#, Conjugate[#]} &
+          // ReIm
+          // Evaluate,
+        {s, sOffsetConvex["rotund"], 0},
+        PlotStyle -> convexStyle
+      ]
+    , {k, 0, n - 1}]
+  ]
+] // Ex["polygon_offset_z-convex-traced-rotund.pdf"]
+
+
+(* ::Subsubsection:: *)
+(*Elongated convex domain*)
+
+
+Module[
+ {n, gamma, a, rhoA,
+  rA, rMax,
+  zeta
+ },
+  n = nOffsetConvex;
+  gamma = gammaOffsetConvex;
+  a = aOffsetConvex;
+  rhoA = rhoOffsetConvexA;
+  (* Plot range *)
+  rA = rhoA // zMap[n];
+  rMax = 3.5 rA;
+  (* Plot *)
+  Show[
+    equipStream[n,
+      PlotLabel -> BoxedLabel[aIt == N[a]],
+      PlotRange -> {{-rMax, rMax}, {-rMax, rMax}}
+    ],
+    (* \[Rho] == 1 *)
+    Graphics @ {Directive[EdgeForm[contStyle], FaceForm[None]],
+      poly[3]
+    },
+    (* Traced boundaries *)
+    zeta = zetaTraOffsetConvex["hyperbolic-moat"] // First;
+    Table[
+      ParametricPlot[
+        zeta[s] Exp[I 2 Pi k / n]
+          // zMap[n]
+          // {#, Conjugate[#]} &
+          // ReIm
+          // Evaluate,
+        {s, sOffsetConvex["elongated"], 0},
+        PlotStyle -> convexStyle
+      ]
+    , {k, {1}}],
+    Table[
+      ParametricPlot[
+        zeta[s] Exp[I 2 Pi k / n]
+          // zMap[n]
+          // {#, Conjugate[#]} &
+          // ReIm
+          // Evaluate,
+        {s, sOffsetConvex["rotund"], 0},
+        PlotStyle -> convexStyle
+      ]
+    , {k, {2}}]
+  ]
+] // Ex["polygon_offset_z-convex-traced-elongated.pdf"]
 
 
 (* ::Section:: *)
