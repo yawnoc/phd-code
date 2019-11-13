@@ -713,7 +713,7 @@ rhoOffsetJoinedSharp > 1
 
 (* ::Text:: *)
 (*Non-viable neighbourhoods at \[Rho] = 1, \[CurlyPhi] = 2\[Pi]k/n*)
-(*pincer off into islands.*)
+(*pincer off into lakes.*)
 
 
 aOffsetSplit = 17/10;
@@ -815,9 +815,8 @@ startZetaOffsetJoined["hyperbolic"] = {rhoOffsetJoinedSharp};
 (*A = 1.7 (split)*)
 
 
-(* Starting points along main terminal curve *)
-(* (i.e. outer boundary of main non-viable moat) *)
-startZetaOffsetSplit["terminal-main"] =
+(* Starting points along moat outer terminal curve *)
+startZetaOffsetSplit["terminal-moat"] =
   Module[
    {n, gamma, a, rhoSharp, rhoB, rhoA,
     phMax, phSpacing, phValues,
@@ -844,8 +843,8 @@ startZetaOffsetSplit["terminal-main"] =
   ];
 
 
-(* Starting points along island terminal curve *)
-startZetaOffsetSplit["terminal-island"] =
+(* Starting points along lake terminal curve *)
+startZetaOffsetSplit["terminal-lake"] =
   Module[
    {n, gamma, a, rhoSharp, rhoB, rhoA,
     rhoBetween, phBetween
@@ -858,27 +857,27 @@ startZetaOffsetSplit["terminal-island"] =
     rhoA = rhoOffsetSplitA;
     (* Build list of values *)
     {
-      (* Island point furthest from origin *)
+      (* Lake point furthest from origin *)
       rhoSharp,
-      (* Island point in-between *)
+      (* Lake point in-between *)
       rhoBetween = Way[rhoB, rhoSharp];
       phBetween = SeekRoot[
         viOffset[gamma][n][a][rhoBetween Exp[I #]] &,
         {0, Pi / n}
       ];
       rhoBetween Exp[I phBetween],
-      (* Island point closest to origin *)
+      (* Lake point closest to origin *)
       rhoB
     }
   ];
 
 
-(* Starting point along main terminal curve which is hyperbolic critical *)
-startZetaOffsetSplit["hyperbolic-main"] = {rhoOffsetSplitA};
+(* Starting point along moat outer terminal curve which is hyperbolic critical *)
+startZetaOffsetSplit["hyperbolic-moat"] = {rhoOffsetSplitA};
 
 
-(* Starting points along island terminal curve which are hyperbolic critical *)
-startZetaOffsetSplit["hyperbolic-island"] = {
+(* Starting points along lake terminal curve which are hyperbolic critical *)
+startZetaOffsetSplit["hyperbolic-lake"] = {
   rhoOffsetSplitB,
   rhoOffsetSplitSharp
 };
@@ -961,10 +960,10 @@ Module[{n, gamma, a, rhoSharp, idList, zetaInitList},
   a = aOffsetSplit;
   (* Group names *)
   idList = {
-    "terminal-main",
-    "terminal-island",
-    "hyperbolic-main",
-    "hyperbolic-island"
+    "terminal-moat",
+    "terminal-lake",
+    "hyperbolic-moat",
+    "hyperbolic-lake"
   };
   (* Solve for traced boundaries *)
   Table[
@@ -1676,7 +1675,7 @@ DynamicModule[
   aMin = 0.01;
   aMax = 3;
   aInit = 0.17;
-    (* non-viable islands at vertices of polygon in z-space *)
+    (* non-viable lakes at vertices of polygon in z-space *)
   Manipulate[
     eps = 0.1;
     rhoMax = Exp[gamma];
@@ -2376,10 +2375,10 @@ Module[
   rhoA = rhoOffsetSplitA;
   (* Group names *)
   idList = {
-    "terminal-main",
-    "terminal-island",
-    "hyperbolic-main",
-    "hyperbolic-island"
+    "terminal-moat",
+    "terminal-lake",
+    "hyperbolic-moat",
+    "hyperbolic-lake"
   };
   (* Plot ranges *)
   eps = 0.1;
@@ -2605,7 +2604,7 @@ Module[
           ]
         , {k, 0, n - 1}]
       , {zeta, zetaTraOffsetSplit[id]}]
-    , {id, {"terminal-main", "terminal-island"}}],
+    , {id, {"terminal-moat", "terminal-lake"}}],
     Table[
       Table[
         Table[
@@ -2619,7 +2618,7 @@ Module[
           ]
         , {k, 0, n - 1}]
       , {zeta, zetaTraOffsetSplit[id]}]
-    , {id, {"hyperbolic-main", "hyperbolic-island"}}]
+    , {id, {"hyperbolic-moat", "hyperbolic-lake"}}]
   ]
 ] // Ex["polygon_offset_zeta-split-traced-full.pdf"]
 
@@ -2665,7 +2664,7 @@ Module[
           ]
         , {k, 0, n - 1}]
       , {zeta, zetaTraOffsetSplit[id]}]
-    , {id, {"terminal-main", "terminal-island"}}],
+    , {id, {"terminal-moat", "terminal-lake"}}],
     Table[
       Table[
         Table[
@@ -2680,7 +2679,7 @@ Module[
           ]
         , {k, 0, n - 1}]
       , {zeta, zetaTraOffsetSplit[id]}]
-    , {id, {"hyperbolic-main", "hyperbolic-island"}}]
+    , {id, {"hyperbolic-moat", "hyperbolic-lake"}}]
   ]
 ] // Ex["polygon_offset_z-split-traced-full.pdf"]
 
