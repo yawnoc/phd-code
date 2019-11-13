@@ -67,6 +67,7 @@ ClearAll["Conway`*`*"];
 {
   BoxedLabel,
   DefaultColours,
+  DeleteNearbyPoints,
   DomainEnd,
   DomainStart,
   EmptyAxes,
@@ -79,6 +80,7 @@ ClearAll["Conway`*`*"];
   PrettyString,
   SeekRoot,
   SeekRootBisection,
+  SortByPhi,
   UniformRange,
   Way
 };
@@ -121,6 +123,21 @@ DefaultColours::usage = (
 
 
 DefaultColours = ColorData[97, "ColorList"];
+
+
+(* ::Subsubsection:: *)
+(*DeleteNearbyPoints*)
+
+
+DeleteNearbyPoints::usage = (
+  "DeleteNearbyPoints[sep][list]\n"
+  <> "Removes duplicates from the list of points list, "
+  <> "where points with separation less than sep are considered duplicate."
+);
+
+
+DeleteNearbyPoints[sep_?NumericQ][list_List] :=
+  DeleteDuplicates[list, Norm[#2 - #1] < sep &];
 
 
 (* ::Subsubsection:: *)
@@ -416,6 +433,19 @@ SeekRootBisection[
       {xSol, num}
     ]
   ];
+
+
+(* ::Subsubsection:: *)
+(*SortByPhi*)
+
+
+SortByPhi::usage = (
+  "SortByPhi[list]\n"
+  <> "Sorts the list of (planar) points list by azimuthal angle."
+);
+
+
+SortByPhi = SortBy[Mod[ArcTan @@ #, 2 Pi] &]
 
 
 (* ::Subsubsection:: *)

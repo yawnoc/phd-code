@@ -69,6 +69,18 @@ Way[0, 1]
 Way["x", "y", "p"]
 
 
+Module[{points},
+  points = RandomPoint[Circle[], 1000];
+  points = points // DeleteNearbyPoints[0.2] // SortByPhi;
+  ListPlot[points,
+    AspectRatio -> Automatic,
+    LabelingFunction -> Function @ Placed[#2[[2]], Center],
+    PlotRange -> All,
+    PlotStyle -> Yellow
+  ]
+]
+
+
 (* ::Section:: *)
 (*Testing Curvilinear.wl*)
 
