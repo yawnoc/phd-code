@@ -3157,6 +3157,68 @@ Module[
 ] // Ex["polygon_offset_zeta-convex-traced-full.pdf"]
 
 
+(* ::Subsubsection:: *)
+(*General (z-space)*)
+
+
+Module[
+ {n, gamma, a, rhoSharp,
+  eps, rhoMax, rhoMaxUnphys, rhoMaxNon
+ },
+  n = nOffsetConvex;
+  gamma = gammaOffsetConvex;
+  a = aOffsetConvex;
+  rhoSharp = rhoOffsetConvexSharp;
+  (* Plot ranges *)
+  eps = 0.1;
+  rhoMax = Exp[gamma];
+  rhoMaxUnphys = rhoMax + eps;
+  rhoMaxNon = rhoSharp + eps;
+  (* Plot *)
+  Show[
+    equipStream[n,
+      ImageSize -> 720,
+      PlotLabel -> BoxedLabel[aIt == N[a]]
+    ],
+    (* \[Rho] == 1 *)
+    Graphics @ {Directive[EdgeForm[contStyle], FaceForm[None]],
+      poly[3]
+    },
+    (* Traced boundaries *)
+    Table[
+      Table[
+        Table[
+          ParametricPlot[
+            zeta[s] Exp[I 2 Pi k / n]
+              // zMap[n]
+              // {#, Conjugate[#]} &
+              // ReIm
+              // Evaluate,
+            {s, DomainStart[zeta], DomainEnd[zeta]},
+            PlotStyle -> {upperStyle, lowerStyle}
+          ]
+        , {k, 0, n - 1}]
+      , {zeta, zetaTraOffsetConvex[id]}]
+    , {id, {"general", "terminal-moat", "terminal-lake"}}],
+    Table[
+      Table[
+        Table[
+          ParametricPlot[
+            zeta[s] Exp[I 2 Pi k / n]
+              // zMap[n]
+              // {#, Conjugate[#]} &
+              // ReIm
+              // Evaluate,
+            {s, DomainStart[zeta], DomainEnd[zeta]},
+            PlotStyle -> glowStyle
+          ]
+        , {k, 0, n - 1}]
+      , {zeta, zetaTraOffsetConvex[id]}]
+    , {id, {"hyperbolic-moat", "hyperbolic-lake"}}]
+  ]
+] // Ex["polygon_offset_z-convex-traced-full.pdf"]
+
+
 (* ::Section:: *)
 (*Traced boundary curvature*)
 
