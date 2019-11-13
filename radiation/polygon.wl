@@ -787,14 +787,14 @@ rhoOffsetSplitA < rhoOffsetSplitB < 1 < rhoOffsetSplitSharp
 (* (i.e. outer boundary of non-viable domain) *)
 startZetaOffsetJoined["terminal"] =
   Module[
-   {n, gamma, a, rhoSharp,
+   {n, gamma, a, rhoSh,
     phMax, phSpacing, phValues,
     rho
    },
     n = nOffset;
     gamma = gammaOffset;
     a = aOffsetJoined;
-    rhoSharp = rhoOffsetJoinedSharp;
+    rhoSh = rhoOffsetJoinedSharp;
     (* \[CurlyPhi] values *)
     phMax = 2 Pi / n;
     phSpacing = 30 Degree;
@@ -803,7 +803,7 @@ startZetaOffsetJoined["terminal"] =
     Table[
       rho = SeekRoot[
         viOffset[gamma][n][a][# Exp[I ph]] &,
-        {rhoSharp, 1/2}
+        {rhoSh, 1/2}
       ];
       rho Exp[I ph]
     , {ph, phValues}]
@@ -821,14 +821,14 @@ startZetaOffsetJoined["hyperbolic"] = {rhoOffsetJoinedSharp};
 (* Starting points along moat outer terminal curve *)
 startZetaOffsetSplit["terminal-moat"] =
   Module[
-   {n, gamma, a, rhoSharp, rhoB, rhoA,
+   {n, gamma, a, rhoSh, rhoB, rhoA,
     phMax, phSpacing, phValues,
     rho
    },
     n = nOffset;
     gamma = gammaOffset;
     a = aOffsetSplit;
-    rhoSharp = rhoOffsetSplitSharp;
+    rhoSh = rhoOffsetSplitSharp;
     rhoB = rhoOffsetSplitB;
     rhoA = rhoOffsetSplitA;
     (* \[CurlyPhi] values *)
@@ -849,21 +849,21 @@ startZetaOffsetSplit["terminal-moat"] =
 (* Starting points along lake terminal curve *)
 startZetaOffsetSplit["terminal-lake"] =
   Module[
-   {n, gamma, a, rhoSharp, rhoB, rhoA,
+   {n, gamma, a, rhoSh, rhoB, rhoA,
     rhoBetween, phBetween
    },
     n = nOffset;
     gamma = gammaOffset;
     a = aOffsetSplit;
-    rhoSharp = rhoOffsetSplitSharp;
+    rhoSh = rhoOffsetSplitSharp;
     rhoB = rhoOffsetSplitB;
     rhoA = rhoOffsetSplitA;
     (* Build list of values *)
     {
       (* Lake point furthest from origin *)
-      rhoSharp,
+      rhoSh,
       (* Lake point in-between *)
-      rhoBetween = Way[rhoB, rhoSharp];
+      rhoBetween = Way[rhoB, rhoSh];
       phBetween = SeekRoot[
         viOffset[gamma][n][a][rhoBetween Exp[I #]] &,
         {0, Pi / n}
@@ -1091,14 +1091,14 @@ startZetaOffsetConvex["general"] =
 (* Starting points along moat outer terminal curve *)
 startZetaOffsetConvex["terminal-moat"] =
   Module[
-   {n, gamma, a, rhoSharp, rhoB, rhoA,
+   {n, gamma, a, rhoSh, rhoB, rhoA,
     phMax, phSpacing, phValues,
     rho
    },
     n = nOffsetConvex;
     gamma = gammaOffsetConvex;
     a = aOffsetConvex;
-    rhoSharp = rhoOffsetConvexSharp;
+    rhoSh = rhoOffsetConvexSharp;
     rhoB = rhoOffsetConvexB;
     rhoA = rhoOffsetConvexA;
     (* \[CurlyPhi] values *)
@@ -1119,21 +1119,21 @@ startZetaOffsetConvex["terminal-moat"] =
 (* Starting points along lake terminal curve *)
 startZetaOffsetConvex["terminal-lake"] =
   Module[
-   {n, gamma, a, rhoSharp, rhoB, rhoA,
+   {n, gamma, a, rhoSh, rhoB, rhoA,
     rhoBetween, phBetween
    },
     n = nOffsetConvex;
     gamma = gammaOffsetConvex;
     a = aOffsetConvex;
-    rhoSharp = rhoOffsetConvexSharp;
+    rhoSh = rhoOffsetConvexSharp;
     rhoB = rhoOffsetConvexB;
     rhoA = rhoOffsetConvexA;
     (* Build list of values *)
     {
       (* Lake point furthest from origin *)
-      rhoSharp,
+      rhoSh,
       (* Lake point in-between *)
-      rhoBetween = Way[rhoB, rhoSharp];
+      rhoBetween = Way[rhoB, rhoSh];
       phBetween = SeekRoot[
         viOffset[gamma][n][a][rhoBetween Exp[I #]] &,
         {0, Pi / n}
@@ -1639,13 +1639,13 @@ Module[{gammaValues, phValues, rhoMax},
 (*A = 1.5 (joined)*)
 
 
-Module[{n, gamma, a, rhoSharp, rhoMax},
+Module[{n, gamma, a, rhoSh, rhoMax},
   (* Values of n, \[Gamma] and A *)
   n = nOffset;
   gamma = gammaOffset;
   a = aOffsetJoined;
   (* \[Rho]_\[Sharp] *)
-  rhoSharp = rhoOffsetJoinedSharp;
+  rhoSh = rhoOffsetJoinedSharp;
   (* Plot *)
   rhoMax = 2;
   Show[
@@ -1667,15 +1667,15 @@ Module[{n, gamma, a, rhoSharp, rhoMax},
     },
     (* \[Rho]_\[Sharp] *)
     Graphics @ {Directive[critStyle, pointStyle],
-      Point @ {rhoSharp, a}
+      Point @ {rhoSh, a}
     },
     Graphics @ {Directive[critStyle, guideStyle],
-      Line @ {{rhoSharp, a}, {rhoSharp, 0}}
+      Line @ {{rhoSh, a}, {rhoSh, 0}}
     },
     Graphics @ {critStyle,
       Text[
         Subscript["rho", "sharp"] // textStyle,
-        {rhoSharp, 0},
+        {rhoSh, 0},
         {0, 2.2}
       ]
     },
@@ -1694,13 +1694,13 @@ Module[{n, gamma, a, rhoSharp, rhoMax},
 (*A = 1.7 (split)*)
 
 
-Module[{n, gamma, a, rhoSharp, rhoB, rhoA, rhoMax},
+Module[{n, gamma, a, rhoSh, rhoB, rhoA, rhoMax},
   (* Values of n, \[Gamma] and A *)
   n = nOffset;
   gamma = gammaOffset;
   a = aOffsetSplit;
   (* \[Rho]_\[Sharp], \[Rho]_b and \[Rho]_a *)
-  rhoSharp = rhoOffsetSplitSharp;
+  rhoSh = rhoOffsetSplitSharp;
   rhoB = rhoOffsetSplitB;
   rhoA = rhoOffsetSplitA;
   (* Plot *)
@@ -1724,15 +1724,15 @@ Module[{n, gamma, a, rhoSharp, rhoB, rhoA, rhoMax},
     },
     (* \[Rho]_\[Sharp] *)
     Graphics @ {Directive[critStyle, pointStyle],
-      Point @ {rhoSharp, a}
+      Point @ {rhoSh, a}
     },
     Graphics @ {Directive[critStyle, guideStyle],
-      Line @ {{rhoSharp, a}, {rhoSharp, 0}}
+      Line @ {{rhoSh, a}, {rhoSh, 0}}
     },
     Graphics @ {critStyle,
       Text[
         Subscript["rho", "sharp"] // textStyle,
-        {rhoSharp, 0},
+        {rhoSh, 0},
         {0, 2.2}
       ]
     },
@@ -1824,13 +1824,13 @@ DynamicModule[
 (*\[Psi] plot (convex offset version)*)
 
 
-Module[{n, gamma, a, rhoSharp, rhoB, rhoA, rhoMax},
+Module[{n, gamma, a, rhoSh, rhoB, rhoA, rhoMax},
   (* Values of n, \[Gamma] and A *)
   n = nOffsetConvex;
   gamma = gammaOffsetConvex;
   a = aOffsetConvex;
   (* \[Rho]_\[Sharp], \[Rho]_b and \[Rho]_a *)
-  rhoSharp = rhoOffsetConvexSharp;
+  rhoSh = rhoOffsetConvexSharp;
   rhoB = rhoOffsetConvexB;
   rhoA = rhoOffsetConvexA;
   (* Plot *)
@@ -1854,15 +1854,15 @@ Module[{n, gamma, a, rhoSharp, rhoB, rhoA, rhoMax},
     },
     (* \[Rho]_\[Sharp] *)
     Graphics @ {Directive[critStyle, pointStyle],
-      Point @ {rhoSharp, a}
+      Point @ {rhoSh, a}
     },
     Graphics @ {Directive[critStyle, guideStyle],
-      Line @ {{rhoSharp, a}, {rhoSharp, 0}}
+      Line @ {{rhoSh, a}, {rhoSh, 0}}
     },
     Graphics @ {critStyle,
       Text[
         Subscript["rho", "sharp"] // textStyle,
-        {rhoSharp, 0},
+        {rhoSh, 0},
         {0, 2.2}
       ]
     },
@@ -2672,20 +2672,20 @@ Table[
 
 
 Module[
- {n, gamma, a, rhoSharp, idList,
+ {n, gamma, a, rhoSh, idList,
   eps, rhoMax, rhoMaxUnphys, rhoMaxNon
  },
   n = nOffset;
   gamma = gammaOffset;
   a = aOffsetJoined;
-  rhoSharp = rhoOffsetJoinedSharp;
+  rhoSh = rhoOffsetJoinedSharp;
   (* Group names *)
   idList = {"terminal", "hyperbolic"};
   (* Plot ranges *)
   eps = 0.1;
   rhoMax = Exp[gamma];
   rhoMaxUnphys = rhoMax + eps;
-  rhoMaxNon = rhoSharp + eps;
+  rhoMaxNon = rhoSh + eps;
   (* Plot *)
   Show[
     EmptyFrame[{-rhoMax, rhoMax}, {-rhoMax, rhoMax},
@@ -2724,13 +2724,13 @@ Module[
 
 
 Module[
- {n, gamma, a, rhoSharp, rhoB, rhoA, idList,
+ {n, gamma, a, rhoSh, rhoB, rhoA, idList,
   eps, rhoMax, rhoMaxUnphys, rhoMaxNon
  },
   n = nOffset;
   gamma = gammaOffset;
   a = aOffsetSplit;
-  rhoSharp = rhoOffsetSplitSharp;
+  rhoSh = rhoOffsetSplitSharp;
   rhoB = rhoOffsetSplitB;
   rhoA = rhoOffsetSplitA;
   (* Group names *)
@@ -2744,7 +2744,7 @@ Module[
   eps = 0.1;
   rhoMax = Exp[gamma];
   rhoMaxUnphys = rhoMax + eps;
-  rhoMaxNon = rhoSharp + eps;
+  rhoMaxNon = rhoSh + eps;
   (* Plot *)
   Show[
     EmptyFrame[{-rhoMax, rhoMax}, {-rhoMax, rhoMax},
@@ -2783,18 +2783,18 @@ Module[
 
 
 Module[
- {n, gamma, a, rhoSharp,
+ {n, gamma, a, rhoSh,
   eps, rhoMax, rhoMaxUnphys, rhoMaxNon
  },
   n = nOffset;
   gamma = gammaOffset;
   a = aOffsetJoined;
-  rhoSharp = rhoOffsetJoinedSharp;
+  rhoSh = rhoOffsetJoinedSharp;
   (* Plot ranges *)
   eps = 0.1;
   rhoMax = Exp[gamma];
   rhoMaxUnphys = rhoMax + eps;
-  rhoMaxNon = rhoSharp + eps;
+  rhoMaxNon = rhoSh + eps;
   (* Plot *)
   Show[
     EmptyFrame[{-rhoMax, rhoMax}, {-rhoMax, rhoMax},
@@ -2906,18 +2906,18 @@ Module[{n, a},
 
 
 Module[
- {n, gamma, a, rhoSharp,
+ {n, gamma, a, rhoSh,
   eps, rhoMax, rhoMaxUnphys, rhoMaxNon
  },
   n = nOffset;
   gamma = gammaOffset;
   a = aOffsetSplit;
-  rhoSharp = rhoOffsetSplitSharp;
+  rhoSh = rhoOffsetSplitSharp;
   (* Plot ranges *)
   eps = 0.1;
   rhoMax = Exp[gamma];
   rhoMaxUnphys = rhoMax + eps;
-  rhoMaxNon = rhoSharp + eps;
+  rhoMaxNon = rhoSh + eps;
   (* Plot *)
   Show[
     EmptyFrame[{-rhoMax, rhoMax}, {-rhoMax, rhoMax},
@@ -3033,13 +3033,13 @@ Module[{n, a},
 
 
 Module[
- {n, gamma, a, rhoSharp, rhoB, rhoA, idList,
+ {n, gamma, a, rhoSh, rhoB, rhoA, idList,
   eps, rhoMax, rhoMaxUnphys, rhoMaxNon
  },
   n = nOffsetConvex;
   gamma = gammaOffsetConvex;
   a = aOffsetConvex;
-  rhoSharp = rhoOffsetConvexSharp;
+  rhoSh = rhoOffsetConvexSharp;
   rhoB = rhoOffsetConvexB;
   rhoA = rhoOffsetConvexA;
   (* Group names *)
@@ -3052,9 +3052,9 @@ Module[
   };
   (* Plot ranges *)
   eps = 0.1;
-  rhoMax = rhoSharp;
+  rhoMax = rhoSh;
   rhoMaxUnphys = rhoMax + eps;
-  rhoMaxNon = rhoSharp + eps;
+  rhoMaxNon = rhoSh + eps;
   (* Plot *)
   Show[
     EmptyFrame[{-rhoMax, rhoMax}, {-rhoMax, rhoMax},
@@ -3093,18 +3093,18 @@ Module[
 
 
 Module[
- {n, gamma, a, rhoSharp,
+ {n, gamma, a, rhoSh,
   eps, rhoMax, rhoMaxUnphys, rhoMaxNon
  },
   n = nOffsetConvex;
   gamma = gammaOffsetConvex;
   a = aOffsetConvex;
-  rhoSharp = rhoOffsetConvexSharp;
+  rhoSh = rhoOffsetConvexSharp;
   (* Plot ranges *)
   eps = 0.1;
-  rhoMax = 1.2 rhoSharp;
+  rhoMax = 1.2 rhoSh;
   rhoMaxUnphys = rhoMax + eps;
-  rhoMaxNon = rhoSharp + eps;
+  rhoMaxNon = rhoSh + eps;
   (* Plot *)
   Show[
     EmptyFrame[{-rhoMax, rhoMax}, {-rhoMax, rhoMax},
