@@ -1157,6 +1157,33 @@ startZetaOffsetConvex["hyperbolic-lake"] = {
 
 
 (* ::Subsection:: *)
+(*Traced boundaries \[Zeta] = \[Zeta](s) (convex offset version)*)
+
+
+Module[{n, gamma, a, rhoSharp, idList, zetaInitList},
+  n = nOffsetConvex;
+  gamma = gammaOffsetConvex;
+  a = aOffsetConvex;
+  (* Group names *)
+  idList = {
+    "general",
+    "terminal-moat",
+    "terminal-lake",
+    "hyperbolic-moat",
+    "hyperbolic-lake"
+  };
+  (* Solve for traced boundaries *)
+  Table[
+    zetaInitList = startZetaOffsetConvex[id];
+    zetaTraOffsetConvex[id] =
+      Table[
+        zetaTraceOffset[gamma][n][a][zetaInit]
+      , {zetaInit, zetaInitList}];
+  , {id, idList}];
+];
+
+
+(* ::Subsection:: *)
 (*Numerical verification for convex domains (finite elements)*)
 
 
@@ -3056,6 +3083,78 @@ Module[
     ]
   ]
 ] // Ex["polygon_offset_zeta-convex-traced-starting.pdf"]
+
+
+(* ::Subsubsection:: *)
+(*General (\[Zeta]-space)*)
+
+
+Module[
+ {n, gamma, a, rhoSharp,
+  eps, rhoMax, rhoMaxUnphys, rhoMaxNon
+ },
+  n = nOffsetConvex;
+  gamma = gammaOffsetConvex;
+  a = aOffsetConvex;
+  rhoSharp = rhoOffsetConvexSharp;
+  (* Plot ranges *)
+  eps = 0.1;
+  rhoMax = 1.2 rhoSharp;
+  rhoMaxUnphys = rhoMax + eps;
+  rhoMaxNon = rhoSharp + eps;
+  (* Plot *)
+  Show[
+    EmptyFrame[{-rhoMax, rhoMax}, {-rhoMax, rhoMax},
+      FrameLabel -> {Re["zeta"], Im["zeta"]},
+      ImageSize -> 720,
+      PlotLabel -> BoxedLabel[aIt == N[a]]
+    ] // PrettyString["zeta" -> "\[Zeta]"],
+    (* Unphysical domain *)
+    RegionPlot[RPolar[reZeta, imZeta] > Exp[gamma],
+      {reZeta, -rhoMaxUnphys, rhoMaxUnphys},
+      {imZeta, -rhoMaxUnphys, rhoMaxUnphys},
+      BoundaryStyle -> None,
+      PlotStyle -> unphysStyle
+    ],
+    (* Non-viable domain *)
+    RegionPlot[viOffset[gamma][n][a][reZeta + I imZeta] < 0,
+      {reZeta, -rhoMaxNon, rhoMaxNon},
+      {imZeta, -rhoMaxNon, rhoMaxNon},
+      BoundaryStyle -> termStyle,
+      PlotPoints -> 50,
+      PlotStyle -> nonStyle
+    ],
+    (* Traced boundaries *)
+    Table[
+      Table[
+        Table[
+          ParametricPlot[
+            zeta[s] Exp[I 2 Pi k / n]
+              // {#, Conjugate[#]} &
+              // ReIm
+              // Evaluate,
+            {s, DomainStart[zeta], DomainEnd[zeta]},
+            PlotStyle -> {upperStyle, lowerStyle}
+          ]
+        , {k, 0, n - 1}]
+      , {zeta, zetaTraOffsetConvex[id]}]
+    , {id, {"general", "terminal-moat", "terminal-lake"}}],
+    Table[
+      Table[
+        Table[
+          ParametricPlot[
+            zeta[s] Exp[I 2 Pi k / n]
+              // {#, Conjugate[#]} &
+              // ReIm
+              // Evaluate,
+            {s, DomainStart[zeta], DomainEnd[zeta]},
+            PlotStyle -> glowStyle
+          ]
+        , {k, 0, n - 1}]
+      , {zeta, zetaTraOffsetConvex[id]}]
+    , {id, {"hyperbolic-moat", "hyperbolic-lake"}}]
+  ]
+] // Ex["polygon_offset_zeta-convex-traced-full.pdf"]
 
 
 (* ::Section:: *)
