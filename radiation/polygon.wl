@@ -1058,6 +1058,105 @@ rhoOffsetConvexA < rhoOffsetConvexB < 1 < rhoOffsetConvexSharp
 
 
 (* ::Subsection:: *)
+(*Starting points for boundary tracing (convex offset version)*)
+
+
+(* ::Text:: *)
+(*We choose points with \[CurlyPhi] between 0 and 2 \[Pi] / n (since there is n-fold symmetry).*)
+
+
+(* Starting points which are not terminal *)
+startZetaOffsetConvex["general"] =
+  Module[
+   {n, gamma, a,
+    rhoA, rhoB, rho,
+    phMax, phSpacing, phValues
+   },
+    n = nOffsetConvex;
+    gamma = gammaOffsetConvex;
+    a = aOffsetConvex;
+    (* \[Rho] *)
+    rhoB = rhoOffsetConvexB;
+    rhoA = rhoOffsetConvexA;
+    rho = Way[rhoA, rhoB];
+    (* \[CurlyPhi] values *)
+    phMax = 2 Pi / n;
+    phSpacing = 30 Degree;
+    phValues = UniformRange[0, phMax, phSpacing] // Most;
+    (* Build list of values *)
+    Table[rho Exp[I ph], {ph, phValues}]
+  ];
+
+
+(* Starting points along moat outer terminal curve *)
+startZetaOffsetConvex["terminal-moat"] =
+  Module[
+   {n, gamma, a, rhoSharp, rhoB, rhoA,
+    phMax, phSpacing, phValues,
+    rho
+   },
+    n = nOffsetConvex;
+    gamma = gammaOffsetConvex;
+    a = aOffsetConvex;
+    rhoSharp = rhoOffsetConvexSharp;
+    rhoB = rhoOffsetConvexB;
+    rhoA = rhoOffsetConvexA;
+    (* \[CurlyPhi] values *)
+    phMax = 2 Pi / n;
+    phSpacing = 30 Degree;
+    phValues = UniformRange[0, phMax, phSpacing] // Most;
+    (* Build list of values *)
+    Table[
+      rho = SeekRoot[
+        viOffset[gamma][n][a][# Exp[I ph]] &,
+        {rhoA, 1/2}
+      ];
+      rho Exp[I ph]
+    , {ph, phValues}]
+  ];
+
+
+(* Starting points along lake terminal curve *)
+startZetaOffsetConvex["terminal-lake"] =
+  Module[
+   {n, gamma, a, rhoSharp, rhoB, rhoA,
+    rhoBetween, phBetween
+   },
+    n = nOffsetConvex;
+    gamma = gammaOffsetConvex;
+    a = aOffsetConvex;
+    rhoSharp = rhoOffsetConvexSharp;
+    rhoB = rhoOffsetConvexB;
+    rhoA = rhoOffsetConvexA;
+    (* Build list of values *)
+    {
+      (* Lake point furthest from origin *)
+      rhoSharp,
+      (* Lake point in-between *)
+      rhoBetween = Way[rhoB, rhoSharp];
+      phBetween = SeekRoot[
+        viOffset[gamma][n][a][rhoBetween Exp[I #]] &,
+        {0, Pi / n}
+      ];
+      rhoBetween Exp[I phBetween],
+      (* Lake point closest to origin *)
+      rhoB
+    }
+  ];
+
+
+(* Starting point along moat outer terminal curve which is hyperbolic critical *)
+startZetaOffsetConvex["hyperbolic-moat"] = {rhoOffsetConvexA};
+
+
+(* Starting points along lake terminal curve which are hyperbolic critical *)
+startZetaOffsetConvex["hyperbolic-lake"] = {
+  rhoOffsetConvexB,
+  rhoOffsetConvexSharp
+};
+
+
+(* ::Subsection:: *)
 (*Numerical verification for convex domains (finite elements)*)
 
 
@@ -2893,6 +2992,70 @@ Module[
     , {id, {"hyperbolic-moat", "hyperbolic-lake"}}]
   ]
 ] // Ex["polygon_offset_z-split-traced-full.pdf"]
+
+
+(* ::Subsection:: *)
+(*Convex offset version*)
+
+
+(* ::Subsubsection:: *)
+(*Starting points (\[Zeta]-space)*)
+
+
+Module[
+ {n, gamma, a, rhoSharp, rhoB, rhoA, idList,
+  eps, rhoMax, rhoMaxUnphys, rhoMaxNon
+ },
+  n = nOffsetConvex;
+  gamma = gammaOffsetConvex;
+  a = aOffsetConvex;
+  rhoSharp = rhoOffsetConvexSharp;
+  rhoB = rhoOffsetConvexB;
+  rhoA = rhoOffsetConvexA;
+  (* Group names *)
+  idList = {
+    "general",
+    "terminal-moat",
+    "terminal-lake",
+    "hyperbolic-moat",
+    "hyperbolic-lake"
+  };
+  (* Plot ranges *)
+  eps = 0.1;
+  rhoMax = rhoSharp;
+  rhoMaxUnphys = rhoMax + eps;
+  rhoMaxNon = rhoSharp + eps;
+  (* Plot *)
+  Show[
+    EmptyFrame[{-rhoMax, rhoMax}, {-rhoMax, rhoMax},
+      FrameLabel -> {Re["zeta"], Im["zeta"]},
+      ImageSize -> 360,
+      PlotLabel -> BoxedLabel[aIt == N[a]]
+    ] // PrettyString["zeta" -> "\[Zeta]"],
+    (* Unphysical domain *)
+    RegionPlot[RPolar[reZeta, imZeta] > Exp[gamma],
+      {reZeta, -rhoMaxUnphys, rhoMaxUnphys},
+      {imZeta, -rhoMaxUnphys, rhoMaxUnphys},
+      BoundaryStyle -> None,
+      PlotStyle -> unphysStyle
+    ],
+    (* Non-viable domain *)
+    RegionPlot[viOffset[gamma][n][a][reZeta + I imZeta] < 0,
+      {reZeta, -rhoMaxNon, rhoMaxNon},
+      {imZeta, -rhoMaxNon, rhoMaxNon},
+      BoundaryStyle -> termStyle,
+      PlotPoints -> 50,
+      PlotStyle -> nonStyle
+    ],
+    (* Starting points *)
+    ListPlot[
+      Table[startZetaOffsetConvex[id] // ReIm, {id, idList}],
+      LabelingFunction -> Function @ Placed[#2[[2]], Center],
+      PlotLegends -> idList,
+      PlotStyle -> Directive[Opacity[0.7], pointStyle]
+    ]
+  ]
+] // Ex["polygon_offset_zeta-convex-traced-starting.pdf"]
 
 
 (* ::Section:: *)
