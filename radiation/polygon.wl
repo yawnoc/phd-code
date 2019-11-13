@@ -712,8 +712,11 @@ rhoOffsetJoinedSharp > 1
 
 
 (* ::Text:: *)
-(*Non-viable neighbourhoods at \[Rho] = 1, \[CurlyPhi] = 2\[Pi]k/n*)
-(*pincer off into lakes.*)
+(*Non-viable neighbourhoods at \[Rho] = 1, \[CurlyPhi] = 2\[Pi]k/n pincer off into lakes.*)
+(*Along \[CurlyPhi] = 0:*)
+(*  \[Rho]_a is on the tip of the moat*)
+(*  \[Rho]_b is on the tip of the lake which is nearest to the origin*)
+(*  \[Rho]_\[Sharp] is on the tip of the lake which is furthest from the origin*)
 
 
 aOffsetSplit = 17/10;
@@ -1543,6 +1546,51 @@ Module[{n, gamma, a, rhoSharp, rhoB, rhoA, rhoMax},
     "sharp" -> "\[Sharp]"
   ]
 ] // Ex["polygon_offset-psi-split.pdf"]
+
+
+(* ::Subsection:: *)
+(*\[Psi] plot (offset version) interactive visualiser*)
+
+
+DynamicModule[
+ {nValues, nInit,
+  gammaMin, gammaMax, gammaInit,
+  aMin, aMax, aInit,
+  rhoMax
+ },
+  (* Values of n *)
+  nValues = Range[3, 5];
+  nInit = First[nValues];
+  (* Values of \[Gamma] *)
+  gammaMin = 0.1;
+  gammaMax = 4;
+  gammaInit = 1.6;
+  (* Values of A *)
+  aMin = 0.01;
+  aMax = 100;
+  aInit = 12;
+  (* Plot range *)
+  rhoMax = 2;
+  Manipulate[
+    Plot[
+      {psiOffset[gamma][n][rho], a} // Evaluate,
+      {rho, 0, rhoMax},
+      AxesLabel -> {"rho", "psi"},
+      PlotRange -> Automatic,
+      PlotLabel -> Row[
+        {nIt == n, gIt == N[gamma], aIt == N[a]},
+        ","
+      ],
+      PlotStyle -> {psiStyle, aStyle},
+      PlotOptions[Axes] // Evaluate
+    ] // PrettyString[
+      "rho" -> "\[Rho]",
+      "psi" -> "\[Psi]"
+    ]
+  , {{n, nInit, nIt}, nValues}
+  , {{gamma, gammaInit, gIt}, gammaMin, gammaMax}
+  , {{a, aInit, aIt}, aMin, aMax}]
+]
 
 
 (* ::Subsection:: *)
