@@ -1348,7 +1348,7 @@ Table[
 
 
 (* ::Subsubsection:: *)
-(*Rotund convex domain*)
+(*Mesh (rotund)*)
 
 
 Module[{dest},
@@ -1431,6 +1431,40 @@ Module[{dest},
       prInt = Function[{x, y}, RPolar[x, y] < Way[rBath, rA] // Evaluate];
       {a, tBath, mesh, prExt, prInt}
         // Compress // Ex[dest]
+    ]
+  ]
+]
+
+
+(* ::Subsubsection:: *)
+(*Solve PDE (rotund) (Version 12 required)*)
+
+
+Module[{dest},
+  dest = "polygon_offset-convex-verification-solution-rotund.txt";
+  If[Not @ FileExistsQ[dest],
+    Module[
+     {source,
+      a, tBath, mesh, prExt, prInt,
+      tSol
+     },
+      (* Import mesh *)
+      source = "polygon_offset-convex-verification-mesh-rotund.txt";
+      {a, tBath, mesh, prExt, prInt} = Import[source] // Uncompress;
+      (* Solve boundary value problem *)
+      With[{x = \[FormalX], y = \[FormalY], t = \[FormalCapitalT]},
+        tSol = NDSolveValue[
+          {
+            (* Steady state heat equation *)
+            -Laplacian[t[x, y], {x, y}] ==
+              (* External (radiation) boundary condition *)
+              NeumannValue[(-1 / a) t[x, y]^4, prExt[x, y]],
+            (* Internal (heat bath) boundary condition *)
+            DirichletCondition[t[x, y] == tBath, prInt[x, y]]
+          }, t, Element[{x, y}, mesh]
+        ]
+      ];
+      tSol // Compress // Ex[dest]
     ]
   ]
 ]
@@ -3733,3 +3767,28 @@ Module[
     ImageSize -> 480
   ]
 ] // Ex["polygon_offset-convex-verification-mesh-rotund.pdf"]
+
+
+(* ::Subsection:: *)
+(*Numerical solution*)
+
+
+(* ::Subsubsection:: *)
+(*Rotund convex domain*)
+
+
+Module[{source, tSol, mesh},
+  (* Import solution *)
+  source = "polygon_offset-convex-verification-solution-rotund.txt";
+  tSol = Import[source] // Uncompress;
+  mesh = tSol["ElementMesh"];
+  (* Plot *)
+  With[{x = \[FormalX], y = \[FormalY]},
+    Plot3D[tSol[x, y], Element[{x, y}, mesh],
+      AxesLabel -> Italicised /@ {"x", "y", "T"},
+      PlotLabel -> "Numerical solution",
+      PlotRange -> Full,
+      PlotOptions[Axes] // Evaluate
+    ]
+  ]
+] // Ex["polygon_offset-convex-verification-solution-rotund.png"]
