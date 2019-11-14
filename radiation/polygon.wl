@@ -541,7 +541,7 @@ zAcc[n_][a_][zeta_] := Plus[
         -4 (Re @ g[zeta])^3 / a,
         Re @ (zetaVel[n][a][zeta] gDerZeta[zeta])
       ],
-      (* (sqrt(\[CapitalPhi]))' \[Equal] \[CapitalPhi]' / (2 sqrt(\[CapitalPhi]))  *)
+      (* (sqrt(\[CapitalPhi]))' == \[CapitalPhi]' / (2 sqrt(\[CapitalPhi]))  *)
       Divide[
         Plus[
           (* 1st term of (r4.43) *)
@@ -977,6 +977,98 @@ Module[{n, gamma, a, rhoSharp, idList, zetaInitList},
       , {zetaInit, zetaInitList}];
   , {id, idList}];
 ];
+
+
+(* ::Subsection:: *)
+(*Traced boundary curvature (offset version)*)
+
+
+(* ::Subsubsection:: *)
+(*z' = dz/ds*)
+
+
+(* ::Text:: *)
+(*See (r4.39) (Page r4-11).*)
+
+
+zVelOffset[gamma_][n_][a_][zeta_] :=
+  Divide[
+    I fOffset[gamma][a][zeta] + Sqrt @ viOffset[gamma][n][a][zeta],
+    gDer[n][zeta]
+  ] // Evaluate;
+
+
+(* ::Subsubsection:: *)
+(*z'' = d^2(z)/ds^2*)
+
+
+(* ::Text:: *)
+(*See (r4.40) to (r4.43) (Pages r4-11 & r4-12).*)
+
+
+zAccOffset[gamma_][n_][a_][zeta_] := Plus[
+  (* 1st term of (r4.40) *)
+  Times[
+    (* i F + sqrt(\[CapitalPhi]) *)
+    I fOffset[gamma][a][zeta] + Sqrt @ viOffset[gamma][n][a][zeta],
+    (* d\[Zeta]/ds *)
+    zetaVelOffset[gamma][n][a][zeta],
+    (* d/d\[Zeta] (1 / (dG/dz)) *)
+    D[1 / gDer[n][zeta], zeta]
+  ],
+  (* 2nd term of (r4.40) *)
+  Divide[
+    Plus[
+      (* i F' *)
+      Times[
+        I,
+        -4 (Re @ gOffset[gamma][zeta])^3 / a,
+        Re @ (zetaVelOffset[gamma][n][a][zeta] gDerZeta[zeta])
+      ],
+      (* (sqrt(\[CapitalPhi]))' == \[CapitalPhi]' / (2 sqrt(\[CapitalPhi]))  *)
+      Divide[
+        Plus[
+          (* 1st term of (r4.43) *)
+          Times[
+            2,
+            Re @ gDer[n][zeta],
+            Re @ (zetaVelOffset[gamma][n][a][zeta] D[gDer[n][zeta], zeta])
+          ],
+          (* 2nd term of (r4.43) *)
+          Times[
+            2,
+            Im @ gDer[n][zeta],
+            Im @ (zetaVelOffset[gamma][n][a][zeta] D[gDer[n][zeta], zeta])
+          ],
+          (* 3rd term of (r4.43) *)
+          Times[
+            -8 (Re @ gOffset[gamma][zeta])^7 / a^2,
+            Re @ (zetaVelOffset[gamma][n][a][zeta] gDerZeta[zeta])
+          ]
+        ],
+        2 Sqrt @ viOffset[gamma][n][a][zeta]
+      ]
+    ],
+    (* dG/dz *)
+    gDer[n][zeta]
+  ]
+] // Evaluate;
+
+
+(* ::Subsubsection:: *)
+(*Curvature x' y'' - y' x''*)
+
+
+(* ::Text:: *)
+(*See (r4.39a) (Page r4-11).*)
+
+
+curTraOffset[gamma_][n_][a_][zeta_] :=
+  Module[{xVel, yVel, xAcc, yAcc},
+    {xVel, yVel} = zVelOffset[gamma][n][a][zeta] // ReIm;
+    {xAcc, yAcc} = zAccOffset[gamma][n][a][zeta] // ReIm;
+    xVel yAcc - yVel xAcc
+  ] // Evaluate;
 
 
 (* ::Subsection:: *)
@@ -1657,6 +1749,7 @@ polyComplement[n_Integer] :=
 aIt = Italicised["A"];
 gIt = Style["\[Gamma]"];
 nIt = Italicised["n"];
+sIt = Italicised["s"];
 zIt = Italicised["z"];
 
 
@@ -3748,6 +3841,25 @@ Table[
 , {n, 3, 5}] // TableForm[#,
   TableHeadings -> {None, {"n", "A_m", "A_i", "A_\[Natural]"}}
 ] & // Ex["polygon-a-critical.pdf"]
+
+
+(* ::Subsection:: *)
+(*Check convexity of rotund and elongated domains*)
+
+
+Module[{n, gamma, a, zeta},
+  n = nOffsetConvex;
+  gamma = gammaOffsetConvex;
+  a = aOffsetConvex;
+  zeta = zetaTraOffsetConvex["hyperbolic-moat"] // First;
+  Plot[
+    curTraOffset[gamma][n][a] @ zeta[s],
+    {s, sOffsetConvex["elongated"], 0},
+    AxesLabel -> {sIt, "Cur."},
+    PlotRange -> {0, Automatic},
+    PlotOptions[Axes] // Evaluate
+  ]
+] // Ex["polygon_offset-convex-curvature.pdf"]
 
 
 (* ::Section:: *)
