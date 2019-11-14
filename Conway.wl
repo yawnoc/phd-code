@@ -73,6 +73,7 @@ ClearAll["Conway`*`*"];
   EmptyAxes,
   EmptyFrame,
   Ex,
+  ExportIfNotExists,
   Italicised,
   NoExtrapolation,
   PlotOptions,
@@ -231,6 +232,26 @@ Ex::usage = (
 
 
 Ex[dest_, opts : OptionsPattern[Export]] := Export[dest, #, opts] &;
+
+
+(* ::Subsubsection:: *)
+(*ExportIfNotExists*)
+
+
+ExportIfNotExists::usage = (
+  "ExportIfNotExists[dest, expr, opts]\n"
+  <> "Exports the expression expr to the destination dest "
+  <> "if the destination file does not already exist."
+);
+
+
+ExportIfNotExists[dest_, expr_, opts : OptionsPattern[Export]] :=
+  If[Not @ FileExistsQ[dest],
+    expr // Ex[dest, opts]
+  ];
+
+
+SetAttributes[ExportIfNotExists, HoldAll];
 
 
 (* ::Subsubsection:: *)
