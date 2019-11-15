@@ -272,7 +272,7 @@ FString::usage = (
 );
 
 
-FString[s_] :=
+FString[s_String] :=
   StringReplace[s,
     {
       (* Doubled curly brackets for literal curly brackets *)
@@ -288,6 +288,9 @@ FString[s_] :=
       ]
     }
   ];
+
+
+SetAttributes[FString, Listable];
 
 
 (* ::Subsubsection:: *)
