@@ -38,6 +38,38 @@ EmptyAxes[{0, 1}, {0, 1}]
 EmptyFrame[{0, 1}, {0, 1}]
 
 
+Module[{var = 0},
+  {
+    "{{1 + 1}} formats as {1 + 1}.",
+    "{{var}} formats as {var}."
+  } // FString // TableForm
+]
+
+
+Block[{blockVar = 0},
+  "Block variables also work: {blockVar}" // FString
+]
+
+
+With[{withVar = -1},
+  Module[{outerVar = 0},
+    Module[{innerVar = 1},
+      Print @ {
+        "withVar", withVar,
+        "outerVar", outerVar,
+        "innerVar", innerVar
+      };
+      StringJoin[
+        "Referenced Module variables must be ",
+        "from the closest closing Module: {innerVar}\n",
+        "References to outer Module variables will not work: {outerVar}\n",
+        "Nor will references to With variables: {withVar}"
+      ] // FString
+    ]
+  ]
+]
+
+
 "a + beta" // PrettyString["beta" -> "\[Beta]"]
 
 

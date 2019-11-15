@@ -74,6 +74,7 @@ ClearAll["Conway`*`*"];
   EmptyFrame,
   Ex,
   ExportIfNotExists,
+  FString,
   Italicised,
   NoExtrapolation,
   PlotOptions,
@@ -252,6 +253,41 @@ ExportIfNotExists[dest_, expr_, opts : OptionsPattern[Export]] :=
 
 
 SetAttributes[ExportIfNotExists, HoldAll];
+
+
+(* ::Subsubsection:: *)
+(*FString*)
+
+
+FString::usage = (
+  "FString[s]\n"
+  <> "Formats string s as per Python 3.6's f-strings: "
+  <> "contents of curly brackets are evaluated using ToExpression "
+  <> "(use doubled curly brackets for literal brackets).\n"
+  <> "Referenced Module variables must be from the closest closing Module. "
+  <> "Referencing With variables will NOT work.\n"
+  <> "Automatically threads over lists.\n"
+  <> "See PEP 498 -- Literal String Interpolation: "
+  <> "https://www.python.org/dev/peps/pep-0498/"
+);
+
+
+FString[s_] :=
+  StringReplace[s,
+    {
+      (* Doubled curly brackets for literal curly brackets *)
+      "{{" -> "{",
+      "}}" -> "}",
+      (* Evaluate contents of single curly brackets *)
+      "{" ~~ contents : Except["}"]... ~~ "}" :> ToString[
+        ToExpression[contents] /.
+          (* Assume free symbols are Module variables *)
+          x_Symbol :> Symbol @ StringJoin[
+            ToString[x] <> "$" <> ToString[$ModuleNumber - 1]
+          ]
+      ]
+    }
+  ];
 
 
 (* ::Subsubsection:: *)
