@@ -293,6 +293,14 @@ FString[s_String] :=
 SetAttributes[FString, Listable];
 
 
+(* ::Text:: *)
+(*For some reason, references to Module variables do not work on the first call.*)
+(*So here we call FString once:*)
+
+
+FString @ "";
+
+
 (* ::Subsubsection:: *)
 (*Italicised*)
 
