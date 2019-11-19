@@ -51,21 +51,10 @@ Block[{blockVar = 0},
 ]
 
 
-With[{withVar = -1},
-  Module[{outerVar = 0},
-    Module[{innerVar = 1},
-      Print @ {
-        "withVar", withVar,
-        "outerVar", outerVar,
-        "innerVar", innerVar
-      };
-      StringJoin[
-        "Referenced Module variables must be ",
-        "from the closest closing Module: {innerVar}\n",
-        "References to outer Module variables will not work: {outerVar}\n",
-        "Nor will references to With variables: {withVar}"
-      ] // FString
-    ]
+Module[{outerVar = 0},
+  Module[{innerVar = 1},
+    "Nested Modules: outerVar is {outerVar} and innerVar is {innerVar}."
+      // FString
   ]
 ]
 

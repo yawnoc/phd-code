@@ -76,6 +76,7 @@ ClearAll["Conway`*`*"];
   ExportIfNotExists,
   FString,
   Italicised,
+  ModuleSymbol,
   NoExtrapolation,
   PlotOptions,
   PreciseOptions,
@@ -264,8 +265,8 @@ FString::usage = (
   <> "Formats string s as per Python 3.6's f-strings: "
   <> "contents of curly brackets are evaluated using ToExpression "
   <> "(use doubled curly brackets for literal brackets).\n"
-  <> "Referenced Module variables must be from the closest closing Module. "
   <> "Referencing With variables will NOT work.\n"
+  <> "Avoid referencing free variables: this will be SLOW.\n"
   <> "Automatically threads over lists.\n"
   <> "See PEP 498 -- Literal String Interpolation: "
   <> "https://www.python.org/dev/peps/pep-0498/"
@@ -273,32 +274,45 @@ FString::usage = (
 
 
 FString[s_String] :=
-  StringReplace[s,
-    {
-      (* Doubled curly brackets for literal curly brackets *)
-      "{{" -> "{",
-      "}}" -> "}",
-      (* Evaluate contents of single curly brackets *)
-      "{" ~~ contents : Except["}"]... ~~ "}" :> ToString[
-        ToExpression[contents] /.
-          (* Assume free symbols are Module variables *)
-          x_Symbol :> Symbol @ StringJoin[
-            ToString[x] <> "$" <> ToString[$ModuleNumber - 1]
+  s // StringReplace @ {
+    (* Doubled curly brackets for literal curly brackets *)
+    "{{" -> "{",
+    "}}" -> "}",
+    (* Evaluate contents of single curly brackets *)
+    StringExpression[
+      "{",
+      contents : Shortest[___],
+      "}"
+    ] :> ToString[
+      ToExpression[contents]
+        (* Assume free symbols are Module variables *)
+        // ReplaceAll[
+          x_Symbol :> ModuleSymbol[SymbolName[x], $ModuleNumber]
+        ]
+        (* Decrement module number until not free *)
+        // ReplaceRepeated[#,
+          x_Symbol :> ModuleSymbol[
+            (* Name part of Module symbol is everything before $ *)
+            SymbolName[x] // StringReplace["$" ~~ __ -> ""],
+            (* Number part of Module symbol is everything after $ *)
+            SymbolName[x]
+              // StringReplace[__ ~~ "$" -> ""]
+              // ToExpression
+              // Max[1, # - 1] &
+              (* (stop when $ModuleNumber == 1) *)
+          ],
+          MaxIterations -> Infinity
+        ] &
+        // ReplaceAll[
+          x_Symbol :> Symbol[
+            SymbolName[x] // StringReplace["$" ~~ __ -> ""]
           ]
-      ]
-    }
-  ];
+        ]
+    ]
+  };
 
 
 SetAttributes[FString, Listable];
-
-
-(* ::Text:: *)
-(*For some reason, references to Module variables do not work on the first call.*)
-(*So here we call FString once:*)
-
-
-FString @ "";
 
 
 (* ::Subsubsection:: *)
@@ -317,6 +331,20 @@ Italicised[str_] := Style[str, Italic];
 
 
 SetAttributes[Italicised, Listable];
+
+
+(* ::Subsubsection:: *)
+(*ModuleSymbol*)
+
+
+ModuleSymbol::usage = (
+  "ModuleSymbol[name, num]\n"
+  <> "Builds the symbol with name name and $ModuleNumber num."
+);
+
+
+ModuleSymbol[name_String, num_Integer] :=
+  Symbol @ StringJoin[name, "$", ToString[num]];
 
 
 (* ::Subsubsection:: *)
