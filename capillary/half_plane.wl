@@ -243,3 +243,48 @@ Module[
     ] // Ex @ FString @ "half_plane-solution-discrepancy-gpd-{gpd}.pdf"
   , {gpd, gpdValues}]
 ]
+
+
+(* ::Subsection:: *)
+(*Compare with theoretical height rise values*)
+
+
+Module[
+ {tSolAssNonlinear, tSolAssFixedPoint,
+  tSolNonlinear, tSolFixedPoint, n,
+  gamma, hTheory,
+  hNonlinear, relErrorNonlinear,
+  hFixedPoint, relErrorFixedPoint
+ },
+  tSolAssNonlinear = Import["half_plane-solution.txt"] // Uncompress;
+  tSolAssFixedPoint = Import["half_plane-solution-fixed_point.txt"] // Uncompress;
+  Table[
+    tSolNonlinear = tSolAssNonlinear[gpd];
+    {tSolFixedPoint, n} = tSolAssFixedPoint[gpd];
+    (* Theoretical *)
+    gamma = gpd * Degree;
+    hTheory = HHalfPlane[gamma];
+    (* Nonlinear solver *)
+    hNonlinear = tSolNonlinear[0, 0];
+    relErrorNonlinear = hNonlinear / hTheory - 1;
+    (* Fixed-point iteration *)
+    hFixedPoint = tSolFixedPoint[0, 0];
+    relErrorFixedPoint = hFixedPoint / hTheory - 1;
+    {
+      gamma, hTheory // N,
+      hNonlinear, relErrorNonlinear,
+      hFixedPoint, relErrorFixedPoint,
+      Abs[relErrorNonlinear] < Abs[relErrorFixedPoint]
+    }
+  , {gpd, gpdValues}]
+] // TableForm[#,
+  TableHeadings -> {
+    None,
+    {
+      "\[Gamma]", "Theory",
+      "Nonlinear", "rel. error",
+      "Fixed-point", "rel. error",
+      "Nonlinear better"
+    }
+  }
+] & // Ex["half_plane-height-comparison.pdf"]
