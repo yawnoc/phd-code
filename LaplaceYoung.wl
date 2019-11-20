@@ -35,6 +35,10 @@ ClearAll["LaplaceYoung`*`*"];
 
 
 {
+  HHalfPlane,
+  XHalfPlaneUniversal,
+  XHalfPlane,
+  DHalfPlane,
   SolveLaplaceYoung
 };
 
@@ -48,6 +52,66 @@ ClearAll["LaplaceYoung`*`*"];
 
 
 Begin["`Private`"];
+
+
+(* ::Subsubsection:: *)
+(*HHalfPlane*)
+
+
+HHalfPlane::usage = (
+  "HHalfPlane[gamma]\n"
+  <> "Returns the wetting height h == sqrt(2 (1 - sin(gamma))) "
+  <> "for the half-plane solution."
+);
+
+
+HHalfPlane[gamma_] := Sqrt[2 (1 - Sin[gamma])];
+
+
+(* ::Subsubsection:: *)
+(*XHalfPlaneUniversal*)
+
+
+XHalfPlaneUniversal::usage = (
+  "XHalfPlaneUniversal[t]\n"
+  <> "Returns the half-plane universal curve in implicit form "
+  <> "x == arccosh(2 / T) - sqrt(4 - T^2) - arccosh sqrt(2) + sqrt(2)."
+);
+
+
+XHalfPlaneUniversal[t_] :=
+  ArcCosh[2 / t] - Sqrt[4 - t^2] - ArcCosh @ Sqrt[2] + Sqrt[2]
+
+
+(* ::Subsubsection:: *)
+(*XHalfPlane*)
+
+
+XHalfPlane::usage = (
+  "XHalfPlane[gamma][t]\n"
+  <> "Returns the half-plane solution for contact angle gamma along x == 0 "
+  <> "in implicit form x == x (T)."
+);
+
+
+XHalfPlane[gamma_][t_] :=
+  XHalfPlaneUniversal[t] - XHalfPlaneUniversal @ HHalfPlane[gamma] // Evaluate;
+
+
+(* ::Subsubsection:: *)
+(*DHalfPlane*)
+
+
+DHalfPlane::usage = (
+  "DHalfPlane[gamma, gammaT]\n"
+  <> "Returns the offset distance d(gamma, gammaT) "
+  <> "along the half-plane universal curve, between the x == const walls "
+  <> "corresponding to contact angles gamma and gammaT."
+);
+
+
+DHalfPlane[gamma_, gammaT_] :=
+  XHalfPlaneUniversal @ HHalfPlane[gammaT] - XHalfPlaneUniversal @ HHalfPlane[gamma];
 
 
 (* ::Subsubsection:: *)
