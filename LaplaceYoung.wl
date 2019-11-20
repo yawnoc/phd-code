@@ -39,7 +39,8 @@ ClearAll["LaplaceYoung`*`*"];
   XHalfPlaneUniversal,
   XHalfPlane,
   DHalfPlane,
-  SolveLaplaceYoung
+  SolveLaplaceYoung,
+  SolveLaplaceYoungFixedPoint
 };
 
 
@@ -134,7 +135,7 @@ SolveLaplaceYoung[gamma_?NumericQ, mesh_ElementMesh, prWet_] :=
       grad = Grad[#, {x, y}] &;
       iGrad = Inactive[Grad][#, {x, y}] &;
       iDiv = Inactive[Div][#, {x, y}] &;
-      (* K == 1 / sqrt(1 + (del u)^2) *)
+      (* K == 1 / sqrt(1 + (del T)^2) *)
       k = 1 / Sqrt[1 + # . #] & @ grad @ t[x, y];
       (*
         Solve
@@ -150,7 +151,80 @@ SolveLaplaceYoung[gamma_?NumericQ, mesh_ElementMesh, prWet_] :=
           }, t, Element[{x, y}, mesh]
         ]
       , {NDSolveValue::femibcnd}];
+      (* Return solution *)
       tSol
+    ]
+  ];
+
+
+(* ::Subsubsection:: *)
+(*SolveLaplaceYoungFixedPoint*)
+
+
+SolveLaplaceYoungFixedPoint::usage = (
+  "SolveLaplaceYoungFixedPoint[gamma, mesh, prWet, tol (def 10^-6)]\n"
+  <> "Solves the Laplace--Young equation over the finite element mesh mesh "
+  <> "with contact angle gamma along the portions of the boundary "
+  <> "for which prWet[x, y] is True and tolerance tol.\n"
+  <> "Uses a simple fixed-point iteration."
+);
+
+
+SolveLaplaceYoungFixedPoint[
+  gamma_?NumericQ,
+  mesh_ElementMesh,
+  prWet_,
+  tol : _?NumericQ : 10^-6
+] :=
+  With[{x = \[FormalX], y = \[FormalY], t = \[FormalCapitalT]},
+    Module[
+     {grad, iGrad, iDiv,
+      tSol, n, relChange,
+      k, tSolNew
+     },
+      grad = Grad[#, {x, y}] &;
+      iGrad = Inactive[Grad][#, {x, y}] &;
+      iDiv = Inactive[Div][#, {x, y}] &;
+      (* Initialise *)
+      tSol = 0 &;
+      n = 0;
+      relChange = Infinity;
+      (* Iterate *)
+      Monitor[
+        While[Abs[relChange] >= tol,
+          (* K == 1 / sqrt(1 + (del T)^2) using previous T *)
+          k = 1 / Sqrt[1 + # . #] & @ grad @ tSol[x, y];
+          (*
+            Solve
+              del . [K del T] == T          (interior)
+                n . [K del T] == cos(gamma) (boundary)
+           *)
+          tSolNew = Quiet[
+            NDSolveValue[
+              {
+                iDiv[-k * IdentityMatrix[2] . iGrad @ t[x, y]] ==
+                  - t[x, y]
+                  + NeumannValue[Cos[gamma], prWet[x, y]]
+              }, t, Element[{x, y}, mesh]
+            ]
+          , {NDSolveValue::femibcnd}];
+          n += 1;
+          (* Check convergence *)
+          relChange = (
+            Table[
+              Quiet[
+                tSolNew @@ xy / tSol @@ xy - 1
+              , {Power::infy}]
+            , {xy, mesh["Coordinates"]}]
+              /. {Indeterminate -> 0}
+              // Norm[#, Infinity] &
+          );
+          (* Update solution *)
+          tSol = tSolNew;
+        ]
+      , {"gamma", gamma, "n", n, "relChange", relChange, "tol", N[tol]}];
+      (* Return solution and number of iterates *)
+      {tSol, n}
     ]
   ];
 

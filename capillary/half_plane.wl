@@ -99,6 +99,26 @@ ExportIfNotExists["half_plane-solution.txt",
 
 
 (* ::Subsection:: *)
+(*Solve PDE (fixed-point iteration)*)
+
+
+(* (This is extremely slow (~10 min), so compute once and store.) *)
+(* (Delete the file manually to compute from scratch.) *)
+ExportIfNotExists["half_plane-solution-fixed_point.txt",
+  Module[{mesh, prWet, gamma},
+    (* Import mesh *)
+    {mesh, prWet} = Import["half_plane-mesh.txt"] // Uncompress;
+    (* Solve Laplace--Young equation *)
+    Association @ Table[
+      gamma = gpd * Degree;
+      gpd -> SolveLaplaceYoungFixedPoint[gamma, mesh, prWet]
+    , {gpd, gpdValues}]
+      // Compress
+  ]
+]
+
+
+(* ::Subsection:: *)
 (*Italicised symbols*)
 
 
@@ -134,6 +154,10 @@ Module[{mesh, prWet, nElem},
 (*Numerical solution*)
 
 
+(* ::Subsection:: *)
+(*Using built-in nonlinear solver*)
+
+
 Module[{tSolAss, tSol, mesh, gamma},
   tSolAss = Import["half_plane-solution.txt"] // Uncompress;
   Table[
@@ -155,5 +179,34 @@ Module[{tSolAss, tSol, mesh, gamma},
         PlotOptions[Axes] // Evaluate
       ]
     ] // Ex @ FString @ "half_plane-solution-gpd-{gpd}.png"
+  , {gpd, gpdValues}]
+]
+
+
+(* ::Subsection:: *)
+(*Using fixed-point iteration*)
+
+
+Module[{tSolAss, tSol, n, mesh, gamma},
+  tSolAss = Import["half_plane-solution-fixed_point.txt"] // Uncompress;
+  Table[
+    {tSol, n} = tSolAss[gpd];
+    mesh = tSol["ElementMesh"];
+    gamma = gpd * Degree;
+    Block[{x = \[FormalX], y = \[FormalY]},
+    (* (Using With results in SetDelayed::wrsym and an empty plot) *)
+      Plot3D[tSol[x, y], Element[{x, y}, mesh],
+        AxesLabel -> Italicised /@ {"x", "y", "T"},
+        PlotLabel -> Column[
+          {
+            "Numerical solution: {n} iterations" // FString,
+            gIt == gamma
+          },
+          Alignment -> Center
+        ],
+        PlotRange -> {0, Sqrt[2]},
+        PlotOptions[Axes] // Evaluate
+      ]
+    ] // Ex @ FString @ "half_plane-solution-fixed_point-gpd-{gpd}.png"
   , {gpd, gpdValues}]
 ]
