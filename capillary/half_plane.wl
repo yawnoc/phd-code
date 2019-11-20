@@ -11,6 +11,7 @@
 SetDirectory @ ParentDirectory @ NotebookDirectory[];
 << NDSolve`FEM`
 << Conway`
+<< LaplaceYoung`
 SetDirectory @ FileNameJoin @ {NotebookDirectory[], "half_plane"}
 
 
@@ -19,6 +20,14 @@ SetDirectory @ FileNameJoin @ {NotebookDirectory[], "half_plane"}
 
 
 ClearAll["Global`*"];
+
+
+(* ::Subsection:: *)
+(*Contact angles*)
+
+
+(* gpd stands for "gamma per degree". *)
+gpdValues = {1, 5, 10, 15, 30, 45, 60, 75};
 
 
 (* ::Subsection:: *)
@@ -70,6 +79,33 @@ ExportIfNotExists["half_plane-mesh.txt",
 
 
 (* ::Subsection:: *)
+(*Solve PDE (Version 12 required)*)
+
+
+(* (This is slow (~7 sec), so compute once and store.) *)
+(* (Delete the file manually to compute from scratch.) *)
+ExportIfNotExists["half_plane-solution.txt",
+  Module[{mesh, prWet, gamma},
+    (* Import mesh *)
+    {mesh, prWet} = Import["half_plane-mesh.txt"] // Uncompress;
+    (* Solve Laplace--Young equation *)
+    Association @ Table[
+      gamma = gpd * Degree;
+      gpd -> SolveLaplaceYoung[gamma, mesh, prWet]
+    , {gpd, gpdValues}]
+      // Compress
+  ]
+]
+
+
+(* ::Subsection:: *)
+(*Italicised symbols*)
+
+
+gIt = Style["\[Gamma]"];
+
+
+(* ::Subsection:: *)
 (*Global styles for plots*)
 
 
@@ -92,3 +128,32 @@ Module[{mesh, prWet, nElem},
     PlotOptions[Axes] // Evaluate
   ]
 ] // Ex["half_plane-mesh.pdf"]
+
+
+(* ::Section:: *)
+(*Numerical solution*)
+
+
+Module[{tSolAss, tSol, mesh, gamma},
+  tSolAss = Import["half_plane-solution.txt"] // Uncompress;
+  Table[
+    tSol = tSolAss[gpd];
+    mesh = tSol["ElementMesh"];
+    gamma = gpd * Degree;
+    Block[{x = \[FormalX], y = \[FormalY]},
+    (* (Using With results in SetDelayed::wrsym and an empty plot) *)
+      Plot3D[tSol[x, y], Element[{x, y}, mesh],
+        AxesLabel -> Italicised /@ {"x", "y", "T"},
+        PlotLabel -> Column[
+          {
+            "Numerical solution",
+            gIt == gamma
+          },
+          Alignment -> Center
+        ],
+        PlotRange -> {0, Sqrt[2]},
+        PlotOptions[Axes] // Evaluate
+      ]
+    ] // Ex @ FString @ "half_plane-solution-gpd-{gpd}.png"
+  , {gpd, gpdValues}]
+]
