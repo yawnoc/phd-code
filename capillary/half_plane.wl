@@ -210,3 +210,36 @@ Module[{tSolAss, tSol, n, mesh, gamma},
     ] // Ex @ FString @ "half_plane-solution-fixed_point-gpd-{gpd}.png"
   , {gpd, gpdValues}]
 ]
+
+
+(* ::Subsection:: *)
+(*Discrepancy between nonlinear solver and fixed-point iteration*)
+
+
+Module[
+ {tSolAssNonlinear, tSolAssFixedPoint,
+  tSolNonlinear, tSolFixedPoint,
+  gamma, xMax
+ },
+  tSolAssNonlinear = Import["half_plane-solution.txt"] // Uncompress;
+  tSolAssFixedPoint = Import["half_plane-solution-fixed_point.txt"] // Uncompress;
+  Table[
+    tSolNonlinear = tSolAssNonlinear[gpd];
+    tSolFixedPoint = tSolAssFixedPoint[gpd] // First;
+    gamma = gpd * Degree;
+    xMax = 3;
+    Plot[tSolNonlinear[x, 0] - tSolFixedPoint[x, 0], {x, 0, xMax},
+      AxesLabel -> {Italicised @ "x", ""},
+      PlotLabel -> Column[
+        {
+          "[Nonlinear]" - "[Fixed-point]",
+          gIt == gamma
+        },
+        Alignment -> Center
+      ],
+      PlotRange -> Full,
+      PlotStyle -> Red,
+      PlotOptions[Axes] // Evaluate
+    ] // Ex @ FString @ "half_plane-solution-discrepancy-gpd-{gpd}.pdf"
+  , {gpd, gpdValues}]
+]
