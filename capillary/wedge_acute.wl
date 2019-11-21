@@ -32,11 +32,19 @@ apdValues = {10, 15, 30, 40, 45, 50, 60, 75};
 
 
 (* ::Subsection:: *)
+(*Contact angles*)
+
+
+(* gpd stands for "gamma per degree". *)
+gpdValues = Join[{1}, Range[5, 85, 5]];
+
+
+(* ::Subsection:: *)
 (*Finite element mesh*)
 
 
 (* (These are not slow, nevertheless compute once and store.) *)
-(* (Delete the file manually to compute from scratch.) *)
+(* (Delete the files manually to compute from scratch.) *)
 Table[
   ExportIfNotExists[FString @ "mesh/wedge_acute-mesh-apd-{apd}.txt",
     Module[
@@ -94,10 +102,43 @@ Table[
 , {apd, apdValues}]
 
 
+(* ::Subsection:: *)
+(*Solve PDE (Version 12 required)*)
+
+
+(* (These are slow (~1 hr), so compute once and store.) *)
+(* (Delete the files manually to compute from scratch.) *)
+(*
+  I do not know how much memory is required for this,
+  so I would suggest running this on a fresh kernel.
+ *)
+(* For each value of alpha: *)
+Table[
+  Module[{mesh, prWet, gamma, eval},
+    (* Import mesh *)
+    {mesh, prWet} =
+      Import[
+        FString @ "mesh/wedge_acute-mesh-apd-{apd}.txt"
+      ] // Uncompress;
+    (* For each value of gamma: *)
+    Table[
+      gamma = gpd * Degree;
+      ExportIfNotExists[
+        FString @ "solution/wedge_acute-solution-apd-{apd}-gpd-{gpd}.txt",
+        eval = EvaluationData @ SolveLaplaceYoung[gamma, mesh, prWet];
+        eval /@ {"Result", "Success", "FailureType", "MessagesText", "AbsoluteTiming"}
+          // Compress
+      ]
+    , {gpd, gpdValues}]
+  ]
+, {apd, apdValues}]
+
+
 (* ::Section:: *)
-(*Finite element meshes*)
+(*Finite element mesh*)
 
 
+(* For each value of alpha: *)
 Table[
   Module[{mesh, prWet, nElem},
     (* Import mesh *)
