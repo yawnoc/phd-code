@@ -39,6 +39,7 @@ ClearAll["LaplaceYoung`*`*"];
   XHalfPlaneUniversal,
   XHalfPlane,
   DHalfPlane,
+  MeshRefinementUniform,
   SolveLaplaceYoung,
   SolveLaplaceYoungFixedPoint
 };
@@ -113,6 +114,23 @@ DHalfPlane::usage = (
 
 DHalfPlane[gamma_, gammaT_] :=
   XHalfPlaneUniversal @ HHalfPlane[gammaT] - XHalfPlaneUniversal @ HHalfPlane[gamma];
+
+
+(* ::Subsubsection:: *)
+(*MeshRefinementUniform*)
+
+
+MeshRefinementUniform::usage = (
+  "MeshRefinementUniform[len]\n"
+  <> "Mesh refinement function to ensure that all mesh elements "
+  <> "have area not exceeding the equilateral triangle of sidelength len."
+);
+
+
+MeshRefinementUniform[len_] :=
+  Function[{vertices, area},
+    area > Sqrt[3] / 4 * len^2 // Evaluate
+  ];
 
 
 (* ::Subsubsection:: *)
