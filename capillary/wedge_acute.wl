@@ -155,3 +155,47 @@ Table[
     ]
   ] // Ex @ FString @ "mesh/wedge_acute-mesh-apd-{apd}.png"
 , {apd, apdValues}]
+
+
+(* ::Section:: *)
+(*Numerical solution*)
+
+
+(* ::Subsection:: *)
+(*Using built-in nonlinear solver*)
+
+
+(* ::Subsubsection:: *)
+(*Table*)
+
+
+(* (This is slow (~1 min) from all the calls to Import.) *)
+Join @@ Table[
+  Table[
+    Module[{tSol, messages, timing, tCorner},
+      (* Import numerical solution, error messages and abs. time *)
+      {tSol, messages, timing} = Import[
+        FString @ "solution/wedge_acute-solution-apd-{apd}-gpd-{gpd}.txt"
+      ] // Uncompress // Part[#, {1, 4, 5}] &;
+      (* Filter out uninformative messages and make pretty *)
+      messages = DeleteCases[
+        messages,
+        str_ /; StringContainsQ[str, "StringForm"]
+      ];
+      messages = StringRiffle[messages, "\n"];
+      messages = messages /. {"" -> "\[HappySmiley]"};
+      (* Compute corner height *)
+      tCorner = tSol[0, 0];
+      (* Build row of table *)
+      {apd * Degree, gpd * Degree, tCorner, timing, messages}
+    ]
+  , {gpd, gpdValues}]
+, {apd, apdValues}] // TableForm[#,
+  TableAlignments -> {Left, Center},
+  TableDepth -> 2,
+  TableHeadings -> {
+    None,
+    {"\[Alpha]", "\[Gamma]", "T_corner", "Abs. time", "Messages"}
+  },
+  TableSpacing -> {3, 3}
+] & // Ex["wedge_acute-solution-table.pdf"]
