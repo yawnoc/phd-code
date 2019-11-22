@@ -81,6 +81,7 @@ ClearAll["Conway`*`*"];
   PlotOptions,
   PreciseOptions,
   PrettyString,
+  ReInterpolate,
   SeekRoot,
   SeekRootBisection,
   SortByPhi,
@@ -426,6 +427,30 @@ PrettyString::usage = (
 
 PrettyString[ruleSeq___Rule][expr_] :=
   expr /. s_String :> StringReplace[s, {ruleSeq}];
+
+
+(* ::Subsubsection:: *)
+(*ReInterpolate*)
+
+
+ReInterpolate::usage = (
+  "ReInterpolate[iFun, num (def 1024)]\n"
+  <> "Re-interpolates interpolating function iFun using num uniform subintervals "
+  <> "if iFun has more than num subintervals."
+  <> "To be used to save space."
+);
+
+
+ReInterpolate[iFun_InterpolatingFunction, num : _?NumericQ : 1024] :=
+  (* If more than num subintervals: *)
+  If[Length @ iFun["Grid"] - 1 > num,
+    (* Re-interpolate *)
+    Interpolation @ Table[
+      {x, iFun[x]}
+    , {x, Subdivide[DomainStart[iFun], DomainEnd[iFun], num]}],
+    (* Otherwise return original interpolating function *)
+    iFun
+  ];
 
 
 (* ::Subsubsection:: *)

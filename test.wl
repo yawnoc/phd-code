@@ -26,9 +26,20 @@ Plot[x^2, {x, 0, 1},
 DefaultColours
 
 
-Module[{y, iFun},
-  iFun = NDSolveValue[{y'[x] == 0, y[0] == 1}, y, {x, 0, 1}, NoExtrapolation];
-  {DomainStart[iFun], DomainEnd[iFun], iFun[1 + DomainEnd[iFun]]}
+Module[{y, iFun, iFunReInt},
+  iFun = NDSolveValue[
+    {y'[x] == 0, y[0] == 1}, y, {x, 0, 1},
+    MaxStepFraction -> 1/2000,
+    NoExtrapolation
+  ];
+  iFunReInt = ReInterpolate[iFun];
+  {
+    DomainStart[iFun],
+    DomainEnd[iFun],
+    iFun[1 + DomainEnd[iFun]],
+    iFun["Grid"] // Length,
+    iFunReInt["Grid"] // Length
+  }
 ]
 
 
