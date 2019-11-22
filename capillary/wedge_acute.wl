@@ -115,21 +115,31 @@ Table[
 (* For each value of alpha: *)
 Table[
   Module[{mesh, prWet, gamma, eval},
-    (* Import mesh *)
-    {mesh, prWet} =
-      Import[
-        FString @ "mesh/wedge_acute-mesh-apd-{apd}.txt"
-      ] // Uncompress;
-    (* For each value of gamma: *)
-    Table[
-      gamma = gpd * Degree;
-      ExportIfNotExists[
-        FString @ "solution/wedge_acute-solution-apd-{apd}-gpd-{gpd}.txt",
-        eval = EvaluationData @ SolveLaplaceYoung[gamma, mesh, prWet];
-        eval /@ {"Result", "Success", "FailureType", "MessagesText", "AbsoluteTiming"}
-          // Compress
-      ]
-    , {gpd, gpdValues}]
+    (* If all values of gamma have been solved for *)
+    If[
+      Table[
+        FString @ "solution/wedge_acute-solution-apd-{apd}-gpd-{gpd}.txt"
+      , {gpd, gpdValues}]
+        // AllTrue[FileExistsQ],
+      (* Do nothing *)
+      Null,
+      (* Otherwise solve for solutions: *)
+      (* Import mesh *)
+      {mesh, prWet} =
+        Import[
+          FString @ "mesh/wedge_acute-mesh-apd-{apd}.txt"
+        ] // Uncompress;
+      (* For each value of gamma: *)
+      Table[
+        gamma = gpd * Degree;
+        ExportIfNotExists[
+          FString @ "solution/wedge_acute-solution-apd-{apd}-gpd-{gpd}.txt",
+          eval = EvaluationData @ SolveLaplaceYoung[gamma, mesh, prWet];
+          eval /@ {"Result", "Success", "FailureType", "MessagesText", "AbsoluteTiming"}
+            // Compress
+        ]
+      , {gpd, gpdValues}]
+    ]
   ]
 , {apd, apdValues}]
 
