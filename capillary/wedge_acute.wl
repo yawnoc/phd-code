@@ -360,7 +360,7 @@ ExportIfNotExists["same/wedge_acute_same-traced-hyperbolic.txt",
           y[0] == 0
         }, {x, y}, {s, -sMax, sMax},
         NoExtrapolation
-      ]
+      ] // ReInterpolate
     ]
   ] // Compress
 ]
@@ -386,7 +386,7 @@ ExportIfNotExists["same/wedge_acute_same-contour-hyperbolic.txt",
           y[0] == 0
         }, {x, y}, {s, -sMax, sMax},
         NoExtrapolation
-      ]
+      ] // ReInterpolate
     ]
   ] // Compress
 ]
@@ -454,7 +454,7 @@ ExportIfNotExists["same/wedge_acute_same-traced-general.txt",
               xyTraSystemTerm[tSol, gamma]
             }, {x, y}, {s, 0, sMax},
             NoExtrapolation
-          ]
+          ] // ReInterpolate
         , {xyInit, xyInitList}];
       (* Traced boundaries from terminal curve *)
       xyInitList =
@@ -480,7 +480,7 @@ ExportIfNotExists["same/wedge_acute_same-traced-general.txt",
               xyTraSystemTerm[tSol, gamma]
             }, {x, y}, {s, 0, sMax},
             NoExtrapolation
-          ]
+          ] // ReInterpolate
         , {xyInit, xyInitList}];
       (* Join lists *)
       Join[xyTraWall, xyTraTerm]
