@@ -260,6 +260,29 @@ xyTraSystem[tSol_, gammaTra_, sSign_: 1] :=
   ] // Evaluate;
 
 
+(* ::Text:: *)
+(*Termination at terminal curve*)
+
+
+xyTraSystemTerm[tSol_, gammaTra_] :=
+  With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+    Module[{t, p, q, grad2, vi},
+      (* Known solution *)
+      t = tSol[x, y];
+      (* Components of gradient vector *)
+      p = D[t, x];
+      q = D[t, y];
+      (* Square of gradient vector *)
+      grad2 = p^2 + q^2;
+      (* Viability function \[CapitalPhi] *)
+      vi = Sin[gammaTra]^2 * grad2 - Cos[gammaTra]^2;
+      (* Return WhenEvent for termination *)
+      WhenEvent[vi < 0 // Evaluate, "StopIntegration"]
+        /. {x -> x[s], y -> y[s]}
+    ]
+  ];
+
+
 (* ::Subsection:: *)
 (*Hyperbolic critical terminal point*)
 
@@ -390,6 +413,77 @@ ExportIfNotExists["same/wedge_acute_same-terminal.txt",
         }, {x, y}, {s, -sMax, sMax},
         NoExtrapolation
       ] // ReInterpolate
+    ]
+  ] // Compress
+]
+
+
+(* ::Text:: *)
+(*Generic traced boundaries*)
+
+
+(* (This is slow (~20 sec), so compute once and store.) *)
+(* (Delete the file manually to compute from scratch.) *)
+ExportIfNotExists["same/wedge_acute_same-traced-general.txt",
+  With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+    Module[
+     {tSol, alpha, gamma, sMax,
+      xMax, yMax,
+      num, xyInitList, xInit, yInit,
+      xyTraWall, xyTraTerm
+     },
+      tSol = tSolRep;
+      alpha = alphaRep;
+      gamma = gammaRep;
+      (* Numerical integration *)
+      sMax = 3 x0Same;
+      (* Ranges *)
+      xMax = 2 x0Same;
+      yMax = xMax Tan[alpha];
+      (* Traced boundaries from the lower wall *)
+      num = 16;
+      xyInitList = Subdivide[{0, 0}, {xMax, -yMax}, num] // Rest;
+      xyTraWall =
+        Table[
+          {xInit, yInit} = xyInit;
+          NDSolveValue[
+            {
+              xyTraSystem[tSol, gamma, -1],
+              x[0] == xInit,
+              y[0] == yInit,
+              xyTraSystemTerm[tSol, gamma]
+            }, {x, y}, {s, 0, sMax},
+            NoExtrapolation
+          ]
+        , {xyInit, xyInitList}];
+      (* Traced boundaries from terminal curve *)
+      xyInitList =
+        Cases[
+          (* Ending points of xyTraWall *)
+          Table[
+            xy @ DomainEnd[xy] // Through
+          , {xy, xyTraWall}],
+          (* Reflect those which are on the terminal curve *)
+          (* (due to traced boundary hitting terminal curve and terminating) *)
+          {x_, y_} /; y < 0
+            :>
+          {x, -y}
+        ];
+      xyTraTerm =
+        Table[
+          {xInit, yInit} = xyInit;
+          NDSolveValue[
+            {
+              xyTraSystem[tSol, gamma, -1],
+              x[0] == xInit,
+              y[0] == yInit,
+              xyTraSystemTerm[tSol, gamma]
+            }, {x, y}, {s, 0, sMax},
+            NoExtrapolation
+          ]
+        , {xyInit, xyInitList}];
+      (* Join lists *)
+      Join[xyTraWall, xyTraTerm]
     ]
   ] // Compress
 ]
@@ -562,5 +656,57 @@ Module[
   ]
 ] // Ex @ FString @ StringJoin[
   "same/wedge_acute-same-traced-hyperbolic",
+  "-apd-{apdRep}-gpd-{gpdRep}-gpdt-{gpdRep}.pdf"
+]
+
+
+(* ::Subsubsection:: *)
+(*Generic traced boundaries*)
+
+
+Module[
+ {alpha, gamma,
+  xMax, yMax,
+  xyTerm, xyCont, xyTra
+ },
+  (* Constants *)
+  alpha = alphaRep;
+  gamma = gammaRep;
+  (* Plot range *)
+  xMax = 2 x0Same;
+  yMax = xMax Tan[alpha];
+  (* Import curves *)
+  xyTerm = Import @ "same/wedge_acute_same-terminal.txt" // Uncompress;
+  xyCont = Import @ "same/wedge_acute_same-contour-hyperbolic.txt" // Uncompress;
+  xyTra = Import @ "same/wedge_acute_same-traced-general.txt" // Uncompress;
+  (* Plot *)
+  Show[
+    EmptyFrame[{0, xMax}, {-yMax, yMax}],
+    (* Walls *)
+    Graphics @ {wallStyle, wedgeWalls[alpha]},
+    (* Non-viable domain and terminal curve *)
+    Table[
+      ParametricPlot[
+        {
+          Way[xy[[1]][s], 2 xMax, p],
+          xy[[2]][s]
+        },
+        {s, DomainStart[xy], DomainEnd[xy]},
+        {p, 0, 1},
+        PlotStyle -> nonStyle,
+        BoundaryStyle -> termStyle
+      ]
+    , {xy, {xyTerm}}],
+    (* Traced boundaries *)
+    Table[
+      ParametricPlot[
+        xy[s] // Through // bothBranches // Evaluate,
+        {s, DomainStart[xy], DomainEnd[xy]},
+        PlotStyle -> {upperStyle, lowerStyle}
+      ]
+    , {xy, xyTra}]
+  ]
+] // Ex @ FString @ StringJoin[
+  "same/wedge_acute_same-traced-general",
   "-apd-{apdRep}-gpd-{gpdRep}-gpdt-{gpdRep}.pdf"
 ]
