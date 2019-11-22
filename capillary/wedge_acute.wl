@@ -655,7 +655,7 @@ Module[
     , {xy, xyTra}]
   ]
 ] // Ex @ FString @ StringJoin[
-  "same/wedge_acute-same-traced-hyperbolic",
+  "same/wedge_acute_same-traced-hyperbolic",
   "-apd-{apdRep}-gpd-{gpdRep}-gpdt-{gpdRep}.pdf"
 ]
 
