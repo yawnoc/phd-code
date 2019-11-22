@@ -436,8 +436,9 @@ PrettyString[ruleSeq___Rule][expr_] :=
 ReInterpolate::usage = (
   "ReInterpolate[iFun, num (def 1024)]\n"
   <> "Re-interpolates interpolating function iFun using num uniform subintervals "
-  <> "if iFun has more than num subintervals."
-  <> "To be used to save space."
+  <> "if iFun has more than num subintervals.\n"
+  <> "To be used to save space.\n"
+  <> "Automatically threads over lists."
 );
 
 
@@ -451,6 +452,9 @@ ReInterpolate[iFun_InterpolatingFunction, num : _?NumericQ : 1024] :=
     (* Otherwise return original interpolating function *)
     iFun
   ];
+
+
+SetAttributes[ReInterpolate, Listable];
 
 
 (* ::Subsubsection:: *)
