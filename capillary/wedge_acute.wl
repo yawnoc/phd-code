@@ -144,6 +144,293 @@ Table[
 , {apd, apdValues}]
 
 
+(* ::Subsection:: *)
+(*System of ODEs for T-contour*)
+
+
+(* ::Text:: *)
+(*See (57) and (58) (Page 13 of manuscripts/boundary-tracing.pdf)*)
+(*for arc length parametrisation of a contour.*)
+
+
+tContourSystem[tSol_, sSign_: 1] :=
+  With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+    Module[{t, p, q, slope},
+      (* Known solution *)
+      t = tSol[x, y];
+      (* Components of gradient vector *)
+      p = D[t, x];
+      q = D[t, y];
+      (* Magnitude of gradient vector *)
+      slope = Sqrt[p ^ 2 + q ^ 2];
+      (* Return system of ODEs *)
+      {
+        x' == q / slope,
+        y' == -p / slope
+      } /. {
+        x' -> Sign[sSign] x'[s],
+        y' -> Sign[sSign] y'[s],
+        x -> x[s],
+        y -> y[s],
+        List -> Sequence
+      }
+    ]
+  ] // Evaluate;
+
+
+(* ::Subsection:: *)
+(*System of ODEs for terminal curve \[CapitalPhi] = 0*)
+
+
+(* ::Text:: *)
+(*Note that \[CapitalPhi] = 0 is equivalent to (\[Del]T)^2 = cot(\[Gamma])^2,*)
+(*so a \[CapitalPhi]-contour is equivalent to a (\[Del]T)^2-contour.*)
+
+
+(* vi means \[CapitalPhi]. *)
+viContourSystem[tSol_, sSign_: 1] :=
+  With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+    Module[
+     {t, p, q,
+      grad2, grad2P, grad2Q,
+      grad2Slope
+     },
+      (* Known solution *)
+      t = tSol[x, y];
+      (* Components of gradient vector *)
+      p = D[t, x];
+      q = D[t, y];
+      (* Square of gradient vector *)
+      grad2 = p^2 + q^2;
+      (* Components of gradient of gradient squared *)
+      grad2P = D[grad2, x];
+      grad2Q = D[grad2, y];
+      (* Magnitude of gradient of gradient squared *)
+      grad2Slope = Sqrt[grad2P ^ 2 + grad2Q ^ 2];
+      (* Return system of ODEs *)
+      {
+        x' == grad2Q / grad2Slope,
+        y' == -grad2P / grad2Slope
+      } /. {
+        x' -> Sign[sSign] x'[s],
+        y' -> Sign[sSign] y'[s],
+        x -> x[s],
+        y -> y[s],
+        List -> Sequence
+      }
+    ]
+  ] // Evaluate;
+
+
+(* ::Subsection:: *)
+(*System of ODEs for tracing*)
+
+
+(* ::Text:: *)
+(*See (55) and (56) (Page 13 of manuscripts/boundary-tracing.pdf)*)
+(*for arc length parametrisation of a traced boundary.*)
+
+
+xyTraSystem[tSol_, gammaTra_, sSign_: 1] :=
+  With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+    Module[{t, p, q, grad2, f, vi},
+      (* Known solution *)
+      t = tSol[x, y];
+      (* Components of gradient vector *)
+      p = D[t, x];
+      q = D[t, y];
+      (* Square of gradient vector *)
+      grad2 = p^2 + q^2;
+      (* Flux function F *)
+      f = Cos[gammaTra] Sqrt[1 + grad2];
+      (* Viability function \[CapitalPhi] *)
+      vi = Sin[gammaTra]^2 * grad2 - Cos[gammaTra]^2;
+      (* Return system of ODEs *)
+      {
+        x' == (-q f + p * Re @ Sqrt[vi]) / grad2,
+        y' == (+p f + q * Re @ Sqrt[vi]) / grad2
+      } /. {
+        x' -> Sign[sSign] x'[s],
+        y' -> Sign[sSign] y'[s],
+        x -> x[s],
+        y -> y[s],
+        List -> Sequence
+      }
+    ]
+  ] // Evaluate;
+
+
+(* ::Subsection:: *)
+(*Hyperbolic critical terminal point*)
+
+
+x0[tSol_, gammaTra_] :=
+  Module[{p, xMax},
+    (* \[PartialD]T/\[PartialD]x *)
+    p = Derivative[1, 0][tSol];
+    (* Find x == x_0 for which -\[PartialD]T/\[PartialD]x == cot(gamma-tilde) *)
+    xMax = 10;
+    SeekRoot[p[#, 0] + Cot[gammaTra] &, {0, xMax}]
+  ];
+
+
+(* ::Subsection:: *)
+(*Tracing*)
+
+
+(* ::Subsubsection:: *)
+(*Representative angles*)
+
+
+(* alpha, gamma and gamma-tilde (tracing gamma) per degree *)
+apdRep = 40;
+gpdRep = 60;
+gpdTraRep = 70;
+
+
+alphaRep = apdRep * Degree;
+gammaRep = gpdRep * Degree;
+gammaTraRep = gpdTraRep * Degree;
+
+
+(* ::Subsubsection:: *)
+(*Import known solution*)
+
+
+tSolRep = Import[
+  FString @ "solution/wedge_acute-solution-apd-{apdRep}-gpd-{gpdRep}.txt"
+] // Uncompress // First;
+
+
+meshRep = tSolRep["ElementMesh"];
+
+
+(* ::Subsubsection:: *)
+(*Same contact angle for tracing*)
+
+
+(* ::Text:: *)
+(*Hyperbolic critical terminal point (x_0)*)
+
+
+x0Same = x0[tSolRep, gammaRep];
+
+
+(* ::Text:: *)
+(*Traced boundaries through (x, y) = (x_0, 0)*)
+
+
+(* (This is somewhat slow (~2 sec), so compute once and store.) *)
+(* (Delete the file manually to compute from scratch.) *)
+ExportIfNotExists["same/wedge_acute_same-traced-hyperbolic.txt",
+  List @ With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+    Module[{tSol, gamma, xInit, sMax},
+      tSol = tSolRep;
+      gamma = gammaRep;
+      xInit = x0Same;
+      (* Numerical integration *)
+      sMax = 3 x0Same;
+      NDSolveValue[
+        {
+          xyTraSystem[tSol, gamma],
+          x[0] == xInit,
+          y[0] == 0
+        }, {x, y}, {s, -sMax, sMax},
+        NoExtrapolation
+      ]
+    ]
+  ] // Compress
+]
+
+
+(* ::Text:: *)
+(*Local T-contour through (x, y) = (x_0, 0)*)
+
+
+(* (This is somewhat slow (~2 sec), so compute once and store.) *)
+(* (Delete the file manually to compute from scratch.) *)
+ExportIfNotExists["same/wedge_acute_same-contour-hyperbolic.txt",
+  List @ With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+    Module[{tSol, xInit, sMax},
+      tSol = tSolRep;
+      xInit = x0Same;
+      (* Numerical integration *)
+      sMax = 3 x0Same;
+      NDSolveValue[
+        {
+          tContourSystem[tSol],
+          x[0] == xInit,
+          y[0] == 0
+        }, {x, y}, {s, -sMax, sMax},
+        NoExtrapolation
+      ]
+    ]
+  ] // Compress
+]
+
+
+(* ::Text:: *)
+(*Terminal curve*)
+
+
+(* (This is somewhat slow (~2 sec), so compute once and store.) *)
+(* (Delete the file manually to compute from scratch.) *)
+ExportIfNotExists["same/wedge_acute_same-terminal.txt",
+  With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+    Module[{tSol, xInit, sMax},
+      tSol = tSolRep;
+      xInit = x0Same;
+      (* Numerical integration *)
+      sMax = 3 x0Same;
+      NDSolveValue[
+        {
+          viContourSystem[tSol],
+          x[0] == xInit,
+          y[0] == 0
+        }, {x, y}, {s, -sMax, sMax},
+        NoExtrapolation
+      ] // ReInterpolate
+    ]
+  ] // Compress
+]
+
+
+(* ::Subsection:: *)
+(*Both branches of a curve*)
+
+
+(* Adds reflection about x == 0. *)
+bothBranches[{x_, y_}] := {{x, y}, {x, -y}};
+
+
+(* ::Subsection:: *)
+(*Geometric regions*)
+
+
+(* ::Subsubsection:: *)
+(*Wedge walls*)
+
+
+wedgeWalls[alpha_] := {
+  HalfLine[{0, 0}, XYPolar[1, alpha]],
+  HalfLine[{0, 0}, XYPolar[1, -alpha]]
+};
+
+
+(* ::Subsection:: *)
+(*Global styles for plots*)
+
+
+contStyle = Directive[Thin, Black];
+nonStyle = Directive[Opacity[0.7], LightGray];
+termStyle = Pink;
+wallStyle = Directive[Thick, Purple];
+
+
+upperStyle = Blue;
+lowerStyle = Red;
+
+
 (* ::Section:: *)
 (*Finite element mesh*)
 
@@ -209,3 +496,71 @@ Join @@ Table[
   },
   TableSpacing -> {3, 3}
 ] & // Ex["wedge_acute-solution-table.pdf"]
+
+
+(* ::Section:: *)
+(*Traced boundary plots*)
+
+
+(* ::Subsection:: *)
+(*Same contact angle for tracing*)
+
+
+(* ::Subsubsection:: *)
+(*Hyperbolic traced boundaries*)
+
+
+Module[
+ {alpha, gamma,
+  xMax, yMax,
+  xyTerm, xyCont, xyTra
+ },
+  (* Constants *)
+  alpha = alphaRep;
+  gamma = gammaRep;
+  (* Plot range *)
+  xMax = 2 x0Same;
+  yMax = xMax Tan[alpha];
+  (* Import curves *)
+  xyTerm = Import @ "same/wedge_acute_same-terminal.txt" // Uncompress;
+  xyCont = Import @ "same/wedge_acute_same-contour-hyperbolic.txt" // Uncompress;
+  xyTra = Import @ "same/wedge_acute_same-traced-hyperbolic.txt" // Uncompress;
+  (* Plot *)
+  Show[
+    EmptyFrame[{0, xMax}, {-yMax, yMax}],
+    (* Walls *)
+    Graphics @ {wallStyle, wedgeWalls[alpha]},
+    (* Non-viable domain and terminal curve *)
+    Table[
+      ParametricPlot[
+        {
+          Way[xy[[1]][s], 2 xMax, p],
+          xy[[2]][s]
+        },
+        {s, DomainStart[xy], DomainEnd[xy]},
+        {p, 0, 1},
+        PlotStyle -> nonStyle,
+        BoundaryStyle -> termStyle
+      ]
+    , {xy, {xyTerm}}],
+    (* Local T-contour *)
+    Table[
+      ParametricPlot[
+        xy[s] // Through,
+        {s, DomainStart[xy], DomainEnd[xy]},
+        PlotStyle -> contStyle
+      ]
+    , {xy, xyCont}],
+    (* Traced boundaries *)
+    Table[
+      ParametricPlot[
+        xy[s] // Through // bothBranches // Evaluate,
+        {s, DomainStart[xy], DomainEnd[xy]},
+        PlotStyle -> {upperStyle, lowerStyle}
+      ]
+    , {xy, xyTra}]
+  ]
+] // Ex @ FString @ StringJoin[
+  "same/wedge_acute-same-traced-hyperbolic",
+  "-apd-{apdRep}-gpd-{gpdRep}-gpdt-{gpdRep}.pdf"
+]
