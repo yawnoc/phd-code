@@ -288,3 +288,42 @@ Module[
     }
   }
 ] & // Ex["half_plane-height-comparison.pdf"]
+
+
+(* ::Subsection:: *)
+(*Numerical error for nonlinear solver (\[Gamma] = 1\[Degree])*)
+
+
+Module[
+ {gpd, gamma,
+  tSolAss, tSol,
+  xFun, xMax, tMax, tMin, tStep, tInterp
+ },
+  (* Contact angle *)
+  gpd = 1;
+  gamma = gpd * Degree;
+  (* Import numerical solution *)
+  tSolAss = Import["half_plane-solution.txt"] // Uncompress;
+  tSol = tSolAss[gpd];
+  (* Implicit exact half-plane solution x == x(T) *)
+  xFun[t_] := XHalfPlane[gamma][t] // Evaluate;
+  (* Interpolation to obtain T == T(x) *)
+  tMax = HHalfPlane[gamma];
+  xMax = 3;
+  tMin = Quiet[
+    1/2 * SeekRoot[xFun[#] - xMax &, {0, tMax}]
+  , {Power::infy}];
+  tStep = 0.001; (* Recall ySpacing = 0.005 above *)
+  tInterp = Interpolation @ (
+    Table[{xFun[t], t}, {t, tMax, tMin, -tStep}]
+  );
+  (* Plot *)
+  LogPlot[tSol[x, 0] / tInterp[x] - 1 // Abs,
+    {x, 0, xMax},
+    AxesLabel -> {Italicised @ "x", "Rel. error"},
+    AxesOrigin -> {-0.125, Automatic},
+    Exclusions -> None,
+    PlotRange -> Full,
+    PlotOptions[Axes] // Evaluate
+  ] // Ex @ FString["half_plane-solution-rel_error-gpd-{gpd}.pdf"]
+]
