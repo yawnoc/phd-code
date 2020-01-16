@@ -1,4 +1,4 @@
-# phd
+# phd-code
 
 Code for Conway's Ph.D., for Mathematica Version&nbsp;12.
 
