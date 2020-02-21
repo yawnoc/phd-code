@@ -258,6 +258,16 @@ DynamicModule[
 ]
 
 
+(* Combinations {A, B} which ought to be investigated later *)
+{
+  {0.2, 1},
+  {1, 1},
+  {1.2, 1},
+  {1, 0.5},
+  {0.3, 0.55}
+};
+
+
 (* ::Subsection:: *)
 (*Interactive visualiser for \[CapitalPhi] along y = 0 for B = 1*)
 
