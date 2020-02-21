@@ -59,6 +59,7 @@ vi[a_, b_][x_, y_] := p[b][x, y]^2 + q[b][x, y]^2 - f[a, b][x, y]^2 // Evaluate;
 
 aIt = Italicised["A"];
 bIt = Italicised["B"];
+xIt = Italicised["x"];
 
 
 (* ::Subsection:: *)
@@ -254,4 +255,40 @@ DynamicModule[
     ]
   , {{a, aInit, aIt}, aMin, aMax}
   , {{b, bInit, bIt}, bMin, bMax}]
+]
+
+
+(* ::Subsection:: *)
+(*Interactive visualiser for \[CapitalPhi] along y = 0 for B = 1*)
+
+
+DynamicModule[
+ {aInit, aMin, aMax,
+  b,
+  xMin, xMax
+ },
+  (* Values of A *)
+  aInit = 0.2;
+  aMin = 0.01;
+  aMax = 2;
+  (* Value of B *)
+  b = 1;
+  (* Plot range *)
+  xMin = 0;
+  xMax = Pi/2;
+  (* Plot *)
+  Manipulate[
+    Plot[vi[a, b][x, 0], {x, xMin, xMax},
+      AxesLabel -> {xIt, "\[CapitalPhi]"},
+      ImageSize -> 360,
+      PlotLabel -> BoxedLabel[
+        Row[
+          {aIt == N[a], bIt == N[b]},
+          ","
+        ]
+      ],
+      PlotRange -> {-0.1, 1},
+      PlotOptions[Axes] // Evaluate
+    ]
+  , {{a, aInit, aIt}, aMin, aMax}]
 ]
