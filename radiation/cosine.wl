@@ -143,13 +143,15 @@ DynamicModule[
   (* Plot *)
   Manipulate[
     Show[
-      EmptyFrame[{xMin, xMax}, {-xMax, xMax},
+      EmptyFrame[{xMin, xMax}, {-yMax, yMax},
+        ImageSize -> 240,
         PlotLabel -> BoxedLabel[bIt == N[b]]
       ],
       RegionPlot[
         tKnown[b][x, y] < 0,
         {x, xMin, xMax}, {y, -yMax, yMax},
         BoundaryStyle -> unphysStyle,
+        PlotPoints -> 50,
         PlotStyle -> unphysStyle
       ]
     ]
@@ -186,7 +188,7 @@ DynamicModule[
   xMax = Pi/2;
   yMax = 2;
   (* Margin *)
-  eps = 0.05;
+  eps = 0.1;
   (* Plot range for unphysical domain *)
   xMinUnphys = xMin - eps;
   xMaxUnphys = xMax + eps;
@@ -198,7 +200,8 @@ DynamicModule[
   (* Plot *)
   Manipulate[
     Show[
-      EmptyFrame[{xMin, xMax}, {-xMax, xMax},
+      EmptyFrame[{xMin, xMax}, {-yMax, yMax},
+        ImageSize -> 240,
         PlotLabel -> BoxedLabel[
           Row[
             {aIt == N[a], bIt == N[b]},
@@ -210,12 +213,14 @@ DynamicModule[
       RegionPlot[tKnown[b][x, y] < 0,
         {x, xMinUnphys, xMaxUnphys}, {y, -yMaxUnphys, yMaxUnphys},
         BoundaryStyle -> unphysStyle,
+        PlotPoints -> 50,
         PlotStyle -> unphysStyle
       ],
       (* Non-viable domain *)
       RegionPlot[vi[a, b][x, y] < 0,
         {x, xMinNon, xMaxNon}, {y, -yMaxNon, yMaxNon},
         BoundaryStyle -> termStyle,
+        PlotPoints -> 50,
         PlotStyle -> nonStyle
       ]
     ]
