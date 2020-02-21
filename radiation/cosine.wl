@@ -65,6 +65,7 @@ bIt = Italicised["B"];
 (*Global styles for plots*)
 
 
+contStyle = LightGray;
 nonStyle = Directive[Opacity[0.7], LightGray];
 termStyle = Pink;
 unphysStyle = Black;
@@ -124,7 +125,8 @@ DynamicModule[
  {bInit, bMin, bMax,
   xMin, xMax, yMax,
   eps,
-  xMinUnphys, xMaxUnphys, yMaxUnphys
+  xMinUnphys, xMaxUnphys, yMaxUnphys,
+  xMinCont, xMaxCont, yMaxCont
  },
   (* Values of B *)
   bInit = 1;
@@ -140,6 +142,10 @@ DynamicModule[
   xMinUnphys = xMin - eps;
   xMaxUnphys = xMax + eps;
   yMaxUnphys = yMax + eps;
+  (* Plot range for contours *)
+  xMinCont = xMin - eps;
+  xMaxCont = xMax + eps;
+  yMaxCont = yMax + eps;
   (* Plot *)
   Manipulate[
     Show[
@@ -147,12 +153,21 @@ DynamicModule[
         ImageSize -> 240,
         PlotLabel -> BoxedLabel[bIt == N[b]]
       ],
+      (* Unphysical domain *)
       RegionPlot[
         tKnown[b][x, y] < 0,
         {x, xMin, xMax}, {y, -yMax, yMax},
         BoundaryStyle -> unphysStyle,
         PlotPoints -> 50,
         PlotStyle -> unphysStyle
+      ],
+      (* Known solution contours *)
+      ContourPlot[
+        tKnown[b][x, y],
+        {x, xMinCont, xMaxCont}, {y, -yMaxCont, yMaxCont},
+        ContourShading -> None,
+        ContourStyle -> contStyle,
+        PlotRange -> {0, 1}
       ]
     ]
   , {{b, bInit, bIt}, bMin, bMax}]
@@ -173,7 +188,8 @@ DynamicModule[
   xMin, xMax, yMax,
   eps,
   xMinUnphys, xMaxUnphys, yMaxUnphys,
-  xMinNon, xMaxNon, yMaxNon
+  xMinNon, xMaxNon, yMaxNon,
+  xMinCont, xMaxCont, yMaxCont
  },
   (* Values of A *)
   aInit = 0.2;
@@ -197,6 +213,10 @@ DynamicModule[
   xMinNon = xMin - eps;
   xMaxNon = xMax + eps;
   yMaxNon = yMax + eps;
+  (* Plot range for contours *)
+  xMinCont = xMin - eps;
+  xMaxCont = xMax + eps;
+  yMaxCont = yMax + eps;
   (* Plot *)
   Manipulate[
     Show[
@@ -222,6 +242,14 @@ DynamicModule[
         BoundaryStyle -> termStyle,
         PlotPoints -> 50,
         PlotStyle -> nonStyle
+      ],
+      (* Known solution contours *)
+      ContourPlot[
+        tKnown[b][x, y],
+        {x, xMinCont, xMaxCont}, {y, -yMaxCont, yMaxCont},
+        ContourShading -> None,
+        ContourStyle -> contStyle,
+        PlotRange -> {0, 1}
       ]
     ]
   , {{a, aInit, aIt}, aMin, aMax}
