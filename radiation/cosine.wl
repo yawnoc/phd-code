@@ -57,6 +57,7 @@ vi[a_, b_][x_, y_] := p[b][x, y]^2 + q[b][x, y]^2 - f[a, b][x, y]^2 // Evaluate;
 (*Italicised symbols*)
 
 
+aIt = Italicised["A"];
 bIt = Italicised["B"];
 
 
@@ -64,6 +65,8 @@ bIt = Italicised["B"];
 (*Global styles for plots*)
 
 
+nonStyle = Directive[Opacity[0.7], LightGray];
+termStyle = Pink;
 unphysStyle = Black;
 
 
@@ -139,5 +142,59 @@ DynamicModule[
       PlotOptions[Frame] // Evaluate,
       PlotStyle -> unphysStyle
     ]
+  , {{b, bInit, bIt}, bMin, bMax}]
+]
+
+
+(* ::Section:: *)
+(*Viable domain*)
+
+
+(* ::Subsection:: *)
+(*Interactive visualiser*)
+
+
+DynamicModule[
+ {aInit, aMin, aMax,
+  bInit, bMin, bMax,
+  xMin, xMax, yMax
+ },
+  (* Values of A *)
+  aInit = 0.2;
+  aMin = 0.01;
+  aMax = 2;
+  (* Values of B *)
+  bInit = 1;
+  bMin = 0;
+  bMax = 5;
+  (* Plot range *)
+  xMin = 0;
+  xMax = Pi/2;
+  yMax = 2;
+  (* Plot *)
+  Manipulate[
+    Show[
+      EmptyFrame[{xMin, xMax}, {-xMax, xMax},
+        PlotLabel -> BoxedLabel[
+          Row[
+            {aIt == N[a], bIt == N[b]},
+            ","
+          ]
+        ]
+      ],
+      (* Unphysical domain *)
+      RegionPlot[tKnown[b][x, y] < 0,
+        {x, xMin, xMax}, {y, -yMax, yMax},
+        BoundaryStyle -> unphysStyle,
+        PlotStyle -> unphysStyle
+      ],
+      (* Non-viable domain *)
+      RegionPlot[vi[a, b][x, y] < 0,
+        {x, xMin, xMax}, {y, -yMax, yMax},
+        BoundaryStyle -> termStyle,
+        PlotStyle -> nonStyle
+      ]
+    ]
+  , {{a, aInit, aIt}, aMin, aMax}
   , {{b, bInit, bIt}, bMin, bMax}]
 ]
