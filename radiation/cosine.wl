@@ -53,12 +53,26 @@ f[a_, b_][x_, y_] := -tKnown[b][x, y]^4 / a // Evaluate;
 vi[a_, b_][x_, y_] := p[b][x, y]^2 + q[b][x, y]^2 - f[a, b][x, y]^2 // Evaluate;
 
 
-(* ::Section:: *)
-(*Algebra checks*)
+(* ::Subsection:: *)
+(*Italicised symbols*)
+
+
+bIt = Italicised["B"];
 
 
 (* ::Subsection:: *)
-(*Check \[CapitalPhi]*)
+(*Global styles for plots*)
+
+
+unphysStyle = Black;
+
+
+(* ::Section:: *)
+(*Known solution*)
+
+
+(* ::Subsection:: *)
+(*Algebra check for \[CapitalPhi]*)
 
 
 With[{a = \[FormalCapitalA], b = \[FormalCapitalB], x = \[FormalX], y = \[FormalY]},
@@ -66,4 +80,64 @@ With[{a = \[FormalCapitalA], b = \[FormalCapitalB], x = \[FormalX], y = \[Formal
     b^2 (Sin[x]^2 + Sinh[y]^2)
     - (1 - b Cos[x] Cosh[y])^8 / a^2
     // FullSimplify
+]
+
+
+(* ::Subsection:: *)
+(*Interactive visualiser for known solution*)
+
+
+DynamicModule[
+ {bInit, bMin, bMax,
+  xMin, xMax, yMax
+ },
+  (* Values of B *)
+  bInit = 1;
+  bMin = 0;
+  bMax = 5;
+  (* Plot range *)
+  xMin = 0;
+  xMax = Pi/2;
+  yMax = 3;
+  (* Plot *)
+  Manipulate[
+    Plot3D[
+      tKnown[b][x, y],
+      {x, xMin, xMax}, {y, -yMax, yMax},
+      ClippingStyle -> unphysStyle,
+      PlotLabel -> BoxedLabel[bIt == N[b]],
+      PlotOptions[Axes] // Evaluate,
+      PlotRange -> {0, Automatic}
+    ]
+  , {{b, bInit, bIt}, bMin, bMax}]
+]
+
+
+(* ::Subsection:: *)
+(*Interactive visualiser for unphysical domain (T < 0)*)
+
+
+DynamicModule[
+ {bInit, bMin, bMax,
+  xMin, xMax, yMax
+ },
+  (* Values of B *)
+  bInit = 1;
+  bMin = 0;
+  bMax = 5;
+  (* Plot range *)
+  xMin = 0;
+  xMax = Pi/2;
+  yMax = 2;
+  (* Plot *)
+  Manipulate[
+    RegionPlot[
+      tKnown[b][x, y] < 0,
+      {x, xMin, xMax}, {y, -yMax, yMax},
+      BoundaryStyle -> unphysStyle,
+      PlotLabel -> BoxedLabel[bIt == N[b]],
+      PlotOptions[Frame] // Evaluate,
+      PlotStyle -> unphysStyle
+    ]
+  , {{b, bInit, bIt}, bMin, bMax}]
 ]
