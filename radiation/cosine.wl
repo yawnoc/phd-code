@@ -122,7 +122,9 @@ DynamicModule[
 
 DynamicModule[
  {bInit, bMin, bMax,
-  xMin, xMax, yMax
+  xMin, xMax, yMax,
+  eps,
+  xMinUnphys, xMaxUnphys, yMaxUnphys
  },
   (* Values of B *)
   bInit = 1;
@@ -132,15 +134,24 @@ DynamicModule[
   xMin = 0;
   xMax = Pi/2;
   yMax = 2;
+  (* Margin *)
+  eps = 0.05;
+  (* Plot range for unphysical domain *)
+  xMinUnphys = xMin - eps;
+  xMaxUnphys = xMax + eps;
+  yMaxUnphys = yMax + eps;
   (* Plot *)
   Manipulate[
-    RegionPlot[
-      tKnown[b][x, y] < 0,
-      {x, xMin, xMax}, {y, -yMax, yMax},
-      BoundaryStyle -> unphysStyle,
-      PlotLabel -> BoxedLabel[bIt == N[b]],
-      PlotOptions[Frame] // Evaluate,
-      PlotStyle -> unphysStyle
+    Show[
+      EmptyFrame[{xMin, xMax}, {-xMax, xMax},
+        PlotLabel -> BoxedLabel[bIt == N[b]]
+      ],
+      RegionPlot[
+        tKnown[b][x, y] < 0,
+        {x, xMin, xMax}, {y, -yMax, yMax},
+        BoundaryStyle -> unphysStyle,
+        PlotStyle -> unphysStyle
+      ]
     ]
   , {{b, bInit, bIt}, bMin, bMax}]
 ]
@@ -157,7 +168,10 @@ DynamicModule[
 DynamicModule[
  {aInit, aMin, aMax,
   bInit, bMin, bMax,
-  xMin, xMax, yMax
+  xMin, xMax, yMax,
+  eps,
+  xMinUnphys, xMaxUnphys, yMaxUnphys,
+  xMinNon, xMaxNon, yMaxNon
  },
   (* Values of A *)
   aInit = 0.2;
@@ -171,6 +185,16 @@ DynamicModule[
   xMin = 0;
   xMax = Pi/2;
   yMax = 2;
+  (* Margin *)
+  eps = 0.05;
+  (* Plot range for unphysical domain *)
+  xMinUnphys = xMin - eps;
+  xMaxUnphys = xMax + eps;
+  yMaxUnphys = yMax + eps;
+  (* Plot range for non-viable domain *)
+  xMinNon = xMin - eps;
+  xMaxNon = xMax + eps;
+  yMaxNon = yMax + eps;
   (* Plot *)
   Manipulate[
     Show[
@@ -184,13 +208,13 @@ DynamicModule[
       ],
       (* Unphysical domain *)
       RegionPlot[tKnown[b][x, y] < 0,
-        {x, xMin, xMax}, {y, -yMax, yMax},
+        {x, xMinUnphys, xMaxUnphys}, {y, -yMaxUnphys, yMaxUnphys},
         BoundaryStyle -> unphysStyle,
         PlotStyle -> unphysStyle
       ],
       (* Non-viable domain *)
       RegionPlot[vi[a, b][x, y] < 0,
-        {x, xMin, xMax}, {y, -yMax, yMax},
+        {x, xMinNon, xMaxNon}, {y, -yMaxNon, yMaxNon},
         BoundaryStyle -> termStyle,
         PlotStyle -> nonStyle
       ]
