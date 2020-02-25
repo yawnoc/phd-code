@@ -270,20 +270,22 @@ DynamicModule[
 
 
 (* ::Subsection:: *)
-(*Interactive visualiser for \[CapitalPhi] along y = 0 for B = 1*)
+(*Interactive visualiser for \[CapitalPhi] along y = 0*)
 
 
 DynamicModule[
  {aInit, aMin, aMax,
-  b,
+  bInit, bMin, bMax,
   xMin, xMax
  },
   (* Values of A *)
-  aInit = 1;
+  aInit = 0.3;
   aMin = 0.01;
   aMax = 3;
   (* Value of B *)
-  b = 1;
+  bInit = 1;
+  bMin = 0.1;
+  bMax = 3;
   (* Plot range *)
   xMin = 0;
   xMax = Pi/2;
@@ -305,5 +307,6 @@ DynamicModule[
         PlotRange -> Full
       ]
     ]
-  , {{a, aInit, aIt}, aMin, aMax}]
+  , {{a, aInit, aIt}, aMin, aMax}
+  , {{b, bInit, bIt}, bMin, bMax}]
 ]
