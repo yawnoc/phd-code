@@ -85,6 +85,16 @@ yIt = Italicised["y"];
 
 
 (* ::Subsection:: *)
+(*Options for exported GIFS*)
+
+
+gifOpts = Sequence[
+  AnimationRepetitions -> Infinity,
+  "DisplayDurations" -> 0.5
+];
+
+
+(* ::Subsection:: *)
 (*Global styles for plots*)
 
 
@@ -92,6 +102,9 @@ contStyle = LightGray;
 nonStyle = Directive[Opacity[0.7], LightGray];
 termStyle = Pink;
 unphysStyle = Black;
+
+
+pointStyle = PointSize[Large];
 
 
 (* ::Section:: *)
@@ -303,7 +316,7 @@ DynamicModule[
   aInit = 0.3;
   aMin = 0.01;
   aMax = 3;
-  (* Value of B *)
+  (* Values of B *)
   bInit = 1;
   bMin = 0.1;
   bMax = 3;
@@ -331,3 +344,49 @@ DynamicModule[
   , {{a, aInit, aIt}, aMin, aMax}
   , {{b, bInit, bIt}, bMin, bMax}]
 ]
+
+
+(* ::Subsection:: *)
+(*Animation for \[CapitalPhi] along y = 0, simple case (B = 1)*)
+
+
+Module[
+ {aMin, aMax, aStep,
+  aValues, b,
+  xMin, xMax
+ },
+  (* Values of A *)
+  aMin = 1/10;
+  aMax = 2;
+  aStep = 1/10;
+  aValues = Range[aMin, aMax, aStep];
+  (* Value of B *)
+  b = 1;
+  (* Plot range *)
+  xMin = 0;
+  xMax = Pi/2;
+  (* Animation *)
+  Table[
+    Show[
+      EmptyFrame[{xMin, xMax}, {-0.1, 1},
+        FrameLabel -> {xIt, "\[CapitalPhi]"[yIt == 0]},
+        ImageSize -> 360,
+        PlotLabel -> BoxedLabel[
+          Row[
+            {aIt == N[a], bIt == N[b]},
+            ","
+          ]
+        ]
+      ],
+      (* \[CapitalPhi] *)
+      Plot[{vi[a, b][x, 0], 0}, {x, xMin, xMax},
+        Filling -> {1 -> {2}},
+        PlotRange -> Full
+      ],
+      (* Non-trivial critical terminal point x_0 *)
+      Graphics @ {Directive[Red, pointStyle = PointSize[Large]],
+        Point @ {x0Simp[a], 0}
+      }
+    ]
+  , {a, aValues}]
+] // Ex["cosine_simple-phi.gif", gifOpts]
