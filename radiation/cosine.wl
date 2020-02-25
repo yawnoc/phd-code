@@ -104,6 +104,9 @@ termStyle = Pink;
 unphysStyle = Black;
 
 
+simp0Style = Blue;
+
+
 pointStyle = PointSize[Large];
 
 
@@ -390,3 +393,104 @@ Module[
     ]
   , {a, aValues}]
 ] // Ex["cosine_simple-phi.gif", gifOpts]
+
+
+(* ::Subsection:: *)
+(*Animation for viable domain, simple case (B = 1)*)
+
+
+Module[
+ {aMin, aMax, aStep,
+  aValues, b,
+  xMin, xMax, yMax,
+  eps,
+  xMinUnphys, xMaxUnphys, yMaxUnphys,
+  xMinNon, xMaxNon, yMaxNon,
+  xMinCont, xMaxCont, yMaxCont,
+  unphysicalDomain,
+  genericContours
+ },
+  (* Values of A *)
+  aMin = 1/10;
+  aMax = 2;
+  aStep = 1/10;
+  aValues = Range[aMin, aMax, aStep];
+  (* Value of B *)
+  b = 1;
+  (* Plot range *)
+  xMin = 0;
+  xMax = Pi/2;
+  yMax = 2;
+  (* Margin *)
+  eps = 0.15;
+  (* Plot range for unphysical domain *)
+  xMinUnphys = xMin - eps;
+  xMaxUnphys = xMax + eps;
+  yMaxUnphys = yMax + eps;
+  (* Plot range for non-viable domain *)
+  xMinNon = xMin - eps;
+  xMaxNon = xMax + eps;
+  yMaxNon = yMax + eps;
+  (* Plot range for contours *)
+  xMinCont = xMin - eps;
+  xMaxCont = xMax + eps;
+  yMaxCont = yMax + eps;
+  (*
+    NOTE: since B is fixed at 1,
+    the unphysical domain and known solution contours
+    do not need to be redrawn for different values of A.
+   *)
+  (* Unphysical domain *)
+  unphysicalDomain =
+    RegionPlot[tKnown[b][x, y] < 0,
+      {x, xMinUnphys, xMaxUnphys}, {y, -yMaxUnphys, yMaxUnphys},
+      BoundaryStyle -> unphysStyle,
+      PlotPoints -> 50,
+      PlotStyle -> unphysStyle
+    ];
+  (* Known solution contours (generic) *)
+  genericContours =
+    ContourPlot[
+      tKnown[b][x, y],
+      {x, xMinCont, xMaxCont}, {y, -yMaxCont, yMaxCont},
+      ContourShading -> None,
+      ContourStyle -> contStyle,
+      PlotRange -> {0, 1}
+    ];
+  (* Animation *)
+  Table[
+    Show[
+      EmptyFrame[{xMin, xMax}, {-yMax, yMax},
+        ImageSize -> 180,
+        PlotLabel -> BoxedLabel[
+          Row[
+            {aIt == N[a], bIt == N[b]},
+            ","
+          ]
+        ]
+      ],
+      (* Unphysical domain *)
+      unphysicalDomain,
+      (* Non-viable domain *)
+      RegionPlot[vi[a, b][x, y] < 0,
+        {x, xMinNon, xMaxNon}, {y, -yMaxNon, yMaxNon},
+        BoundaryStyle -> termStyle,
+        PlotPoints -> 50,
+        PlotStyle -> nonStyle
+      ],
+      (* Known solution contours (generic) *)
+      genericContours,
+      (* Critical terminal point (x_0, 0) *)
+      Graphics @ {Directive[simp0Style, pointStyle],
+        Point @ {x0Simp[a], 0}
+      },
+      (* Known solution contour through (x_0, 0) *)
+      ContourPlot[
+        tKnown[b][x, y] == tKnown[b][x0Simp[a], 0],
+        {x, xMinCont, xMaxCont}, {y, -yMaxCont, yMaxCont},
+        ContourStyle -> simp0Style,
+        PlotRange -> {0, 1}
+      ]
+    ]
+  , {a, aValues}]
+] // Ex["cosine_simple-viable.gif", gifOpts]
