@@ -73,6 +73,13 @@ x0Simp[a_] :=
   ] // Evaluate;
 
 
+(* ::Subsubsection:: *)
+(*Representative values of A*)
+
+
+aValuesSimp = {1/10, 1, 2};
+
+
 (* ::Subsection:: *)
 (*Starting points for boundary tracing*)
 
