@@ -125,6 +125,17 @@ Table[
 , {a, aValuesSimp}];
 
 
+(* Starting points along x-axis *)
+Table[
+  startXYSimp[a]["axis"] =
+    Module[{x0, xValues},
+      x0 = x0Simp[a];
+      xValues = Subdivide[0, x0, 4] // Rest // Most;
+      Table[{x, 0}, {x, xValues}]
+    ];
+, {a, aValuesSimp}];
+
+
 (* Starting points along terminal curve *)
 Table[
   startXYSimp[a]["terminal"] =
