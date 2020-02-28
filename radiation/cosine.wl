@@ -130,6 +130,34 @@ viContourSystem[a_, b_, sSign_: 1] :=
 
 
 (* ::Subsubsection:: *)
+(*System of ODES for T-contours*)
+
+
+xyContourSystem[b_] :=
+  With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+    With[
+     {p = p[b][x, y],
+      q = q[b][x, y]
+     },
+      Module[{slope, xDer, yDer},
+        (* Magnitude of the gradient vector *)
+        slope = Sqrt[p^2 + q^2];
+        (* Return system of ODEs *)
+        {
+          x' == q / slope,
+          y' == -p / slope
+        } /. {
+          x' -> x'[s],
+          y' -> y'[s],
+          x -> x[s],
+          y -> y[s]
+        }
+      ]
+    ]
+  ] // Evaluate;
+
+
+(* ::Subsubsection:: *)
 (*Simple case (B = 1)*)
 
 
@@ -141,42 +169,31 @@ Table[
 , {a, aValuesSimp}];
 
 
-(* Starting points along x-axis *)
+(* Starting points along contour through (1/2 x_0, 0) *)
 Table[
-  startXYSimp[a]["axis"] =
-    Module[{x0, xValues},
-      x0 = x0Simp[a];
-      xValues = Subdivide[0, x0, 4] // Rest // Most;
-      Table[{x, 0}, {x, xValues}]
-    ];
-, {a, aValuesSimp}];
-
-
-(* Starting points along terminal curve *)
-Table[
-  startXYSimp[a]["terminal"] =
+  startXYSimp[a]["contour"] =
     With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
-      Module[{b, nMax, yMax, sMax, xyTerm},
+      Module[{b, nMax, yMax, sMax, xyContour},
         b = 1;
         nMax = 8;
         yMax = 2;
         (* (Probable) upper bound for arc length traversed *)
         sMax = 3/2 * yMax;
         (* Terminal curve *)
-        xyTerm =
+        xyContour =
           NDSolveValue[
             {
-              viContourSystem[a, b],
-              x[0] == x0Simp[a], y[0] == 0,
+              xyContourSystem[b],
+              x[0] == 1/2 x0Simp[a], y[0] == 0,
               WhenEvent[Abs @ y[s] > yMax, "StopIntegration"]
             }, {x, y}, {s, -sMax, sMax},
             NoExtrapolation
           ];
         (* Actual arc length traversed *)
-        sMax = DomainEnd[xyTerm];
+        sMax = DomainEnd[xyContour];
         (* Starting points along the terminal curve *)
         Table[
-          xyTerm[s] // Through // Rationalize[#, 0] &
+          xyContour[s] // Through // Rationalize[#, 0] &
         , {s, Subdivide[-sMax, sMax, nMax]}]
       ]
     ];
@@ -749,7 +766,7 @@ Module[
     Line @ {{xStraight, -yMaxCont}, {xStraight, yMaxCont}}
   };
   (* Group names *)
-  idList = {"terminal", "axis", "hyperbolic"};
+  idList = {"contour", "hyperbolic"};
   (* Plots for various A *)
   Table[
     Show[
@@ -779,7 +796,7 @@ Module[
         Table[startXYSimp[a][id], {id, idList}],
         LabelingFunction -> Function @ Placed[
           #2[[2]],
-          If[#2[[1]] == 1, Right, Center]
+          Center
         ],
         PlotLegends -> idList,
         PlotStyle -> Directive[Opacity[0.7], pointStyle]
