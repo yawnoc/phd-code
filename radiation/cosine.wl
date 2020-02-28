@@ -233,6 +233,54 @@ xyTraSystem[a_, b_] :=
   ] // Evaluate;
 
 
+(* ::Subsubsection:: *)
+(*Simple case (B = 1)*)
+
+
+Module[
+ {b,
+  idList,
+  sMax,
+  xyInitList, viTol,
+  xInit, yInit
+ },
+  b = 1;
+  idList = {"contour", "hyperbolic"};
+  sMax = 4;
+  Table[
+    Table[
+      xyInitList = startXYSimp[a][id];
+      viTol = 10^-6;
+      (*
+        NOTE: leniency is required;
+        when travelling away from y == 0,
+        the traced boundaries asymptote very quickly
+        towards the terminal curve.
+       *)
+      xyTraSimp[a][id] =
+        Table[
+          {xInit, yInit} = xyInit;
+          With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+            NDSolveValue[
+              {
+                xyTraSystem[a, b],
+                x[0] == xInit, y[0] == yInit,
+                WhenEvent[
+                  {
+                    vi[a, b][x[s], y[s]] < viTol,
+                    tKnown[b][x[s], y[s]] < 0
+                  },
+                  "StopIntegration"
+                ]
+              }, {x, y}, {s, -sMax, sMax}
+            ]
+          ]
+        , {xyInit, xyInitList}];
+    , {id, idList}]
+  , {a, aValuesSimp}]
+];
+
+
 (* ::Subsection:: *)
 (*Italicised symbols*)
 
