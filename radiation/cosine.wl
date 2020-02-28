@@ -74,6 +74,39 @@ x0Simp[a_] :=
 
 
 (* ::Subsection:: *)
+(*Starting points for boundary tracing*)
+
+
+(* ::Subsubsection:: *)
+(*System of ODES for terminal curve \[CapitalPhi] = 0*)
+
+
+viContourSystem[a_, b_, sSign_: 1] :=
+  With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+    Module[{fun, p, q, slope},
+      (* Scalar function \[CapitalPhi] whose contours are sought *)
+      fun = vi[a, b][x, y];
+      (* Components of the gradient vector *)
+      p = D[fun, x];
+      q = D[fun, y];
+      (* Magnitude of the gradient vector *)
+      slope = Sqrt[p^2 + q^2];
+      (* Return system of ODEs *)
+      {
+        x' == q / slope,
+        y' == -p / slope
+      } /. {
+        x' -> Sign[sSign] x'[s],
+        y' -> Sign[sSign] y'[s],
+        x -> x[s],
+        y -> y[s],
+        List -> Sequence
+      }
+    ]
+  ] // Evaluate;
+
+
+(* ::Subsection:: *)
 (*Traced boundaries x = x(s), y = y(s)*)
 
 
