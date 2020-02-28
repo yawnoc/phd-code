@@ -247,10 +247,15 @@ termStyle = Pink;
 unphysStyle = Black;
 
 
+upperStyle = Blue;
+lowerStyle = Red;
+
+
 simp0Style = Blue;
 
 
 pointStyle = PointSize[Large];
+glowStyle = Directive[Thick, Yellow, Opacity[0.7]];
 
 
 (* ::Section:: *)
