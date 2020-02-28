@@ -745,7 +745,7 @@ Module[
 
 
 (* ::Section:: *)
-(*Simple case (B = 1)*)
+(*Simple case (B = 1) plots*)
 
 
 (* ::Subsection:: *)
@@ -852,6 +852,113 @@ Module[
     ]
     // Ex @ FString[
       "cosine_simple-a-{aNamesSimp[a]}-traced-starting.pdf"
+    ]
+  , {a, aValuesSimp}]
+]
+
+
+(* ::Subsection:: *)
+(*Traced boundaries*)
+
+
+Module[
+ {b,
+  xMin, xMax, yMax,
+  eps,
+  xMinUnphys, xMaxUnphys, yMaxUnphys,
+  xMinNon, xMaxNon, yMaxNon,
+  unphysicalDomain,
+  xStraight, straightContour,
+  idList
+ },
+  (* Value of B *)
+  b = 1;
+  (* Plot range *)
+  xMin = 0;
+  xMax = Pi/2 * 5/4;
+  yMax = 2;
+  (* Margin *)
+  eps = 0.1;
+  (* Plot range for unphysical domain *)
+  xMinUnphys = xMin - eps;
+  xMaxUnphys = xMax + eps;
+  yMaxUnphys = yMax + eps;
+  (* Plot range for non-viable domain *)
+  xMinNon = xMin - eps;
+  xMaxNon = xMax + eps;
+  yMaxNon = yMax + eps;
+  (*
+    NOTE: since B is fixed at 1,
+    the unphysical domain and known solution contours
+    do not need to be redrawn for different values of A.
+   *)
+  (* Unphysical domain *)
+  unphysicalDomain =
+    RegionPlot[tKnown[b][x, y] < 0,
+      {x, xMinUnphys, xMaxUnphys}, {y, -yMaxUnphys, yMaxUnphys},
+      BoundaryStyle -> unphysStyle,
+      PlotPoints -> 50,
+      PlotStyle -> unphysStyle
+    ];
+  (* Straight contour *)
+  xStraight = Pi/2;
+  straightContour = Graphics @ {straightStyle,
+    Line @ {{xStraight, -yMaxNon}, {xStraight, yMaxNon}}
+  };
+  (* Group names *)
+  idList = {"contour", "hyperbolic"};
+  (* Plots for various A *)
+  Table[
+    Show[
+      EmptyFrame[{xMin, xMax}, {-yMax, yMax},
+        ImageSize -> 240,
+        PlotLabel -> BoxedLabel[
+          Row[
+            {aIt == N[a], bIt == N[b]},
+            ","
+          ]
+        ]
+      ],
+      (* Unphysical domain *)
+      unphysicalDomain,
+      (* Non-viable domain *)
+      RegionPlot[vi[a, b][x, y] < 0,
+        {x, xMinNon, xMaxNon}, {y, -yMaxNon, yMaxNon},
+        BoundaryStyle -> termStyle,
+        PlotPoints -> 50,
+        PlotStyle -> nonStyle
+      ],
+      (* Straight contour *)
+      straightContour,
+      (* Traced boundaries (general) *)
+      Table[
+        Table[
+          ParametricPlot[
+            xy[s]
+              // Through
+              // {#, {#[[1]], -#[[2]]}} &
+              // Evaluate,
+            {s, DomainStart[xy], DomainEnd[xy]},
+            PlotStyle -> {upperStyle, lowerStyle}
+          ]
+        , {xy, xyTraSimp[a][id]}]
+      , {id, idList}],
+      (* Traced boundaries (hyperbolic) *)
+      Table[
+        Table[
+          ParametricPlot[
+            xy[s]
+              // Through
+              // {#, {#[[1]], -#[[2]]}} &
+              // Evaluate,
+            {s, DomainStart[xy], DomainEnd[xy]},
+            PlotStyle -> glowStyle
+          ]
+        , {xy, xyTraSimp[a][id]}]
+      , {id, {"hyperbolic"}}]
+    ]
+    // Ex @ FString[
+      "cosine_simple-a-{aNamesSimp[a]}-traced-full.pdf"
     ]
   , {a, aValuesSimp}]
 ]
