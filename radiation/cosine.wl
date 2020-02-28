@@ -962,3 +962,13 @@ Module[
     ]
   , {a, aValuesSimp}]
 ]
+
+
+(* ::Text:: *)
+(*The terminal curve is practically a traced boundary.*)
+(*For each A < 1 there will be some (x_i, y_i) where it inflects;*)
+(*if x_i > \[Pi]/2, then we will have a convex domain*)
+(*bounded by that traced boundary and by x = pi/2,*)
+(*with thermal radiation and constant temperature along them respectively.*)
+(*For a (contrived) practical situation, imagine rod at constant temperature*)
+(*with a knob affixed at the end, and radiating into vacuum.*)
