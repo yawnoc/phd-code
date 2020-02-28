@@ -125,6 +125,37 @@ Table[
 , {a, aValuesSimp}];
 
 
+(* Starting points along terminal curve *)
+Table[
+  startXYSimp[a]["terminal"] =
+    With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+      Module[{b, nMax, yMax, sMax, xyTerm},
+        b = 1;
+        nMax = 8;
+        yMax = 2;
+        (* (Probable) upper bound for arc length traversed *)
+        sMax = 3/2 * yMax;
+        (* Terminal curve *)
+        xyTerm =
+          NDSolveValue[
+            {
+              viContourSystem[a, b],
+              x[0] == x0Simp[a], y[0] == 0,
+              WhenEvent[Abs @ y[s] > yMax, "StopIntegration"]
+            }, {x, y}, {s, -sMax, sMax},
+            NoExtrapolation
+          ];
+        (* Actual arc length traversed *)
+        sMax = DomainEnd[xyTerm];
+        (* Starting points along the terminal curve *)
+        Table[
+          xyTerm[s] // Through // Rationalize[#, 0] &
+        , {s, Subdivide[-sMax, sMax, nMax]}]
+      ]
+    ];
+, {a, aValuesSimp}];
+
+
 (* ::Subsection:: *)
 (*Traced boundaries x = x(s), y = y(s)*)
 
