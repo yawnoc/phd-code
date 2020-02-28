@@ -113,6 +113,16 @@ viContourSystem[a_, b_, sSign_: 1] :=
   ] // Evaluate;
 
 
+(* ::Subsubsection:: *)
+(*Simple case (B = 1)*)
+
+
+(* Non-trivial critical terminal point (x_0, 0), which is hyperbolic *)
+Table[
+  startXYSimp[a]["hyperbolic"] = {x0Simp[a], 0}
+, {a, aValuesSimp}];
+
+
 (* ::Subsection:: *)
 (*Traced boundaries x = x(s), y = y(s)*)
 
