@@ -32,6 +32,16 @@ tKnown[b_][x_, y_] := 1 - b Cos[x] Cosh[y];
 
 
 (* ::Subsubsection:: *)
+(*Location of straight contour*)
+
+
+xStraight = Pi/2;
+
+
+tKnown[\[FormalCapitalB]][xStraight, \[FormalY]] == 1
+
+
+(* ::Subsubsection:: *)
 (*P = \[PartialD]T/\[PartialD]x, Q = \[PartialD]T/\[PartialD]y*)
 
 
@@ -298,7 +308,8 @@ DynamicModule[
   xMin, xMax, yMax,
   eps,
   xMinUnphys, xMaxUnphys, yMaxUnphys,
-  xMinCont, xMaxCont, yMaxCont
+  xMinCont, xMaxCont, yMaxCont,
+  numTo1, numBeyond1
  },
   (* Values of B *)
   bInit = 1;
@@ -306,7 +317,7 @@ DynamicModule[
   bMax = 5;
   (* Plot range *)
   xMin = 0;
-  xMax = Pi/2;
+  xMax = Pi/2 * 5/4;
   yMax = 2;
   (* Margin *)
   eps = 0.05;
@@ -318,6 +329,9 @@ DynamicModule[
   xMinCont = xMin - eps;
   xMaxCont = xMax + eps;
   yMaxCont = yMax + eps;
+  (* Number of contours *)
+  numTo1 = 5;
+  numBeyond1 = 3;
   (* Plot *)
   Manipulate[
     Show[
@@ -337,10 +351,15 @@ DynamicModule[
       ContourPlot[
         tKnown[b][x, y],
         {x, xMinCont, xMaxCont}, {y, -yMaxCont, yMaxCont},
+        Contours -> numTo1 + numBeyond1,
         ContourShading -> None,
         ContourStyle -> contStyle,
-        PlotRange -> {0, 1}
-      ]
+        PlotRange -> {0, 1 + (1 + numBeyond1) / numTo1}
+      ],
+      (* Straight contour *)
+      Graphics @ {straightStyle,
+        Line @ {{xStraight, -yMaxCont}, {xStraight, yMaxCont}}
+      }
     ]
   , {{b, bInit, bIt}, bMin, bMax}]
 ]
@@ -361,7 +380,8 @@ DynamicModule[
   eps,
   xMinUnphys, xMaxUnphys, yMaxUnphys,
   xMinNon, xMaxNon, yMaxNon,
-  xMinCont, xMaxCont, yMaxCont
+  xMinCont, xMaxCont, yMaxCont,
+  numTo1, numBeyond1
  },
   (* Values of A *)
   aInit = 0.2;
@@ -373,7 +393,7 @@ DynamicModule[
   bMax = 5;
   (* Plot range *)
   xMin = 0;
-  xMax = Pi/2;
+  xMax = Pi/2 * 5/4;
   yMax = 2;
   (* Margin *)
   eps = 0.1;
@@ -389,6 +409,9 @@ DynamicModule[
   xMinCont = xMin - eps;
   xMaxCont = xMax + eps;
   yMaxCont = yMax + eps;
+  (* Number of contours *)
+  numTo1 = 5;
+  numBeyond1 = 3;
   (* Plot *)
   Manipulate[
     Show[
@@ -419,10 +442,15 @@ DynamicModule[
       ContourPlot[
         tKnown[b][x, y],
         {x, xMinCont, xMaxCont}, {y, -yMaxCont, yMaxCont},
+        Contours -> numTo1 + numBeyond1,
         ContourShading -> None,
         ContourStyle -> contStyle,
-        PlotRange -> {0, 1}
-      ]
+        PlotRange -> {0, 1 + (1 + numBeyond1) / numTo1}
+      ],
+      (* Straight contour *)
+      Graphics @ {straightStyle,
+        Line @ {{xStraight, -yMaxCont}, {xStraight, yMaxCont}}
+      }
     ]
   , {{a, aInit, aIt}, aMin, aMax}
   , {{b, bInit, bIt}, bMin, bMax}]
@@ -458,7 +486,7 @@ DynamicModule[
   bMax = 3;
   (* Plot range *)
   xMin = 0;
-  xMax = Pi/2;
+  xMax = Pi/2 * 5/4;
   (* Plot *)
   Manipulate[
     Show[
@@ -475,7 +503,11 @@ DynamicModule[
       Plot[{vi[a, b][x, 0], 0}, {x, xMin, xMax},
         Filling -> {1 -> {2}},
         PlotRange -> Full
-      ]
+      ],
+      (* Location of straight contour *)
+      Graphics @ {Directive[straightStyle, pointStyle],
+        Point @ {xStraight, 0}
+      }
     ]
   , {{a, aInit, aIt}, aMin, aMax}
   , {{b, bInit, bIt}, bMin, bMax}]
@@ -500,7 +532,7 @@ Module[
   b = 1;
   (* Plot range *)
   xMin = 0;
-  xMax = Pi/2;
+  xMax = Pi/2 * 5/4;
   (* Animation *)
   Table[
     Show[
@@ -519,6 +551,10 @@ Module[
         Filling -> {1 -> {2}},
         PlotRange -> Full
       ],
+      (* Location of straight contour *)
+      Graphics @ {Directive[straightStyle, pointStyle],
+        Point @ {xStraight, 0}
+      },
       (* Non-trivial critical terminal point x_0 *)
       Graphics @ {Directive[Red, pointStyle = PointSize[Large]],
         Point @ {x0Simp[a], 0}
@@ -541,7 +577,8 @@ Module[
   xMinNon, xMaxNon, yMaxNon,
   xMinCont, xMaxCont, yMaxCont,
   unphysicalDomain,
-  genericContours
+  numTo1, numBeyond1,
+  genericContours, straightContour
  },
   (* Values of A *)
   aMin = 1/10;
@@ -552,7 +589,7 @@ Module[
   b = 1;
   (* Plot range *)
   xMin = 0;
-  xMax = Pi/2;
+  xMax = Pi/2 * 5/4;
   yMax = 2;
   (* Margin *)
   eps = 0.15;
@@ -581,15 +618,22 @@ Module[
       PlotPoints -> 50,
       PlotStyle -> unphysStyle
     ];
-  (* Known solution contours (generic) *)
+  (* Known solution contours *)
+  numTo1 = 5;
+  numBeyond1 = 3;
   genericContours =
     ContourPlot[
       tKnown[b][x, y],
       {x, xMinCont, xMaxCont}, {y, -yMaxCont, yMaxCont},
+      Contours -> numTo1 + numBeyond1,
       ContourShading -> None,
       ContourStyle -> contStyle,
-      PlotRange -> {0, 1}
+      PlotRange -> {0, 1 + (1 + numBeyond1) / numTo1}
     ];
+  straightContour =
+    Graphics @ {straightStyle,
+      Line @ {{xStraight, -yMaxCont}, {xStraight, yMaxCont}}
+    };
   (* Animation *)
   Table[
     Show[
@@ -613,6 +657,7 @@ Module[
       ],
       (* Known solution contours (generic) *)
       genericContours,
+      straightContour,
       (* Critical terminal point (x_0, 0) *)
       Graphics @ {Directive[simp0Style, pointStyle],
         Point @ {x0Simp[a], 0}
