@@ -277,6 +277,26 @@ xTraDer[a_, b_] := Function[{x, y},
 ] // Evaluate;
 
 
+(* ::Subsubsection:: *)
+(*Simple case (B = 1)*)
+
+
+xTraCandSimp[a_?NumericQ] :=
+  With[{x = \[FormalX]},
+    Module[{b, yMax},
+      b = 1;
+      yMax = 5;
+      NDSolveValue[
+        {
+          x'[y] == Re @ xTraDer[a, b][x[y], y],
+          x[0] == x0Simp[a]
+        }, x, {y, 0, yMax},
+        NoExtrapolation
+      ]
+    ]
+  ];
+
+
 (* ::Subsection:: *)
 (*Traced boundaries x = x(s), y = y(s)*)
 
