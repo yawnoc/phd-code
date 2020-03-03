@@ -360,6 +360,8 @@ Module[
   "Cand" means candidate,
   referring to the traced boundary through (x_0, 0)
   which is almost the same as the terminal curve.
+  The upper branch is taken for y > 0;
+  the lower branch is taken for y < 0.
  *)
 xyTraCandSimp[a_?NumericQ] :=
   With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
@@ -370,7 +372,7 @@ xyTraCandSimp[a_?NumericQ] :=
         {
           xyTraSystem[a, b],
           x[0] == x0Simp[a], y[0] == 0
-        }, {x, y}, {s, -sMax, sMax},
+        }, {x, y}, {s, 0, sMax},
         NoExtrapolation
       ]
     ]
@@ -1178,6 +1180,8 @@ With[{x = \[FormalX], y = \[FormalY], a = \[FormalCapitalA]},
             y' -> yTerm'[s],
             x -> xTerm[s],
             y -> yTerm[s]
+          } /. {
+            s -> Abs[s]
           }
         , {a, aValues}] // Evaluate,
         {s, -sMax, sMax},
