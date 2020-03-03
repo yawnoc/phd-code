@@ -305,6 +305,27 @@ Module[
 ];
 
 
+(*
+  "Cand" means candidate,
+  referring to the traced boundary through (x_0, 0)
+  which is almost the same as the terminal curve.
+ *)
+xyTraCandSimp[a_?NumericQ] :=
+  With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+    Module[{b, sMax},
+      b = 1;
+      sMax = 5;
+      NDSolveValue[
+        {
+          xyTraSystem[a, b],
+          x[0] == x0Simp[a], y[0] == 0
+        }, {x, y}, {s, -sMax, sMax},
+        NoExtrapolation
+      ]
+    ]
+  ];
+
+
 (* ::Subsection:: *)
 (*Italicised symbols*)
 
@@ -1057,6 +1078,69 @@ With[{x = \[FormalX], y = \[FormalY], a = \[FormalCapitalA]},
         PlotOptions[Axes] // Evaluate
       ] // Ex @ FString[
         "cosine_simple-terminal-boundary-residual-{type}.pdf"
+      ]
+    , {type, {"abs", "rel"}}]
+  ]
+]
+
+
+(* ::Subsection:: *)
+(*Check boundary condition along candidate traced boundary*)
+
+
+(* ::Text:: *)
+(*(The candidate traced boundary is the traced boundary through (x_0, 0),*)
+(*which is almost the same as the terminal curve.)*)
+
+
+With[{x = \[FormalX], y = \[FormalY], a = \[FormalCapitalA]},
+  Module[
+   {aValues, b, t, gradT,
+    n, fluxL, fluxR, res,
+    sMax,
+    xTerm, yTerm
+   },
+    (* Values of A *)
+    aValues = {1/10^3, 1/100, 1/10, 1/2, 3/4, 1, 5/4, 3/2};
+    (* Value of B *)
+    b = 1;
+    (* Known solution T *)
+    t = tKnown[b][x, y];
+    (* Gradient of T *)
+    gradT = Grad[t, {x, y}];
+    (* Normal vector n *)
+    n = {y', -x'};
+    (* Left hand side of boundary condition *)
+    fluxL = n . gradT;
+    (* Right hand side of boundary condition *)
+    fluxR = -t^4 / a;
+    (* Residual of boundary condition *)
+    res["abs"] = fluxL - fluxR;
+    res["rel"] = fluxR / fluxL - 1;
+    (* Plots of residuals *)
+    sMax = 5;
+    Table[
+      Plot[
+        Table[
+          (* Candidate boundary x == x(s), y == y(s) *)
+          {xTerm, yTerm} = xyTraCandSimp[a];
+          (* Evaluate residual therealong *)
+          res[type] /. {
+            x' -> xTerm'[s],
+            y' -> yTerm'[s],
+            x -> xTerm[s],
+            y -> yTerm[s]
+          }
+        , {a, aValues}] // Evaluate,
+        {s, -sMax, sMax},
+        AxesLabel -> {sIt, FString @ "Residual ({type})"},
+        ImageSize -> 360,
+        PlotLabel -> "Along terminal curve:",
+        PlotLegends -> LineLegend[aValues // N, LegendLabel -> aIt],
+        PlotRange -> Full,
+        PlotOptions[Axes] // Evaluate
+      ] // Ex @ FString[
+        "cosine_simple-candidate-boundary-residual-{type}.pdf"
       ]
     , {type, {"abs", "rel"}}]
   ]
