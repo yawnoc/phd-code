@@ -28,6 +28,10 @@ ClearAll["Global`*"];
 (*T*)
 
 
+(* ::Text:: *)
+(*See (r5.10) (Page r5-2).*)
+
+
 tKnown[b_][x_, y_] := 1 - b Cos[x] Cosh[y];
 
 
@@ -45,12 +49,28 @@ tKnown[\[FormalCapitalB]][xStraight, \[FormalY]] == 1
 (*P = \[PartialD]T/\[PartialD]x, Q = \[PartialD]T/\[PartialD]y*)
 
 
+(* ::Text:: *)
+(*See (r5.13) and (r5.14) (Page r5-2).*)
+
+
 p[b_][x_, y_] := D[tKnown[b][x, y], x] // Evaluate;
 q[b_][x_, y_] := D[tKnown[b][x, y], y] // Evaluate;
 
 
+With[{x = \[FormalX], y = \[FormalY], b = \[FormalCapitalB]},
+  {
+    p[b][x, y] == b Sin[x] Cosh[y],
+    q[b][x, y] == -b Cos[x] Sinh[y]
+  }
+]
+
+
 (* ::Subsection:: *)
 (*Flux function F*)
+
+
+(* ::Text:: *)
+(*See (r5.15) (Page r5-2).*)
 
 
 f[a_, b_][x_, y_] := -tKnown[b][x, y]^4 / a // Evaluate;
@@ -58,6 +78,10 @@ f[a_, b_][x_, y_] := -tKnown[b][x, y]^4 / a // Evaluate;
 
 (* ::Subsection:: *)
 (*Viability \[CapitalPhi]*)
+
+
+(* ::Text:: *)
+(*See (r5.17) (Page r5-2).*)
 
 
 vi[a_, b_][x_, y_] := p[b][x, y]^2 + q[b][x, y]^2 - f[a, b][x, y]^2 // Evaluate;
@@ -375,6 +399,10 @@ glowStyle = Directive[Thick, Yellow, Opacity[0.7]];
 
 (* ::Subsection:: *)
 (*Algebra check for \[CapitalPhi]*)
+
+
+(* ::Text:: *)
+(*See (r5.17) (Page r5-2).*)
 
 
 With[{a = \[FormalCapitalA], b = \[FormalCapitalB], x = \[FormalX], y = \[FormalY]},
