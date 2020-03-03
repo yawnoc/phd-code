@@ -201,6 +201,30 @@ Table[
 
 
 (* ::Subsection:: *)
+(*Terminal curve x = x(s), y = y(s)*)
+
+
+(* ::Subsubsection:: *)
+(*Simple case (B = 1)*)
+
+
+xyTermSimp[a_?NumericQ] :=
+  With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+    Module[{b, sMax},
+      b = 1;
+      sMax = 5;
+      NDSolveValue[
+        {
+          viContourSystem[a, b],
+          x[0] == x0Simp[a], y[0] == 0
+        }, {x, y}, {s, -sMax, sMax},
+        NoExtrapolation
+      ]
+    ]
+  ];
+
+
+(* ::Subsection:: *)
 (*Traced boundaries x = x(s), y = y(s)*)
 
 
