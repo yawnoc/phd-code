@@ -1024,19 +1024,9 @@ Module[
 (*Check boundary condition along terminal curve*)
 
 
-(* ::Text:: *)
-(*Since the terminal curve is the contour \[CapitalPhi] = 0,*)
-(*the normal to it would be the unit vector of grad(\[CapitalPhi]).*)
-(*We may therefore check that the terminal curve*)
-(*is indeed close to a traced boundary,*)
-(*by evaluating the residual of the boundary condition*)
-(*along \[CapitalPhi] = 0.*)
-
-
 With[{x = \[FormalX], y = \[FormalY], a = \[FormalCapitalA]},
   Module[
-   {aValues, b, t,
-    gradT, phi,
+   {aValues, b, t, gradT,
     n, fluxL, fluxR, res,
     sMax,
     xTerm, yTerm
@@ -1049,10 +1039,8 @@ With[{x = \[FormalX], y = \[FormalY], a = \[FormalCapitalA]},
     t = tKnown[b][x, y];
     (* Gradient of T *)
     gradT = Grad[t, {x, y}];
-    (* Viability \[CapitalPhi] *)
-    phi = vi[a, b][x, y];
     (* Normal vector n *)
-    n = Grad[phi, {x, y}] // Normalize;
+    n = -{y', -x'};
     (* Left hand side of boundary condition *)
     fluxL = n . gradT;
     (* Right hand side of boundary condition *)
@@ -1068,7 +1056,12 @@ With[{x = \[FormalX], y = \[FormalY], a = \[FormalCapitalA]},
           (* Terminal curve x == x(s), y == y(s) *)
           {xTerm, yTerm} = xyTermSimp[a];
           (* Evaluate residual therealong *)
-          res[type] /. {x -> xTerm[s], y -> yTerm[s]}
+          res[type] /. {
+            x' -> xTerm'[s],
+            y' -> yTerm'[s],
+            x -> xTerm[s],
+            y -> yTerm[s]
+          }
         , {a, aValues}] // Evaluate,
         {s, -sMax, sMax},
         AxesLabel -> {sIt, FString @ "Residual ({type})"},
