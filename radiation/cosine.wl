@@ -258,6 +258,8 @@ xyTermSimp[a_?NumericQ] :=
 
 (* ::Text:: *)
 (*See (r5.18) (Page r5-3).*)
+(*The lower branch is used since this corresponds*)
+(*to the candidate boundary for y > 0.*)
 
 
 xTraDer[a_, b_] := Function[{x, y},
@@ -268,7 +270,7 @@ xTraDer[a_, b_] := Function[{x, y},
     vi = vi[a, b][x, y]
    },
     Divide[
-      p q - f Sqrt[vi],
+      p q + f Sqrt[vi],
       q^2 - f^2
     ]
   ] // Evaluate
