@@ -311,6 +311,7 @@ Module[
 
 aIt = Italicised["A"];
 bIt = Italicised["B"];
+sIt = Italicised["s"];
 xIt = Italicised["x"];
 yIt = Italicised["y"];
 
@@ -996,3 +997,67 @@ Module[
 (*with thermal radiation and constant temperature along them respectively.*)
 (*For a (contrived) practical situation, imagine rod at constant temperature*)
 (*with a knob affixed at the end, and radiating into vacuum.*)
+
+
+(* ::Subsection:: *)
+(*Check boundary condition along terminal curve*)
+
+
+(* ::Text:: *)
+(*Since the terminal curve is the contour \[CapitalPhi] = 0,*)
+(*the normal to it would be the unit vector of grad(\[CapitalPhi]).*)
+(*We may therefore check that the terminal curve*)
+(*is indeed close to a traced boundary,*)
+(*by evaluating the residual of the boundary condition*)
+(*along \[CapitalPhi] = 0.*)
+
+
+With[{x = \[FormalX], y = \[FormalY], a = \[FormalCapitalA]},
+  Module[
+   {aValues, b, t,
+    gradT, phi,
+    n, fluxL, fluxR, res,
+    sMax,
+    xTerm, yTerm
+   },
+    (* Values of A *)
+    aValues = {1/10^3, 1/100, 1/10, 1/2, 3/4, 1, 5/4, 3/2};
+    (* Value of B *)
+    b = 1;
+    (* Known solution T *)
+    t = tKnown[b][x, y];
+    (* Gradient of T *)
+    gradT = Grad[t, {x, y}];
+    (* Viability \[CapitalPhi] *)
+    phi = vi[a, b][x, y];
+    (* Normal vector n *)
+    n = Grad[phi, {x, y}] // Normalize;
+    (* Left hand side of boundary condition *)
+    fluxL = n . gradT;
+    (* Right hand side of boundary condition *)
+    fluxR = -t^4 / a;
+    (* Residual of boundary condition *)
+    res["abs"] = fluxL - fluxR;
+    res["rel"] = fluxR / fluxL - 1;
+    (* Plots of residuals *)
+    sMax = 5;
+    Table[
+      Plot[
+        Table[
+          (* Terminal curve x == x(s), y == y(s) *)
+          {xTerm, yTerm} = xyTermSimp[a];
+          (* Evaluate residual therealong *)
+          res[type] /. {x -> xTerm[s], y -> yTerm[s]}
+        , {a, aValues}] // Evaluate,
+        {s, -sMax, sMax},
+        AxesLabel -> {sIt, FString @ "Residual ({type})"},
+        ImageSize -> 360,
+        PlotLabel -> "Along terminal curve:",
+        PlotLegends -> LineLegend[aValues // N, LegendLabel -> aIt],
+        PlotOptions[Axes] // Evaluate
+      ] // Ex @ FString[
+        "cosine_simple-terminal-boundary-residual-{type}.pdf"
+      ]
+    , {type, {"abs", "rel"}}]
+  ]
+]
