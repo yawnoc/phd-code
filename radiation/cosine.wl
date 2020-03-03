@@ -249,6 +249,33 @@ xyTermSimp[a_?NumericQ] :=
 
 
 (* ::Subsection:: *)
+(*Traced boundaries x = x(y)*)
+
+
+(* ::Subsubsection:: *)
+(*Traced boundary derivative dx/dy*)
+
+
+(* ::Text:: *)
+(*See (r5.18) (Page r5-3).*)
+
+
+xTraDer[a_, b_] := Function[{x, y},
+  With[
+   {p = p[b][x, y],
+    q = q[b][x, y],
+    f = f[a, b][x, y],
+    vi = vi[a, b][x, y]
+   },
+    Divide[
+      p q - f Sqrt[vi],
+      q^2 - f^2
+    ]
+  ] // Evaluate
+] // Evaluate;
+
+
+(* ::Subsection:: *)
 (*Traced boundaries x = x(s), y = y(s)*)
 
 
