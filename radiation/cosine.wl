@@ -1492,51 +1492,30 @@ Module[
 
 Module[
  {b,
-  xMin, xMax, yMax,
-  marginFactor,
-  xMinCont, xMaxCont, yMaxCont,
-  numTo1, numBeyond1,
-  x, yEnd
+  xRad, yEnd,
+  xMin, xMax, yMax
  },
   Table[
     (* Value of B *)
     b = 1;
-    (* Plot range *)
-    xMin = xStraight * 0.7;
-    xMax = xStraight * 1.2;
-    yMax = ArcSech[aInflSimp];
-    (* Margin factor *)
-    marginFactor = 1.1;
-    (* Plot range for contours *)
-    xMinCont = xMin * marginFactor;
-    xMaxCont = xMax * marginFactor;
-    yMaxCont = yMax * marginFactor;
-    (* Number of contours *)
-    numTo1 = 10;
-    numBeyond1 = 3;
     (* Radiation boundary x == x(y) for convex domain *)
-    x = xTraCandSimp[a, True];
-    yEnd = DomainEnd[x];
-    x = Function[{y}, x[Abs @ y] // Evaluate];
+    xRad = xTraCandSimp[a, True];
+    yEnd = DomainEnd[xRad];
+    xRad = Function[{y}, xRad[Abs @ y] // Evaluate];
+    (* Plot range *)
+    xMin = xStraight - 0.6 yEnd;
+    xMax = xStraight + 0.6 yEnd;
+    yMax = yEnd;
     (* Plot *)
     Show[
       EmptyFrame[{xMin, xMax}, {-yMax, yMax},
-        ImageSize -> 180,
+        ImageSize -> 240,
         PlotLabel -> BoxedLabel[aIt == N[a]]
-      ],
-      (* Known solution contours *)
-      ContourPlot[
-        tKnown[b][x, y],
-        {x, xMinCont, xMaxCont}, {y, -yMaxCont, yMaxCont},
-        Contours -> numTo1 + numBeyond1,
-        ContourShading -> None,
-        ContourStyle -> contStyle,
-        PlotRange -> {0, 1 + (1 + numBeyond1) / numTo1}
       ],
       (* Convex domain *)
       ParametricPlot[
         {
-          {x[y], y},
+          {xRad[y], y},
           {xStraight, y}
         }, {y, -yEnd, yEnd},
         PlotStyle -> convexStyle
