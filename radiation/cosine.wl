@@ -374,6 +374,27 @@ aInflSimp = Module[{dest, aMin, aMax, a, num},
 ]
 
 
+(* ::Subsubsubsection:: *)
+(*Approximate determination of A_i*)
+
+
+(* ::Text:: *)
+(*See (r5.29) (Page r5-7).*)
+
+
+aInflSimpApprox =
+  With[{a = \[FormalA]},
+    a /. First @ Solve[
+      {
+        a^6 - a^4 + 44 a^2 - 28 == 0,
+        a > 0
+      },
+      a, Reals
+    ]
+  ];
+aInflSimpApprox // N
+
+
 (* ::Subsection:: *)
 (*Traced boundaries x = x(s), y = y(s)*)
 
@@ -1376,3 +1397,76 @@ Module[
     ]
   ]
 ] // Ex["cosine_simple-candidate-x-minus-half-pi.pdf"]
+
+
+(* ::Subsection:: *)
+(*Approximate A_i (more curvature algebra)*)
+
+
+(* ::Text:: *)
+(*Check (r5.28) (Page r5-6).*)
+
+
+With[{a = \[FormalCapitalA]},
+  vi[a, 1][Pi/2, ArcSech[a]] == 0
+]
+
+
+(* ::Subsubsection:: *)
+(*Curvature of \[CapitalPhi] = 0 at (x, y) = (\[Pi]/2, arcsech(A))*)
+
+
+(* ::Text:: *)
+(*Recall that the terminal curve \[CapitalPhi] = 0*)
+(*is almost indistinguishable from the candidate boundary.*)
+(*See (r5.29) (Page r5-7).*)
+
+
+With[{x = \[FormalX], y = \[FormalY], a = \[FormalCapitalA]},
+  Module[{div, grad, cur},
+    (* Abbreviations *)
+    div = Div[#, {x, y}] &;
+    grad = Grad[#, {x, y}] &;
+    (* Curvature *)
+    cur = div @ Normalize @ grad @ vi[a, 1][x, y];
+    (* Evaluate at crossing *)
+    cur /. {x -> Pi/2, y -> ArcSech[a]}
+      // FullSimplify[#, 0 < a < 1] &
+  ]
+]
+
+
+Module[
+ {aMin, aMax, aInfl
+ },
+  (* Plot range *)
+  aMin = 0;
+  aMax = 1;
+  (* Value of A_i(approx) *)
+  aInfl = aInflSimpApprox;
+  (* Plot *)
+  Show[
+    (* A vs \[Kappa] *)
+    Plot[
+      a (a^6 - a^4 + 44 a^2 - 28) / (16 + a^2 - a^4)^(3/2),
+      {a, aMin, aMax},
+      AxesLabel -> {aIt, "\[Kappa]"},
+      ImageSize -> 360,
+      PlotLabel -> Column @ {
+        "Curvature of terminal curve",
+        Row @ {"at ", ""[xIt == Pi/2, yIt == ArcSech[aIt]]}
+      },
+      PlotOptions[Axes] // Evaluate
+    ],
+    (* A_i *)
+    Graphics @ {inflDotStyle,
+      Point @ {aInfl, 0}
+    },
+    Graphics @ Text[
+      Subscript[aIt, "i"] == N[aInfl]
+        // textStyle,
+      {aInfl, 0},
+      {0, -1.3}
+    ]
+  ]
+] // Ex["cosine_simple-terminal-curvature-x-at-half-pi.pdf"]
