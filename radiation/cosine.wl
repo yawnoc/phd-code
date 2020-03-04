@@ -120,6 +120,15 @@ aNamesSimp = AssociationThread[
 ];
 
 
+aValuesSimpConvex = {8/10, 9/10};
+
+
+aNamesSimpConvex = AssociationThread[
+  aValuesSimpConvex,
+  {"convex8", "convex9"}
+];
+
+
 (* ::Subsection:: *)
 (*Starting points for boundary tracing*)
 
@@ -302,7 +311,7 @@ curTra[a_, b_] := Function[{x, y},
 (*Simple case (B = 1)*)
 
 
-xTraCandSimp[a_?NumericQ] :=
+xTraCandSimp[a_?NumericQ, terminateAtStraightContour_: False] :=
   With[{x = \[FormalX]},
     Module[{b, yMax},
       b = 1;
@@ -310,7 +319,11 @@ xTraCandSimp[a_?NumericQ] :=
       NDSolveValue[
         {
           x'[y] == Re @ xTraDer[a, b][x[y], y],
-          x[0] == x0Simp[a]
+          x[0] == x0Simp[a],
+          WhenEvent[
+            terminateAtStraightContour && x[y] > xStraight,
+            "StopIntegration"
+          ]
         }, x, {y, 0, yMax},
         NoExtrapolation
       ]
