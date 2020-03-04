@@ -503,6 +503,9 @@ gifOpts = Sequence[
 (*Global styles for plots*)
 
 
+textStyle = Style[#, 18] &;
+
+
 contStyle = LightGray;
 straightStyle = Directive[Dashed, Magenta];
 nonStyle = Directive[Opacity[0.7], LightGray];
@@ -519,6 +522,9 @@ simp0Style = Blue;
 
 pointStyle = PointSize[Large];
 glowStyle = Directive[Thick, Yellow, Opacity[0.7]];
+
+
+inflDotStyle = Directive[Red, Opacity[0.7], pointStyle];
 
 
 (* ::Section:: *)
@@ -1329,3 +1335,44 @@ With[{y = \[FormalY], a = \[FormalCapitalA], s = \[FormalCapitalS]},
     /. {s -> Sinh[y]}
     // FullSimplify
 ]
+
+
+(* ::Subsection:: *)
+(*Horizontal coordinate x at critical y = y(A)*)
+
+
+(* ::Text:: *)
+(*A plot of x(y(A)) - \[Pi]/2, whose zero A = A_i was sought.*)
+(*See (r5.25) (Page r5-5).*)
+
+
+Module[
+ {aMin, aMax, aInfl
+ },
+  (* Plot range *)
+  aMin = 0.15;
+  aMax = 1;
+  (* Value of A_i *)
+  aInfl = aInflSimp;
+  (* Plot *)
+  Show[
+    (* A vs x(y(A)) - \[Pi]/2 *)
+    Plot[
+      xTraCandSimp[a] @ yCurCritSimp[a] - Pi / 2 // Evaluate,
+      {a, aMin, aMax},
+      AxesLabel -> {aIt, xIt @ yIt[aIt] - Pi / 2},
+      ImageSize -> 360,
+      PlotOptions[Axes] // Evaluate
+    ],
+    (* A_i *)
+    Graphics @ {inflDotStyle,
+      Point @ {aInfl, 0}
+    },
+    Graphics @ Text[
+      Subscript[aIt, "i"] == N[aInfl]
+        // textStyle,
+      {aInfl, 0},
+      {0, -1.3}
+    ]
+  ]
+] // Ex["cosine_simple-candidate-x-minus-half-pi.pdf"]
