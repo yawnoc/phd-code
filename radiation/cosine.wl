@@ -1240,3 +1240,23 @@ With[{x = \[FormalX], y = \[FormalY], a = \[FormalCapitalA]},
     , {type, {"abs", "rel"}}]
   ]
 ]
+
+
+(* ::Subsection:: *)
+(*Curvature algebra*)
+
+
+(* ::Text:: *)
+(*See (r5.21) (Page r5-5).*)
+
+
+With[{y = \[FormalY], a = \[FormalCapitalA]},
+  Block[{$Assumptions = 0 < a <= 1 && 0 < y < ArcCosh[1/a]},
+    curTra[a, 1][Pi/2, y] == (
+      a^2 Cosh[y] / Sqrt[a^2 Cosh[y]^2 - 1] * (
+        2 Sinh[y] - Cosh[y]^2 (a^2 Sinh[y] + 4 Sqrt[a^2 Cosh[y]^2 - 1])
+      )
+    )
+    // FullSimplify
+  ]
+]
