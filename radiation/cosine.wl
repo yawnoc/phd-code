@@ -318,8 +318,11 @@ xTraCandSimp[a_?NumericQ] :=
   ];
 
 
-(* ::Text:: *)
+(* ::Subsubsubsection:: *)
 (*Critical value y = y(A) for inflection along x = \[Pi]/2.*)
+
+
+(* ::Text:: *)
 (*See (r5.24) (Page r5-5).*)
 
 
@@ -328,7 +331,7 @@ yCurCritSimp[a_] :=
     ArcSinh[s] /. First @ Solve[
       {
         2 s - (1 + s^2) (a^2 s + 4 Sqrt[a^2 (1 + s^2) - 1]) == 0,
-        0 < a <= 1
+        0 < a < 1
       },
       s, Reals
     ]
@@ -336,6 +339,39 @@ yCurCritSimp[a_] :=
 
 
 yCurCritSimp[\[FormalCapitalA]]
+
+
+(* ::Subsubsubsection:: *)
+(*A_i (inflection dimensionless group)*)
+
+
+(* ::Text:: *)
+(*See (r5.25) (Page r5-5).*)
+
+
+(* Compute A_i using the bisection algorithm *)
+(* (This is not slow, nevertheless compute once and store.) *)
+(* (Delete the file manually to compute from scratch.) *)
+aInflSimp = Module[{dest, aMin, aMax, a, num},
+  dest = "cosine_simple-a-inflection.txt";
+  ExportIfNotExists[dest,
+    (* A_i is around 0.8 *)
+    aMin = 7/10;
+    aMax = 9/10;
+    (* Solve x(y(A)) - \[Pi]/2 == 0 *)
+    SeekRootBisection[
+      xTraCandSimp[#] @ yCurCritSimp[#] - Pi / 2 &,
+      {aMin, aMax},
+      "ReturnIterations" -> True
+    ] // Compress
+  ];
+  (* Import *)
+  {a, num} = Import[dest] // Uncompress;
+  (* Print iterations used *)
+  Print @ FString["Bisection algorithm: {num} iterations"];
+  (* Return A_i *)
+  a
+]
 
 
 (* ::Subsection:: *)
