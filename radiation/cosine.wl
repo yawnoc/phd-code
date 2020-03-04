@@ -1260,3 +1260,16 @@ With[{y = \[FormalY], a = \[FormalCapitalA]},
     // FullSimplify
   ]
 ]
+
+
+(* ::Text:: *)
+(*See (r5.22) & (r5.23) (Page r5-5).*)
+
+
+With[{y = \[FormalY], a = \[FormalCapitalA], s = \[FormalCapitalS]},
+  2 Sinh[y] - Cosh[y]^2 (a^2 Sinh[y] + 4 Sqrt[a^2 Cosh[y]^2 - 1]) == (
+    2 s - (1 + s^2) (a^2 s + 4 Sqrt[a^2 (1 + s^2) - 1])
+  )
+    /. {s -> Sinh[y]}
+    // FullSimplify
+]
