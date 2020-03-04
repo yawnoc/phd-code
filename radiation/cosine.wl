@@ -125,7 +125,7 @@ aValuesSimpConvex = {8/10, 9/10};
 
 aNamesSimpConvex = AssociationThread[
   aValuesSimpConvex,
-  {"convex8", "convex9"}
+  {"convex_8", "convex_9"}
 ];
 
 
@@ -549,6 +549,7 @@ unphysStyle = Black;
 
 upperStyle = Blue;
 lowerStyle = Red;
+convexStyle = Black;
 
 
 simp0Style = Blue;
@@ -1483,3 +1484,65 @@ Module[
     ]
   ]
 ] // Ex["cosine_simple-terminal-curvature-x-at-half-pi.pdf"]
+
+
+(* ::Subsection:: *)
+(*Convex domains without known solution*)
+
+
+Module[
+ {b,
+  xMin, xMax, yMax,
+  marginFactor,
+  xMinCont, xMaxCont, yMaxCont,
+  numTo1, numBeyond1,
+  x, yEnd
+ },
+  Table[
+    (* Value of B *)
+    b = 1;
+    (* Plot range *)
+    xMin = xStraight * 0.7;
+    xMax = xStraight * 1.2;
+    yMax = ArcSech[aInflSimp];
+    (* Margin factor *)
+    marginFactor = 1.1;
+    (* Plot range for contours *)
+    xMinCont = xMin * marginFactor;
+    xMaxCont = xMax * marginFactor;
+    yMaxCont = yMax * marginFactor;
+    (* Number of contours *)
+    numTo1 = 10;
+    numBeyond1 = 3;
+    (* Radiation boundary x == x(y) for convex domain *)
+    x = xTraCandSimp[a, True];
+    yEnd = DomainEnd[x];
+    x = Function[{y}, x[Abs @ y] // Evaluate];
+    (* Plot *)
+    Show[
+      EmptyFrame[{xMin, xMax}, {-yMax, yMax},
+        ImageSize -> 180,
+        PlotLabel -> BoxedLabel[aIt == N[a]]
+      ],
+      (* Known solution contours *)
+      ContourPlot[
+        tKnown[b][x, y],
+        {x, xMinCont, xMaxCont}, {y, -yMaxCont, yMaxCont},
+        Contours -> numTo1 + numBeyond1,
+        ContourShading -> None,
+        ContourStyle -> contStyle,
+        PlotRange -> {0, 1 + (1 + numBeyond1) / numTo1}
+      ],
+      (* Convex domain *)
+      ParametricPlot[
+        {
+          {x[y], y},
+          {xStraight, y}
+        }, {y, -yEnd, yEnd},
+        PlotStyle -> convexStyle
+      ]
+    ] // Ex @ FString[
+      "cosine_simple-traced-{aNamesSimpConvex[a]}.pdf"
+    ]
+  , {a, aValuesSimpConvex}]
+]
