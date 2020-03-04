@@ -318,6 +318,26 @@ xTraCandSimp[a_?NumericQ] :=
   ];
 
 
+(* ::Text:: *)
+(*Critical value y = y(A) for inflection along x = \[Pi]/2.*)
+(*See (r5.24) (Page r5-5).*)
+
+
+yCurCritSimp[a_] :=
+  With[{y = \[FormalY], s = \[FormalCapitalS]},
+    ArcSinh[s] /. First @ Solve[
+      {
+        2 s - (1 + s^2) (a^2 s + 4 Sqrt[a^2 (1 + s^2) - 1]) == 0,
+        0 < a <= 1
+      },
+      s, Reals
+    ]
+  ] // Evaluate;
+
+
+yCurCritSimp[\[FormalCapitalA]]
+
+
 (* ::Subsection:: *)
 (*Traced boundaries x = x(s), y = y(s)*)
 
