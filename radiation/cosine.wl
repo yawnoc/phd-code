@@ -323,7 +323,7 @@ xTraCandSimp[a_?NumericQ] :=
 
 
 (* ::Text:: *)
-(*See (r5.24) (Page r5-5).*)
+(*See (r5.24) (Page r5-6).*)
 
 
 yCurCritSimp[a_] :=
@@ -346,7 +346,7 @@ yCurCritSimp[\[FormalCapitalA]]
 
 
 (* ::Text:: *)
-(*See (r5.25) (Page r5-5).*)
+(*See (r5.25) (Page r5-6).*)
 
 
 (* Compute A_i using the bisection algorithm *)
@@ -1325,7 +1325,7 @@ With[{y = \[FormalY], a = \[FormalCapitalA]},
 
 
 (* ::Text:: *)
-(*See (r5.22) & (r5.23) (Page r5-5).*)
+(*See (r5.22) & (r5.23) (Page r5-6).*)
 
 
 With[{y = \[FormalY], a = \[FormalCapitalA], s = \[FormalCapitalS]},
@@ -1343,7 +1343,7 @@ With[{y = \[FormalY], a = \[FormalCapitalA], s = \[FormalCapitalS]},
 
 (* ::Text:: *)
 (*A plot of x(y(A)) - \[Pi]/2, whose zero A = A_i was sought.*)
-(*See (r5.25) (Page r5-5).*)
+(*See (r5.25) (Page r5-6).*)
 
 
 Module[
