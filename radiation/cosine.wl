@@ -278,6 +278,27 @@ xTraDer[a_, b_] := Function[{x, y},
 
 
 (* ::Subsubsection:: *)
+(*Traced boundary curvature*)
+
+
+(* ::Text:: *)
+(*See (r5.20) (Page r5-5).*)
+
+
+curTra[a_, b_] := Function[{x, y},
+  Module[{d, xDer, xDer2, cur},
+    (* Abbreviation for y-derivative *)
+    d = Dt[#, y, Constants -> {a, b}] &;
+    (* x' and x'' *)
+    xDer = xTraDer[a, b][x, y];
+    xDer2 = d[xDer];
+    (* Curvature evaluated *)
+    cur = xDer2 /. {d[x] -> xDer}
+  ] // Evaluate
+] // Evaluate;
+
+
+(* ::Subsubsection:: *)
 (*Simple case (B = 1)*)
 
 
