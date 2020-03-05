@@ -1677,3 +1677,46 @@ Module[{aMin, aMax},
     ]
   ]
 ] // Ex["cosine_simple-traced-convex-aspect-ratio.pdf"]
+
+
+(* ::Section:: *)
+(*Numerical verification plots*)
+
+
+(* ::Subsection:: *)
+(*Finite element mesh*)
+
+
+Table[
+  Module[
+   {source,
+    a, mesh, prRad, prBath,
+    bCoords, bCoordsRad, bCoordsBath,
+    dest
+   },
+    (* Import mesh *)
+    source = FString[
+      "cosine_simple-verification-mesh-{aNamesSimpConvex[a]}.txt"
+    ];
+    {a, mesh, prRad, prBath} = Import[source] // Uncompress;
+    (* Boundary coordinates *)
+    bCoords = Part[
+      mesh["Coordinates"],
+      List @@ First @ mesh["BoundaryElements"] // Flatten // DeleteDuplicates
+    ];
+    bCoordsRad = Select[bCoords, prRad @@ # &];
+    bCoordsBath = Select[bCoords, prBath @@ # &];
+    (* Export plot *)
+    dest = StringReplace[source, ".txt" -> ".pdf"];
+    Show[
+      mesh["Wireframe"],
+      ListPlot[{bCoordsRad, bCoordsBath},
+        PlotStyle -> (
+          Directive[#, pointStyle, Opacity[0.7]] &
+            /@ {Blue, Red}
+        )
+      ],
+      ImageSize -> 240
+    ] // Ex[dest]
+  ]
+, {a, aValuesSimpConvex}]
