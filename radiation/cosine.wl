@@ -1789,3 +1789,34 @@ Table[
     ] // Ex[dest]
   ]
 , {a, aValuesSimpConvex}]
+
+
+(* ::Subsection:: *)
+(*Relative error (3D)*)
+
+
+Table[
+  Module[{source, tSol, mesh, dest},
+    (* Import solution *)
+    source = FString[
+      "cosine_simple-verification-solution-{aNamesSimpConvex[a]}.txt"
+    ];
+    tSol = Import[source] // Uncompress;
+    mesh = tSol["ElementMesh"];
+    (* Plot *)
+    dest = FString[
+      "cosine_simple-verification-rel_error-3d-{aNamesSimpConvex[a]}.png"
+    ];
+    With[{x = \[FormalX], y = \[FormalY]},
+      Plot3D[
+        tSol[x, y] / tKnown[1][x, y] - 1, Element[{x, y}, mesh],
+        PlotLabel -> Column[
+          {"Relative error of numerical solution", aIt == N[a]},
+          Center
+        ],
+        PlotRange -> Full,
+        PlotOptions[Axes] // Evaluate
+      ]
+    ] // Ex[dest]
+  ]
+, {a, aValuesSimpConvex}]
