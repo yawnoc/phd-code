@@ -1554,7 +1554,7 @@ Module[
 
 Module[{aMin, aMax},
   (* Plot range *)
-  aMin = aInflSimpApprox;
+  aMin = aInflSimp;
   aMax = 1;
   (* Plot *)
   Show[
