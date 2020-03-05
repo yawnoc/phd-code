@@ -1760,3 +1760,32 @@ Table[
     ] // Ex[dest]
   ]
 , {a, aValuesSimpConvex}]
+
+
+(* ::Subsection:: *)
+(*Numerical solution*)
+
+
+Table[
+  Module[{source, tSol, mesh, dest},
+    (* Import solution *)
+    source = FString[
+      "cosine_simple-verification-solution-{aNamesSimpConvex[a]}.txt"
+    ];
+    tSol = Import[source] // Uncompress;
+    mesh = tSol["ElementMesh"];
+    (* Plot *)
+    dest = source // StringReplace[".txt" -> ".png"];
+    With[{x = \[FormalX], y = \[FormalY]},
+      Plot3D[tSol[x, y], Element[{x, y}, mesh],
+        AxesLabel -> Italicised /@ {"x", "y", "T"},
+        PlotLabel -> Column[
+          {"Numerical solution", aIt == N[a]},
+          Center
+        ],
+        PlotRange -> Full,
+        PlotOptions[Axes] // Evaluate
+      ]
+    ] // Ex[dest]
+  ]
+, {a, aValuesSimpConvex}]
