@@ -311,6 +311,10 @@ curTra[a_, b_] := Function[{x, y},
 (*Simple case (B = 1)*)
 
 
+(* ::Subsubsubsection:: *)
+(*Candidate boundary*)
+
+
 xTraCandSimp[a_?NumericQ, terminateAtStraightContour_: False] :=
   With[{x = \[FormalX]},
     Module[{b, yMax},
@@ -466,6 +470,10 @@ xyTraSystem[a_, b_] :=
 (*Simple case (B = 1)*)
 
 
+(* ::Subsubsubsection:: *)
+(*Generic boundaries (for the chosen representative values of A)*)
+
+
 Module[
  {b,
   idList,
@@ -508,6 +516,10 @@ Module[
     , {id, idList}]
   , {a, aValuesSimp}]
 ];
+
+
+(* ::Subsubsubsection:: *)
+(*Candidate boundary*)
 
 
 (*
