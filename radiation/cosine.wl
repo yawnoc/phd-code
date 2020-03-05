@@ -9,6 +9,7 @@
 
 
 SetDirectory @ ParentDirectory @ NotebookDirectory[];
+<< NDSolve`FEM`
 << Conway`
 SetDirectory @ FileNameJoin @ {NotebookDirectory[], "cosine"}
 
@@ -547,6 +548,96 @@ xyTraCandSimp[a_?NumericQ, terminateAtStraightContour_: False] :=
       ]
     ]
   ];
+
+
+(* ::Subsection:: *)
+(*Numerical verification (finite elements)*)
+
+
+(* ::Subsubsection:: *)
+(*Simple case (B = 1)*)
+
+
+(* ::Text:: *)
+(*Here we consider the thin, lens-like convex domains.*)
+
+
+(* ::Subsubsubsection:: *)
+(*Generate finite element mesh*)
+
+
+(* (This is not slow, nevertheless compute once and store.) *)
+(* (Delete the file manually to compute from scratch.) *)
+Module[
+ {dest,
+  yReflect,
+  xyRad, xyRadEvenExt,
+  xStart, sEnd, xEnd, yEnd,
+  sSpacing, bPointList, nB,
+  bMesh, mesh,
+  prRad, prBath
+ },
+  Table[
+    dest = FString[
+      "cosine_simple-verification-mesh-{aNamesSimpConvex[a]}.txt"
+    ];
+    ExportIfNotExists[dest,
+      (* Reflect y coordinate *)
+      yReflect = # * {1, -1} &;
+      (* Radiation boundary x == x(s), y == y(s) *)
+      (* NOTE: y decreases with increasing s *)
+      xyRad = xyTraCandSimp[a, True];
+      (* Left-hand extremity thereof *)
+      xStart = xyRad[[1]][0];
+      (* Upper endpoint thereof *)
+      sEnd = DomainEnd[xyRad];
+      {xEnd, yEnd} = xyRad[sEnd] // Through // yReflect;
+      (* Check that endpoint x value equals \[Pi]/2 *)
+      If[xEnd == xStraight, Null,
+        Print @ FString @ StringJoin[
+          "WARNING (a == {N[a]}): ",
+          "xEnd == {N[xEnd]} does not equal \[Pi]/2"
+        ]
+      ];
+      (* Make spacing of boundary points 1/5 of the width *)
+      sSpacing = 1/5 (xEnd - xStart);
+      (* Boundary points *)
+      xyRadEvenExt[s_] /; s >= 0 := xyRad[s] // Through;
+      xyRadEvenExt[s_] /; s < 0 := xyRadEvenExt[-s] // yReflect;
+      bPointList = Join[
+        (* Radiation boundary (x(s), y(s)) *)
+        Table[
+          xyRadEvenExt[s]
+        , {s, UniformRange[-sEnd, sEnd, sSpacing]}],
+        (* Straight boundary x == \[Pi]/2 *)
+        Table[
+          {xStraight, y}
+        , {y, UniformRange[-yEnd, yEnd, sSpacing]}]
+          // Rest // Most
+      ];
+      bPointList = bPointList;
+      nB = Length[bPointList];
+      (* Build boundary element mesh *)
+      bMesh = ToBoundaryMesh[
+        "Coordinates" -> bPointList,
+        "BoundaryElements" -> {
+          LineElement[
+            Table[{n, n + 1}, {n, nB}] // Mod[#, nB, 1] &
+          ]
+        }
+      ];
+      (* Build mesh *)
+      mesh = ToElementMesh[bMesh,
+        "ImproveBoundaryPosition" -> True
+      ];
+      (* Predicate functions for radiation and bath (straight) boundaries *)
+      prRad = Function[{x, y}, x < xStraight // Evaluate];
+      prBath = Function[{x, y}, x == xStraight // Evaluate];
+      (* Export *)
+      {a, mesh, prRad, prBath} // Compress
+    ]
+  , {a, aValuesSimpConvex}]
+]
 
 
 (* ::Subsection:: *)
