@@ -529,7 +529,7 @@ Module[
   The upper branch is taken for y > 0;
   the lower branch is taken for y < 0.
  *)
-xyTraCandSimp[a_?NumericQ] :=
+xyTraCandSimp[a_?NumericQ, terminateAtStraightContour_: False] :=
   With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
     Module[{b, sMax},
       b = 1;
@@ -537,7 +537,11 @@ xyTraCandSimp[a_?NumericQ] :=
       NDSolveValue[
         {
           xyTraSystem[a, b],
-          x[0] == x0Simp[a], y[0] == 0
+          x[0] == x0Simp[a], y[0] == 0,
+          WhenEvent[
+            terminateAtStraightContour && x[s] > xStraight,
+            "StopIntegration"
+          ]
         }, {x, y}, {s, 0, sMax},
         NoExtrapolation
       ]
