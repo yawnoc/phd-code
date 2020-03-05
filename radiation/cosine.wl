@@ -408,6 +408,27 @@ aInflSimpApprox =
 aInflSimpApprox // N
 
 
+(* ::Subsubsubsection:: *)
+(*Convex domain aspect ratio*)
+
+
+(* ::Text:: *)
+(*Ratio of height to width of the thin, lens-like convex domains.*)
+
+
+aspectRatioSimp[a_] :=
+  Module[{xRad, xStart, xEnd, yStart, yEnd},
+    (* Traced boundary *)
+    xRad = xTraCandSimp[a, True];
+    xStart = xRad[0];
+    xEnd = xStraight;
+    yStart = 0;
+    yEnd = DomainEnd[xRad];
+    (* Return aspect ratio *)
+    2 (yEnd - yStart) / (xEnd - xStart)
+  ];
+
+
 (* ::Subsection:: *)
 (*Traced boundaries x = x(s), y = y(s)*)
 
@@ -1525,3 +1546,27 @@ Module[
     ]
   , {a, aValuesSimpConvex}]
 ]
+
+
+(* ::Subsection:: *)
+(*Convex domain aspect ratio*)
+
+
+Module[{aMin, aMax},
+  (* Plot range *)
+  aMin = aInflSimpApprox;
+  aMax = 1;
+  (* Plot *)
+  Show[
+    (* A vs \[Kappa] *)
+    Plot[
+      aspectRatioSimp[a],
+      {a, aMin, aMax},
+      AxesLabel -> {aIt, Null},
+      ImageSize -> 360,
+      PlotLabel -> "Aspect ratio of convex domains",
+      PlotRange -> {0, Automatic},
+      PlotOptions[Axes] // Evaluate
+    ]
+  ]
+] // Ex["cosine_simple-traced-convex-aspect-ratio.pdf"]
