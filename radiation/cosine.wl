@@ -1820,3 +1820,43 @@ Table[
     ] // Ex[dest]
   ]
 , {a, aValuesSimpConvex}]
+
+
+(* ::Subsection:: *)
+(*Relative error (2D)*)
+
+
+Table[
+  Module[{source, tSol, mesh, dest},
+    (* Import solution *)
+    source = FString[
+      "cosine_simple-verification-solution-{aNamesSimpConvex[a]}.txt"
+    ];
+    tSol = Import[source] // Uncompress;
+    mesh = tSol["ElementMesh"];
+    (* Plot *)
+    (* Note the aspect ratio *)
+    dest = FString[
+      "cosine_simple-verification-rel_error-2d-{aNamesSimpConvex[a]}.png"
+    ];
+    With[{x = \[FormalX], y = \[FormalY]},
+      Show[
+        DensityPlot[
+          tSol[x, y] / tKnown[1][x, y] - 1, Element[{x, y}, mesh],
+          ColorFunction -> "Rainbow",
+          ImageSize -> 320,
+          PlotLabel -> Column[
+            {"Relative error of numerical solution", aIt == N[a]},
+            Center
+          ],
+          PlotRange -> Full,
+          PlotLegends -> Automatic,
+          PlotOptions[Axes] // Evaluate
+        ],
+        mesh @ "Wireframe"[
+          "MeshElementStyle" -> EdgeForm[Opacity[0.1]]
+        ]
+      ]
+    ] // Ex[dest]
+  ]
+, {a, aValuesSimpConvex}]
