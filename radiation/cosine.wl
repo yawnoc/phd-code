@@ -1325,7 +1325,7 @@ With[{x = \[FormalX], y = \[FormalY], a = \[FormalCapitalA]},
    {aValues, b, t, gradT,
     n, fluxL, fluxR, res,
     sMax,
-    xTerm, yTerm
+    xCand, yCand
    },
     (* Values of A *)
     aValues = {1/10^3, 1/100, 1/10, 1/2, 3/4, 1, 5/4, 3/2};
@@ -1350,13 +1350,13 @@ With[{x = \[FormalX], y = \[FormalY], a = \[FormalCapitalA]},
       Plot[
         Table[
           (* Candidate boundary x == x(s), y == y(s) *)
-          {xTerm, yTerm} = xyTraCandSimp[a];
+          {xCand, yCand} = xyTraCandSimp[a];
           (* Evaluate residual therealong *)
           res[type] /. {
-            x' -> xTerm'[s],
-            y' -> yTerm'[s],
-            x -> xTerm[s],
-            y -> yTerm[s]
+            x' -> xCand'[s],
+            y' -> yCand'[s],
+            x -> xCand[s],
+            y -> yCand[s]
           } /. {
             s -> Abs[s]
           }
