@@ -640,6 +640,46 @@ Module[
 ]
 
 
+(* ::Subsubsubsection:: *)
+(*Solve boundary value problem (Version 12 required)*)
+
+
+(* (This is not slow, nevertheless compute once and store.) *)
+(* (Delete the file manually to compute from scratch.) *)
+Table[
+  Module[
+   {dest, source,
+    a, mesh, prRad, prBath,
+    tSol
+   },
+    dest = FString[
+      "cosine_simple-verification-solution-{aNamesSimpConvex[a]}.txt"
+    ];
+    ExportIfNotExists[dest,
+      (* Import mesh *)
+      source = FString[
+        "cosine_simple-verification-mesh-{aNamesSimpConvex[a]}.txt"
+      ];
+      {a, mesh, prRad, prBath} = Import[source] // Uncompress;
+      (* Solve boundary value problem *)
+      With[{x = \[FormalX], y = \[FormalY], t = \[FormalCapitalT]},
+        tSol = NDSolveValue[
+          {
+            (* Steady state heat equation *)
+            -Laplacian[t[x, y], {x, y}] ==
+              (* Radiation boundary condition *)
+              NeumannValue[(-1 / a) t[x, y]^4, prRad[x, y]],
+            (* Heat bath (straight edge) boundary condition *)
+            DirichletCondition[t[x, y] == 1, prBath[x, y]]
+          }, t, Element[{x, y}, mesh]
+        ]
+      ];
+      tSol // Compress
+    ]
+  ]
+, {a, aValuesSimpConvex}]
+
+
 (* ::Subsection:: *)
 (*Italicised symbols*)
 
