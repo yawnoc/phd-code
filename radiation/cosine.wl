@@ -1305,6 +1305,116 @@ Module[
 ] // Ex["cosine_simple-viable.gif", gifOpts]
 
 
+(* ::Subsection:: *)
+(*Animation for viable domain, general case (A = const, B varying)*)
+
+
+Module[
+ {a,
+  bStep, bCrit, bMin, bMax, bValues,
+  xMin, xMax, yMax,
+  mar,
+  xMinMar, xMaxMar, yMaxMar,
+  straightContour,
+  critTermPoint
+ },
+  (* Value of A *)
+  a = 3;
+  (* Values of B *)
+  bStep = 1/100;
+  bCrit = bNat[a];
+  bMin = Max[0, Floor[bCrit - 4 bStep, bStep]];
+  bMax = Ceiling[bCrit + 8 bStep, bStep];
+  bValues = Range[bMin, bMax, bStep];
+  bValues = Append[bCrit] @ bValues;
+  bValues = bValues // Sort[#, Less] &;
+  (* Plot range *)
+  xMin = 0;
+  xMax = Pi/2 * 5/4;
+  yMax = 2;
+  (* Plot ranges with margin *)
+  mar = 1/5 xMax;
+  xMinMar = xMin - mar;
+  xMaxMar = xMax + mar;
+  yMaxMar = yMax + mar;
+  (* Straight contour (independent of A and B) *)
+  straightContour =
+    Graphics @ {straightStyle,
+      Line @ {{xStraight, -yMaxMar}, {xStraight, yMaxMar}}
+    };
+  (* Critical terminal point *)
+  critTermPoint[x0_, style_] :=
+    Graphics @ {Directive[style, pointStyle],
+      Point @ {x0, 0}
+    };
+  (* Animation *)
+  Table[
+    Show[
+      EmptyFrame[{xMin, xMax}, {-yMax, yMax},
+        ImageSize -> 180,
+        PlotLabel -> BoxedLabel[
+          Row[
+            {
+              aIt == a,
+              bIt == N[b, 2]
+            } // If[b == bCrit,
+              Style[#, natStyle] & /@ # &,
+              Identity
+            ],
+            ","
+          ],
+          FrameStyle -> If[b == bCrit,
+            natStyle,
+            Automatic
+          ]
+        ]
+      ],
+      (* Unphysical domain *)
+      RegionPlot[tKnown[b][x, y] < 0,
+        {x, xMinMar, xMaxMar}, {y, -yMaxMar, yMaxMar},
+        BoundaryStyle -> unphysStyle,
+        PlotPoints -> 50,
+        PlotStyle -> unphysStyle
+      ],
+      (* Non-viable domain *)
+      RegionPlot[vi[a, b][x, y] < 0,
+        {x, xMinMar, xMaxMar}, {y, -yMaxMar, yMaxMar},
+        BoundaryStyle -> termStyle,
+        PlotPoints -> 50,
+        PlotStyle -> nonStyle
+      ],
+      (* Known solution contours *)
+      ContourPlot[tKnown[b][x, y],
+        {x, xMinMar, xMaxMar}, {y, -yMaxMar, yMaxMar},
+        ContourShading -> None,
+        ContourStyle -> contStyle,
+        PlotRange -> {0, tKnown[b][xMax, 0]}
+      ],
+      straightContour,
+      (* Critical terminal points along y == 0 *)
+      Which[
+        (* Two distinct terminal points, x_\[Flat] & x_\[Sharp] *)
+        b > bCrit,
+        {
+          critTermPoint[Re @ xFlat[a, b], flatStyle],
+          critTermPoint[Re @ xSharp[a, b], sharpStyle]
+          (* Re chops off small imaginary part in floating point arithmetic *)
+        },
+        (* One terminal point x_\[Natural] *)
+        b == bCrit,
+        {
+          critTermPoint[N @ xNat[a], natStyle]
+          (* Doesn't work without applying N for some reason *)
+        },
+        (* Zero critical terminal points *)
+        True,
+        {}
+      ]
+    ]
+  , {b, bValues}]
+] // Ex["cosine_general-viable.gif", gifOpts]
+
+
 (* ::Section:: *)
 (*Simple case (B = 1) plots*)
 
