@@ -136,6 +136,80 @@ aNamesSimpConvex = AssociationThread[
 
 
 (* ::Subsection:: *)
+(*General case (B arbitrary)*)
+
+
+(* ::Subsubsection:: *)
+(*Critical terminal points along y = 0*)
+
+
+(* ::Text:: *)
+(*Observe that \[CapitalPhi](y = 0) = B^2 (1 - c^2) - (1 - B c)^8 / A^2, where c = cos(x).*)
+(*For a given A, there exists a constant B_\[Natural](A) such that*)
+(*only for B > B_\[Natural](A) will there be two critical terminal x-values,*)
+(*x_\[Flat] < x_\[Sharp], otherwise there will be none.*)
+
+
+(* ::Subsubsubsection:: *)
+(*Exploratory analysis: solutions of the polynomial*)
+
+
+With[{c = \[FormalC], a = \[FormalCapitalA], b = \[FormalCapitalB]},
+  Solve[
+    {
+      b^2 (1 - c^2) - (1 - b c)^8 / a^2 == 0,
+      a > 0,
+      b > 0
+    }, c, Reals
+  ]
+]
+
+
+(* ::Subsubsubsection:: *)
+(*Critical value B_\[Natural](A)*)
+
+
+(* ::Text:: *)
+(*From the above output,*)
+(*we see that the critical constant B_\[Natural](A) is given by*)
+(*the edge of the inequality A > Root[-65536 + ... + 729 B^2 #1^4 &, 2].*)
+(*Inverting that expression for B in terms of A:*)
+
+
+With[{a = \[FormalCapitalA], b = \[FormalCapitalB]},
+  Solve[
+    {
+      a == Root[
+        -65536 + 458752 b^2 - 1376256 b^4 + 2293760 b^6 - 2293760 b^8
+        + 1376256 b^10 - 458752 b^12 + 65536 b^14
+        + (-729 + 77200 b^2 + 449856 b^4 + 283392 b^6 + 13824 b^8) #1^2
+        + 729 b^2 #1^4 &,
+        2
+      ],
+      b > 0
+    }, b, Reals
+  ]
+]
+
+
+(* ::Text:: *)
+(*Therefore:*)
+
+
+bNat[a_] := Root[
+  -65536 - 729 a^2
+  + (458752 + 77200 a^2 + 729 a^4) #1^2
+  + (-1376256 + 449856 a^2) #1^4
+  + (2293760 + 283392 a^2) #1^6
+  + (-2293760 + 13824 a^2) #1^8
+  + 1376256 #1^10
+  - 458752 #1^12
+  + 65536 #1^14 &,
+  2
+]
+
+
+(* ::Subsection:: *)
 (*Starting points for boundary tracing*)
 
 
