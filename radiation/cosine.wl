@@ -862,7 +862,8 @@ DynamicModule[
   xMinUnphys, xMaxUnphys, yMaxUnphys,
   xMinNon, xMaxNon, yMaxNon,
   xMinCont, xMaxCont, yMaxCont,
-  numTo1, numBeyond1
+  numTo1, numBeyond1,
+  resetLabel
  },
   (* Values of A *)
   aInit = 0.2;
@@ -893,6 +894,8 @@ DynamicModule[
   (* Number of contours *)
   numTo1 = 5;
   numBeyond1 = 3;
+  (* Label for reset *)
+  resetLabel[var_] := Row @ {"Reset ", var};
   (* Plot *)
   Manipulate[
     Show[
@@ -934,7 +937,10 @@ DynamicModule[
       }
     ]
   , {{a, aInit, aIt}, aMin, aMax}
-  , {{b, bInit, bIt}, bMin, bMax}]
+  , {{b, bInit, bIt}, bMin, bMax}
+  , Button[resetLabel[aIt], a = aInit]
+  , Button[resetLabel[bIt], b = bInit]
+  ]
 ]
 
 
