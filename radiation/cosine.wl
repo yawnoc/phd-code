@@ -104,7 +104,12 @@ vi[a_, b_][x_, y_] := p[b][x, y]^2 + q[b][x, y]^2 - f[a, b][x, y]^2 // Evaluate;
 x0Simp[a_] :=
   With[{c = \[FormalC]},
     ArcCos[c]
-      /. Last @ Solve[(1 - c^2) - (1 - c)^8 / a^2 == 0, c, Reals]
+      /. Last @ Solve[
+        {
+          (1 - c^2) - (1 - c)^8 / a^2 == 0,
+          c < 1
+        }, c, Reals
+      ]
   ] // Evaluate;
 
 
