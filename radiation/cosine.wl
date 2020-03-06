@@ -209,6 +209,35 @@ bNat[a_] := Root[
 ]
 
 
+(* ::Subsubsubsection:: *)
+(*Critical terminal points x_\[Flat] and x_\[Sharp]*)
+
+
+(* ::Text:: *)
+(*From the above output (see Exploratory analysis: solutions of the polynomial),*)
+(*we see that the two values of critical terminal cos(x)*)
+(*are given by the Root[1 - A^2 B^2 - ... + B^8 #1^8 &, ...] expressions:*)
+
+
+polyC[a_, b_] := Function[{c},
+  1 - a^2 b^2
+  - 8 b c
+  + (28 b^2 + a^2 b^2) c^2
+  - 56 b^3 c^3
+  + 70 b^4 c^4
+  - 56 b^5 c^5
+  + 28 b^6 c^6
+  - 8 b^7 c^7
+  + b^8 c^8
+];
+
+
+xFlat[a_, b_] := ArcCos @ Root[polyC[a, b], 2] // Evaluate;
+
+
+xSharp[a_, b_] := ArcCos @ Root[polyC[a, b], 1] // Evaluate;
+
+
 (* ::Subsection:: *)
 (*Starting points for boundary tracing*)
 
