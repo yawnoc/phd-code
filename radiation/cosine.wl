@@ -238,6 +238,13 @@ xFlat[a_, b_] := ArcCos @ Root[polyC[a, b], 2] // Evaluate;
 xSharp[a_, b_] := ArcCos @ Root[polyC[a, b], 1] // Evaluate;
 
 
+(* ::Subsubsubsection:: *)
+(*Critical x_\[Natural] at B = B_\[Natural](A)*)
+
+
+xNat[a_] := xSharp[a, bNat[a]] // Evaluate;
+
+
 (* ::Subsection:: *)
 (*Starting points for boundary tracing*)
 
@@ -816,6 +823,11 @@ gifOpts = Sequence[
 textStyle = Style[#, 18] &;
 
 
+natStyle = Red;
+flatStyle = Blue;
+sharpStyle = Orange;
+
+
 contStyle = LightGray;
 straightStyle = Directive[Dashed, Magenta];
 nonStyle = Directive[Opacity[0.7], LightGray];
@@ -971,7 +983,8 @@ DynamicModule[
   xMinNon, xMaxNon, yMaxNon,
   xMinCont, xMaxCont, yMaxCont,
   numTo1, numBeyond1,
-  resetLabel
+  resetLabel,
+  critTermPoint
  },
   (* Values of A *)
   aInit = 0.2;
@@ -1004,6 +1017,11 @@ DynamicModule[
   numBeyond1 = 3;
   (* Label for reset *)
   resetLabel[var_] := Row @ {"Reset ", var};
+  (* Critical terminal point *)
+  critTermPoint[x0_, style_] :=
+    Graphics @ {Directive[style, pointStyle],
+      Point @ {x0, 0}
+    };
   (* Plot *)
   Manipulate[
     Show[
@@ -1042,7 +1060,25 @@ DynamicModule[
       (* Straight contour *)
       Graphics @ {straightStyle,
         Line @ {{xStraight, -yMaxCont}, {xStraight, yMaxCont}}
-      }
+      },
+      (* Critical terminal points along y == 0 *)
+      Which[
+        (* Two distinct terminal points, x_\[Flat] & x_\[Sharp] *)
+        b > bNat[a],
+        {
+          critTermPoint[Re @ xFlat[a, b], flatStyle],
+          critTermPoint[Re @ xSharp[a, b], sharpStyle]
+          (* Re chops off small imaginary part in floating point arithmetic *)
+        },
+        (* One terminal point x_\[Natural] *)
+        b == bNat[a],
+        {
+          critTermPoint[xNat[a], natStyle]
+        },
+        (* Zero critical terminal points *)
+        True,
+        {}
+      ]
     ]
   , {{a, aInit, aIt}, aMin, aMax}
   , {{b, bInit, bIt}, bMin, bMax}
