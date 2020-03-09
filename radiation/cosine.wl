@@ -245,6 +245,19 @@ xSharp[a_, b_] := ArcCos @ Root[polyC[a, b], 1] // Evaluate;
 xNat[a_] := xSharp[a, bNat[a]] // Evaluate;
 
 
+(* ::Subsubsection:: *)
+(*Representative values of A*)
+
+
+aValuesGen = {3, 10};
+
+
+aNamesGen = AssociationThread[
+  aValuesGen,
+  {"three", "ten"}
+];
+
+
 (* ::Subsection:: *)
 (*Starting points for boundary tracing*)
 
