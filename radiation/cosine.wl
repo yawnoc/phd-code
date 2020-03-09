@@ -246,10 +246,16 @@ xNat[a_] := xSharp[a, bNat[a]] // Evaluate;
 
 
 (* ::Subsubsection:: *)
-(*Representative value of A*)
+(*Representative values of A*)
 
 
-aValueGen = 3;
+aValuesGen = {3, 10};
+
+
+aNamesGen = AssociationThread[
+  aValuesGen,
+  {"three", "ten"}
+];
 
 
 (* ::Subsection:: *)
@@ -1991,7 +1997,7 @@ Module[
   xMin, xMax
  },
   (* Value of A *)
-  a = aValueGen;
+  a = 3;
   (* Critical values B_\[Natural] and x_\[Natural] *)
   (* (N needed otherwise Epilog doesn't work) *)
   bCrit = bNat[a] // N;
