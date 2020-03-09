@@ -1533,12 +1533,14 @@ DynamicModule[
     (* unless endpoint 2 Pi is numericised *)
     (* https://mathematica.stackexchange.com/a/101695 *)
   , {{u, uInit, uIt}, 0, 2 Pi,
+      Appearance -> "Open",
       TrackingFunction -> Function[{uNew},
         u = uNew;
         xy = XYBipolar[u, v];
       ]
   }
   , {{v, vInit, vIt}, -vMax, vMax,
+      Appearance -> "Open",
       TrackingFunction -> Function[{vNew},
         v = vNew;
         xy = XYBipolar[u, v];
