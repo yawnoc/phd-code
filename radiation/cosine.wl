@@ -1973,6 +1973,62 @@ Module[{aMin, aMax},
 (*General case (B arbitrary) plots*)
 
 
+(* ::Subsection:: *)
+(*Critical terminal points along y = 0*)
+
+
+Module[
+ {a,
+  bCrit, xCrit,
+  bMin, bMax
+ },
+  (* Value of A *)
+  a = 3;
+  (* Critical values B_\[Natural] and x_\[Natural] *)
+  (* (N needed otherwise Epilog doesn't work) *)
+  bCrit = bNat[a] // N;
+  xCrit = xNat[a] // N;
+  (* Plot *)
+  bMin = 0;
+  bMax = 5;
+  Plot[
+    (* x_\[Sharp] & x_\[Flat]*)
+    {xSharp[a, b], xFlat[a, b]},
+    {b, bMin, bMax},
+    AxesLabel -> {bIt, xIt},
+    Epilog -> {
+      (* x == x_\[Natural], B == B_\[Natural] *)
+      Directive[pointStyle, natStyle],
+      Point @ {bCrit, xCrit},
+      Text[
+        Column[
+          textStyle /@ {
+            Subscript[xIt, "nat"] == xCrit,
+            Subscript[bIt, "nat"] == bCrit
+          }
+        ],
+        {bCrit, xCrit},
+        {-1.2, 0}
+      ],
+    },
+    FillingStyle -> nonStyle,
+    PlotLabel -> BoxedLabel[aIt == a],
+    PlotLegends -> (
+      xIt == Subscript[xIt, #] & /@
+        {"sharp", "flat"}
+    ),
+    PlotStyle -> {flatStyle, sharpStyle},
+    PlotOptions[Axes] // Evaluate
+  ] // PrettyString[
+    "flat" -> "\[Flat]",
+    "nat" -> "\[Natural]",
+    "sharp" -> "\[Sharp]"
+  ] // Ex @ FString[
+    "cosine_general-critical-a-{ToName[a]}.pdf"
+  ]
+]
+
+
 (* ::Section:: *)
 (*Numerical verification (B = 1) plots*)
 
