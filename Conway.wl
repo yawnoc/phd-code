@@ -85,6 +85,7 @@ ClearAll["Conway`*`*"];
   SeekRoot,
   SeekRootBisection,
   SortByPhi,
+  ToName,
   UniformRange,
   Way
 };
@@ -586,6 +587,24 @@ UniformRange::usage = (
 
 UniformRange[start_?NumericQ, end_?NumericQ, maxStep_?NumericQ] :=
   Subdivide[start, end, (end - start) / maxStep // N // Ceiling]
+
+
+(* ::Subsubsection:: *)
+(*ToName*)
+
+
+ToName::usage = (
+  "ToName[number]\n"
+  <> "Converts real number to a string for a file name, "
+  <> "with decimal places replaced by underscores."
+);
+
+
+ToName[number_Integer | number_Real] :=
+  StringReplace[ToString @ DecimalForm[number], "." -> "_"];
+
+
+ToName[number_?NumericQ] /; Im[number] == 0 := ToName[Re @ number // N];
 
 
 (* ::Subsubsection:: *)

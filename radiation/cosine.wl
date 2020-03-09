@@ -1970,6 +1970,10 @@ Module[{aMin, aMax},
 
 
 (* ::Section:: *)
+(*General case (B arbitrary) plots*)
+
+
+(* ::Section:: *)
 (*Numerical verification plots*)
 
 

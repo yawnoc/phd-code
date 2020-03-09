@@ -95,6 +95,11 @@ UniformRange[0, 1, 0.099]
 UniformRange[0, 2 Pi, 5 Degree]
 
 
+Table[
+  {x, ToName[x]}
+, {x, {0, 0., 1, Pi, 1.*^-10, 3 + 0. I, 3 + 4. I, Infinity}}] // TableForm
+
+
 Way[0, 1]
 
 
