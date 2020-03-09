@@ -2174,8 +2174,8 @@ DynamicModule[
       "psi" -> "\[Psi]"
     ]
   , {{n, nInit, nIt}, nValues}
-  , {{gamma, gammaInit, gIt}, gammaMin, gammaMax}
-  , {{a, aInit, aIt}, aMin, aMax}]
+  , {{gamma, gammaInit, gIt}, gammaMin, gammaMax, Appearance -> "Open"}
+  , {{a, aInit, aIt}, aMin, aMax, Appearance -> "Open"}]
 ]
 
 
@@ -2341,7 +2341,7 @@ DynamicModule[
     aN = aNat[n][ph];
     aMin = 1/1000;
     aMax = aN;
-    aInit = aMin;
+    aInit = aMin // N;
     Manipulate[
       eps = 0.1;
       rhoMax = 1;
@@ -2368,7 +2368,7 @@ DynamicModule[
           PlotStyle -> nonStyle
         ]
       ]
-    , {{a, aInit, aIt}, aMin, aMax}]
+    , {{a, aInit, aIt}, aMin, aMax, Appearance -> "Open"}]
   , {{n, nInit, nIt}, nValues}]
 ]
 
@@ -2429,8 +2429,8 @@ DynamicModule[
       ]
     ]
   , {{n, nInit, nIt}, nValues}
-  , {{gamma, gammaInit, gIt}, gammaMin, gammaMax}
-  , {{a, aInit, aIt}, aMin, aMax}]
+  , {{gamma, gammaInit, gIt}, gammaMin, gammaMax, Appearance -> "Open"}
+  , {{a, aInit, aIt}, aMin, aMax, Appearance -> "Open"}]
 ]
 
 
