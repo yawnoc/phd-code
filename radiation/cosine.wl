@@ -896,7 +896,7 @@ DynamicModule[
       PlotOptions[Axes] // Evaluate,
       PlotRange -> {0, Automatic}
     ]
-  , {{b, bInit, bIt}, bMin, bMax}]
+  , {{b, bInit, bIt}, bMin, bMax, Appearance -> "Open"}]
 ]
 
 
@@ -962,7 +962,7 @@ DynamicModule[
         Line @ {{xStraight, -yMaxCont}, {xStraight, yMaxCont}}
       }
     ]
-  , {{b, bInit, bIt}, bMin, bMax}]
+  , {{b, bInit, bIt}, bMin, bMax, Appearance -> "Open"}]
 ]
 
 
@@ -1080,8 +1080,8 @@ DynamicModule[
         {}
       ]
     ]
-  , {{a, aInit, aIt}, aMin, aMax}
-  , {{b, bInit, bIt}, bMin, bMax}
+  , {{a, aInit, aIt}, aMin, aMax, Appearance -> "Open"}
+  , {{b, bInit, bIt}, bMin, bMax, Appearance -> "Open"}
   , Button[resetLabel[aIt], a = aInit]
   , Button[resetLabel[bIt], b = bInit]
   ]
@@ -1140,8 +1140,8 @@ DynamicModule[
         Point @ {xStraight, 0}
       }
     ]
-  , {{a, aInit, aIt}, aMin, aMax}
-  , {{b, bInit, bIt}, bMin, bMax}]
+  , {{a, aInit, aIt}, aMin, aMax, Appearance -> "Open"}
+  , {{b, bInit, bIt}, bMin, bMax, Appearance -> "Open"}]
 ]
 
 
