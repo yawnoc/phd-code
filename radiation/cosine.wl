@@ -258,6 +258,44 @@ aNamesGen = AssociationThread[
 ];
 
 
+(* ::Subsubsection:: *)
+(*Representative values of B for a given A*)
+
+
+(* ::Text:: *)
+(*The names of the regimes are:*)
+(*(1) gentle, B < B_\[Natural](A)*)
+(*(2) gentle-to-fair, B = B_\[Natural](A)*)
+(*(3) fair, B_\[Natural](A) < B < 1*)
+(*(4) fair-to-steep (or simple), B = 1*)
+(*(5) steep, B > 1*)
+(*See Page r5-8.*)
+
+
+(* Gentle regime: choose B == B_\[Natural](A) / 2 *)
+bValueGen["gentle"][a_] := bNat[a] / 2;
+
+
+(* Gentle-to-fair transition: B == B_\[Natural](A) *)
+bValueGen["gentle_fair"][a_] := bNat[a];
+
+
+(* Fair regime: B_\[Natural] < B < 1 such that x_\[Flat] == 3/4 x_\[Natural] *)
+bValueGen["fair"][a_] :=
+  SeekRootBisection[
+    xFlat[a, #] - 3/4 xNat[a] &,
+    {bNat[a], 1}
+  ];
+
+
+(* Fair-to-steep transition: B == 1 *)
+bValueGen["fair_steep"][a_] := 1;
+
+
+(* Steep regime: choose B == 2 *)
+bValueGen["steep"][a_] := 2;
+
+
 (* ::Subsection:: *)
 (*Starting points for boundary tracing*)
 
