@@ -1974,7 +1974,7 @@ Module[{aMin, aMax},
 
 
 (* ::Section:: *)
-(*Numerical verification plots*)
+(*Numerical verification (B = 1) plots*)
 
 
 (* ::Subsection:: *)
