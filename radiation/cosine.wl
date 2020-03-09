@@ -1993,7 +1993,8 @@ Module[{aMin, aMax},
 Module[
  {a,
   bCrit, xCrit,
-  bMin, bMax
+  bMin, bMax,
+  xMin, xMax
  },
   (* Value of A *)
   a = 3;
@@ -2001,13 +2002,31 @@ Module[
   (* (N needed otherwise Epilog doesn't work) *)
   bCrit = bNat[a] // N;
   xCrit = xNat[a] // N;
-  (* Plot *)
+  (* B range *)
   bMin = 0;
   bMax = 5;
+  (* x range *)
+  xMin = 0;
+  xMax = 1.1 xSharp[a, #] & [
+    With[{b = \[FormalCapitalB]},
+      b /. Last @ Solve[
+        D[xSharp[a, b], b] == 0,
+        b
+      ]
+    ]
+  ];
+  (* Plot *)
   Plot[
     (* x_\[Sharp] & x_\[Flat]*)
-    {xSharp[a, b], xFlat[a, b]},
-    {b, bMin, bMax},
+    {
+      xSharp[a, b],
+      xFlat[a, b],
+      Piecewise @ {
+        {xMin, b < bCrit},
+        {Indeterminate, True}
+      }
+    },
+    {b, bMin + 10^-6, bMax},
     AxesLabel -> {bIt, xIt},
     Epilog -> {
       (* x == x_\[Natural], B == B_\[Natural] *)
@@ -2024,13 +2043,19 @@ Module[
         {-1.2, 0}
       ],
     },
+    Filling -> {
+      1 -> Top,
+      2 -> Bottom,
+      3 -> Top
+    },
     FillingStyle -> nonStyle,
     PlotLabel -> BoxedLabel[aIt == a],
     PlotLegends -> (
       xIt == Subscript[xIt, #] & /@
         {"sharp", "flat"}
     ),
-    PlotStyle -> {flatStyle, sharpStyle},
+    PlotRange -> {xMin, xMax},
+    PlotStyle -> {flatStyle, sharpStyle, None},
     PlotOptions[Axes] // Evaluate
   ] // PrettyString[
     "flat" -> "\[Flat]",
