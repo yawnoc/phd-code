@@ -2241,7 +2241,8 @@ Module[
   generalContours,
   straightContour,
   labelFun,
-  b,
+  regime, b,
+  startingPointPlot,
   idList
  },
   (* Plot range *)
@@ -2313,25 +2314,35 @@ Module[
       ----------------------------------------------------------------
     *)
     (* Value of B *)
-    b = bValueGen["gentle"][a];
+    regime = "gentle";
+    b = bValueGen[regime][a];
     (* Plot *)
-    Show[
-      emptyFrame[a, b],
-      unphysicalDomain[b],
-      nonViableDomain[a, b],
-      generalContours[b],
-      straightContour,
-      (* Starting points *)
-      idList = {"disconnected", "connected"};
-      ListPlot[
-        Table[
-          startXYGen[a]["gentle"][id]
-        , {id, idList}],
-        LabelingFunction -> labelFun,
-        PlotLegends -> idList,
-        PlotStyle -> startingPointStyle
-      ]
-    ]
+    startingPointPlot[regime] =
+      Show[
+        emptyFrame[a, b],
+        unphysicalDomain[b],
+        nonViableDomain[a, b],
+        generalContours[b],
+        straightContour,
+        (* Starting points *)
+        idList = {"disconnected", "connected"};
+        ListPlot[
+          Table[
+            startXYGen[a]["gentle"][id]
+          , {id, idList}],
+          LabelingFunction -> labelFun,
+          PlotLegends -> idList,
+          PlotStyle -> startingPointStyle
+        ]
+      ];
+    (*
+      ----------------------------------------------------------------
+      All regimes
+      ----------------------------------------------------------------
+    *)
+    Table[
+      startingPointPlot[regime]
+    , {regime, {"gentle"}}]
   , {a, aValuesGen}]
 ]
 
