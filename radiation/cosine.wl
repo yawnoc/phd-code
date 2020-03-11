@@ -2451,7 +2451,7 @@ Module[
         idList = {"disconnected", "connected"};
         ListPlot[
           Table[
-            startXYGen[a]["gentle"][id]
+            startXYGen[a][regime][id]
           , {id, idList}],
           LabelingFunction -> labelFun,
           PlotLegends -> idList,
