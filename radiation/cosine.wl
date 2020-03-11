@@ -462,12 +462,12 @@ Table[
     sStart = DomainStart[xyContour];
     sEnd = DomainEnd[xyContour];
     (* Return starting points *)
-    num = 8;
+    num = 6;
     yReflect = # * {1, -1} &;
     startXYGen[a]["gentle"]["disconnected"] = (
       Table[
         xyContour[s] // Through // Rationalize[#, 0] &
-      , {s, Subdivide[sStart, sEnd, 1 + num]}]
+      , {s, Subdivide[sStart, sEnd, num]}]
         // Rest
         // Most
         // Join[#, yReflect /@ #] &
