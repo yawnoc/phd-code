@@ -521,7 +521,7 @@ Table[
 
 
 (* ::Subsubsubsection:: *)
-(*Gentle-to-fair transition: B = B_\[Natural](A)*)
+(*Gentle-to-fair transition B = B_\[Natural](A)*)
 
 
 Table[
@@ -2460,7 +2460,7 @@ Module[
       ];
     (*
       ----------------------------------------------------------------
-      Gentle-to-fair transition: B = B_\[Natural](A)
+      Gentle-to-fair transition B = B_\[Natural](A)
       ----------------------------------------------------------------
     *)
     (* Value of B *)
