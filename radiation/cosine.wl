@@ -2831,12 +2831,39 @@ Module[
       ];
     (*
       ----------------------------------------------------------------
+      Steep regime B > 1
+      ----------------------------------------------------------------
+    *)
+    (* Value of B *)
+    regime = "steep";
+    b = bValueGen[regime][a];
+    (* Plot *)
+    startingPointPlot[regime] =
+      Show[
+        emptyFrame[a, b],
+        unphysicalDomain[b],
+        nonViableDomain[a, b],
+        generalContours[b],
+        straightContour,
+        (* Starting points *)
+        idList = {"connected", "hyperbolic"};
+        ListPlot[
+          Table[
+            startXYGen[a][regime][id]
+          , {id, idList}],
+          LabelingFunction -> labelFun,
+          PlotLegends -> idList,
+          PlotStyle -> startingPointStyle
+        ]
+      ];
+    (*
+      ----------------------------------------------------------------
       All regimes
       ----------------------------------------------------------------
     *)
     Table[
       startingPointPlot[regime]
-    , {regime, {"gentle", "gentle_fair", "fair", "fair_steep"}}]
+    , {regime, {"gentle", "gentle_fair", "fair", "fair_steep", "steep"}}]
   , {a, aValuesGen}]
 ]
 
