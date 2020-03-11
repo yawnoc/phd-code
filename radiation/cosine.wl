@@ -895,6 +895,7 @@ simp0Style = Blue;
 
 
 pointStyle = PointSize[Large];
+startingPointStyle = Directive[Opacity[0.7], pointStyle];
 glowStyle = Directive[Thick, Yellow, Opacity[0.7]];
 
 
