@@ -411,6 +411,7 @@ Table[
 Table[
   Module[
    {yReflect,
+    regime,
     b, yMax,
     tValue, xInit, yInit,
     sMax, xyContour,
@@ -419,8 +420,10 @@ Table[
    },
     (* Reflect y coordinate *)
     yReflect = # * {1, -1} &;
+    (* Regime name *)
+    regime = "gentle";
     (* Value of B *)
-    b = bValueGen["gentle"][a];
+    b = bValueGen[regime][a];
     (* Range for y *)
     yMax = 4;
     (*
@@ -466,7 +469,7 @@ Table[
     sEnd = DomainEnd[xyContour];
     (* Return starting points *)
     nMax = 6;
-    startXYGen[a]["gentle"]["disconnected"] = (
+    startXYGen[a][regime]["disconnected"] = (
       Table[
         xyContour[s] // Through // Rationalize[#, 0] &
       , {s, Subdivide[sStart, sEnd, nMax]}]
@@ -505,7 +508,7 @@ Table[
     sEnd = DomainEnd[xyContour];
     (* Return starting points within the viable domain *)
     nMax = 12;
-    startXYGen[a]["gentle"]["connected"] = (
+    startXYGen[a][regime]["connected"] = (
       Table[
         xyContour[s] // Through // Rationalize[#, 0] &
       , {s, Subdivide[sStart, sEnd, nMax]}]
