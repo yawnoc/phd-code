@@ -794,15 +794,15 @@ Table[
     (*
       ----------------------------------------------------------------
       Starting points along connected contour
-        T = 2/3 T(x = x_\[Natural], y = 0)
+        T = 1/2
       ----------------------------------------------------------------
     *)
     (* Value of T along contour *)
-    tValue = 2/3 tKnown[b][xNat[a], 0];
-    (* Seek starting point (x == 1, y) therealong *)
-    xInit = 1;
-    yInit = SeekRoot[
-      tKnown[b][xInit, #] - tValue &,
+    tValue = 1/2;
+    (* Seek starting point (x, y == 0) therealong *)
+    yInit = 0;
+    xInit = SeekRoot[
+      tKnown[b][#, yInit] - tValue &,
       {0, yMax}
     ];
     (* (Probable) upper bound for arc length traversed *)
