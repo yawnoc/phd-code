@@ -379,7 +379,7 @@ Table[
         yMax = 2;
         (* (Probable) upper bound for arc length traversed *)
         sMax = 3/2 * yMax;
-        (* Terminal curve *)
+        (* Contour *)
         xyContour =
           NDSolveValue[
             {
@@ -391,7 +391,7 @@ Table[
           ];
         (* Actual arc length traversed *)
         sMax = DomainEnd[xyContour];
-        (* Starting points along the terminal curve *)
+        (* Starting points along the contour *)
         Table[
           xyContour[s] // Through // Rationalize[#, 0] &
         , {s, Subdivide[-sMax, sMax, nMax]}]
