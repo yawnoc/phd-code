@@ -410,12 +410,15 @@ Table[
 
 Table[
   Module[
-   {b, yMax,
+   {yReflect,
+    b, yMax,
     tValue, xInit, yInit,
     sMax, xyContour,
     sStart, sEnd,
-    num, yReflect
+    num
    },
+    (* Reflect y coordinate *)
+    yReflect = # * {1, -1} &;
     (* Value of B *)
     b = bValueGen["gentle"][a];
     (* Range for y *)
@@ -463,7 +466,6 @@ Table[
     sEnd = DomainEnd[xyContour];
     (* Return starting points *)
     num = 6;
-    yReflect = # * {1, -1} &;
     startXYGen[a]["gentle"]["disconnected"] = (
       Table[
         xyContour[s] // Through // Rationalize[#, 0] &
