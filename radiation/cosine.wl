@@ -2405,7 +2405,7 @@ Module[
     RegionPlot[vi[a, b][x, y] < 0,
       {x, xMinMar, xMaxMar}, {y, -yMaxMar, yMaxMar},
       BoundaryStyle -> termStyle,
-      PlotPoints -> 50,
+      PlotPoints -> 70,
       PlotStyle -> nonStyle
     ]
   );
