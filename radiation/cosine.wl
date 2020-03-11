@@ -2319,7 +2319,7 @@ Module[
       generalContours[b],
       straightContour,
       (* Starting points *)
-      idList = {"disconnected"};
+      idList = {"disconnected", "connected"};
       ListPlot[
         Table[
           startXYGen[a]["gentle"][id]
