@@ -2660,7 +2660,7 @@ Module[
  },
   (* Plot range *)
   xMin = 0;
-  xMax = Pi/2 * 7/4;
+  xMax = Pi/2 * 3/2;
   yMax = 4;
   tContourNum = 13;
   tContourRange = {0, 1.3};
