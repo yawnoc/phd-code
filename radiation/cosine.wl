@@ -400,6 +400,80 @@ Table[
 , {a, aValuesSimp}];
 
 
+(* ::Subsubsection:: *)
+(*General case (B arbitrary)*)
+
+
+(* ::Subsubsubsection:: *)
+(*Gentle regime B < B_\[Natural](A)*)
+
+
+Table[
+  Module[
+   {b, yMax,
+    tValue, xInit, yInit,
+    sMax, xyContour,
+    sStart, sEnd,
+    num
+   },
+    (* Value of B *)
+    b = bValueGen["gentle"][a];
+    (* Range for y *)
+    yMax = 4;
+    (*
+      ----------------------------------------------------------------
+      Starting points along (probably) disconnected contour
+        T = 5/6 T(x = x_\[Natural], y = 0)
+      (For the current values A = 3, 10, this contour is disconnected,
+      but I say "probably" since there might be some extreme choice of A & B
+      for which the contour is not disconnected.)
+      ----------------------------------------------------------------
+    *)
+    (* Value of T along contour *)
+    tValue = 5/6 tKnown[b][xNat[a], 0];
+    (* Seek starting point (x == 1, y) therealong *)
+    xInit = 1;
+    yInit = SeekRoot[
+      tKnown[b][xInit, #] - tValue &,
+      {0, yMax}
+    ];
+    (* (Probable) upper bound for arc length traversed *)
+    sMax = 6;
+    (* Contour (y > 0 half) *)
+    xyContour =
+      With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+        NDSolveValue[
+          {
+            xyContourSystem[b],
+            x[0] == xInit, y[0] == yInit,
+            WhenEvent[
+              {
+                tKnown[b][x[s], y[s]] < 0,
+                x[s] < 0,
+                y[s] > yMax
+              },
+              "StopIntegration"
+            ]
+          }, {x, y}, {s, -sMax, sMax},
+          NoExtrapolation
+        ]
+      ];
+    (* Actual arc length traversed *)
+    sStart = DomainStart[xyContour];
+    sEnd = DomainEnd[xyContour];
+    (* Return starting points *)
+    num = 8;
+    startXYGen[a]["gentle"]["disconnected"] = (
+      Table[
+        xyContour[s] // Through // Rationalize[#, 0] &
+      , {s, Subdivide[sStart, sEnd, 1 + num]}]
+        // Rest
+        // Most
+    );
+  ]
+, {a, aValuesGen}];
+
+
 (* ::Subsection:: *)
 (*Terminal curve x = x(s), y = y(s)*)
 
