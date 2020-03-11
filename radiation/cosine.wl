@@ -415,7 +415,7 @@ Table[
     tValue, xInit, yInit,
     sMax, xyContour,
     sStart, sEnd,
-    num
+    nMax
    },
     (* Reflect y coordinate *)
     yReflect = # * {1, -1} &;
@@ -465,11 +465,11 @@ Table[
     sStart = DomainStart[xyContour];
     sEnd = DomainEnd[xyContour];
     (* Return starting points *)
-    num = 6;
+    nMax = 6;
     startXYGen[a]["gentle"]["disconnected"] = (
       Table[
         xyContour[s] // Through // Rationalize[#, 0] &
-      , {s, Subdivide[sStart, sEnd, num]}]
+      , {s, Subdivide[sStart, sEnd, nMax]}]
         // Rest
         // Most
         // Join[#, yReflect /@ #] &
@@ -504,11 +504,11 @@ Table[
     sStart = DomainStart[xyContour];
     sEnd = DomainEnd[xyContour];
     (* Return starting points within the viable domain *)
-    num = 12;
+    nMax = 12;
     startXYGen[a]["gentle"]["connected"] = (
       Table[
         xyContour[s] // Through // Rationalize[#, 0] &
-      , {s, Subdivide[sStart, sEnd, num]}]
+      , {s, Subdivide[sStart, sEnd, nMax]}]
         // Rest
         // Most
         // Cases[{x_, y_} /; vi[a, b][x, y] > 0]
