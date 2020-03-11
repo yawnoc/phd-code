@@ -272,8 +272,8 @@ aNamesGen = AssociationThread[
 (*See Page r5-8.*)
 
 
-(* Gentle regime: choose B == B_\[Natural](A) / 2 *)
-bValueGen["gentle"][a_] := bNat[a] / 2;
+(* Gentle regime: choose B == 9/10 B_\[Natural](A) *)
+bValueGen["gentle"][a_] := 9/10 bNat[a];
 
 
 (* Gentle-to-fair transition: B == B_\[Natural](A) *)
