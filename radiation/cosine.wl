@@ -423,14 +423,14 @@ Table[
     (*
       ----------------------------------------------------------------
       Starting points along (probably) disconnected contour
-        T = 5/6 T(x = x_\[Natural], y = 0)
+        T = 2/3 T(x = x_\[Natural], y = 0)
       (For the current values A = 3, 10, this contour is disconnected,
       but I say "probably" since there might be some extreme choice of A & B
       for which the contour is not disconnected.)
       ----------------------------------------------------------------
     *)
     (* Value of T along contour *)
-    tValue = 5/6 tKnown[b][xNat[a], 0];
+    tValue = 2/3 tKnown[b][xNat[a], 0];
     (* Seek starting point (x == 1, y) therealong *)
     xInit = 1;
     yInit = SeekRoot[
