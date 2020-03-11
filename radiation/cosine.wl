@@ -2663,7 +2663,7 @@ Module[
   xMax = Pi/2 * 3/2;
   yMax = 4;
   tContourNum = 13;
-  tContourRange = {0, 1.3};
+  tContourRange = {0, 2};
   (* Plot range with margin *)
   mar = 1/5 xMax;
   xMinMar = xMin - mar;
