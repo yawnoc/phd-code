@@ -769,6 +769,88 @@ Table[
 , {a, aValuesGen}];
 
 
+(* ::Subsubsubsection:: *)
+(*Fair-to-steep transition B = 1*)
+
+
+Table[
+  Module[
+   {yReflect,
+    regime,
+    b, yMax,
+    tValue, xInit, yInit,
+    sMax, xyContour,
+    sStart, sEnd,
+    nMax
+   },
+    (* Reflect y coordinate *)
+    yReflect = # * {1, -1} &;
+    (* Regime name *)
+    regime = "fair_steep";
+    (* Value of B *)
+    b = bValueGen[regime][a];
+    (* Range for y *)
+    yMax = 4;
+    (*
+      ----------------------------------------------------------------
+      Starting points along connected contour
+        T = 2/3 T(x = x_\[Natural], y = 0)
+      ----------------------------------------------------------------
+    *)
+    (* Value of T along contour *)
+    tValue = 2/3 tKnown[b][xNat[a], 0];
+    (* Seek starting point (x == 1, y) therealong *)
+    xInit = 1;
+    yInit = SeekRoot[
+      tKnown[b][xInit, #] - tValue &,
+      {0, yMax}
+    ];
+    (* (Probable) upper bound for arc length traversed *)
+    sMax = 6;
+    (* Contour (y > 0 half) *)
+    xyContour =
+      With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+        NDSolveValue[
+          {
+            xyContourSystem[b],
+            x[0] == xInit, y[0] == yInit,
+            WhenEvent[
+              {
+                tKnown[b][x[s], y[s]] < 0,
+                x[s] < 0,
+                y[s] > yMax
+              },
+              "StopIntegration"
+            ]
+          }, {x, y}, {s, -sMax, sMax},
+          NoExtrapolation
+        ]
+      ];
+    (* Actual arc length traversed *)
+    sStart = DomainStart[xyContour];
+    sEnd = DomainEnd[xyContour];
+    (* Return starting points *)
+    nMax = 12;
+    startXYGen[a][regime]["connected"] = (
+      Table[
+        xyContour[s] // Through // Rationalize[#, 0] &
+      , {s, Subdivide[sStart, sEnd, nMax]}]
+        // Rest
+        // Most
+    );
+    (*
+      ----------------------------------------------------------------
+      Hyperbolic critical terminal point (x = x_\[Sharp], y = 0)
+      (The trivial point (x = x_\[Flat], y = 0) is useless.)
+      ----------------------------------------------------------------
+    *)
+    startXYGen[a][regime]["hyperbolic"] = {
+      {xSharp[a, b], 0}
+    }
+  ]
+, {a, aValuesGen}];
+
+
 (* ::Subsection:: *)
 (*Terminal curve x = x(s), y = y(s)*)
 
