@@ -2180,6 +2180,116 @@ Module[
 ]
 
 
+(* ::Subsection:: *)
+(*Starting points for boundary tracing*)
+
+
+Module[
+ {xMin, xMax, yMax,
+  tContourNum, tContourRange,
+  mar,
+  xMinMar, xMaxMar, yMaxMar,
+  emptyFrame,
+  unphysicalDomain,
+  nonViableDomain,
+  generalContours,
+  straightContour,
+  labelFun,
+  b,
+  idList
+ },
+  (* Plot range *)
+  xMin = 0;
+  xMax = Pi/2 * 5/4;
+  yMax = 4;
+  tContourNum = 13;
+  tContourRange = {0, 1.3};
+  (* Plot range with margin *)
+  mar = 1/5 xMax;
+  xMinMar = xMin - mar;
+  xMaxMar = xMax + mar;
+  yMaxMar = yMax + mar;
+  (* Empty frame *)
+  emptyFrame[a_, b_] := (
+    EmptyFrame[{xMin, xMax}, {-yMax, yMax},
+      ImageSize -> 240,
+      PlotLabel -> BoxedLabel[
+        Row[
+          {aIt == a, bIt == N[b]},
+          ","
+        ]
+      ]
+    ]
+  );
+  (* Unphysical domain *)
+  unphysicalDomain[b_] := (
+    RegionPlot[tKnown[b][x, y] < 0,
+      {x, xMinMar, xMaxMar}, {y, -yMaxMar, yMaxMar},
+      BoundaryStyle -> unphysStyle,
+      PlotPoints -> 50,
+      PlotStyle -> unphysStyle
+    ]
+  );
+  (* Non-viable domain *)
+  nonViableDomain[a_, b_] := (
+    RegionPlot[vi[a, b][x, y] < 0,
+      {x, xMinMar, xMaxMar}, {y, -yMaxMar, yMaxMar},
+      BoundaryStyle -> termStyle,
+      PlotPoints -> 50,
+      PlotStyle -> nonStyle
+    ]
+  );
+  (* Known solution contours (general) *)
+  generalContours[b_] := (
+    ContourPlot[
+      tKnown[b][x, y],
+      {x, xMinMar, xMaxMar}, {y, -yMaxMar, yMaxMar},
+      Contours -> tContourNum,
+      ContourShading -> None,
+      ContourStyle -> contStyle,
+      PlotRange -> tContourRange
+    ]
+  );
+  (* Known solution contours (straight) *)
+  straightContour = Graphics @ {straightStyle,
+    Line @ {{xStraight, -yMaxMar}, {xStraight, yMaxMar}}
+  };
+  (* Labelling function *)
+  labelFun = Function @ Placed[
+    #2[[2]],
+    Center
+  ];
+  (* Plots for various A *)
+  Table[
+    (*
+      ----------------------------------------------------------------
+      Gentle regime B < B_\[Natural](A)
+      ----------------------------------------------------------------
+    *)
+    (* Value of B *)
+    b = bValueGen["gentle"][a];
+    (* Plot *)
+    Show[
+      emptyFrame[a, b],
+      unphysicalDomain[b],
+      nonViableDomain[a, b],
+      generalContours[b],
+      straightContour,
+      (* Starting points *)
+      idList = {"disconnected"};
+      ListPlot[
+        Table[
+          startXYGen[a]["gentle"][id]
+        , {id, idList}],
+        LabelingFunction -> labelFun,
+        PlotLegends -> idList,
+        PlotStyle -> startingPointStyle
+      ]
+    ]
+  , {a, aValuesGen}]
+]
+
+
 (* ::Section:: *)
 (*Numerical verification (B = 1) plots*)
 
