@@ -2863,6 +2863,9 @@ Module[
     *)
     Table[
       startingPointPlot[regime]
+        // Ex @ FString[
+          "cosine_general-a-{ToName[a]}-{regime}-traced-starting.pdf"
+        ]
     , {regime, {"gentle", "gentle_fair", "fair", "fair_steep", "steep"}}]
   , {a, aValuesGen}]
 ]
