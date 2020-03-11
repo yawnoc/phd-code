@@ -474,6 +474,45 @@ Table[
         // Most
         // Join[#, yReflect /@ #] &
     );
+    (*
+      ----------------------------------------------------------------
+      Starting points along (probably) connected contour
+        T = T(x = x_\[Natural], y = 0)
+      ----------------------------------------------------------------
+    *)
+    (* Starting point (x == x_\[Natural], y == 0) *)
+    xInit = xNat[a];
+    yInit = 0;
+    (* (Probable) upper bound for arc length traversed *)
+    sMax = 6;
+    (* Contour *)
+    xyContour =
+      With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+        NDSolveValue[
+          {
+            xyContourSystem[b],
+            x[0] == xInit, y[0] == yInit,
+            WhenEvent[
+              {Abs @ y[s] > yMax},
+              "StopIntegration"
+            ]
+          }, {x, y}, {s, -sMax, sMax},
+          NoExtrapolation
+        ]
+      ];
+    (* Actual arc length traversed *)
+    sStart = DomainStart[xyContour];
+    sEnd = DomainEnd[xyContour];
+    (* Return starting points within the viable domain *)
+    num = 12;
+    startXYGen[a]["gentle"]["connected"] = (
+      Table[
+        xyContour[s] // Through // Rationalize[#, 0] &
+      , {s, Subdivide[sStart, sEnd, num]}]
+        // Rest
+        // Most
+        // Cases[{x_, y_} /; vi[a, b][x, y] > 0]
+    );
   ]
 , {a, aValuesGen}];
 
