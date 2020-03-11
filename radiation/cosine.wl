@@ -2613,12 +2613,39 @@ Module[
       ];
     (*
       ----------------------------------------------------------------
+      Fair regime B = B_\[Natural](A)
+      ----------------------------------------------------------------
+    *)
+    (* Value of B *)
+    regime = "fair";
+    b = bValueGen[regime][a];
+    (* Plot *)
+    startingPointPlot[regime] =
+      Show[
+        emptyFrame[a, b],
+        unphysicalDomain[b],
+        nonViableDomain[a, b],
+        generalContours[b],
+        straightContour,
+        (* Starting points *)
+        idList = {"disconnected", "connected", "hyperbolic"};
+        ListPlot[
+          Table[
+            startXYGen[a][regime][id]
+          , {id, idList}],
+          LabelingFunction -> labelFun,
+          PlotLegends -> idList,
+          PlotStyle -> startingPointStyle
+        ]
+      ];
+    (*
+      ----------------------------------------------------------------
       All regimes
       ----------------------------------------------------------------
     *)
     Table[
       startingPointPlot[regime]
-    , {regime, {"gentle", "gentle_fair"}}]
+    , {regime, {"gentle", "gentle_fair", "fair"}}]
   , {a, aValuesGen}]
 ]
 
