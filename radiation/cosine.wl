@@ -414,7 +414,7 @@ Table[
     tValue, xInit, yInit,
     sMax, xyContour,
     sStart, sEnd,
-    num
+    num, yReflect
    },
     (* Value of B *)
     b = bValueGen["gentle"][a];
@@ -463,12 +463,14 @@ Table[
     sEnd = DomainEnd[xyContour];
     (* Return starting points *)
     num = 8;
+    yReflect = # * {1, -1} &;
     startXYGen[a]["gentle"]["disconnected"] = (
       Table[
         xyContour[s] // Through // Rationalize[#, 0] &
       , {s, Subdivide[sStart, sEnd, 1 + num]}]
         // Rest
         // Most
+        // Join[#, yReflect /@ #] &
     );
   ]
 , {a, aValuesGen}];
