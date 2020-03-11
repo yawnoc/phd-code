@@ -644,7 +644,7 @@ Table[
 
 
 (* ::Subsubsubsection:: *)
-(*Fair regime B_\[Natural] < B < 1*)
+(*Fair regime B_\[Natural](A) < B < 1*)
 
 
 Table[
@@ -2613,7 +2613,7 @@ Module[
       ];
     (*
       ----------------------------------------------------------------
-      Fair regime B = B_\[Natural](A)
+      Fair regime B_\[Natural](A) < B < 1
       ----------------------------------------------------------------
     *)
     (* Value of B *)
