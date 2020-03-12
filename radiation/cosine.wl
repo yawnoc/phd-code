@@ -1249,6 +1249,73 @@ xyTraCandSimp[a_?NumericQ, terminateAtStraightContour_: False] :=
   ];
 
 
+(* ::Subsubsection:: *)
+(*General case (B arbitrary)*)
+
+
+(* ::Subsubsubsection:: *)
+(*Generic boundaries (for the chosen representative values of A)*)
+
+
+Module[
+ {aValues,
+  idList, regimeList,
+  b, sMax,
+  xyInitList, xInit, yInit
+ },
+  (* Representative values of A *)
+  aValues = aValuesGen;
+  (* Starting point group ids for each of the regimes *)
+  idList =
+    With[{d = "disconnected", c = "connected", h = "hyperbolic"},
+      Association[
+        "gentle" -> {d, c},
+        "gentle_fair" -> {d, c, h},
+        "fair" -> {d, c, h},
+        "fair_steep" -> {c, h},
+        "steep" -> {c, h}
+      ]
+    ];
+  (* List of regimes *)
+  regimeList = Keys[idList];
+  (* For each value of A *)
+  Table[
+    (* For each regime *)
+    Table[
+      (* Value of B *)
+      b = bValueGen[regime][a];
+      (* Range for s *)
+      sMax = 6;
+      (* For each group of starting points *)
+      Table[
+        (* Starting points *)
+        xyInitList = startXYGen[a][regime][id];
+        (* Solve for traced boundaries *)
+        xyTraGen[a][regime][id] =
+          Table[
+            {xInit, yInit} = xyInit;
+            With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+              NDSolveValue[
+                {
+                  xyTraSystem[a, b],
+                  x[0] == xInit, y[0] == yInit,
+                  WhenEvent[
+                    {
+                      vi[a, b][x[s], y[s]] < 0,
+                      tKnown[b][x[s], y[s]] < 0
+                    },
+                    "StopIntegration"
+                  ]
+                }, {x, y}, {s, -sMax, sMax}
+              ]
+            ]
+          , {xyInit, xyInitList}]
+      , {id, idList[regime]}]
+    , {regime, regimeList}]
+  , {a, aValues}]
+];
+
+
 (* ::Subsection:: *)
 (*Numerical verification (finite elements)*)
 
