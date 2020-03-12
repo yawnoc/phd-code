@@ -933,6 +933,29 @@ Table[
 , {a, aValuesGen}];
 
 
+(* ::Subsubsubsection:: *)
+(*Starting point groups for each regime*)
+
+
+idListGen =
+  With[{d = "disconnected", c = "connected", h = "hyperbolic"},
+    Association[
+      "gentle" -> {d, c},
+      "gentle_fair" -> {d, c, h},
+      "fair" -> {d, c, h},
+      "fair_steep" -> {c, h},
+      "steep" -> {c, h}
+    ]
+  ];
+
+
+(* ::Subsubsubsection:: *)
+(*List of regimes*)
+
+
+regimeListGen = Keys[idListGen];
+
+
 (* ::Subsection:: *)
 (*Terminal curve x = x(s), y = y(s)*)
 
@@ -1259,31 +1282,19 @@ xyTraCandSimp[a_?NumericQ, terminateAtStraightContour_: False] :=
 
 Module[
  {aValues,
-  idList, regimeList,
-  b, sMax,
+  b, idList, sMax,
   xyInitList, xInit, yInit
  },
   (* Representative values of A *)
   aValues = aValuesGen;
-  (* Starting point group ids for each of the regimes *)
-  idList =
-    With[{d = "disconnected", c = "connected", h = "hyperbolic"},
-      Association[
-        "gentle" -> {d, c},
-        "gentle_fair" -> {d, c, h},
-        "fair" -> {d, c, h},
-        "fair_steep" -> {c, h},
-        "steep" -> {c, h}
-      ]
-    ];
-  (* List of regimes *)
-  regimeList = Keys[idList];
   (* For each value of A *)
   Table[
     (* For each regime *)
     Table[
       (* Value of B *)
       b = bValueGen[regime][a];
+      (* Starting point groups *)
+      idList = idListGen[regime];
       (* Range for s *)
       sMax = 6;
       (* For each group of starting points *)
@@ -1310,8 +1321,8 @@ Module[
               ]
             ]
           , {xyInit, xyInitList}]
-      , {id, idList[regime]}]
-    , {regime, regimeList}]
+      , {id, idList}]
+    , {regime, regimeListGen}]
   , {a, aValues}]
 ];
 
