@@ -16,3 +16,7 @@ Everything should also work in Version&nbsp;11, except the following:
   
   A workaround is to replace `mesh` with
   `MeshRegion[MeshOrderAlteration[mesh, 1]]`.
+
+Timings referred to in the comments are for an
+Intel(R) Core(TM) i7-7700 CPU @ 3.60 GHz (8 GB RAM)
+with a `Benchmark[]` score of about 2.4.
