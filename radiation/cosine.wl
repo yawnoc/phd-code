@@ -2733,9 +2733,7 @@ Module[
   generalContours,
   straightContour,
   labelFun,
-  regime, b,
-  startingPointPlot,
-  idList
+  regime, b, idList
  },
   (* Plot range *)
   xMin = 0;
@@ -2798,154 +2796,33 @@ Module[
     #2[[2]],
     Center
   ];
-  (* Plots for various A *)
+  (* For each value of A *)
   Table[
-    (*
-      ----------------------------------------------------------------
-      Gentle regime B < B_\[Natural](A)
-      ----------------------------------------------------------------
-    *)
-    (* Value of B *)
-    regime = "gentle";
-    b = bValueGen[regime][a];
-    (* Plot *)
-    startingPointPlot[regime] =
-      Show[
-        emptyFrame[a, b],
-        unphysicalDomain[b],
-        nonViableDomain[a, b],
-        generalContours[b],
-        straightContour,
-        (* Starting points *)
-        idList = {"disconnected", "connected"};
-        ListPlot[
-          Table[
-            startXYGen[a][regime][id]
-          , {id, idList}],
-          LabelingFunction -> labelFun,
-          PlotLegends -> idList,
-          PlotStyle -> startingPointStyle
-        ]
-      ];
-    (*
-      ----------------------------------------------------------------
-      Gentle-to-fair transition B = B_\[Natural](A)
-      ----------------------------------------------------------------
-    *)
-    (* Value of B *)
-    regime = "gentle_fair";
-    b = bValueGen[regime][a];
-    (* Plot *)
-    startingPointPlot[regime] =
-      Show[
-        emptyFrame[a, b],
-        unphysicalDomain[b],
-        nonViableDomain[a, b],
-        generalContours[b],
-        straightContour,
-        (* Starting points *)
-        idList = {"disconnected", "connected", "hyperbolic"};
-        ListPlot[
-          Table[
-            startXYGen[a][regime][id]
-          , {id, idList}],
-          LabelingFunction -> labelFun,
-          PlotLegends -> idList,
-          PlotStyle -> startingPointStyle
-        ]
-      ];
-    (*
-      ----------------------------------------------------------------
-      Fair regime B_\[Natural](A) < B < 1
-      ----------------------------------------------------------------
-    *)
-    (* Value of B *)
-    regime = "fair";
-    b = bValueGen[regime][a];
-    (* Plot *)
-    startingPointPlot[regime] =
-      Show[
-        emptyFrame[a, b],
-        unphysicalDomain[b],
-        nonViableDomain[a, b],
-        generalContours[b],
-        straightContour,
-        (* Starting points *)
-        idList = {"disconnected", "connected", "hyperbolic"};
-        ListPlot[
-          Table[
-            startXYGen[a][regime][id]
-          , {id, idList}],
-          LabelingFunction -> labelFun,
-          PlotLegends -> idList,
-          PlotStyle -> startingPointStyle
-        ]
-      ];
-    (*
-      ----------------------------------------------------------------
-      Fair-to-steep transition B = 1
-      ----------------------------------------------------------------
-    *)
-    (* Value of B *)
-    regime = "fair_steep";
-    b = bValueGen[regime][a];
-    (* Plot *)
-    startingPointPlot[regime] =
-      Show[
-        emptyFrame[a, b],
-        unphysicalDomain[b],
-        nonViableDomain[a, b],
-        generalContours[b],
-        straightContour,
-        (* Starting points *)
-        idList = {"connected", "hyperbolic"};
-        ListPlot[
-          Table[
-            startXYGen[a][regime][id]
-          , {id, idList}],
-          LabelingFunction -> labelFun,
-          PlotLegends -> idList,
-          PlotStyle -> startingPointStyle
-        ]
-      ];
-    (*
-      ----------------------------------------------------------------
-      Steep regime B > 1
-      ----------------------------------------------------------------
-    *)
-    (* Value of B *)
-    regime = "steep";
-    b = bValueGen[regime][a];
-    (* Plot *)
-    startingPointPlot[regime] =
-      Show[
-        emptyFrame[a, b],
-        unphysicalDomain[b],
-        nonViableDomain[a, b],
-        generalContours[b],
-        straightContour,
-        (* Starting points *)
-        idList = {"connected", "hyperbolic"};
-        ListPlot[
-          Table[
-            startXYGen[a][regime][id]
-          , {id, idList}],
-          LabelingFunction -> labelFun,
-          PlotLegends -> idList,
-          PlotStyle -> startingPointStyle
-        ]
-      ];
-    (*
-      ----------------------------------------------------------------
-      All regimes
-      ----------------------------------------------------------------
-    *)
+    (* For each regime *)
     Table[
-      startingPointPlot[regime]
-        // Ex @ FString[
-          "cosine_general-a-{ToName[a]}-{regime}-traced-starting.pdf"
+      (* Value of B *)
+      b = bValueGen[regime][a];
+      (* Starting point groups *)
+      idList = idListGen[regime];
+      (* Plot *)
+      Show[
+        emptyFrame[a, b],
+        unphysicalDomain[b],
+        nonViableDomain[a, b],
+        generalContours[b],
+        straightContour,
+        ListPlot[
+          Table[
+            startXYGen[a][regime][id]
+          , {id, idList}],
+          LabelingFunction -> labelFun,
+          PlotLegends -> idList,
+          PlotStyle -> startingPointStyle
         ]
-    , {regime, {"gentle", "gentle_fair", "fair", "fair_steep", "steep"}}]
+      ] // Ex @ FString[
+        "cosine_general-a-{ToName[a]}-{regime}-traced-starting.pdf"
+      ]
+    , {regime, regimeListGen}]
   , {a, aValuesGen}]
 ]
 
