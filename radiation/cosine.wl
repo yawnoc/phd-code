@@ -2643,6 +2643,7 @@ Module[
 (*Starting points for boundary tracing*)
 
 
+(* (This is somewhat slow, as 10 files are being generated in one go.) *)
 Module[
  {xMin, xMax, yMax,
   tContourNum, tContourRange,
