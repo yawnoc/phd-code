@@ -2827,6 +2827,122 @@ Module[
 ]
 
 
+(* ::Subsection:: *)
+(*Traced boundaries*)
+
+
+(* (This is somewhat slow, as 10 files are being generated in one go.) *)
+Module[
+ {xMin, xMax, yMax,
+  tContourNum, tContourRange,
+  mar,
+  xMinMar, xMaxMar, yMaxMar,
+  emptyFrame,
+  unphysicalDomain,
+  nonViableDomain,
+  generalContours,
+  straightContour,
+  labelFun,
+  regime, b, idList
+ },
+  (* Plot range *)
+  xMin = 0;
+  xMax = Pi/2 * 3/2;
+  yMax = 4;
+  tContourNum = 13;
+  tContourRange = {0, 2};
+  (* Plot range with margin *)
+  mar = 1/5 xMax;
+  xMinMar = xMin - mar;
+  xMaxMar = xMax + mar;
+  yMaxMar = yMax + mar;
+  (* Empty frame *)
+  emptyFrame[a_, b_] := (
+    EmptyFrame[{xMin, xMax}, {-yMax, yMax},
+      ImageSize -> 240,
+      PlotLabel -> BoxedLabel[
+        Row[
+          {aIt == a, bIt == N[b]},
+          ","
+        ]
+      ]
+    ]
+  );
+  (* Unphysical domain *)
+  unphysicalDomain[b_] := (
+    RegionPlot[tKnown[b][x, y] < 0,
+      {x, xMinMar, xMaxMar}, {y, -yMaxMar, yMaxMar},
+      BoundaryStyle -> unphysStyle,
+      PlotPoints -> 50,
+      PlotStyle -> unphysStyle
+    ]
+  );
+  (* Non-viable domain *)
+  nonViableDomain[a_, b_] := (
+    RegionPlot[vi[a, b][x, y] < 0,
+      {x, xMinMar, xMaxMar}, {y, -yMaxMar, yMaxMar},
+      BoundaryStyle -> termStyle,
+      PlotPoints -> 70,
+      PlotStyle -> nonStyle
+    ]
+  );
+  (* Known solution contours (general) *)
+  generalContours[b_] := (
+    ContourPlot[
+      tKnown[b][x, y],
+      {x, xMinMar, xMaxMar}, {y, -yMaxMar, yMaxMar},
+      Contours -> tContourNum,
+      ContourShading -> None,
+      ContourStyle -> contStyle,
+      PlotRange -> tContourRange
+    ]
+  );
+  (* Known solution contours (straight) *)
+  straightContour = Graphics @ {straightStyle,
+    Line @ {{xStraight, -yMaxMar}, {xStraight, yMaxMar}}
+  };
+  (* Labelling function *)
+  labelFun = Function @ Placed[
+    #2[[2]],
+    Center
+  ];
+  (* For each value of A *)
+  Table[
+    (* For each regime *)
+    Table[
+      (* Value of B *)
+      b = bValueGen[regime][a];
+      (* Starting point groups *)
+      idList = idListGen[regime];
+      (* Plot *)
+      Show[
+        emptyFrame[a, b],
+        unphysicalDomain[b],
+        nonViableDomain[a, b],
+        generalContours[b],
+        straightContour,
+        (* Traced boundaries (general) *)
+        Table[
+          Table[
+            ParametricPlot[
+              xy[s]
+                // Through
+                // {#, {#[[1]], -#[[2]]}} &
+                // Evaluate,
+              {s, DomainStart[xy], DomainEnd[xy]},
+              PlotStyle -> {upperStyle, lowerStyle}
+            ]
+          , {xy, xyTraGen[a][regime][id]}]
+        , {id, idList}]
+        (* Not bothering with hyperbolic traced boundaries *)
+      ] // Ex @ FString[
+        "cosine_general-a-{ToName[a]}-{regime}-traced-full.pdf"
+      ]
+    , {regime, regimeListGen}]
+  , {a, aValuesGen}]
+]
+
+
 (* ::Section:: *)
 (*Numerical verification (B = 1) plots*)
 
