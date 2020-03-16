@@ -2842,7 +2842,6 @@ Module[
   nonViableDomain,
   generalContours,
   straightContour,
-  labelFun,
   regime, b, idList
  },
   (* Plot range *)
@@ -2901,11 +2900,6 @@ Module[
   straightContour = Graphics @ {straightStyle,
     Line @ {{xStraight, -yMaxMar}, {xStraight, yMaxMar}}
   };
-  (* Labelling function *)
-  labelFun = Function @ Placed[
-    #2[[2]],
-    Center
-  ];
   (* For each value of A *)
   Table[
     (* For each regime *)
