@@ -1031,6 +1031,35 @@ curTra[a_, b_] := Function[{x, y},
 
 
 (* ::Subsubsection:: *)
+(*System of ODES for inflection frontier \[Kappa] = 0*)
+
+
+curContourSystem[a_, b_, sSign_: 1] :=
+  With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+    Module[{fun, p, q, slope},
+      (* Scalar function \[Kappa] whose contours are sought *)
+      fun = curTra[a, b][x, y];
+      (* Components of the gradient vector *)
+      p = D[fun, x];
+      q = D[fun, y];
+      (* Magnitude of the gradient vector *)
+      slope = Sqrt[p^2 + q^2];
+      (* Return system of ODEs *)
+      {
+        x' == Re[q / slope],
+        y' == Re[-p / slope]
+      } /. {
+        x' -> Sign[sSign] x'[s],
+        y' -> Sign[sSign] y'[s],
+        x -> x[s],
+        y -> y[s],
+        List -> Sequence
+      }
+    ]
+  ] // Evaluate;
+
+
+(* ::Subsubsection:: *)
 (*Simple case (B = 1)*)
 
 
@@ -1495,6 +1524,7 @@ straightStyle = Directive[Dashed, Magenta];
 nonStyle = Directive[Opacity[0.7], LightGray];
 termStyle = Pink;
 unphysStyle = Black;
+inflStyle = Directive[Thick, Green];
 
 
 upperStyle = Blue;
@@ -2959,7 +2989,9 @@ DynamicModule[
   straightContour,
   sMax,
   xInitMin, xInitMax, xInitList,
-  xyList
+  xyList,
+  xySharp, sInfl,
+  xInitInfl, yInitInfl, xyInfl
  },
   (* Values of A *)
   aMin = 1;
@@ -3056,6 +3088,34 @@ DynamicModule[
           ]
         ]
       , {xInit, xInitList}];
+      (* Compute inflection frontier *)
+      xySharp = xyList // Last;
+      sInfl = Quiet[
+        SeekRoot[
+          curTra[a, b] @@ Through @ xySharp[#] &,
+          {0, DomainStart[xySharp]}
+        ]
+      , {Power::infy, Infinity::indet}];
+      {xInitInfl, yInitInfl} = xySharp[sInfl] // Through;
+      xyInfl =
+      With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+        NDSolveValue[
+          {
+            curContourSystem[a, b],
+            x[0] == xInitInfl, y[0] == yInitInfl,
+            WhenEvent[
+              {
+                x[s] < xMinMar,
+                x[s] > xMaxMar,
+                Abs @ y[s] > yMaxMar,
+                vi[a, b][x[s], y[s]] < 0,
+                tKnown[b][x[s], y[s]] < 0
+              },
+              "StopIntegration"
+            ]
+          }, {x, y}, {s, -sMax, sMax}
+        ]
+      ];
       (* Plot *)
       Show[
         emptyFrame[a, b],
@@ -3073,7 +3133,16 @@ DynamicModule[
             {s, DomainStart[xy], DomainEnd[xy]},
             PlotStyle -> {upperStyle, lowerStyle}
           ]
-        , {xy, xyList}]
+        , {xy, xyList}],
+        (* Inflection frontier *)
+        ParametricPlot[
+          xyInfl[s]
+            // Through
+            // {#, {#[[1]], -#[[2]]}} &
+            // Evaluate,
+          {s, DomainStart[xyInfl], DomainEnd[xyInfl]},
+          PlotStyle -> inflStyle
+        ]
       ]
     , {{b, bInit}, bMin, bMax, bStep, Appearance -> "Open"}]
   , {{a, aInit}, aMin, aMax, Appearance -> "Open"}]
