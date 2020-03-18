@@ -3051,6 +3051,7 @@ DynamicModule[
     ContourPlot[
       tKnown[b][x, y],
       {x, xMinMar, xMaxMar}, {y, -yMaxMar, yMaxMar},
+      ContourLabels -> None,
       Contours -> tContourNum,
       ContourShading -> None,
       ContourStyle -> contStyle,
