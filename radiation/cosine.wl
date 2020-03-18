@@ -1022,6 +1022,10 @@ curTra[a_, b_] := Function[{x, y},
     (* Abbreviation for y-derivative *)
     d = Dt[#, y, Constants -> {a, b}] &;
     (* x' and x'' *)
+    (*
+      Note: these are for the lower branch,
+      since xTraDer uses the lower branch
+     *)
     xDer = xTraDer[a, b][x, y];
     xDer2 = d[xDer];
     (* Curvature evaluated *)
@@ -1038,6 +1042,10 @@ curContourSystem[a_, b_, sSign_: 1] :=
   With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
     Module[{fun, p, q, slope},
       (* Scalar function \[Kappa] whose contours are sought *)
+      (*
+        Note: this is for the lower branch,
+        since curTra uses the lower branch
+       *)
       fun = curTra[a, b][x, y];
       (* Components of the gradient vector *)
       p = D[fun, x];
