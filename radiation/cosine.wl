@@ -2997,9 +2997,7 @@ DynamicModule[
   straightContour,
   sMax,
   xInitMin, xInitMax, xInitList,
-  xyList,
-  xySharp, sInfl,
-  xInitInfl, yInitInfl, xyInfl
+  xyList
  },
   (* Values of A *)
   aMin = 1;
@@ -3097,34 +3095,6 @@ DynamicModule[
           ]
         ]
       , {xInit, xInitList}];
-      (* Compute inflection frontier *)
-      xySharp = xyList // Last;
-      sInfl = Quiet[
-        SeekRoot[
-          curTra[a, b] @@ Through @ xySharp[#] &,
-          {0, DomainStart[xySharp]}
-        ]
-      , {Power::infy, Infinity::indet}];
-      {xInitInfl, yInitInfl} = xySharp[sInfl] // Through;
-      xyInfl =
-      With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
-        NDSolveValue[
-          {
-            curContourSystem[a, b],
-            x[0] == xInitInfl, y[0] == yInitInfl,
-            WhenEvent[
-              {
-                x[s] < xMinMar,
-                x[s] > xMaxMar,
-                Abs @ y[s] > yMaxMar,
-                vi[a, b][x[s], y[s]] < 0,
-                tKnown[b][x[s], y[s]] < 0
-              },
-              "StopIntegration"
-            ]
-          }, {x, y}, {s, -sMax, sMax}
-        ]
-      ];
       (* Plot *)
       Show[
         emptyFrame[a, b],
@@ -3142,16 +3112,7 @@ DynamicModule[
             {s, DomainStart[xy], DomainEnd[xy]},
             PlotStyle -> {upperStyle, lowerStyle}
           ]
-        , {xy, xyList}],
-        (* Inflection frontier *)
-        ParametricPlot[
-          xyInfl[s]
-            // Through
-            // {#, {#[[1]], -#[[2]]}} &
-            // Evaluate,
-          {s, DomainStart[xyInfl], DomainEnd[xyInfl]},
-          PlotStyle -> inflStyle
-        ]
+        , {xy, xyList}]
       ]
     , {{b, bInit}, bMin, bMax, bStep, Appearance -> "Open"}]
   , {{a, aInit}, aMin, aMax, Appearance -> "Open"}]
