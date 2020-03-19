@@ -3012,8 +3012,8 @@ Module[
   inflectionFrontiers
  },
   (* Values of A and B (to be set manually) *)
-  a = 10;
-  b = bNat[a] // Ceiling[#, 0.01] &;
+  a = 7.5;
+  b = 1.05 bNat[a];
   (* Plot range *)
   xMin = 0;
   xMax = Pi/2 * 3/2;
