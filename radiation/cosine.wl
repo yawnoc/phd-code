@@ -3144,11 +3144,14 @@ Module[
   straightContour,
   sMax,
   xInitMin, xInitMax, xInitList,
-  xyList
+  xyList,
+  xyFlat, sInflList,
+  xInitInfl, yInitInfl,
+  xyInflList
  },
   (* Values of A and B (to be set manually) *)
   a = 10;
-  b = 0.1;
+  b = bNat[a] // Ceiling[#, 0.01] &;
   (* Plot range *)
   xMin = 0;
   xMax = Pi/2 * 3/2;
@@ -3232,6 +3235,36 @@ Module[
       ]
     ]
   , {xInit, xInitList}];
+  (* Compute inflection frontiers for the lower branch *)
+  xyFlat = xyList // First;
+  sInflList =
+    Table[
+      SeekFirstRootBisection[
+        curTra[a, b] @@ Through @ xyFlat[#] &,
+        {0, end[xyFlat]}
+      ]
+    , {end, {DomainStart, DomainEnd}}];
+  xyInflList =
+    Table[
+      {xInitInfl, yInitInfl} = xyFlat[sInit] // Through;
+      With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+        NDSolveValue[
+          {
+            curContourSystem[a, b],
+            x[0] == xInitInfl, y[0] == yInitInfl,
+            WhenEvent[
+              {
+                x[s] < xMinMar,
+                x[s] > xMaxMar,
+                Abs @ y[s] > yMaxMar,
+                vi[a, b][x[s], y[s]] < 0
+              },
+              "StopIntegration"
+            ]
+          }, {x, y}, {s, -sMax, sMax}
+        ]
+      ]
+    , {sInit, sInflList}];
   (* Plot *)
   Show[
     emptyFrame[a, b],
@@ -3249,7 +3282,18 @@ Module[
         {s, DomainStart[xy], DomainEnd[xy]},
         PlotStyle -> {upperStyle, lowerStyle}
       ]
-    , {xy, xyList}]
+    , {xy, xyList}],
+    (* Inflection frontiers *)
+    Table[
+      ParametricPlot[
+        xy[s]
+          // Through(*
+          // {#, {#[[1]], -#[[2]]}} &*)
+          // Evaluate,
+        {s, DomainStart[xy], DomainEnd[xy]},
+        PlotStyle -> inflStyle
+      ]
+    , {xy, xyInflList}]
   ]
 ]
 
