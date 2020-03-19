@@ -3002,6 +3002,7 @@ Module[
   nonViableDomain,
   generalContours,
   straightContour,
+  lineOfSymmetry,
   sMax,
   xInitMin, xInitMax, xInitList,
   xyList,
@@ -3070,6 +3071,10 @@ Module[
   (* Known solution contours (straight) *)
   straightContour = Graphics @ {straightStyle,
     Line @ {{xStraight, -yMaxMar}, {xStraight, yMaxMar}}
+  };
+  (* Line of symmetry (y == 0) *)
+  lineOfSymmetry[a_, b_] := Graphics @ {Directive[Thin, Orange],
+    Line @ N @ {{xFlat[a, b], 0}, {xSharp[a, b], 0}}
   };
   (* Range for s *)
   sMax = 6;
@@ -3161,6 +3166,7 @@ Module[
     nonViableDomain[a, b],
     generalContours[b],
     straightContour,
+    lineOfSymmetry[a, b],
     tracedBoundaries,
     inflectionFrontiers[]
   ]
