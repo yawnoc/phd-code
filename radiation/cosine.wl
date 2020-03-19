@@ -3138,12 +3138,17 @@ Module[
         ]
       ]
     , {sInit, sInflList}];
-  inflectionFrontiers =
+  inflectionFrontiers[
+    opt : OptionsPattern @ {"Mirror" -> False}
+  ] :=
     Table[
       ParametricPlot[
         xy[s]
-          // Through(*
-          // {#, {#[[1]], -#[[2]]}} &*)
+          // Through
+          // If[OptionValue["Mirror"],
+            {#, {#[[1]], -#[[2]]}} &,
+            Identity
+          ]
           // Evaluate,
         {s, DomainStart[xy], DomainEnd[xy]},
         PlotStyle -> inflStyle
@@ -3157,7 +3162,7 @@ Module[
     generalContours[b],
     straightContour,
     tracedBoundaries,
-    inflectionFrontiers
+    inflectionFrontiers[]
   ]
 ]
 
