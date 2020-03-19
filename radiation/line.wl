@@ -644,6 +644,7 @@ Module[
       If[a == aNat,
         ContourPlot[RPolar[x, y] == rNat,
           {x, -rMaxNon, rMaxNon}, {y, -rMaxNon, rMaxNon},
+          ContourLabels -> None,
           ContourStyle -> termStyle
         ],
         {}
@@ -690,6 +691,7 @@ Module[
       If[a == aNat,
         ContourPlot[RPolar[x, y] == rNat,
           {x, -rMaxNon, rMaxNon}, {y, -rMaxNon, rMaxNon},
+          ContourLabels -> None,
           ContourStyle -> termStyle
         ],
         {}
@@ -866,6 +868,7 @@ Module[
       (* Radius of inflection *)
       ContourPlot[RPolar[x, y] == rInfl,
         {x, -rInfl, rInfl}, {y, -rInfl, rInfl},
+        ContourLabels -> None,
         ContourStyle -> inflStyle
       ]
     ] // Ex["line-hot-traced-" <> zoom <> ".pdf"]
@@ -942,6 +945,7 @@ Module[
     (* Radius of inflection *)
     ContourPlot[RPolar[x, y] == rInfl,
       {x, -rInfl, rInfl}, {y, -rInfl, rInfl},
+      ContourLabels -> None,
       ContourStyle -> inflStyle
     ]
   ]
@@ -1036,6 +1040,7 @@ Module[
     (* Radius of inflection *)
     ContourPlot[RPolar[x, y] == rInfl,
       {x, -rInfl, rInfl}, {y, -rInfl, rInfl},
+      ContourLabels -> None,
       ContourStyle -> inflStyle
     ]
   ]
@@ -1092,6 +1097,7 @@ Module[
       (* Radius of inflection *)
       ContourPlot[RPolar[x, y] == rInfl,
         {x, -rInfl, rInfl}, {y, -rInfl, rInfl},
+        ContourLabels -> None,
         ContourStyle -> inflStyle
       ]
     ] // Ex[
@@ -1172,6 +1178,7 @@ Module[
       (* Radius of inflection *)
       ContourPlot[RPolar[x, y] == rInfl,
         {x, -rInfl, rInfl}, {y, -rInfl, rInfl},
+        ContourLabels -> None,
         ContourStyle -> inflStyle
       ]
     ] // Ex[
@@ -1248,11 +1255,13 @@ Module[
       (* Radius of inflection *)
       ContourPlot[RPolar[x, y] == rInfl,
         {x, -rInfl, rInfl}, {y, -rInfl, rInfl},
+        ContourLabels -> None,
         ContourStyle -> inflStyle
       ],
       (* Transition terminal curve *)
       ContourPlot[RPolar[x, y] == rNat,
         {x, -rMaxNon, rMaxNon}, {y, -rMaxNon, rMaxNon},
+        ContourLabels -> None,
         ContourStyle -> termStyle
       ]
     ] // Ex["line-cold_hot-traced-" <> zoom <> ".pdf"]
@@ -1309,6 +1318,7 @@ Module[
       (* Radius of inflection *)
       ContourPlot[RPolar[x, y] == rInfl,
         {x, -rInfl, rInfl}, {y, -rInfl, rInfl},
+        ContourLabels -> None,
         ContourStyle -> inflStyle
       ]
     ] // Ex["line-cold-traced-" <> zoom <> ".pdf"]
