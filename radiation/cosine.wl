@@ -3015,6 +3015,23 @@ Module[
   (* Values of A and B (to be set manually) *)
   a = 7.5;
   b = 1.05 bNat[a];
+  (*
+    ------------------------------------------------
+    Barely an infinite family of convex domains
+    ------------------------------------------------
+    a = 7.5;
+    b = 1.05 bNat[a];
+    ------------------------------------------------
+    Probably only one convex domain (lens-like)
+    ------------------------------------------------
+    a = 7;
+    b = 1.1 bNat[a];
+    ------------------------------------------------
+    Weird inflection frontier
+    ------------------------------------------------
+    a = 7.5;
+    b = 1.3 bNat[a];
+   *)
   (* Plot range *)
   xMin = 0;
   xMax = Pi/2 * 3/2;
