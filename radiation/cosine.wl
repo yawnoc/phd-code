@@ -3145,9 +3145,11 @@ Module[
   sMax,
   xInitMin, xInitMax, xInitList,
   xyList,
+  tracedBoundaries,
   xyFlat, sInflList,
   xInitInfl, yInitInfl,
-  xyInflList
+  xyInflList,
+  inflectionFrontiers
  },
   (* Values of A and B (to be set manually) *)
   a = 10;
@@ -3235,6 +3237,17 @@ Module[
       ]
     ]
   , {xInit, xInitList}];
+  tracedBoundaries =
+    Table[
+      ParametricPlot[
+        xy[s]
+          // Through
+          // {#, {#[[1]], -#[[2]]}} &
+          // Evaluate,
+        {s, DomainStart[xy], DomainEnd[xy]},
+        PlotStyle -> {upperStyle, lowerStyle}
+      ]
+    , {xy, xyList}];
   (* Compute inflection frontiers for the lower branch *)
   xyFlat = xyList // First;
   sInflList =
@@ -3265,25 +3278,7 @@ Module[
         ]
       ]
     , {sInit, sInflList}];
-  (* Plot *)
-  Show[
-    emptyFrame[a, b],
-    unphysicalDomain[b],
-    nonViableDomain[a, b],
-    generalContours[b],
-    straightContour,
-    (* Traced boundaries *)
-    Table[
-      ParametricPlot[
-        xy[s]
-          // Through
-          // {#, {#[[1]], -#[[2]]}} &
-          // Evaluate,
-        {s, DomainStart[xy], DomainEnd[xy]},
-        PlotStyle -> {upperStyle, lowerStyle}
-      ]
-    , {xy, xyList}],
-    (* Inflection frontiers *)
+  inflectionFrontiers =
     Table[
       ParametricPlot[
         xy[s]
@@ -3293,7 +3288,16 @@ Module[
         {s, DomainStart[xy], DomainEnd[xy]},
         PlotStyle -> inflStyle
       ]
-    , {xy, xyInflList}]
+    , {xy, xyInflList}];
+  (* Plot *)
+  Show[
+    emptyFrame[a, b],
+    unphysicalDomain[b],
+    nonViableDomain[a, b],
+    generalContours[b],
+    straightContour,
+    tracedBoundaries,
+    inflectionFrontiers
   ]
 ]
 
