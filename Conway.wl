@@ -82,6 +82,7 @@ ClearAll["Conway`*`*"];
   PreciseOptions,
   PrettyString,
   ReInterpolate,
+  SeekFirstRootBisection,
   SeekRoot,
   SeekRootBisection,
   SortByPhi,
@@ -456,6 +457,68 @@ ReInterpolate[iFun_InterpolatingFunction, num : _?NumericQ : 1024] :=
 
 
 SetAttributes[ReInterpolate, Listable];
+
+
+(* ::Subsubsection:: *)
+(*SeekFirstRootBisection*)
+
+
+SeekFirstRootBisection::usage = (
+  "SeekFirstRootBisection[fun, {xMin, xMax}, num (def 1000), tol (def 10^-6), "
+  <> "opts (def N -> True, \"ReturnIterations\" -> False, "
+  <> "\"ToleranceType\" -> \"Absolute\")]\n"
+  <> "Seeks a numerical root of fun[x] == 0, using the bisection algorithm "
+  <> "over the subinterval {x0, x1} corresponding to the first sign-change "
+  <> "as determined by num subdivisions of the interval {xMin, xMax}, "
+  <> "with tolerance tol over {x0, x1}.\n"
+  <> "Default option N -> True specifies that initial endpoints "
+  <> "should be numericised (for speed) before performing the iteration.\n"
+  <> "Default option \"ReturnIterations\" -> \"False\" "
+  <> "specifies that the number of iterations should not be returned.\n"
+  <> "Default option \"ToleranceType\" -> \"Absolute\" "
+  <> "specifies absolute tolerance. "
+  <> "Use \"ToleranceType\" -> \"Relative\" "
+  <> "for tolerance relative to the interval {x0, x1}."
+);
+
+
+SeekFirstRootBisection[
+  fun_,
+  {xMin_?NumericQ, xMax_?NumericQ},
+  num : Except[_?OptionQ, _?NumericQ] : 1000,
+  tol : Except[_?OptionQ, _?NumericQ] : 10^-6,
+  opts : OptionsPattern @ {
+    N -> True,
+    "ReturnIterations" -> False,
+    "ToleranceType" -> "Absolute"
+  }
+] :=
+  Module[{xValues, firstSignChangeIndex, x0, x1},
+    (* Determine first sign change subinterval *)
+    xValues = (
+      Subdivide[xMin, xMax, num]
+      // If[TrueQ @ OptionValue[N], N, Identity]
+    );
+    firstSignChangeIndex = (
+      First @ FirstPosition[
+        Differences @ Sign[fun /@ xValues],
+        signChange_ /; signChange != 0
+      ]
+    );
+    x0 = xValues[[firstSignChangeIndex]];
+    x1 = xValues[[firstSignChangeIndex + 1]];
+    (* Pass to SeekRootBisection *)
+    SeekRootBisection[
+      fun,
+      {x0, x1},
+      tol,
+      # -> OptionValue[#] & /@ {
+        N,
+        "ReturnIterations",
+        "ToleranceType"
+      }
+    ]
+  ];
 
 
 (* ::Subsubsection:: *)
