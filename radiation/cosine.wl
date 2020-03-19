@@ -3017,7 +3017,7 @@ Module[
   (* Plot range *)
   xMin = 0;
   xMax = Pi/2 * 3/2;
-  yMax = 4;
+  yMax = 2;
   tContourNum = 13;
   tContourRange = {0, 2};
   (* Plot range with margin *)
@@ -3028,7 +3028,7 @@ Module[
   (* Empty frame *)
   emptyFrame[a_, b_] := (
     EmptyFrame[{xMin, xMax}, {-yMax, yMax},
-      ImageSize -> 240,
+      ImageSize -> 360,
       PlotLabel -> BoxedLabel[
         Row[
           {aIt == a, bIt == N[b]},
