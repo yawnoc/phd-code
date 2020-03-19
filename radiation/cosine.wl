@@ -2987,7 +2987,7 @@ Module[
 (*Traced boundaries from x-axis*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Visualiser*)
 
 
@@ -3124,6 +3124,133 @@ DynamicModule[
       ]
     , {{b, bInit}, bMin, bMax, bStep, Appearance -> "Open"}]
   , {{a, aInit}, aMin, aMax, Appearance -> "Open"}]
+]
+
+
+(* ::Subsubsection:: *)
+(*Visualiser (poor man's Manipulate)*)
+
+
+Module[
+ {a, b,
+  xMin, xMax, yMax,
+  tContourNum, tContourRange,
+  mar,
+  xMinMar, xMaxMar, yMaxMar,
+  emptyFrame,
+  unphysicalDomain,
+  nonViableDomain,
+  generalContours,
+  straightContour,
+  sMax,
+  xInitMin, xInitMax, xInitList,
+  xyList
+ },
+  (* Values of A and B (to be set manually) *)
+  a = 10;
+  b = 0.1;
+  (* Plot range *)
+  xMin = 0;
+  xMax = Pi/2 * 3/2;
+  yMax = 4;
+  tContourNum = 13;
+  tContourRange = {0, 2};
+  (* Plot range with margin *)
+  mar = 1/5 xMax;
+  xMinMar = xMin - mar;
+  xMaxMar = xMax + mar;
+  yMaxMar = yMax + mar;
+  (* Empty frame *)
+  emptyFrame[a_, b_] := (
+    EmptyFrame[{xMin, xMax}, {-yMax, yMax},
+      ImageSize -> 240,
+      PlotLabel -> BoxedLabel[
+        Row[
+          {aIt == a, bIt == N[b]},
+          ","
+        ]
+      ]
+    ]
+  );
+  (* Unphysical domain *)
+  unphysicalDomain[b_] := (
+    RegionPlot[tKnown[b][x, y] < 0,
+      {x, xMinMar, xMaxMar}, {y, -yMaxMar, yMaxMar},
+      BoundaryStyle -> unphysStyle,
+      PlotPoints -> 50,
+      PlotStyle -> unphysStyle
+    ]
+  );
+  (* Non-viable domain *)
+  nonViableDomain[a_, b_] := (
+    RegionPlot[vi[a, b][x, y] < 0,
+      {x, xMinMar, xMaxMar}, {y, -yMaxMar, yMaxMar},
+      BoundaryStyle -> termStyle,
+      PlotPoints -> 70,
+      PlotStyle -> nonStyle
+    ]
+  );
+  (* Known solution contours (general) *)
+  generalContours[b_] := (
+    ContourPlot[
+      tKnown[b][x, y],
+      {x, xMinMar, xMaxMar}, {y, -yMaxMar, yMaxMar},
+      ContourLabels -> None,
+      Contours -> tContourNum,
+      ContourShading -> None,
+      ContourStyle -> contStyle,
+      PlotRange -> tContourRange
+    ]
+  );
+  (* Known solution contours (straight) *)
+  straightContour = Graphics @ {straightStyle,
+    Line @ {{xStraight, -yMaxMar}, {xStraight, yMaxMar}}
+  };
+  (* Range for s *)
+  sMax = 6;
+  (* Initial x values along axis *)
+  xInitMin = xFlat[a, b];
+  xInitMax = xSharp[a, b];
+  xInitList = Subdivide[xInitMin, xInitMax, 4];
+  (* Exclude x_\[Flat] == 0 for B = 1 *)
+  If[b == 1, xInitList = xInitList // Rest];
+  (* Compute traced boundaries *)
+  xyList = Table[
+    With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+      NDSolveValue[
+        {
+          xyTraSystem[a, b],
+          x[0] == xInit, y[0] == 0,
+          WhenEvent[
+            {
+              vi[a, b][x[s], y[s]] < 0,
+              tKnown[b][x[s], y[s]] < 0
+            },
+            "StopIntegration"
+          ]
+        }, {x, y}, {s, -sMax, sMax}
+      ]
+    ]
+  , {xInit, xInitList}];
+  (* Plot *)
+  Show[
+    emptyFrame[a, b],
+    unphysicalDomain[b],
+    nonViableDomain[a, b],
+    generalContours[b],
+    straightContour,
+    (* Traced boundaries *)
+    Table[
+      ParametricPlot[
+        xy[s]
+          // Through
+          // {#, {#[[1]], -#[[2]]}} &
+          // Evaluate,
+        {s, DomainStart[xy], DomainEnd[xy]},
+        PlotStyle -> {upperStyle, lowerStyle}
+      ]
+    , {xy, xyList}]
+  ]
 ]
 
 
