@@ -91,6 +91,27 @@ SeekRootBisection[Cos[#] - # &, {0, 1}]
 SeekRootBisection[Cos[#] - # &, {0, 1}, "ReturnIterations" -> True]
 
 
+Module[{fun, xMin, xMax, xAny, xFirst},
+  fun = Function[{x}, (x - 1/2) Sinc[x]];
+  (*
+    The roots are 1/2, \[Pi], 2\[Pi], ....
+    SeekRootBisection does not always find the first root.
+    To that end, use SeekFirstRootBisection.
+  *)
+  xMin = 0;
+  xMax = 5/2 Pi;
+  xAny = SeekRootBisection[fun, {xMin, xMax}];
+  xFirst = SeekFirstRootBisection[fun, {xMin, xMax}];
+  Plot[fun[x], {x, xMin, xMax},
+    Epilog -> {
+      PointSize[Large],
+      Red, Point @ {xAny, 0}, Text["Any", {xAny, 0}, {-1, 2}],
+      Blue, Point @ {xFirst, 0}, Text["First", {xFirst, 0}, {-1, 2}]
+    }
+  ]
+]
+
+
 UniformRange[0, 1, 0.099]
 UniformRange[0, 2 Pi, 5 Degree]
 
