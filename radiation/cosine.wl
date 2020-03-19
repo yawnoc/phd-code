@@ -1653,6 +1653,7 @@ DynamicModule[
       ContourPlot[
         tKnown[b][x, y],
         {x, xMinCont, xMaxCont}, {y, -yMaxCont, yMaxCont},
+        ContourLabels -> None,
         Contours -> numTo1 + numBeyond1,
         ContourShading -> None,
         ContourStyle -> contStyle,
@@ -1753,6 +1754,7 @@ DynamicModule[
       ContourPlot[
         tKnown[b][x, y],
         {x, xMinCont, xMaxCont}, {y, -yMaxCont, yMaxCont},
+        ContourLabels -> None,
         Contours -> numTo1 + numBeyond1,
         ContourShading -> None,
         ContourStyle -> contStyle,
@@ -1947,6 +1949,7 @@ Module[
     ContourPlot[
       tKnown[b][x, y],
       {x, xMinCont, xMaxCont}, {y, -yMaxCont, yMaxCont},
+      ContourLabels -> None,
       Contours -> numTo1 + numBeyond1,
       ContourShading -> None,
       ContourStyle -> contStyle,
@@ -1988,6 +1991,7 @@ Module[
       ContourPlot[
         tKnown[b][x, y] == tKnown[b][x0Simp[a], 0],
         {x, xMinCont, xMaxCont}, {y, -yMaxCont, yMaxCont},
+        ContourLabels -> None,
         ContourStyle -> simp0Style,
         PlotRange -> {0, 1}
       ]
@@ -2077,6 +2081,7 @@ Module[
       (* Known solution contours *)
       ContourPlot[tKnown[b][x, y],
         {x, xMinMar, xMaxMar}, {y, -yMaxMar, yMaxMar},
+        ContourLabels -> None,
         ContourShading -> None,
         ContourStyle -> contStyle,
         PlotRange -> {0, tKnown[b][xMax, 0]}
@@ -2166,6 +2171,7 @@ Module[
     ContourPlot[
       tKnown[b][x, y],
       {x, xMinCont, xMaxCont}, {y, -yMaxCont, yMaxCont},
+      ContourLabels -> None,
       Contours -> numTo1 + numBeyond1,
       ContourShading -> None,
       ContourStyle -> contStyle,
@@ -2819,6 +2825,7 @@ Module[
     ContourPlot[
       tKnown[b][x, y],
       {x, xMinMar, xMaxMar}, {y, -yMaxMar, yMaxMar},
+      ContourLabels -> None,
       Contours -> tContourNum,
       ContourShading -> None,
       ContourStyle -> contStyle,
@@ -2928,6 +2935,7 @@ Module[
     ContourPlot[
       tKnown[b][x, y],
       {x, xMinMar, xMaxMar}, {y, -yMaxMar, yMaxMar},
+      ContourLabels -> None,
       Contours -> tContourNum,
       ContourShading -> None,
       ContourStyle -> contStyle,
@@ -3184,6 +3192,7 @@ Module[
     ContourPlot[
       tKnown[b][x, y],
       {x, xMinMar, xMaxMar}, {y, -yMaxMar, yMaxMar},
+      ContourLabels -> None,
       Contours -> tContourNum,
       ContourShading -> None,
       ContourStyle -> contStyle,
