@@ -3007,7 +3007,7 @@ Module[
   xInitMin, xInitMax, xInitList,
   xyList,
   tracedBoundaries,
-  xyFlat, sInflList,
+  xyMid, sInflList,
   xInitInfl, yInitInfl,
   xyInflList,
   inflectionFrontiers
@@ -3131,17 +3131,17 @@ Module[
       ]
     , {xy, xyList}];
   (* Compute inflection frontiers for the lower branch *)
-  xyFlat = xyList // First;
+  xyMid = xyList[[3]];
   sInflList =
     Table[
       SeekFirstRootBisection[
-        curTra[a, b] @@ Through @ xyFlat[#] &,
-        {0, end[xyFlat]}
+        curTra[a, b] @@ Through @ xyMid[#] &,
+        {0, end[xyMid]}
       ]
     , {end, {DomainStart, DomainEnd}}];
   xyInflList =
     Table[
-      {xInitInfl, yInitInfl} = xyFlat[sInit] // Through;
+      {xInitInfl, yInitInfl} = xyMid[sInit] // Through;
       With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
         NDSolveValue[
           {
