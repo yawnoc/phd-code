@@ -1451,6 +1451,20 @@ Module[
       ]
     ];
   yInflAxis = -xyInflAxis[[2]] @ DomainEnd[xyInflAxis];
+  (*
+    ------------------------------------------------
+    Straight inflection
+    ------------------------------------------------
+    yInflStraight "y_i(straight)":
+      non-trivial y along x == \[Pi]/2 where inflection occurs
+    xInflStraight "x_i(straight)":
+      x where traced boundary through (\[Pi]/2, y_i(straight)) intersects y == 0
+   *)
+  yInflStraight =
+    SeekFirstRootBisection[
+      curTra[a, b][xStraight, #] &,
+      {0.4, 0.8}
+    ];
 ]
 
 
