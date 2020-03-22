@@ -296,6 +296,14 @@ bValueGen["fair_steep"][a_] := 1;
 bValueGen["steep"][a_] := 2;
 
 
+(* ::Subsubsection:: *)
+(*Representative pair (A, B) for an asymmetric domain*)
+
+
+aAsymm = 12;
+bAsymm = 105/100 bNat[aAsymm];
+
+
 (* ::Subsection:: *)
 (*Starting points for boundary tracing*)
 
