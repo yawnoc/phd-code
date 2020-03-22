@@ -3060,10 +3060,10 @@ Module[
     a = 7.5;
     b = 1.3 bNat[a];
     ------------------------------------------------
-    Reasonably asymmetric convex domains
+    Slightly asymmetric convex domains
     ------------------------------------------------
-    a = 13;
-    b = 1.11 bNat[a];
+    a = 12;
+    b = 1.05 bNat[a];
    *)
   (* Plot range *)
   xMin = 0;
