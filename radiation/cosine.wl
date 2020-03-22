@@ -1412,7 +1412,9 @@ Module[
 
 Module[
  {a, b,
-  xFl, xSh, xMid
+  xFl, xSh, xMid,
+  sMax,
+  xyInflAxis
  },
   a = aAsymm;
   b = bAsymm;
@@ -1434,6 +1436,21 @@ Module[
       curTra[a, b][#, 0] &,
       {xMid, xSh}
     ];
+  sMax = 5;
+  xyInflAxis =
+    With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+      NDSolveValue[
+        {
+          xyTraSystem[a, b],
+          x[0] == xInflAxis, y[0] == 0,
+          WhenEvent[
+            x[s] > xStraight,
+            "StopIntegration"
+          ]
+        }, {x, y}, {s, 0, sMax}
+      ]
+    ];
+  yInflAxis = -xyInflAxis[[2]] @ DomainEnd[xyInflAxis];
 ]
 
 
