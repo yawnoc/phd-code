@@ -1400,6 +1400,43 @@ Module[
 ];
 
 
+(* ::Subsubsubsection:: *)
+(*Constructing an asymmetric domain*)
+
+
+(* ::Text:: *)
+(*Non-trivial intersections (i.e. not (x_\[Flat], 0) or (x_\[Sharp], 0)) for the lower branch*)
+(*  between the inflection frontier and the x-axis (y = 0), "axis inflection", and*)
+(*  between the inflection frontier and the straight boundary (x = \[Pi]/2), "straight inflection".*)
+
+
+Module[
+ {a, b,
+  xFl, xSh, xMid
+ },
+  a = aAsymm;
+  b = bAsymm;
+  (* Useful constants *)
+  xFl = xFlat[a, b];
+  xSh = xSharp[a, b];
+  xMid = Way[xFl, xSh];
+  (*
+    ------------------------------------------------
+    Axis inflection
+    ------------------------------------------------
+    xInflAxis "x_i(axis)":
+      non-trivial x along y == 0 where inflection occurs
+    yInflAxis "y_i(axis)":
+      y where traced boundary through (x_i(axis), 0) intersects x == \[Pi]/2
+   *)
+  xInflAxis =
+    SeekFirstRootBisection[
+      curTra[a, b][#, 0] &,
+      {xMid, xSh}
+    ];
+]
+
+
 (* ::Subsection:: *)
 (*Numerical verification (finite elements)*)
 
