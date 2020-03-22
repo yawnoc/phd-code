@@ -3041,7 +3041,7 @@ Module[
   inflectionFrontiers
  },
   (* Values of A and B (to be set manually) *)
-  a = 7.5;
+  a = 12;
   b = 1.05 bNat[a];
   (*
     ------------------------------------------------
