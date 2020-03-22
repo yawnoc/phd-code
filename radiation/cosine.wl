@@ -1193,6 +1193,34 @@ aspectRatioSimp[a_] :=
   ];
 
 
+(* ::Subsubsection:: *)
+(*General case (B arbitrary)*)
+
+
+(* ::Subsubsubsection:: *)
+(*Candidate natural boundary (B = B_\[Natural](A), through x = x_\[Natural])*)
+
+
+xTraCandNatGen[a_?NumericQ, terminateAtStraightContour_: False] :=
+  With[{x = \[FormalX]},
+    Module[{b, yMax},
+      b = bNat[a];
+      yMax = 5;
+      NDSolveValue[
+        {
+          x'[y] == Re @ xTraDer[a, b][x[y], y],
+          x[0] == xNat[a],
+          WhenEvent[
+            terminateAtStraightContour && x[y] > xStraight,
+            "StopIntegration"
+          ]
+        }, x, {y, 0, yMax},
+        NoExtrapolation
+      ]
+    ]
+  ];
+
+
 (* ::Subsection:: *)
 (*Traced boundaries x = x(s), y = y(s)*)
 
