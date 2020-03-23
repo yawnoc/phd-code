@@ -3452,6 +3452,114 @@ Module[
 ]
 
 
+(* ::Subsection:: *)
+(*Constructing an asymmetric domain*)
+
+
+Module[
+ {a, b,
+  xFl, xSh, sMax,
+  xInitGenericList, xyGenericList,
+  xMin, xMax, yMax,
+  mar, xMinMar, xMaxMar, yMaxMar,
+  emptyFrame,
+  nonViableDomain,
+  straightContour,
+  lineOfSymmetry
+ },
+  (*
+    ------------------------------------------------
+    Definitions
+    ------------------------------------------------
+   *)
+  (* A and B *)
+  a = aAsymm;
+  b = bAsymm;
+  (* Useful constants *)
+  xFl = xFlat[a, b];
+  xSh = xSharp[a, b];
+  sMax = 6;
+  (* Generic traced boundaries from axis *)
+  xInitGenericList = Subdivide[xFl, xSh, 4];
+  xyGenericList = Table[
+    With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+      NDSolveValue[
+        {
+          xyTraSystem[a, b],
+          x[0] == xInit, y[0] == 0,
+          WhenEvent[
+            {
+              vi[a, b][x[s], y[s]] < 0,
+              tKnown[b][x[s], y[s]] < 0
+            },
+            "StopIntegration"
+          ]
+        }, {x, y}, {s, -sMax, sMax}
+      ]
+    ]
+  , {xInit, xInitGenericList}];
+  (* Inflection frontiers for the lower branch *)
+  (*
+    ------------------------------------------------
+    Re-used plots
+    ------------------------------------------------
+   *)
+  (* Plot range *)
+  xMin = 0;
+  xMax = Pi/2 * 3/2;
+  yMax = 2;
+  (* Plot range with margin *)
+  mar = 1/5 xMax;
+  xMinMar = xMin - mar;
+  xMaxMar = xMax + mar;
+  yMaxMar = yMax + mar;
+  (* Empty frame *)
+  emptyFrame =
+    EmptyFrame[{xMin, xMax}, {-yMax, yMax},
+      ImageSize -> 360,
+      PlotLabel -> BoxedLabel[
+        Row[
+          {aIt == a, bIt == N[b]},
+          ","
+        ]
+      ]
+    ];
+  (* Non-viable domain *)
+  nonViableDomain =
+    RegionPlot[vi[a, b][x, y] < 0,
+      {x, xMinMar, xMaxMar}, {y, -yMaxMar, yMaxMar},
+      BoundaryStyle -> termStyle,
+      PlotPoints -> 70,
+      PlotStyle -> nonStyle
+    ];
+  (* Straight contour *)
+  straightContour =
+    Graphics @ {straightStyle,
+      Line @ {{xStraight, -yMaxMar}, {xStraight, yMaxMar}}
+    };
+  (* Line of symmetry (y == 0) *)
+  lineOfSymmetry =
+    Graphics @ {Directive[Thin, Orange],
+      Line @ N @ {{xFlat[a, b], 0}, {xSharp[a, b], 0}}
+    };
+  (*
+    ------------------------------------------------
+    Plots
+    ------------------------------------------------
+   *)
+  {
+    (* Generic traced boundaries from axis *)
+    Show[
+      emptyFrame,
+      nonViableDomain,
+      straightContour,
+      lineOfSymmetry,
+      {}
+    ]
+  }
+]
+
+
 (* ::Section:: *)
 (*Numerical verification (B = 1) plots*)
 
