@@ -1245,20 +1245,21 @@ xTraCandNatGen[a_?NumericQ, terminateAtStraightContour_: False] :=
 (*System of ODES for tracing*)
 
 
-xyTraSystem[a_, b_] :=
+xyTraSystem[a_, b_, upperBranch_: True] :=
   With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
     With[
      {p = p[b][x, y],
       q = q[b][x, y],
       f = f[a, b][x, y],
-      vi = vi[a, b][x, y]
+      vi = vi[a, b][x, y],
+      sign = If[upperBranch, +1, -1]
      },
       Module[{grad2, xDer, yDer},
         (* Square of gradient *)
         grad2 = p^2 + q^2;
         (* Return system of ODEs *)
-        xDer = (-q f + p Re @ Sqrt[vi]) / grad2;
-        yDer = (+p f + q Re @ Sqrt[vi]) / grad2;
+        xDer = (-q f + sign p Re @ Sqrt[vi]) / grad2;
+        yDer = (+p f + sign q Re @ Sqrt[vi]) / grad2;
         {x' == xDer, y' == yDer} /. {
           x' -> x'[s],
           y' -> y'[s],
