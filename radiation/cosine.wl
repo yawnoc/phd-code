@@ -3459,10 +3459,10 @@ Module[
 Module[
  {a, b,
   xFl, xSh, sMax,
-  xInitGenericList, xyGenericList,
-  xyInitInflectionList, xyInflectionList,
   xMin, xMax, yMax,
   mar, xMinMar, xMaxMar, yMaxMar,
+  xInitGenericList, xyGenericList,
+  xyInitInflectionList, xyInflectionList,
   emptyFrame,
   nonViableDomain,
   straightContour,
@@ -3481,6 +3481,15 @@ Module[
   xFl = xFlat[a, b];
   xSh = xSharp[a, b];
   sMax = 6;
+  (* Plot range *)
+  xMin = Way[0, xFl] // N;
+  xMax = 2;
+  yMax = 2/3 (xMax - xMin);
+  (* Plot range with margin *)
+  mar = 1/5 xMax;
+  xMinMar = xMin - mar;
+  xMaxMar = xMax + mar;
+  yMaxMar = yMax + mar;
   (* Generic traced boundaries from axis *)
   xInitGenericList = Subdivide[xFl, xSh, 4];
   xyGenericList = Table[
@@ -3526,15 +3535,6 @@ Module[
     Re-used plots
     ------------------------------------------------
    *)
-  (* Plot range *)
-  xMin = Way[0, xFl] // N;
-  xMax = 2;
-  yMax = 2/3 (xMax - xMin);
-  (* Plot range with margin *)
-  mar = 1/5 xMax;
-  xMinMar = xMin - mar;
-  xMaxMar = xMax + mar;
-  yMaxMar = yMax + mar;
   (* Empty frame *)
   emptyFrame =
     EmptyFrame[{xMin, xMax}, {-yMax, yMax},
