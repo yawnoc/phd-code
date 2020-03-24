@@ -998,19 +998,20 @@ xyTermSimp[a_?NumericQ] :=
 
 (* ::Text:: *)
 (*See (r5.18) (Page r5-3).*)
-(*The lower branch is used since this corresponds*)
+(*By default the lower branch is used since this corresponds*)
 (*to the candidate boundary for y > 0.*)
 
 
-xTraDer[a_, b_] := Function[{x, y},
+xTraDer[a_, b_, upperBranch_: False] := Function[{x, y},
   With[
    {p = p[b][x, y],
     q = q[b][x, y],
     f = f[a, b][x, y],
-    vi = vi[a, b][x, y]
+    vi = vi[a, b][x, y],
+    sign = If[upperBranch, -1, +1]
    },
     Divide[
-      p q + f Sqrt[vi],
+      p q + sign f Sqrt[vi],
       q^2 - f^2
     ]
   ] // Evaluate
