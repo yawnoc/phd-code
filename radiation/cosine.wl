@@ -1313,7 +1313,8 @@ Module[
                   },
                   "StopIntegration"
                 ]
-              }, {x, y}, {s, -sMax, sMax}
+              }, {x, y}, {s, -sMax, sMax},
+              NoExtrapolation
             ]
           ]
         , {xyInit, xyInitList}];
@@ -1398,7 +1399,8 @@ Module[
                     },
                     "StopIntegration"
                   ]
-                }, {x, y}, {s, -sMax, sMax}
+                }, {x, y}, {s, -sMax, sMax},
+                NoExtrapolation
               ]
             ]
           , {xyInit, xyInitList}]
@@ -1455,7 +1457,8 @@ Module[
             x[s] > xStraight,
             "StopIntegration"
           ]
-        }, {x, y}, {s, 0, sMax}
+        }, {x, y}, {s, 0, sMax},
+        NoExtrapolation
       ]
     ];
   yInflAxis = -xyInflAxis[[2]] @ DomainEnd[xyInflAxis];
@@ -1484,7 +1487,8 @@ Module[
             y[s] > 0,
             "StopIntegration"
           ]
-        }, {x, y}, {s, -sMax, 0}
+        }, {x, y}, {s, -sMax, 0},
+        NoExtrapolation
       ]
     ];
   xInflStraight = xyInflStraight[[1]] @ DomainStart[xyInflStraight];
@@ -3247,7 +3251,8 @@ Module[
             },
             "StopIntegration"
           ]
-        }, {x, y}, {s, -sMax, sMax}
+        }, {x, y}, {s, -sMax, sMax},
+        NoExtrapolation
       ]
     ]
   , {xInit, xInitList}];
@@ -3288,7 +3293,8 @@ Module[
               },
               "StopIntegration"
             ]
-          }, {x, y}, {s, -sMax, sMax}
+          }, {x, y}, {s, -sMax, sMax},
+          NoExtrapolation
         ]
       ]
     , {sInit, sInflList}];
@@ -3428,7 +3434,8 @@ Module[
                 },
                 "StopIntegration"
               ]
-            }, {x, y}, {s, -sMax, sMax}
+            }, {x, y}, {s, -sMax, sMax},
+            NoExtrapolation
           ]
         ]
       , {xInit, xInitList}];
@@ -3519,7 +3526,8 @@ Module[
             },
             "StopIntegration"
           ]
-        }, {x, y}, {s, -sMax, sMax}
+        }, {x, y}, {s, -sMax, sMax},
+        NoExtrapolation
       ]
     ]
   , {xInit, xInitGenericList}];
