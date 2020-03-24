@@ -3505,9 +3505,9 @@ Module[
     ------------------------------------------------
    *)
   (* Plot range *)
-  xMin = 0;
-  xMax = Pi/2 * 3/2;
-  yMax = 2;
+  xMin = Way[0, xFl] // N;
+  xMax = 2;
+  yMax = 2/3 (xMax - xMin);
   (* Plot range with margin *)
   mar = 1/5 xMax;
   xMinMar = xMin - mar;
