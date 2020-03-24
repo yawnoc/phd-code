@@ -3599,6 +3599,16 @@ Module[
       nonViableDomain,
       straightContour,
       lineOfSymmetry,
+      Table[
+        ParametricPlot[
+          xy[s]
+            // Through
+            // {#, {#[[1]], -#[[2]]}} &
+            // Evaluate,
+          {s, DomainStart[xy], DomainEnd[xy]},
+          PlotStyle -> {upperStyle, lowerStyle}
+        ]
+      , {xy, xyGenericList}],
       inflectionFrontiers[]
     ]
   }
