@@ -1026,19 +1026,26 @@ xTraDer[a_, b_, upperBranch_: False] := Function[{x, y},
 (*See (r5.20) (Page r5-5).*)
 
 
-curTra[a_, b_] := Function[{x, y},
+curTra[a_, b_, upperBranch_: False] := Function[{x, y},
   Module[{d, xDer, xDer2, cur},
     (* Abbreviation for y-derivative *)
     d = Dt[#, y, Constants -> {a, b}] &;
     (* x' and x'' *)
     (*
-      Note: these are for the lower branch,
+      Note: these are by default for the lower branch,
       since xTraDer uses the lower branch
      *)
-    xDer = xTraDer[a, b][x, y];
+    xDer = xTraDer[a, b, upperBranch][x, y];
     xDer2 = d[xDer];
     (* Curvature evaluated *)
-    cur = xDer2 /. {d[x] -> xDer}
+    cur = xDer2 /. {d[x] -> xDer};
+    cur = cur /. {d @ If[_, _, _] -> 0}
+    (*
+      Note: ugly d @ If[_, _, _] replacement needed
+      since upperBranch returns an If expression.
+      d[_If] doesn't work since it evaluates.
+      d @ If[___] raises the warning If::argbu.
+     *)
   ] // Evaluate
 ] // Evaluate;
 
