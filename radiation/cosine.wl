@@ -3458,6 +3458,7 @@ Module[
 
 Module[
  {a, b,
+  includeYReflection,
   xFl, xSh, sMax,
   xMin, xMax, yMax,
   mar, xMinMar, xMaxMar, yMaxMar,
@@ -3477,6 +3478,8 @@ Module[
   (* A and B *)
   a = aAsymm;
   b = bAsymm;
+  (* Include reflection in y (across x-axis) *)
+  includeYReflection = {#, # * {1, -1}} &;
   (* Useful constants *)
   xFl = xFlat[a, b];
   xSh = xSharp[a, b];
@@ -3578,10 +3581,7 @@ Module[
       ParametricPlot[
         xy[s]
           // Through
-          // If[OptionValue["Mirror"],
-            {#, {#[[1]], -#[[2]]}} &,
-            Identity
-          ]
+          // If[OptionValue["Mirror"], includeYReflection, Identity]
           // Evaluate,
         {s, DomainStart[xy], DomainEnd[xy]},
         PlotStyle -> inflStyle
@@ -3603,7 +3603,7 @@ Module[
         ParametricPlot[
           xy[s]
             // Through
-            // {#, {#[[1]], -#[[2]]}} &
+            // includeYReflection
             // Evaluate,
           {s, DomainStart[xy], DomainEnd[xy]},
           PlotStyle -> {upperStyle, lowerStyle}
