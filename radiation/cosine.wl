@@ -3500,6 +3500,9 @@ Module[
           x[0] == xInit, y[0] == 0,
           WhenEvent[
             {
+              x[s] < xMinMar,
+              x[s] > xMaxMar,
+              Abs @ y[s] > xMaxMar,
               vi[a, b][x[s], y[s]] < 0,
               tKnown[b][x[s], y[s]] < 0
             },
@@ -3522,6 +3525,9 @@ Module[
           x[0] == xyInit[[1]], y[0] == xyInit[[2]],
           WhenEvent[
             {
+              x[s] < xMinMar,
+              x[s] > xMaxMar,
+              Abs @ y[s] > xMaxMar,
               vi[a, b][x[s], y[s]] < 0
             },
             "StopIntegration"
