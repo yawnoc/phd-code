@@ -3479,6 +3479,7 @@ Module[
   mar, xMinMar, xMaxMar, yMaxMar,
   xInitGenericList, xyGenericList,
   xyInitInflectionList, xyInflectionList,
+  xInitConvexList, sConvexLower, xyConvexList,
   emptyFrame,
   nonViableDomain,
   straightContour,
@@ -3556,6 +3557,28 @@ Module[
       ]
     ]
   , {xyInit, xyInitInflectionList}];
+  (* Convex portions of traced boundaries *)
+  xInitConvexList = Subdivide[xInflStraight, xInflAxis, 4];
+  xyConvexList = Table[
+    With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+      (*
+        NOTE: WhenEvent detection doesn't work at the initial point,
+        hence the If hack.
+       *)
+      sConvexLower = If[xInit == Last[xInitConvexList], 0, -sMax];
+      NDSolveValue[
+        {
+          xyTraSystem[a, b],
+          x[0] == xInit, y[0] == 0,
+          WhenEvent[
+            curTra[a, b, True][x[s], y[s]] < 0,
+            "StopIntegration"
+          ]
+        }, {x, y}, {s, sConvexLower, sMax},
+        NoExtrapolation
+      ]
+    ]
+  , {xInit, xInitConvexList}];
   (*
     ------------------------------------------------
     Re-used plots
@@ -3627,6 +3650,24 @@ Module[
         ]
       , {xy, xyGenericList}],
       inflectionFrontiers[]
+    ],
+    (* Convex portions of traced boundaries *)
+    Show[
+      emptyFrame,
+      nonViableDomain,
+      straightContour,
+      lineOfSymmetry,
+      Table[
+        ParametricPlot[
+          xy[s]
+            // Through
+            // includeYReflection
+            // Evaluate,
+          {s, DomainStart[xy], DomainEnd[xy]},
+          PlotStyle -> {upperStyle, lowerStyle}
+        ]
+      , {xy, xyConvexList}],
+      inflectionFrontiers["Mirror" -> True]
     ]
   }
 ]
