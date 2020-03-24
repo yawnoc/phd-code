@@ -3551,7 +3551,8 @@ Module[
             },
             "StopIntegration"
           ]
-        }, {x, y}, {s, -sMax, sMax}
+        }, {x, y}, {s, -sMax, sMax},
+        NoExtrapolation
       ]
     ]
   , {xyInit, xyInitInflectionList}];
