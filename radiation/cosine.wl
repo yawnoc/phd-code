@@ -3460,12 +3460,14 @@ Module[
  {a, b,
   xFl, xSh, sMax,
   xInitGenericList, xyGenericList,
+  xyInitInflectionList, xyInflectionList,
   xMin, xMax, yMax,
   mar, xMinMar, xMaxMar, yMaxMar,
   emptyFrame,
   nonViableDomain,
   straightContour,
-  lineOfSymmetry
+  lineOfSymmetry,
+  inflectionFrontiers
  },
   (*
     ------------------------------------------------
@@ -3499,6 +3501,26 @@ Module[
     ]
   , {xInit, xInitGenericList}];
   (* Inflection frontiers for the lower branch *)
+  xyInitInflectionList = {
+    {xInflAxis, 0},
+    {xStraight, yInflStraight}
+  };
+  xyInflectionList = Table[
+    With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+      NDSolveValue[
+        {
+          curContourSystem[a, b],
+          x[0] == xyInit[[1]], y[0] == xyInit[[2]],
+          WhenEvent[
+            {
+              vi[a, b][x[s], y[s]] < 0
+            },
+            "StopIntegration"
+          ]
+        }, {x, y}, {s, -sMax, sMax}
+      ]
+    ]
+  , {xyInit, xyInitInflectionList}];
   (*
     ------------------------------------------------
     Re-used plots
@@ -3542,6 +3564,23 @@ Module[
     Graphics @ {Directive[Thin, Orange],
       Line @ N @ {{xFlat[a, b], 0}, {xSharp[a, b], 0}}
     };
+  (* Inflection frontiers for the lower branch *)
+  inflectionFrontiers[
+    opt : OptionsPattern @ {"Mirror" -> False}
+  ] :=
+    Table[
+      ParametricPlot[
+        xy[s]
+          // Through
+          // If[OptionValue["Mirror"],
+            {#, {#[[1]], -#[[2]]}} &,
+            Identity
+          ]
+          // Evaluate,
+        {s, DomainStart[xy], DomainEnd[xy]},
+        PlotStyle -> inflStyle
+      ]
+    , {xy, xyInflectionList}];
   (*
     ------------------------------------------------
     Plots
@@ -3554,7 +3593,7 @@ Module[
       nonViableDomain,
       straightContour,
       lineOfSymmetry,
-      {}
+      inflectionFrontiers[]
     ]
   }
 ]
