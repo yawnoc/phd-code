@@ -4079,3 +4079,33 @@ Module[{a, b, source, tSol, mesh, dest},
     ]
   ] // Ex[dest]
 ]
+
+
+(* ::Subsection:: *)
+(*Relative error (3D)*)
+
+
+Module[{a, b, source, tSol, mesh, dest},
+  a = aAsymm;
+  b = bAsymm;
+  (* Import solution *)
+  source = "cosine_general-verification-solution-asymmetric.txt";
+  tSol = Import[source] // Uncompress;
+  mesh = tSol["ElementMesh"];
+  (* Plot *)
+  dest = "cosine_general-verification-rel_error-3d-asymmetric.png";
+  With[{x = \[FormalX], y = \[FormalY]},
+    Plot3D[tSol[x, y] / tKnown[b][x, y] - 1, Element[{x, y}, mesh],
+      AxesLabel -> Italicised /@ {"x", "y", "T"},
+      PlotLabel -> Column[
+        {
+          "Rel. error of numerical solution",
+          Row[{aIt == a, bIt == N[b]}, ","]
+        },
+        Center
+      ],
+      PlotRange -> Full,
+      PlotOptions[Axes] // Evaluate
+    ]
+  ] // Ex[dest]
+]
