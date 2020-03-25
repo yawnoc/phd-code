@@ -3975,3 +3975,42 @@ Table[
     ] // Ex[dest]
   ]
 , {a, aValuesSimpConvex}]
+
+
+(* ::Section:: *)
+(*Numerical verification (B arbitrary) plots*)
+
+
+(* ::Subsection:: *)
+(*Finite element mesh*)
+
+
+Module[
+ {source,
+  mesh, prRad, prBath,
+  bCoords, bCoordsRad, bCoordsBath,
+  dest
+ },
+  (* Import mesh *)
+  source = "cosine_general-verification-mesh-asymmetric.txt";
+  {mesh, prRad, prBath} = Import[source] // Uncompress;
+  (* Boundary coordinates *)
+  bCoords = Part[
+    mesh["Coordinates"],
+    List @@ First @ mesh["BoundaryElements"] // Flatten // DeleteDuplicates
+  ];
+  bCoordsRad = Select[bCoords, prRad @@ # &];
+  bCoordsBath = Select[bCoords, prBath @@ # &];
+  (* Export plot *)
+  dest = StringReplace[source, ".txt" -> ".pdf"];
+  Show[
+    mesh["Wireframe"],
+    ListPlot[{bCoordsRad, bCoordsBath},
+      PlotStyle -> (
+        Directive[#, pointStyle, Opacity[0.7]] &
+          /@ {Blue, Red}
+      )
+    ],
+    ImageSize -> 240
+  ] // Ex[dest]
+]
