@@ -4109,3 +4109,39 @@ Module[{a, b, source, tSol, mesh, dest},
     ]
   ] // Ex[dest]
 ]
+
+
+(* ::Subsection:: *)
+(*Relative error (2D)*)
+
+
+Module[{a, b, source, tSol, mesh, dest},
+  a = aAsymm;
+  b = bAsymm;
+  (* Import solution *)
+  source = "cosine_general-verification-solution-asymmetric.txt";
+  tSol = Import[source] // Uncompress;
+  mesh = tSol["ElementMesh"];
+  (* Plot *)
+  dest = "cosine_general-verification-rel_error-2d-asymmetric.png";
+  With[{x = \[FormalX], y = \[FormalY]},
+    Show[
+      DensityPlot[tSol[x, y] / tKnown[b][x, y] - 1, Element[{x, y}, mesh],
+        ColorFunction -> "Rainbow",
+        PlotLabel -> Column[
+          {
+            "Rel. error of numerical solution",
+            Row[{aIt == a, bIt == N[b]}, ","]
+          },
+          Center
+        ],
+        PlotRange -> Full,
+        PlotLegends -> Automatic,
+        PlotOptions[Frame] // Evaluate
+      ],
+      mesh["Wireframe"],
+      (* Prevent bunched-up x ticks *)
+      PlotRange -> {{1., 1.8}, {Automatic, Automatic}}
+    ]
+  ] // Ex[dest]
+]
