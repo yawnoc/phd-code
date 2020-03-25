@@ -4049,3 +4049,33 @@ Module[
     ImageSize -> 240
   ] // Ex[dest]
 ]
+
+
+(* ::Subsection:: *)
+(*Numerical solution*)
+
+
+Module[{a, b, source, tSol, mesh, dest},
+  a = aAsymm;
+  b = bAsymm;
+  (* Import solution *)
+  source = "cosine_general-verification-solution-asymmetric.txt";
+  tSol = Import[source] // Uncompress;
+  mesh = tSol["ElementMesh"];
+  (* Plot *)
+  dest = source // StringReplace[".txt" -> ".png"];
+  With[{x = \[FormalX], y = \[FormalY]},
+    Plot3D[tSol[x, y], Element[{x, y}, mesh],
+      AxesLabel -> Italicised /@ {"x", "y", "T"},
+      PlotLabel -> Column[
+        {
+          "Numerical solution",
+          Row[{aIt == a, bIt == N[b]}, ","]
+        },
+        Center
+      ],
+      PlotRange -> Full,
+      PlotOptions[Axes] // Evaluate
+    ]
+  ] // Ex[dest]
+]
