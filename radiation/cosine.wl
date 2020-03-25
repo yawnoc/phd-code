@@ -1686,6 +1686,88 @@ Table[
 , {a, aValuesSimpConvex}]
 
 
+(* ::Subsubsection:: *)
+(*General case (B arbitrary)*)
+
+
+(* ::Text:: *)
+(*Here we consider the asymmetric convex domain constructed above.*)
+
+
+(* ::Subsubsubsection:: *)
+(*Generate finite element mesh*)
+
+
+(* (This is not slow, nevertheless compute once and store.) *)
+(* (Delete the file manually to compute from scratch.) *)
+Module[
+ {dest,
+  xyUpper, xyLower, yTop, yBottom,
+  sSpacing, bPointList, nB,
+  bMesh, mesh,
+  prRad, prBath
+ },
+  dest = "cosine_general-verification-mesh-asymmetric.txt";
+  ExportIfNotExists[dest,
+    (* Top- and bottom-corner y-coordinates *)
+    (*
+      NOTE: "upper" and "lower" refer to the branch,
+      not the relative vertical position of the two boundary curves
+     *)
+    xyUpper = xyTraAsymm["upper"];
+    xyLower = xyTraAsymm["lower"];
+    yTop = xyLower[[2]] @ DomainStart[xyLower];
+    yBottom = xyUpper[[2]] @ DomainEnd[xyUpper];
+    (* Make spacing of boundary points 1/50 of the height *)
+    sSpacing = 1/50 (yTop - yBottom);
+    (* Boundary points *)
+    bPointList = Join[
+      (* Radiation boundary: lower branch (physically higher) *)
+      Table[
+        xyLower[s] // Through
+      , {s, UniformRange[
+          DomainStart[xyLower],
+          DomainEnd[xyLower],
+          sSpacing
+        ]
+      }] // Most,
+      (* Radiation boundary: upper branch (physically lower) *)
+      Table[
+        xyUpper[s] // Through
+      , {s, UniformRange[
+          DomainStart[xyUpper],
+          DomainEnd[xyUpper],
+          sSpacing
+        ]
+      }] // Most,
+      (* Straight boundary x == \[Pi]/2 *)
+      Table[
+        {xStraight, y}
+      , {y, UniformRange[yBottom, yTop, sSpacing]}] // Most
+    ];
+    nB = Length[bPointList];
+    (* Build boundary element mesh *)
+    bMesh = ToBoundaryMesh[
+      "Coordinates" -> bPointList,
+      "BoundaryElements" -> {
+        LineElement[
+          Table[{n, n + 1}, {n, nB}] // Mod[#, nB, 1] &
+        ]
+      }
+    ];
+    (* Build mesh *)
+    mesh = ToElementMesh[bMesh,
+      "ImproveBoundaryPosition" -> True
+    ];
+    (* Predicate functions for radiation and bath (straight) boundaries *)
+    prRad = Function[{x, y}, x < xStraight // Evaluate];
+    prBath = Function[{x, y}, x == xStraight // Evaluate];
+    (* Export *)
+    {mesh, prRad, prBath} // Compress
+  ]
+]
+
+
 (* ::Subsection:: *)
 (*Italicised symbols*)
 
