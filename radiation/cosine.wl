@@ -1768,6 +1768,41 @@ Module[
 ]
 
 
+(* ::Subsubsubsection:: *)
+(*Solve boundary value problem (Version 12 required)*)
+
+
+(* (This is not slow, nevertheless compute once and store.) *)
+(* (Delete the file manually to compute from scratch.) *)
+Module[
+ {dest, source,
+  mesh, prRad, prBath,
+  a, tSol
+ },
+  dest = "cosine_general-verification-solution-asymmetric.txt";
+  ExportIfNotExists[dest,
+    (* Import mesh *)
+    source = "cosine_general-verification-mesh-asymmetric.txt";
+    {mesh, prRad, prBath} = Import[source] // Uncompress;
+    (* Solve boundary value problem *)
+    a = aAsymm;
+    With[{x = \[FormalX], y = \[FormalY], t = \[FormalCapitalT]},
+      tSol = NDSolveValue[
+        {
+          (* Steady state heat equation *)
+          -Laplacian[t[x, y], {x, y}] ==
+            (* Radiation boundary condition *)
+            NeumannValue[(-1 / a) t[x, y]^4, prRad[x, y]],
+          (* Heat bath (straight edge) boundary condition *)
+          DirichletCondition[t[x, y] == 1, prBath[x, y]]
+        }, t, Element[{x, y}, mesh]
+      ]
+    ];
+    tSol // Compress
+  ]
+]
+
+
 (* ::Subsection:: *)
 (*Italicised symbols*)
 
