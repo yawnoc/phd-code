@@ -3711,7 +3711,8 @@ Module[
         ]
       , {xy, xyGenericList}],
       inflectionFrontiers[]
-    ],
+    ]
+      // Ex["cosine_general-asymmetric-traced-generic.pdf"],
     (* Convex portions of traced boundaries *)
     Show[
       emptyFrame,
@@ -3729,7 +3730,8 @@ Module[
         ]
       , {xy, xyConvexList}],
       inflectionFrontiers["Mirror" -> True]
-    ],
+    ]
+      // Ex["cosine_general-asymmetric-traced-convex_portions.pdf"],
     (* Convex asymmetric domain boundaries *)
     Show[
       emptyFrame,
@@ -3745,6 +3747,7 @@ Module[
       ],
       inflectionFrontiers["Mirror" -> True]
     ]
+      // Ex["cosine_general-asymmetric-traced-convex_domain.pdf"]
   }
 ]
 
