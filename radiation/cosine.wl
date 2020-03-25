@@ -1496,6 +1496,66 @@ Module[
 ]
 
 
+(* ::Text:: *)
+(*The asymmetric domain shall have corner at*)
+(*  x-coordinate 1/4 of the way from x_i(straight) to x_i(axis), and*)
+(*  y-coordinate 9/10 of the way from 0 to the negative y, along that x,*)
+(*    where inflection occurs for the lower branch.*)
+
+
+Module[
+ {a, b,
+  yInflNegative,
+  idList, upperBranch,
+  sMax, sLower, sUpper
+ },
+  a = aAsymm;
+  b = bAsymm;
+  (*
+    ------------------------------------------------
+    Asymmetric domain corner
+    ------------------------------------------------
+    xAsymmCorner:
+      1/4 of the way from x_i(straight) to x_i(axis)
+    yAsymmCorner:
+      9/10 of the way from 0 to the negative y, along that x,
+      where inflection occurs for the lower branch.
+   *)
+  xAsymmCorner = Way[xInflStraight, xInflAxis, 1/4];
+  yInflNegative = SeekFirstRootBisection[
+    curTra[a, b][xAsymmCorner, #] &,
+    {0, -0.5}
+  ];
+  yAsymmCorner = Way[0, yInflNegative, 9/10];
+  (*
+    ------------------------------------------------
+    Asymmetric domain boundaries
+    ------------------------------------------------
+   *)
+  idList = {"upper", "lower"};
+  sMax = 2;
+  Table[
+    upperBranch = id === "upper";
+    sLower = If[upperBranch, 0, -sMax];
+    sUpper = If[upperBranch, sMax, 0];
+    xyTraAsymm[id] =
+      With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+        NDSolveValue[
+          {
+            xyTraSystem[a, b, upperBranch],
+            x[0] == xAsymmCorner, y[0] == yAsymmCorner,
+            WhenEvent[
+              x[s] > xStraight,
+              "StopIntegration"
+            ]
+          }, {x, y}, {s, sLower, sUpper},
+          NoExtrapolation
+        ]
+      ];
+  , {id, idList}];
+];
+
+
 (* ::Subsection:: *)
 (*Numerical verification (finite elements)*)
 
@@ -3668,6 +3728,21 @@ Module[
           PlotStyle -> {upperStyle, lowerStyle}
         ]
       , {xy, xyConvexList}],
+      inflectionFrontiers["Mirror" -> True]
+    ],
+    (* Convex asymmetric domain boundaries *)
+    Show[
+      emptyFrame,
+      nonViableDomain,
+      straightContour,
+      lineOfSymmetry,
+      ParametricPlot[
+        Table[
+          xyTraAsymm[id][s] // Through
+        , {id, {"upper", "lower"}}] // Evaluate,
+        {s, -sMax, sMax},
+        PlotStyle -> convexStyle
+      ],
       inflectionFrontiers["Mirror" -> True]
     ]
   }
