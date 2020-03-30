@@ -78,6 +78,7 @@ ClearAll["Conway`*`*"];
   Italicised,
   ModuleSymbol,
   NoExtrapolation,
+  OffsetCharacterCode,
   PlotOptions,
   PreciseOptions,
   PrettyString,
@@ -368,6 +369,44 @@ NoExtrapolation::usage = (
 NoExtrapolation = (
   "ExtrapolationHandler" -> {Indeterminate &, "WarningMessage" -> False}
 );
+
+
+(* ::Subsubsection:: *)
+(*OffsetCharacterCode*)
+
+
+OffsetCharacterCode::usage = (
+  "OffsetCharacterCode[offset][string]\n"
+  <> "Offset code points of string by an integer offset.\n"
+  <> "OffsetCharacterCode[initial, final][string]\n"
+  <> "Offset code points of string from initial to final. "
+  <> "Both initial and final may be given "
+  <> "as integers (code points) or as strings (first characters)."
+);
+
+
+OffsetCharacterCode[offset_Integer][string_String] :=
+  FromCharacterCode[ToCharacterCode[string] + offset];
+
+
+OffsetCharacterCode[initial_Integer, final_Integer] :=
+  OffsetCharacterCode[final - initial];
+
+
+OffsetCharacterCode["", final_] :=
+  OffsetCharacterCode[0, final];
+
+
+OffsetCharacterCode[initial_String, final_] :=
+  OffsetCharacterCode[First @ ToCharacterCode[initial], final];
+
+
+OffsetCharacterCode[initial_, ""] :=
+  OffsetCharacterCode[initial, 0];
+
+
+OffsetCharacterCode[initial_, final_String] :=
+  OffsetCharacterCode[initial, First @ ToCharacterCode[final]];
 
 
 (* ::Subsubsection:: *)
