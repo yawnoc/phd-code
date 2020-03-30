@@ -76,6 +76,9 @@ ClearAll["Conway`*`*"];
   ExportIfNotExists,
   FString,
   Italicised,
+  LatinModernFont,
+  LatinModernFontStyle,
+  LaTeXStyle,
   ModuleSymbol,
   NoExtrapolation,
   OffsetCharacterCode,
@@ -335,6 +338,110 @@ Italicised[str_] := Style[str, Italic];
 
 
 SetAttributes[Italicised, Listable];
+
+
+(* ::Subsubsection:: *)
+(*LatinModernFont*)
+
+
+LatinModernFont::usage = (
+  "LatinModernFont[type (def \"Roman\")]\n"
+  <> "Latin Modern Font of type type."
+)
+
+
+LatinModernFont[type : _String : "Roman"] :=
+  "Latin Modern " <> type;
+
+
+(* ::Subsubsection:: *)
+(*LatinModernFontStyle*)
+
+
+LatinModernFontStyle::usage = (
+  "LatinModernFontStyle[type][expr]\n"
+  <> "Style expression expr with Latin Modern Font of type type."
+)
+
+
+LatinModernFontStyle[type_][expr_] :=
+  Style[expr, FontFamily -> LatinModernFont[type]]
+
+
+(* ::Subsubsection:: *)
+(*LaTeXStyle*)
+
+
+LaTeXStyle::usage = (
+  "LaTeXStyle[expr]\n"
+  <> "Style expression expr with LaTeX fonts without using Szabolcs's MaTeX. "
+  <> "While MaTeX is an excellent package, and outputs vector text labels, "
+  <> "those labels cannot be selected and copied."
+);
+
+
+LaTeXStyle[expr_] := (
+  expr
+    /. {
+      (* Greek lowercase (italic) *)
+      (* U+1D6FC MATHEMATICAL ITALIC SMALL ALPHA onwards *)
+      char_String?(StringMatchQ @ CharacterRange["\[Alpha]", "\[Omega]"]) :> (
+        char
+          // Offset[16^^1D6FC, "\[Alpha]"]
+          // LatinModernFontStyle["Math"]
+       ),
+      (* Greek uppercase *)
+      (* U+0391 GREEK CAPITAL LETTER ALPHA onwards *)
+      char_String?(StringMatchQ @ CharacterRange["\[CapitalAlpha]", "\[CapitalOmega]"]) :> (
+        char
+          // Offset[16^^0391, "\[CapitalAlpha]"]
+          // LatinModernFontStyle["Math"]
+       ),
+      (* Partial differential *)
+      (* U+1D715 MATHEMATICAL ITALIC PARTIAL DIFFERENTIAL *)
+      "\[PartialD]" :> (
+        FromCharacterCode[16^^1D715]
+          // LatinModernFontStyle["Math"]
+      ),
+      (* Lunate epsilon *)
+      (* U+1D716 MATHEMATICAL ITALIC EPSILON SYMBOL *)
+      "\[Epsilon]" :> (
+        FromCharacterCode[16^^1D716]
+          // LatinModernFontStyle["Math"]
+      ),
+      (* Cursive theta *)
+      (* U+1D717 MATHEMATICAL ITALIC THETA SYMBOL *)
+      "\[CurlyTheta]" :> (
+        FromCharacterCode[16^^1D717]
+          // LatinModernFontStyle["Math"]
+      ),
+      (* Cursive kappa *)
+      (* U+1D718 MATHEMATICAL ITALIC KAPPA SYMBOL *)
+      "\[CurlyKappa]" :> (
+        FromCharacterCode[16^^1D718]
+          // LatinModernFontStyle["Math"]
+      ),
+      (* Closed phi *)
+      (* U+1D719 MATHEMATICAL ITALIC PHI SYMBOL *)
+      "\[Phi]" :> (
+        FromCharacterCode[16^^1D719]
+          // LatinModernFontStyle["Math"]
+      ),
+      (* Cursive rho *)
+      (* U+1D71A MATHEMATICAL ITALIC RHO SYMBOL *)
+      "\[CurlyRho]" :> (
+        FromCharacterCode[16^^1D71A]
+          // LatinModernFontStyle["Math"]
+      ),
+      (* Cursive pi *)
+      (* U+1D71B MATHEMATICAL ITALIC PI SYMBOL *)
+      "\[CurlyPi]" :> (
+        FromCharacterCode[16^^1D71B]
+          // LatinModernFontStyle["Math"]
+      )
+    }
+    // LatinModernFontStyle["Roman"]
+);
 
 
 (* ::Subsubsection:: *)
