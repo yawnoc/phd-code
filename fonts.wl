@@ -202,3 +202,13 @@ comparisonTableForm[
   {},
   CharacterRange[16^^1D715, 16^^1D71B]
 ]
+
+
+(* ::Subsection:: *)
+(*Accidentals*)
+
+
+comparisonTableForm[
+  {"\[Flat]", "\[Natural]", "\[Sharp]"},
+  CharacterRange[16^^0266D, 16^^0266F]
+]
