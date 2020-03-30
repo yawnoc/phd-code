@@ -405,14 +405,14 @@ LaTeXStyle[expr_] := (
       (* U+1D6FC MATHEMATICAL ITALIC SMALL ALPHA onwards *)
       char_String?(StringMatchQ @ CharacterRange["\[Alpha]", "\[Omega]"]) :> (
         char
-          // Offset[16^^1D6FC, "\[Alpha]"]
+          // OffsetCharacterCode[16^^1D6FC, "\[Alpha]"]
           // LatinModernFontStyle["Math"]
        ),
       (* Greek uppercase *)
       (* U+0391 GREEK CAPITAL LETTER ALPHA onwards *)
       char_String?(StringMatchQ @ CharacterRange["\[CapitalAlpha]", "\[CapitalOmega]"]) :> (
         char
-          // Offset[16^^0391, "\[CapitalAlpha]"]
+          // OffsetCharacterCode[16^^0391, "\[CapitalAlpha]"]
           // LatinModernFontStyle["Math"]
        ),
       (* Partial differential *)
