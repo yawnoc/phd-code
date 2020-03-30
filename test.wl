@@ -73,6 +73,23 @@ Module[{outerVar = 0},
 "a + beta" // PrettyString["beta" -> "\[Beta]"]
 
 
+LaTeXStyle @ {
+  Join[
+    CharacterRange["0", "9"],
+    CharacterRange["A", "Z"],
+    CharacterRange["a", "z"]
+  ]
+    // {Identity, Italicise, Embolden}
+    // Through,
+  Join[
+    CharacterRange["\[CapitalAlpha]", "\[CapitalOmega]"],
+    CharacterRange["\[Alpha]", "\[Omega]"]
+  ],
+  "e" ^ ("i" "\[Pi]") + 1 == 0 // TraditionalForm,
+  {"\[PartialD]", "\[Epsilon]", "\[CurlyTheta]", "\[CurlyKappa]", "\[Phi]", "\[CurlyRho]", "\[CurlyPi]", Infinity}
+} // Style[#, 24] &
+
+
 Module[{fun, x},
   fun = Cos[#] - # &;
   x = SeekRoot[fun, {0, 1}];
