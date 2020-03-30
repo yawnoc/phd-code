@@ -22,49 +22,183 @@ ReplaceAll[
 (* ::Text:: *)
 (*See https://tex.stackexchange.com/q/524996*)
 (*and http://mirrors.ctan.org/macros/latex/contrib/unicode-math/unimath-symbols.pdf*)
-(*Special unicode symbols need to be used.*)
+(*On my current machine are installed:*)
+(*  "Latin Modern Math" which is to be used with special unicode symbols*)
+(*  "Latin Modern Roman" which seems to handle everything except lowercase italic Greek*)
+(*Note that "Latin Modern Math" can't handle math italic "h" (see below).*)
+(*The best approach appears to be using "Latin Modern Roman" by default,*)
+(*and only using "Latin Modern Math" for Greek.*)
+
+
+(* Fonts *)
+latinModernRoman[expr_] := Style[expr, FontFamily -> "Latin Modern Roman"];
+latinModernMath[expr_] := Style[expr, FontFamily -> "Latin Modern Math"];
+SetAttributes[{latinModernRoman, latinModernMath}, Listable];
+
+
+(* Formatting *)
+formatItalic[expr_] := Style[expr, Italic];
+formatBold[expr_] := Style[expr, Bold];
+SetAttributes[{formatItalic, formatBold}, Listable];
+
+
+(* Table for comparing the two approaches *)
+comparisonTableForm[romanString_, mathString_] :=
+  TableForm[
+    {
+      latinModernRoman[romanString],
+      latinModernMath[mathString]
+    },
+    TableHeadings -> {{"Latin Modern Roman", "Latin Modern Math"}, None},
+    TableSpacing -> {2, 1}
+  ] // Style[#, FontSize -> 24] &;
 
 
 (* ::Subsection:: *)
-(*Symbols defined by unicode-math*)
+(*Digits*)
 
 
-Module[{fontSize, styleMath, styleRomanItalic},
-  fontSize = 36;
-  styleMath[string_] := Style[string, fontSize,
-    FontFamily -> "Latin Modern Math"
-  ];
-  styleRomanItalic[string_] := Style[string, fontSize,
-    Italic,
-    FontFamily -> "Latin Modern Roman"
-  ];
-  SetAttributes[styleMath, Listable];
-  SetAttributes[styleRomanItalic, Listable];
-  styleMath @ {
-    (* Digits *)
-    CharacterRange["0", "9"],
-    (* Latin upright *)
-    CharacterRange["A", "Z"],
-    CharacterRange["a", "z"],
-    (* Latin italic *)
-    CharacterRange[16^^1D434, 16^^1D44D],
-    CharacterRange[16^^1D44E, 16^^1D467],
-    (* Latin italic with missing "h" filled in *)
-    (*
-      NOTE: https://tex.stackexchange.com/questions/524996/#comment1328261_525087
-        For the missing "h", blame the Unicode Consortium;
-        they already defined the math italic "h" as the Planck constant U+210E
-        and didn't fill the hole in the Mathematical Italic block,
-        which is a silly decision.
-        \[Dash] egreg
-     *)
-    styleRomanItalic @ CharacterRange["a", "z"],
-    (* Greek upright upper and italic lower *)
-    CharacterRange[16^^00391, 16^^003A9],
-    CharacterRange[16^^1D6FC, 16^^1D71B],
-    (* Bold latin upright *)
-    CharacterRange[16^^1D400, 16^^1D419],
-    CharacterRange[16^^1D41A, 16^^1D433],
-    {}
-  } // TableForm[#, TableSpacing -> {4, 1}] &
+comparisonTableForm[
+  CharacterRange["0", "9"],
+  CharacterRange["0", "9"]
+]
+
+
+(* ::Subsection:: *)
+(*Latin*)
+
+
+(* ::Subsubsection:: *)
+(*Uppercase*)
+
+
+comparisonTableForm[
+  CharacterRange["A", "Z"],
+  CharacterRange["A", "Z"]
+]
+
+
+(* ::Subsubsection:: *)
+(*Lowercase*)
+
+
+comparisonTableForm[
+  CharacterRange["a", "z"],
+  CharacterRange["a", "z"]
+]
+
+
+(* ::Subsection:: *)
+(*Latin, italic*)
+
+
+(* ::Subsubsection:: *)
+(*Uppercase*)
+
+
+comparisonTableForm[
+  CharacterRange["A", "Z"] // formatItalic,
+  CharacterRange[16^^1D434, 16^^1D44D]
+]
+
+
+(* ::Subsubsection:: *)
+(*Lowercase*)
+
+
+(*
+  https://tex.stackexchange.com/questions/524996/#comment1328261_525087
+    For the missing "h", blame the Unicode Consortium;
+    they already defined the math italic "h" as the Planck constant U+210E
+    and didn't fill the hole in the Mathematical Italic block,
+    which is a silly decision.
+    \[Dash] egreg
+ *)
+comparisonTableForm[
+  CharacterRange["a", "z"] // formatItalic,
+  CharacterRange[16^^1D44E, 16^^1D467] // Append @ FromCharacterCode[16^^210E]
+]
+
+
+(* ::Subsection:: *)
+(*Latin, bold*)
+
+
+(* ::Subsubsection:: *)
+(*Uppercase*)
+
+
+comparisonTableForm[
+  CharacterRange["A", "Z"] // formatBold,
+  CharacterRange[16^^1D400, 16^^1D419]
+]
+
+
+(* ::Subsubsection:: *)
+(*Lowercase*)
+
+
+comparisonTableForm[
+  CharacterRange["a", "z"] // formatBold,
+  CharacterRange[16^^1D41A, 16^^1D433]
+]
+
+
+(* ::Subsection:: *)
+(*Greek*)
+
+
+(* ::Subsubsection:: *)
+(*Uppercase*)
+
+
+comparisonTableForm[
+  CharacterRange["\[CapitalAlpha]", "\[CapitalOmega]"],
+  CharacterRange[16^^00391, 16^^003A9]
+]
+
+
+(* ::Subsubsection:: *)
+(*Lowercase*)
+
+
+comparisonTableForm[
+  CharacterRange["\[Alpha]", "\[Omega]"],
+  CharacterRange[16^^003B1, 16^^003C9]
+]
+
+
+comparisonTableForm[
+  {"\[CurlyTheta]", "\[Phi]", "\[CurlyPi]", "\[CurlyKappa]", "\[CurlyRho]", "", "\[Epsilon]"},
+  FromCharacterCode /@ {16^^003D1, 16^^003D5, 16^^003D6, 16^^003F0, 16^^003F1, 16^^003F4, 16^^003F5}
+]
+
+
+(* ::Subsection:: *)
+(*Greek, italic*)
+
+
+(* ::Subsubsection:: *)
+(*Uppercase*)
+
+
+comparisonTableForm[
+  CharacterRange["\[CapitalAlpha]", "\[CapitalOmega]"] // formatItalic,
+  CharacterRange[16^^1D6E2, 16^^1D6FA]
+]
+
+
+(* ::Subsubsection:: *)
+(*Lowercase*)
+
+
+comparisonTableForm[
+  CharacterRange["\[Alpha]", "\[Omega]"] // formatItalic,
+  CharacterRange[16^^1D6FC, 16^^1D714]
+]
+
+
+comparisonTableForm[
+  {},
+  CharacterRange[16^^1D715, 16^^1D71B]
 ]
