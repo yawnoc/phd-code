@@ -3646,6 +3646,82 @@ Module[
 
 
 (* ::Subsection:: *)
+(*Curvature along x-axis*)
+
+
+(* ::Subsubsection:: *)
+(*Interactive visualiser*)
+
+
+DynamicModule[
+ {aInit, aMin, aMax,
+  bInit, bMin, bMax,
+  xMin, xMax,
+  curMax, curMaxMar,
+  resetLabel,
+  critTermPoint
+ },
+  (* Values of A *)
+  aInit = 12;
+  aMin = 1;
+  aMax = 20;
+  (* Values of B *)
+  bInit = 1.05 bNat[aInit];
+  bMin = 0;
+  bMax = 1;
+  (* Plot range *)
+  xMin = 0;
+  xMax = Pi/2 * 5/4;
+  curMax = 1;
+  curMaxMar = 1.2 curMax;
+  (* Label for reset *)
+  resetLabel[var_] := Row @ {"Reset ", var};
+  (* Critical terminal point *)
+  critTermPoint[x0_, style_] :=
+    Graphics @ {Directive[style, pointStyle],
+      Point @ {x0, 0}
+    };
+  (* Plot *)
+  Manipulate[
+    Show[
+      Plot[
+        curTra[a, b][x, 0], {x, xMin, xMax},
+        AxesLabel -> {Automatic, "\[Kappa]"},
+        PlotRange -> {-curMax, curMax},
+        PlotOptions[Axes] // Evaluate
+      ],
+      (* Straight contour *)
+      Graphics @ {straightStyle,
+        Line @ {{xStraight, -curMaxMar}, {xStraight, curMaxMar}}
+      },
+      (* Critical terminal points along y == 0 *)
+      Which[
+        (* Two distinct terminal points, x_\[Flat] & x_\[Sharp] *)
+        b > bNat[a],
+        {
+          critTermPoint[Re @ xFlat[a, b], flatStyle],
+          critTermPoint[Re @ xSharp[a, b], sharpStyle]
+          (* Re chops off small imaginary part in floating point arithmetic *)
+        },
+        (* One terminal point x_\[Natural] *)
+        b == bNat[a],
+        {
+          critTermPoint[xNat[a], natStyle]
+        },
+        (* Zero critical terminal points *)
+        True,
+        {}
+      ]
+    ]
+  , {{a, aInit, aIt}, aMin, aMax, Appearance -> "Open"}
+  , {{b, bInit, bIt}, bMin, bMax, Appearance -> "Open"}
+  , Button[resetLabel[aIt], a = aInit]
+  , Button[resetLabel[bIt], b = bInit]
+  ]
+]
+
+
+(* ::Subsection:: *)
 (*Constructing an asymmetric domain*)
 
 
