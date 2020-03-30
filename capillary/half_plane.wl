@@ -119,7 +119,7 @@ ExportIfNotExists["half_plane-solution-fixed_point.txt",
 
 
 (* ::Subsection:: *)
-(*Italicised symbols*)
+(*Italicise symbols*)
 
 
 gIt = Style["\[Gamma]"];
@@ -167,7 +167,7 @@ Module[{tSolAss, tSol, mesh, gamma},
     Block[{x = \[FormalX], y = \[FormalY]},
     (* (Using With results in SetDelayed::wrsym and an empty plot) *)
       Plot3D[tSol[x, y], Element[{x, y}, mesh],
-        AxesLabel -> Italicised /@ {"x", "y", "T"},
+        AxesLabel -> Italicise /@ {"x", "y", "T"},
         PlotLabel -> Column[
           {
             "Numerical solution",
@@ -196,7 +196,7 @@ Module[{tSolAss, tSol, n, mesh, gamma},
     Block[{x = \[FormalX], y = \[FormalY]},
     (* (Using With results in SetDelayed::wrsym and an empty plot) *)
       Plot3D[tSol[x, y], Element[{x, y}, mesh],
-        AxesLabel -> Italicised /@ {"x", "y", "T"},
+        AxesLabel -> Italicise /@ {"x", "y", "T"},
         PlotLabel -> Column[
           {
             "Numerical solution: {n} iterations" // FString,
@@ -229,7 +229,7 @@ Module[
     gamma = gpd * Degree;
     xMax = 3;
     Plot[tSolNonlinear[x, 0] - tSolFixedPoint[x, 0], {x, 0, xMax},
-      AxesLabel -> {Italicised @ "x", ""},
+      AxesLabel -> {Italicise @ "x", ""},
       PlotLabel -> Column[
         {
           "[Nonlinear]" - "[Fixed-point]",
@@ -320,7 +320,7 @@ Module[
   (* Plot *)
   LogPlot[tSol[x, 0] / tInterp[x] - 1 // Abs,
     {x, 0, xMax},
-    AxesLabel -> {Italicised @ "x", "Rel. error"},
+    AxesLabel -> {Italicise @ "x", "Rel. error"},
     AxesOrigin -> {-0.125, Automatic},
     Exclusions -> None,
     PlotRange -> Full,

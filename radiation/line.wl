@@ -434,11 +434,11 @@ Module[{dest},
 
 
 (* ::Subsection:: *)
-(*Italicised symbols*)
+(*Italicise symbols*)
 
 
-aIt = Italicised["A"];
-rIt = Italicised["r"];
+aIt = Italicise["A"];
+rIt = Italicise["r"];
 
 
 (* ::Subsection:: *)
@@ -1372,7 +1372,7 @@ Module[{source, tSol, mesh},
   (* Plot *)
   With[{x = \[FormalX], y = \[FormalY]},
     Plot3D[tSol[x, y], Element[{x, y}, mesh],
-      AxesLabel -> Italicised /@ {"x", "y", "T"},
+      AxesLabel -> Italicise /@ {"x", "y", "T"},
       PlotLabel -> "Numerical solution",
       PlotRange -> Full,
       PlotOptions[Axes] // Evaluate

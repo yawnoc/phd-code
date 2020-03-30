@@ -1743,14 +1743,14 @@ polyComplement[n_Integer] :=
 
 
 (* ::Subsection:: *)
-(*Italicised symbols*)
+(*Italicise symbols*)
 
 
-aIt = Italicised["A"];
+aIt = Italicise["A"];
 gIt = Style["\[Gamma]"];
-nIt = Italicised["n"];
-sIt = Italicised["s"];
-zIt = Italicised["z"];
+nIt = Italicise["n"];
+sIt = Italicise["s"];
+zIt = Italicise["z"];
 
 
 (* ::Subsection:: *)
@@ -3911,7 +3911,7 @@ Table[
     (* Plot *)
     With[{x = \[FormalX], y = \[FormalY]},
       Plot3D[tSol[x, y], Element[{x, y}, mesh],
-        AxesLabel -> Italicised /@ {"x", "y", "T"},
+        AxesLabel -> Italicise /@ {"x", "y", "T"},
         PlotLabel -> "Numerical solution",
         PlotRange -> Full,
         PlotOptions[Axes] // Evaluate
@@ -4061,7 +4061,7 @@ Module[{source, tSol, mesh},
   (* Plot *)
   With[{x = \[FormalX], y = \[FormalY]},
     Plot3D[tSol[x, y], Element[{x, y}, mesh],
-      AxesLabel -> Italicised /@ {"x", "y", "T"},
+      AxesLabel -> Italicise /@ {"x", "y", "T"},
       PlotLabel -> "Numerical solution",
       PlotRange -> Full,
       PlotOptions[Axes] // Evaluate
@@ -4082,7 +4082,7 @@ Module[{source, tSol, mesh},
   (* Plot *)
   With[{x = \[FormalX], y = \[FormalY]},
     Plot3D[tSol[x, y], Element[{x, y}, mesh],
-      AxesLabel -> Italicised /@ {"x", "y", "T"},
+      AxesLabel -> Italicise /@ {"x", "y", "T"},
       PlotLabel -> "Numerical solution",
       PlotRange -> Full,
       PlotOptions[Axes] // Evaluate

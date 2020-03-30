@@ -1804,14 +1804,14 @@ Module[
 
 
 (* ::Subsection:: *)
-(*Italicised symbols*)
+(*Italicise symbols*)
 
 
-aIt = Italicised["A"];
-bIt = Italicised["B"];
-sIt = Italicised["s"];
-xIt = Italicised["x"];
-yIt = Italicised["y"];
+aIt = Italicise["A"];
+bIt = Italicise["B"];
+sIt = Italicise["s"];
+xIt = Italicise["x"];
+yIt = Italicise["y"];
 
 
 (* ::Subsection:: *)
@@ -4004,7 +4004,7 @@ Table[
     dest = source // StringReplace[".txt" -> ".png"];
     With[{x = \[FormalX], y = \[FormalY]},
       Plot3D[tSol[x, y], Element[{x, y}, mesh],
-        AxesLabel -> Italicised /@ {"x", "y", "T"},
+        AxesLabel -> Italicise /@ {"x", "y", "T"},
         PlotLabel -> Column[
           {"Numerical solution", aIt == N[a]},
           Center
@@ -4142,7 +4142,7 @@ Module[{a, b, source, tSol, mesh, dest},
   dest = source // StringReplace[".txt" -> ".png"];
   With[{x = \[FormalX], y = \[FormalY]},
     Plot3D[tSol[x, y], Element[{x, y}, mesh],
-      AxesLabel -> Italicised /@ {"x", "y", "T"},
+      AxesLabel -> Italicise /@ {"x", "y", "T"},
       PlotLabel -> Column[
         {
           "Numerical solution",
@@ -4172,7 +4172,7 @@ Module[{a, b, source, tSol, mesh, dest},
   dest = "cosine_general-verification-rel_error-3d-asymmetric.png";
   With[{x = \[FormalX], y = \[FormalY]},
     Plot3D[tSol[x, y] / tKnown[b][x, y] - 1, Element[{x, y}, mesh],
-      AxesLabel -> Italicised /@ {"x", "y", "T"},
+      AxesLabel -> Italicise /@ {"x", "y", "T"},
       PlotLabel -> Column[
         {
           "Rel. error of numerical solution",

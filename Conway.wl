@@ -75,7 +75,7 @@ ClearAll["Conway`*`*"];
   Ex,
   ExportIfNotExists,
   FString,
-  Italicised,
+  Italicise,
   LatinModernFont,
   LatinModernFontStyle,
   LaTeXStyle,
@@ -323,21 +323,21 @@ SetAttributes[FString, Listable];
 
 
 (* ::Subsubsection:: *)
-(*Italicised*)
+(*Italicise*)
 
 
-Italicised::usage = (
-  "Italicised[str]\n"
+Italicise::usage = (
+  "Italicise[str]\n"
   <> "Returns italicised version of str.\n"
   <> "To be used for AxesLabel etc.\n"
   <> "Automatically threads over lists."
 );
 
 
-Italicised[str_] := Style[str, Italic];
+Italicise[str_] := Style[str, Italic];
 
 
-SetAttributes[Italicised, Listable];
+SetAttributes[Italicise, Listable];
 
 
 (* ::Subsubsection:: *)
@@ -528,14 +528,14 @@ PlotOptions::usage = (
 
 
 PlotOptions[Axes] = {
-  AxesLabel -> Italicised @ {"x", "y"},
+  AxesLabel -> Italicise @ {"x", "y"},
   LabelStyle -> Directive[Black, 16]
 };
 
 
 PlotOptions[Frame] = {
   AspectRatio -> Automatic,
-  FrameLabel -> Italicised @ {"x", "y"},
+  FrameLabel -> Italicise @ {"x", "y"},
   LabelStyle -> Directive[Black, 16],
   RotateLabel -> False
 };
