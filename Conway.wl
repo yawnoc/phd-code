@@ -70,6 +70,7 @@ ClearAll["Conway`*`*"];
   DeleteNearbyPoints,
   DomainEnd,
   DomainStart,
+  Embolden,
   EmptyAxes,
   EmptyFrame,
   Ex,
@@ -182,6 +183,23 @@ DomainStart[iFun_InterpolatingFunction] := iFun["Domain"][[1, 1]];
 
 
 DomainStart[{iFun_, ___}] := DomainStart[iFun];
+
+
+(* ::Subsubsection:: *)
+(*Embolden*)
+
+
+Embolden::usage = (
+  "Embolden[str]\n"
+  <> "Returns emboldened version of str."
+  <> "Automatically threads over lists."
+);
+
+
+Embolden[str_] := Style[str, Bold];
+
+
+SetAttributes[Embolden, Listable];
 
 
 (* ::Subsubsection:: *)
