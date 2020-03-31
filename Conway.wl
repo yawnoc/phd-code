@@ -390,6 +390,39 @@ LatinModernFontStyle[type_][expr_] :=
 (*LaTeXStyle*)
 
 
+(*
+  On my machine (Debian GNU/Linux 9.12 stretch)
+  are installed "Latin Modern Roman" and "Latin Modern Math",
+  which were installed along with Mathematica.
+  ----------------------------------------------------------------
+  "Latin Modern Math" has good symbol coverage,
+  but requires the use of special unicode characters,
+  e.g. U+1D44E MATHEMATICAL ITALIC SMALL A to display $a$.
+  Italicising ASCII a (U+0061 LATIN SMALL LETTER A) will not work.
+  One might consider for instance, a mapping which takes the alphabet
+  to the MATHEMATICAL ITALIC SMALL range U+1D44E ($a$) to U+1D467 ($z$),
+  but there is a hole at U+1D455 ($h$). According to egreg:
+    <https://tex.stackexchange.com/questions/524996/#comment1328261_525087>
+    For the missing "h", blame the Unicode Consortium;
+    they already defined the math italic "h" as the Planck constant U+210E
+    and didn't fill the hole in the Mathematical Italic block,
+    which is a silly decision.
+  ----------------------------------------------------------------
+  "Latin Modern Roman" supports bold and italics for [0-9a-zA-Z]
+  without having to use special unicode characters,
+  and seems to be able to handle everything except lowercase italic Greek.
+  ----------------------------------------------------------------
+  For a comparison, see font-comparison.wl.
+  ----------------------------------------------------------------
+  Therefore, the best approach appears to be
+  using "Latin Modern Roman" by default,
+  and only using "Latin Modern Math"
+  (with mapping to the special unicode characters)
+  for Greek and other symbols as required.
+  This is the approach taken below.
+ *)
+
+
 LaTeXStyle::usage = (
   "LaTeXStyle[expr]\n"
   <> "Style expression expr with LaTeX fonts without using Szabolcs's MaTeX. "
