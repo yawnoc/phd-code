@@ -84,7 +84,7 @@ Module[
   yMaxMore = 1.2 yMax;
   (* For the three cases *)
   Table[
-    With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+    Module[{x, y, s},
       (* Viability function \[CapitalPhi] *)
       vi = phi[x, y];
       (* Known solution T *)
