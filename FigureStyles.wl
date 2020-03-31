@@ -69,6 +69,7 @@ BoundaryTracingStyle[type_String : Automatic] := Association[
   "Contour" -> Directive[Dotted, Black],
   "NonViable" -> Directive[GeneralStyle["Translucent"], LightGray],
   "Terminal" -> Directive[Dashed, Black],
+  "Traced" -> Black,
   "TracedUpper" -> Black,
   "TracedLower" -> Black,
   Automatic -> Black
