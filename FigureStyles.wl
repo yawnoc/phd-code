@@ -56,7 +56,7 @@ Begin["`Private`"];
 
 GeneralStyle[type_String : Automatic] := Association[
   "Point" -> PointSize[Large],
-  "Transclucent" -> Opacity[0.7],
+  "Translucent" -> Opacity[0.7],
   Automatic -> Automatic
 ][type];
 
