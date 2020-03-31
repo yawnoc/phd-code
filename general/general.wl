@@ -138,17 +138,20 @@ Module[
         RegionPlot[vi < 0,
           {x, -xMaxMore, xMaxMore}, {y, -yMaxMore, yMaxMore},
           BoundaryStyle -> BoundaryTracingStyle["Terminal"],
+          PlotPoints -> 15,
           PlotStyle -> BoundaryTracingStyle["NonViable"]
         ],
         (* Local T-contour *)
         ContourPlot[t == 0,
           {x, -xMaxLess, xMaxLess}, {y, -yMaxLess, yMaxLess},
-          ContourStyle -> BoundaryTracingStyle["Contour"]
+          ContourStyle -> BoundaryTracingStyle["Contour"],
+          PlotPoints -> 10
         ],
         (* Traced boundaries *)
         Table[
           ParametricPlot[xy[s] // Through,
             {s, 1/2 DomainStart[xy], 1/2 DomainEnd[xy]},
+            PlotPoints -> 2,
             PlotStyle -> BoundaryTracingStyle["Traced"]
           ]
         , {xy, xyTra}]
