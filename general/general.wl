@@ -154,7 +154,13 @@ Module[
             PlotPoints -> 2,
             PlotStyle -> BoundaryTracingStyle["Traced"]
           ]
-        , {xy, xyTra}]
+        , {xy, xyTra}],
+        (* Terminal point *)
+        Graphics @ {
+          GeneralStyle["Point"],
+          GeneralStyle["Translucent"],
+          Point @ {0, 0}
+        }
       ]
     ] // Ex @ FString["terminal-{case}.pdf"]
   , {case, caseList}]
