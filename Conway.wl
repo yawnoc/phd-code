@@ -419,7 +419,7 @@ LatinModernFontStyle[type_][expr_] :=
   and only using "Latin Modern Math"
   (with mapping to the special unicode characters)
   for Greek and other symbols as required.
-  This is the approach taken below.
+  This is the approach taken here.
  *)
 
 
@@ -432,7 +432,7 @@ LaTeXStyle::usage = (
 
 
 LaTeXStyle[expr_] := (
-  expr
+  LatinModernFontStyle["Roman"][expr]
     /. {
       (* Greek lowercase (italic) *)
       (* U+1D6FC MATHEMATICAL ITALIC SMALL ALPHA onwards *)
@@ -491,7 +491,6 @@ LaTeXStyle[expr_] := (
           // LatinModernFontStyle["Math"]
       )
     }
-    // LatinModernFontStyle["Roman"]
 );
 
 
