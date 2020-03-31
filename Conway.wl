@@ -392,8 +392,8 @@ LatinModernFontStyle[type_][expr_] :=
 
 (*
   On my machine (Debian GNU/Linux 9.12 stretch)
-  are installed "Latin Modern Roman" and "Latin Modern Math",
-  which were installed along with Mathematica.
+  are installed fonts "Latin Modern Roman" and "Latin Modern Math",
+  which are dependencies of TeX Live ($ sudo apt install texlive-full).
   ----------------------------------------------------------------
   "Latin Modern Math" has good symbol coverage,
   but requires the use of special unicode characters,
