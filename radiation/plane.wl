@@ -14,6 +14,7 @@
 
 SetDirectory @ ParentDirectory @ NotebookDirectory[];
 << Conway`
+<< FigureStyles`
 SetDirectory @ FileNameJoin @ {NotebookDirectory[], "plane"}
 
 
@@ -127,3 +128,29 @@ Show[
     PlotOptions[Axes] // Evaluate
   ]
 ] // Ex["plane-traced-with-known.png"]
+
+
+(* ::Section:: *)
+(*Figure: Traced boundaries, single spike (plane-traced-boundary-spike.pdf)*)
+
+
+Module[{yMax, yMaxMore, xTerm},
+  yMax = Ceiling[Abs @ yTraMax, 0.1];
+  yMaxMore = 1.2 yTraMax;
+  xTerm = 1;
+  Show[
+    (* Pair of traced boundaries forming a spike *)
+    Plot[{yTra[x], -yTra[x]}, {x, 0, 1},
+      AspectRatio -> Automatic,
+      ImageSize -> 240,
+      LabelStyle -> LatinModernLabelStyle[12],
+      PlotRange -> {-yMax, yMax},
+      PlotStyle -> BoundaryTracingStyle["Traced"],
+      PlotOptions[Axes] // Evaluate
+    ],
+    (* Critical terminal curve *)
+    Graphics @ {BoundaryTracingStyle["Contour"],
+      Line @ {{xTerm, -yMaxMore}, {xTerm, yMaxMore}}
+    }
+  ]
+] // Ex["plane-traced-boundary-spike.pdf"]
