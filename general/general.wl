@@ -22,7 +22,7 @@ ClearAll["Global`*"];
 
 
 (* ::Section:: *)
-(*Terminal points (fig:terminal-*.pdf)*)
+(*Figure: Terminal points (terminal-*.pdf)*)
 
 
 (*
