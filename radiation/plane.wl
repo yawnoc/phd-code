@@ -35,7 +35,7 @@ ClearAll["Global`*"];
 
 yTraDer = Function[{x}, -x^4 / Sqrt[1 - x^8]];
 yTra = Function[{x}, Integrate[yTraDer[x], x] // Evaluate];
-yTraMax = yTra[1];
+yTraMax = Abs @ yTra[1];
 
 
 With[{x = \[FormalX]},
@@ -135,7 +135,7 @@ Show[
 
 
 Module[{yMax, yMaxMore, xTerm},
-  yMax = Ceiling[Abs @ yTraMax, 0.1];
+  yMax = Ceiling[yTraMax, 0.1];
   yMaxMore = 1.2 yTraMax;
   xTerm = 1;
   Show[
