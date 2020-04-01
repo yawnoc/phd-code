@@ -78,6 +78,7 @@ ClearAll["Conway`*`*"];
   FString,
   Italicise,
   LatinModernFont,
+  LatinModernLabelStyle,
   LatinModernFontStyle,
   LaTeXStyle,
   ModuleSymbol,
@@ -365,11 +366,29 @@ SetAttributes[Italicise, Listable];
 LatinModernFont::usage = (
   "LatinModernFont[type (def \"Roman\")]\n"
   <> "Latin Modern Font of type type."
-)
+);
 
 
 LatinModernFont[type : _String : "Roman"] :=
   "Latin Modern " <> type;
+
+
+(* ::Subsubsection:: *)
+(*LatinModernLabelStyle*)
+
+
+LatinModernLabelStyle::usage = (
+  "LatinModernLabelStyle[size, col (def Black)]\n"
+  <> "Latin Modern Font label style to be used in Plots etc."
+);
+
+
+LatinModernLabelStyle[size_Integer, col_: Black] :=
+  {
+    col,
+    FontFamily -> LatinModernFont[],
+    FontSize -> size
+  }
 
 
 (* ::Subsubsection:: *)
