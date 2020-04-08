@@ -22,16 +22,35 @@ ReplaceAll[
 (* ::Text:: *)
 (*See https://tex.stackexchange.com/q/524996*)
 (*and http://mirrors.ctan.org/macros/latex/contrib/unicode-math/unimath-symbols.pdf*)
-(*On my current machine are installed:*)
+(*On my current machine (Debian GNU/Linux 9.12 (stretch)) are installed:*)
 (*  "Latin Modern Math" which is to be used with special unicode symbols*)
 (*  "Latin Modern Roman" which seems to handle everything except lowercase italic Greek*)
+
+
+(* ::Text:: *)
+(*$ fc-match "Latin Modern Math" file*)
+(*:file=/usr/share/texmf/fonts/opentype/public/lm-math/latinmodern-math.otf*)
+(*This is identical to latinmodern-math-1959/otf/latinmodern-math.otf from*)
+(*<http://www.gust.org.pl/projects/e-foundry/lm-math/download>.*)
+
+
+(* ::Text:: *)
+(*$ fc-match "Latin Modern Roman" file*)
+(*:file=/usr/share/texmf/fonts/opentype/public/lm/lmroman10-regular.otf*)
+(*This is identical to lmroman10-regular.otf from*)
+(*<http://www.gust.org.pl/projects/e-foundry/latin-modern/download>.*)
+(*On the Windows desktop machine supplied by my university,*)
+(*this is only recognised under the name "LM Roman 10".*)
+
+
+(* ::Text:: *)
 (*Note that "Latin Modern Math" can't handle math italic "h" (see below).*)
 (*The best approach appears to be using "Latin Modern Roman" by default,*)
 (*and only using "Latin Modern Math" for Greek.*)
 
 
 (* Fonts *)
-latinModernRoman[expr_] := Style[expr, FontFamily -> "Latin Modern Roman"];
+latinModernRoman[expr_] := Style[expr, FontFamily -> "LM Roman 10"];
 latinModernMath[expr_] := Style[expr, FontFamily -> "Latin Modern Math"];
 SetAttributes[{latinModernRoman, latinModernMath}, Listable];
 
