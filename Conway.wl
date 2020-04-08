@@ -365,7 +365,13 @@ SetAttributes[Italicise, Listable];
 
 LatinModernFont::usage = (
   "LatinModernFont[type (def \"Roman\")]\n"
-  <> "Latin Modern Font of type type."
+  <> "Latin Modern Font of type type.\n"
+  <> "Requires installation of the following fonts:\n"
+  <> "* \"Latin Modern Math\" latinmodern-math.otf\n"
+  <> "  <http://www.gust.org.pl/projects/e-foundry/lm-math/download>"
+  <> "\n"
+  <> "* \"LM Roman 10\" lmroman10-regular.otf\n"
+  <> "  <http://www.gust.org.pl/projects/e-foundry/latin-modern/download>"
 );
 
 
@@ -416,6 +422,14 @@ LatinModernFontStyle[type_][expr_] :=
   On my machine (Debian GNU/Linux 9.12 stretch)
   are installed fonts "Latin Modern Roman" and "Latin Modern Math",
   which are dependencies of TeX Live ($ sudo apt install texlive-full).
+  On my university's machine (Windows 10),
+  "Latin Modern Roman" needs to be referred to as "LM Roman 10".
+  ----------------------------------------------------------------
+  These fonts may be found here:
+  * "Latin Modern Math" latinmodern-math.otf
+    <http://www.gust.org.pl/projects/e-foundry/lm-math/download>
+  * "LM Roman 10" lmroman10-regular.otf
+    <http://www.gust.org.pl/projects/e-foundry/latin-modern/download>
   ----------------------------------------------------------------
   "Latin Modern Math" has good symbol coverage,
   but requires the use of special unicode characters,
@@ -430,14 +444,14 @@ LatinModernFontStyle[type_][expr_] :=
     and didn't fill the hole in the Mathematical Italic block,
     which is a silly decision.
   ----------------------------------------------------------------
-  "Latin Modern Roman" supports bold and italics for [0-9a-zA-Z]
+  "LM Roman 10" supports bold and italics for [0-9a-zA-Z]
   without having to use special unicode characters,
   and seems to be able to handle everything except lowercase italic Greek.
   ----------------------------------------------------------------
   For a comparison, see font-comparison.wl.
   ----------------------------------------------------------------
   Therefore, the best approach appears to be
-  using "Latin Modern Roman" by default,
+  using "LM Roman 10" by default,
   and only using "Latin Modern Math"
   (with mapping to the special unicode characters)
   for Greek and other symbols as required.
@@ -449,7 +463,13 @@ LaTeXStyle::usage = (
   "LaTeXStyle[expr]\n"
   <> "Style expression expr with LaTeX fonts without using Szabolcs's MaTeX. "
   <> "While MaTeX is an excellent package, and outputs vector text labels, "
-  <> "those labels cannot be selected and copied."
+  <> "those labels cannot be selected and copied.\n"
+  <> "Requires installation of the following fonts:\n"
+  <> "* \"Latin Modern Math\" latinmodern-math.otf\n"
+  <> "  <http://www.gust.org.pl/projects/e-foundry/lm-math/download>"
+  <> "\n"
+  <> "* \"LM Roman 10\" lmroman10-regular.otf\n"
+  <> "  <http://www.gust.org.pl/projects/e-foundry/latin-modern/download>"
 );
 
 
