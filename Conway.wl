@@ -370,7 +370,10 @@ LatinModernFont::usage = (
 
 
 LatinModernFont[type : _String : "Roman"] :=
-  "Latin Modern " <> type;
+  Association[
+    "Math" -> "Latin Modern Math",
+    "Roman" -> "LM Roman 10"
+  ][type];
 
 
 (* ::Subsubsection:: *)
