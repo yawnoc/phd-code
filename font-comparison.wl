@@ -50,9 +50,9 @@ ReplaceAll[
 
 
 (* Fonts *)
-latinModernRoman[expr_] := Style[expr, FontFamily -> "LM Roman 10"];
+lmRoman10[expr_] := Style[expr, FontFamily -> "LM Roman 10"];
 latinModernMath[expr_] := Style[expr, FontFamily -> "Latin Modern Math"];
-SetAttributes[{latinModernRoman, latinModernMath}, Listable];
+SetAttributes[{lmRoman10, latinModernMath}, Listable];
 
 
 (* Formatting *)
@@ -65,10 +65,10 @@ SetAttributes[{formatItalic, formatBold}, Listable];
 comparisonTableForm[romanString_, mathString_] :=
   TableForm[
     {
-      latinModernRoman[romanString],
+      lmRoman10[romanString],
       latinModernMath[mathString]
     },
-    TableHeadings -> {{"Latin Modern Roman", "Latin Modern Math"}, None},
+    TableHeadings -> {{"LM Roman 10", "Latin Modern Math"}, None},
     TableSpacing -> {2, 1}
   ] // Style[#, FontSize -> 24] &;
 
