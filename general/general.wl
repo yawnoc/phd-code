@@ -165,3 +165,190 @@ Module[
     ] // Ex @ FString["terminal-{case}.pdf"]
   , {case, caseList}]
 ]
+
+
+(* ::Section:: *)
+(*Figure: Curvilinear coordinates (orthogonal-curvilinear-coordinates.pdf)*)
+
+
+Module[
+ {f, fInv, u, v, x, y,
+  hu, hv,
+  au, av,
+  x0, y0, u0, v0,
+  du, dv,
+  xLeft, xRight, yTop, yBottom,
+  contourStyle, originalStyle, displacedStyle,
+  orthogonalityMarkerLength, orthogonalityMarkerStyle,
+  basisVectorLength, basisVectorStyle,
+  textStyle,
+  auTipXY, avTipXY,
+  huduUV, huduXY,
+  hvdvUV, hvdvXY,
+  uConstUV, uConstXY,
+  vConstUV, vConstXY,
+  constText, aText, hText, dText, hdText
+ },
+  (*
+    Any orthogonal curvilinear coordinate system (u, v)
+    can be written u + i v == f(x + i y)
+    for some analytic function f.
+    We take f == exp, f^(-1) == log
+    so we have "reversed" polar coordinates.
+  *)
+  (* Transformation *)
+  f = Exp;
+  fInv = InverseFunction[f];
+  u[x_, y_] := Re @ f[x + I y] // ComplexExpand // Evaluate;
+  v[x_, y_] := Im @ f[x + I y] // ComplexExpand // Evaluate;
+  x[u_, v_] := Re @ fInv[u + I v] // ComplexExpand // Evaluate;
+  y[u_, v_] := (
+    Im @ fInv[u + I v]
+    // ComplexExpand
+    // # /. {Arg[u + I v] -> ArcTan[u, v]} & (* ComplexExpand is dumb *)
+    // Evaluate
+  );
+  (* Local basis *)
+  hu[u_, v_] := D[{x, y} @@ {u, v} // Through, u] // Evaluate;
+  hv[u_, v_] := D[{x, y} @@ {u, v} // Through, v] // Evaluate;
+  (* Local orthonormal basis *)
+  au[u_, v_] := Normalize @ hu[u, v];
+  av[u_, v_] := Normalize @ hv[u, v];
+  (* Original coordinates *)
+  {x0, y0} = {0.35, 0.55};
+  {u0, v0} = {u, v} @@ {x0, y0} // Through;
+  (* Displacements *)
+  du = 0.3;
+  dv = 0.25;
+  (* Plot range *)
+  xLeft = 0.25;
+  xRight = 0.35;
+  yTop = 0.3;
+  yBottom = 0.3;
+  (* Styles *)
+  contourStyle = Black;
+  originalStyle = contourStyle;
+  displacedStyle = Directive[contourStyle, Dashed];
+  orthogonalityMarkerLength = 0.02;
+  orthogonalityMarkerStyle = Directive[
+    EdgeForm[contourStyle],
+    FaceForm[None]
+  ];
+  basisVectorLength = 0.13;
+  basisVectorStyle = Directive[Thickness[0.012], Arrowheads[0.07]];
+  textStyle = Style[#, 18] & @* LaTeXStyle;
+  (* Coordinates of tips of vectors *)
+  auTipXY = {x0, y0} + basisVectorLength au[u0, v0];
+  avTipXY = {x0, y0} + basisVectorLength av[u0, v0];
+  (* Coordinates of displaced length labels *)
+  huduUV = {u0 + du / 2, v0};
+  huduXY = {x, y} @@ huduUV // Through;
+  hvdvUV = {u0, v0 + dv / 2};
+  hvdvXY = {x, y} @@ hvdvUV // Through;
+  (* Coordinates of contour labels *)
+  uConstUV = {u0, v0 - dv};
+  uConstXY = {x, y} @@ uConstUV // Through;
+  vConstUV = {u0 - 2/3 du, v0};
+  vConstXY = {x, y} @@ vConstUV // Through;
+  (* Text functions *)
+  constText[coord_] := Italicise[coord] == "const";
+  aText[coord_] := Subscript[Embolden["a"], Italicise[coord]];
+  hText[coord_] := Subscript[Italicise["h"], Italicise[coord]];
+  dText[coord_] :=
+    Grid[{{"d", Italicise[coord]}},
+      Spacings -> {-0.07, 0}
+    ];
+  hdText[coord_] :=
+    Grid[{{hText[coord], dText[coord]}},
+      Spacings -> {0.2, 0}
+    ];
+  (* Plot *)
+  Show[
+    (* Original contours *)
+    ContourPlot[
+      {
+        u[x, y] == u0,
+        v[x, y] == v0
+      },
+      {x, x0 - xLeft, x0 + xRight},
+      {y, y0 - yBottom, y0 + yTop},
+      AspectRatio -> Automatic,
+      ContourLabels -> None,
+      ContourStyle -> originalStyle,
+      Frame -> None,
+      ImageSize -> 240
+    ],
+    Graphics @ {
+      (* u == const *)
+      Text[
+        constText["u"] // textStyle,
+        uConstXY,
+        {0, -1.2},
+        av @@ uConstUV
+      ],
+      (* v == const *)
+      Text[
+        constText["v"] // textStyle,
+        vConstXY,
+        {0, 0.7},
+        au @@ vConstUV
+      ]
+    },
+    (* Displaced contours *)
+    ContourPlot[
+      {
+        u[x, y] == u0 + du,
+        v[x, y] == v0 + dv
+      },
+      {x, x0 - xLeft, x0 + xRight},
+      {y, y0 - yBottom, y0 + yTop},
+      ContourLabels -> None,
+      ContourStyle -> displacedStyle
+    ],
+    (* Orthogonality marker *)
+    Graphics @ {orthogonalityMarkerStyle,
+      Rotate[
+        Rectangle[
+          {x0, y0},
+          {x0, y0} + orthogonalityMarkerLength
+        ],
+        ArcTan @@ au[u0, v0],
+        {x0, y0}
+      ]
+    },
+    (* Basis vectors *)
+    Graphics @ {basisVectorStyle,
+      (* a_u *)
+      Arrow @ {{x0, y0}, auTipXY},
+      Text[
+        aText["u"] // textStyle,
+        auTipXY,
+        {-0.4, -1.6}
+      ],
+      (* a_v *)
+      Arrow @ {{x0, y0}, avTipXY},
+      Text[
+        aText["v"] // textStyle,
+        avTipXY,
+        {-1, 1.3}
+      ]
+    },
+    (* Displaced length labels *)
+    Graphics @ {
+      (* h_u du *)
+      Text[
+        hdText["u"] // textStyle,
+        huduXY,
+        {0, 2},
+        au @@ huduUV
+      ],
+      (* h_v du *)
+      Text[
+        hdText["v"] // textStyle,
+        hvdvXY,
+        {0, -2.5},
+        av @@ hvdvUV
+      ]
+    }
+  ]
+] // Ex @ "orthogonal-curvilinear-coordinates.pdf"
