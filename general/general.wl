@@ -264,19 +264,22 @@ Module[
     ];
   (* Plot *)
   Show[
-    (* Original contours *)
+    (* Contours *)
     ContourPlot[
       {
         u[x, y] == u0,
-        v[x, y] == v0
+        u[x, y] == u0 + du,
+        v[x, y] == v0,
+        v[x, y] == v0 + dv
       },
       {x, x0 - xLeft, x0 + xRight},
       {y, y0 - yBottom, y0 + yTop},
       AspectRatio -> Automatic,
       ContourLabels -> None,
-      ContourStyle -> originalStyle,
+      ContourStyle -> {originalStyle, displacedStyle},
       Frame -> None,
-      ImageSize -> 240
+      ImageSize -> 240,
+      PlotPoints -> 10
     ],
     Graphics @ {
       (* u == const *)
@@ -294,17 +297,6 @@ Module[
         au @@ vConstUV
       ]
     },
-    (* Displaced contours *)
-    ContourPlot[
-      {
-        u[x, y] == u0 + du,
-        v[x, y] == v0 + dv
-      },
-      {x, x0 - xLeft, x0 + xRight},
-      {y, y0 - yBottom, y0 + yTop},
-      ContourLabels -> None,
-      ContourStyle -> displacedStyle
-    ],
     (* Orthogonality marker *)
     Graphics @ {orthogonalityMarkerStyle,
       Rotate[
