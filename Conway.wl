@@ -476,6 +476,16 @@ LaTeXStyle::usage = (
 LaTeXStyle[expr_] := (
   LatinModernFontStyle["Roman"][expr]
     /. {
+      (* Total differentials *)
+      {"d", x_} :> (
+        SeparatedRow["NegativeVeryThin"]["d", x]
+      ),
+      (* Partial differentials *)
+      {"\[PartialD]", x_} :> (
+        SeparatedRow[]["\[PartialD]", x]
+      )
+    }
+    /. {
       (* Greek lowercase (italic) *)
       (* U+1D6FC MATHEMATICAL ITALIC SMALL ALPHA onwards *)
       char_String?(StringMatchQ @ CharacterRange["\[Alpha]", "\[Omega]"]) :> (
