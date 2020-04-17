@@ -91,6 +91,7 @@ ClearAll["Conway`*`*"];
   SeekFirstRootBisection,
   SeekRoot,
   SeekRootBisection,
+  SeparatedRow,
   SortByPhi,
   ToName,
   UniformRange,
@@ -860,6 +861,20 @@ SeekRootBisection[
       {xSol, num}
     ]
   ];
+
+
+(* ::Subsubsection:: *)
+(*SeparatedRow*)
+
+
+SeparatedRow::usage = (
+  "SeparatedRow[sep (def \"\")][x1, ...]\n"
+  <> "Returns Row for list {x1, ...} and separator sep."
+);
+
+
+SeparatedRow[sep_: ""][xSeq___] :=
+  Row[{xSeq}, sep];
 
 
 (* ::Subsubsection:: *)
