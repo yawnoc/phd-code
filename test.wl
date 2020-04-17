@@ -73,21 +73,28 @@ Module[{outerVar = 0},
 "a + beta" // PrettyString["beta" -> "\[Beta]"]
 
 
-LaTeXStyle @ Flatten @ {
-  Join[
-    CharacterRange["0", "9"],
-    CharacterRange["A", "Z"],
-    CharacterRange["a", "z"]
-  ]
-    // {Identity, Italicise, Embolden}
-    // Through,
-  Join[
-    CharacterRange["\[CapitalAlpha]", "\[CapitalOmega]"],
-    CharacterRange["\[Alpha]", "\[Omega]"]
-  ],
-  "e" ^ ("i" "\[Pi]") + 1 == 0 // TraditionalForm,
-  {"\[PartialD]", "\[Epsilon]", "\[CurlyTheta]", "\[CurlyKappa]", "\[Phi]", "\[CurlyRho]", "\[CurlyPi]", Infinity}
-} // Style[#, 24] &
+(* Compare displayed and exported LaTeXStyle: *)
+Module[{expressions},
+  expressions = LaTeXStyle @ Flatten @ {
+    Join[
+      CharacterRange["0", "9"],
+      CharacterRange["A", "Z"],
+      CharacterRange["a", "z"]
+    ]
+      // {Identity, Italicise, Embolden}
+      // Through,
+    Join[
+      CharacterRange["\[CapitalAlpha]", "\[CapitalOmega]"],
+      CharacterRange["\[Alpha]", "\[Omega]"]
+    ],
+    "e" ^ ("i" "\[Pi]") + 1 == 0 // TraditionalForm,
+    {"\[PartialD]", "\[Epsilon]", "\[CurlyTheta]", "\[CurlyKappa]", "\[Phi]", "\[CurlyRho]", "\[CurlyPi]", Infinity}
+  } // Style[#, 24] &;
+  {
+    expressions,
+    expressions // Ex["test-latex.pdf"]
+  }
+]
 
 
 Module[{fun, x},
