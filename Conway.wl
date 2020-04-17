@@ -868,12 +868,29 @@ SeekRootBisection[
 
 SeparatedRow::usage = (
   "SeparatedRow[sep (def \"\")][x1, ...]\n"
-  <> "Returns Row for list {x1, ...} and separator sep."
+  <> "Returns Row for list {x1, ...} and separator sep.\n"
+  <> "Abbreviations for certain horizontal spacing characters "
+  <> "are defined for sep."
 );
 
 
 SeparatedRow[sep_: ""][xSeq___] :=
-  Row[{xSeq}, sep];
+  Row[
+    {xSeq},
+    sep /. {
+      "VeryThin" -> "\[VeryThinSpace]",
+      "Thin" -> "\[ThinSpace]",
+      "Medium" -> "\[MediumSpace]",
+      "Thick" -> "\[ThickSpace]",
+      "Invisible" -> "\[InvisibleSpace]",
+      "NegativeVeryThin" -> "\[NegativeVeryThinSpace]",
+      "NegativeThin" -> "\[NegativeThinSpace]",
+      "NegativeMedium" -> "\[NegativeMediumSpace]",
+      "NegativeThick" -> "\[NegativeThickSpace]",
+      "NonBreaking" -> "\[NonBreakingSpace]",
+      Automatic -> ""
+    }
+  ];
 
 
 (* ::Subsubsection:: *)
