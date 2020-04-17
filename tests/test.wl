@@ -7,14 +7,14 @@
 (*and because GitHub currently does not apply syntax colouring for .wls files.*)
 
 
+SetDirectory @ ParentDirectory @ NotebookDirectory[]
+<< Conway`
+<< Curvilinear`
 SetDirectory @ NotebookDirectory[]
 
 
 (* ::Section:: *)
 (*Testing Conway.wl*)
-
-
-<< Conway`
 
 
 Plot[x^2, {x, 0, 1},
@@ -165,9 +165,6 @@ Module[{points},
 
 (* ::Section:: *)
 (*Testing Curvilinear.wl*)
-
-
-<< Curvilinear`
 
 
 (* NOTE: For some reason \[FormalPhi] is not protected in Version 11.0. *)
