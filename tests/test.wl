@@ -76,6 +76,7 @@ Module[{outerVar = 0},
 (* Compare displayed and exported LaTeXStyle: *)
 Module[{expressions},
   expressions = LaTeXStyle @ Flatten @ {
+    $Version,
     Join[
       CharacterRange["0", "9"],
       CharacterRange["A", "Z"],
@@ -92,7 +93,9 @@ Module[{expressions},
   } // Style[#, 24] &;
   {
     expressions,
-    expressions // Ex["test-latex.pdf"]
+    expressions // Ex @ FString[
+      "test-latex-{ToLowerCase[$SystemID]}-v{Floor[$VersionNumber]}.pdf"
+    ]
   }
 ]
 
