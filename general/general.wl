@@ -187,7 +187,7 @@ Module[
   hvdvUV, hvdvXY,
   uConstUV, uConstXY,
   vConstUV, vConstXY,
-  constText, aText, hText, dText, hdText
+  constText, vectorText, displacedLengthText
  },
   (*
     Any orthogonal curvilinear coordinate system (u, v)
@@ -252,15 +252,12 @@ Module[
   vConstXY = {x, y} @@ vConstUV // Through;
   (* Text functions *)
   constText[coord_] := Italicise[coord] == "const";
-  aText[coord_] := Subscript[Embolden["a"], Italicise[coord]];
-  hText[coord_] := Subscript[Italicise["h"], Italicise[coord]];
-  dText[coord_] :=
-    Grid[{{"d", Italicise[coord]}},
-      Spacings -> {-0.07, 0}
-    ];
-  hdText[coord_] :=
-    Grid[{{hText[coord], dText[coord]}},
-      Spacings -> {0.2, 0}
+  vectorText[coord_] :=
+    Subscript[Embolden["a"], Italicise[coord]];
+  displacedLengthText[coord_] :=
+    SeparatedRow["Thin"][
+      Subscript[Italicise["h"], Italicise[coord]],
+      {"d", Italicise[coord]}
     ];
   (* Plot *)
   Show[
@@ -313,14 +310,14 @@ Module[
       (* a_u *)
       Arrow @ {{x0, y0}, auTipXY},
       Text[
-        aText["u"] // textStyle,
+        vectorText["u"] // textStyle,
         auTipXY,
         {-0.4, -1.6}
       ],
       (* a_v *)
       Arrow @ {{x0, y0}, avTipXY},
       Text[
-        aText["v"] // textStyle,
+        vectorText["v"] // textStyle,
         avTipXY,
         {-1, 1.3}
       ]
@@ -329,16 +326,16 @@ Module[
     Graphics @ {
       (* h_u du *)
       Text[
-        hdText["u"] // textStyle,
+        displacedLengthText["u"] // textStyle,
         huduXY,
-        {0, 2},
+        {0, 1.8},
         au @@ huduUV
       ],
       (* h_v du *)
       Text[
-        hdText["v"] // textStyle,
+        displacedLengthText["v"] // textStyle,
         hvdvXY,
-        {0, -2.5},
+        {0, -2.2},
         av @@ hvdvUV
       ]
     }
