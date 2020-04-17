@@ -6,7 +6,6 @@
 
 (* ::Text:: *)
 (*A Wolfram Language Package (.wl) for curvilinear coordinates.*)
-(*(C) 2019 Conway*)
 (*ABSOLUTELY NO WARRANTY, i.e. "GOD SAVE YOU"*)
 
 
