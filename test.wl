@@ -73,7 +73,7 @@ Module[{outerVar = 0},
 "a + beta" // PrettyString["beta" -> "\[Beta]"]
 
 
-LaTeXStyle @ {
+LaTeXStyle @ Flatten @ {
   Join[
     CharacterRange["0", "9"],
     CharacterRange["A", "Z"],
