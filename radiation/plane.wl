@@ -130,7 +130,7 @@ Show[
 ] // Ex["plane-traced-with-known.png"]
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Figure: Traced boundaries, single spike (plane-traced-boundary-spike.pdf)*)
 
 
@@ -156,7 +156,7 @@ Module[{yMax, yMaxMore, xTerm},
 ] // Ex["plane-traced-boundary-spike.pdf"]
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Figure: Traced boundaries, various (plane-traced-boundary-various.pdf)*)
 
 
