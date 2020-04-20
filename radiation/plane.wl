@@ -326,7 +326,7 @@ Module[
   Show[
     EmptyFrame[{xMin, xMax}, {-yMax, yMax},
       AspectRatio -> Automatic,
-      ImageSize -> 240,
+      ImageSize -> 180,
       LabelStyle -> LatinModernLabelStyle[12]
     ],
     (* Traced boundaries *)
