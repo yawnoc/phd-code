@@ -303,3 +303,45 @@ Module[
     }
   ] &
 ] // Ex["plane-traced-boundary-various.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: Traced boundaries (plane-traced-boundaries.pdf)*)
+
+
+Module[
+ {xMin, xMax, yMax,
+  xTerm,
+  cMax, cList
+ },
+  (* Plot range *)
+  xMin = 0;
+  xMax = 1;
+  yMax = Ceiling[2 yTraMax, 0.1];
+  (* Critical terminal curve *)
+  xTerm = 1;
+  (* Values of integration constant *)
+  cMax = 0.95 yMax;
+  cList = Subdivide[-yMax, yMax, 8];
+  Show[
+    EmptyFrame[{xMin, xMax}, {-yMax, yMax},
+      AspectRatio -> Automatic,
+      ImageSize -> 240,
+      LabelStyle -> LatinModernLabelStyle[12]
+    ],
+    (* Traced boundaries *)
+    Table[
+      Plot[c + yTra[x] {1, -1}, {x, xMin, xMax},
+        PlotPoints -> 3,
+        PlotRange -> {-yMax, yMax},
+        PlotStyle -> BoundaryTracingStyle["Traced"]
+      ]
+    , {c, cList}],
+    (* Critical terminal curve *)
+    ParametricPlot[
+      {xTerm, y}, {y, -yMax, yMax},
+      PlotPoints -> 2,
+      PlotStyle -> BoundaryTracingStyle["Traced"]
+    ]
+  ]
+] // Ex["plane-traced-boundaries.pdf"]
