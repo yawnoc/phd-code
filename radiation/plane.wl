@@ -380,7 +380,7 @@ Module[
   xCorner, yCorner,
   cUpper, cLower,
   n, xIntList, yIntList,
-  restricted, unrestrictedAndRestricted,
+  plotPointsGeneral, plotPointsPatched,
   xInt, yInt,
   xLeft, xRight,
   xTerm
@@ -440,57 +440,70 @@ Module[
         yInt = yTraUpper[cUpper][xInt];
         {xInt, yInt}
       , {i, n - 1}];
-    (* Restricted domain (for patched portions) *)
-    restricted[x0_, x1_] :=
-      Piecewise[
-        {{1, x0 <= # <= x1}},
-        Indeterminate
-      ] &;
-    unrestrictedAndRestricted[x0_, x1_] :=
-      {1, restricted[x0, x1][#]} &;
+    (* Plot points *)
+    plotPointsGeneral = 3;
+    plotPointsPatched = 2;
     (* Plot *)
     Show[
-      (*
-        Traced boundaries
-        {general curves, patched portions}
-      *)
-      Plot[
-        Table[
-          {
-            (* Upper-branch(i) *)
-            xLeft = xCornerList[[i]];
-            xRight = If[i > 1,
-              xIntList[[i - 1]],
-              Max[xIntList]
-            ];
-            cUpper = cUpperList[[i]];
-            (
-              yTraUpper[cUpper][x]
-              unrestrictedAndRestricted[xLeft, xRight][x]
-            ),
-            (* Lower-branch(i) *)
-            xLeft = xCornerList[[i]];
-            xRight = If[i < n,
-              xIntList[[i]],
-              Max[xIntList]
-            ];
-            cLower = cLowerList[[i]];
-            (
-              yTraLower[cLower][x]
-              unrestrictedAndRestricted[xLeft, xRight][x]
-            )
-          }
-        , {i, n}] // Evaluate,
-        {x, 0, 1},
+      EmptyAxes[{xMin, xMax}, {-yMax, yMax},
         AspectRatio -> Automatic,
         Axes -> None,
-        ImageSize -> 480,
-        PlotRange -> {{xMin, xMax}, {-yMax, yMax}},
-        PlotStyle -> {
-          BoundaryTracingStyle["TracedGeneral"],
-          BoundaryTracingStyle["Traced"]
-        }
+        ImageSize -> 480
       ],
+      (* General boundaries: upper-branch(i) *)
+      Table[
+        cUpper = cUpperList[[i]];
+        Plot[
+          yTraUpper[cUpper][x],
+          {x, 0, 1},
+          PlotPoints -> plotPointsGeneral,
+          PlotRange -> {-yMax, yMax},
+          PlotStyle -> BoundaryTracingStyle["TracedGeneral"]
+        ]
+      , {i, n}],
+      (* General boundaries: lower-branch(i) *)
+      Table[
+        cLower = cLowerList[[i]];
+        Plot[
+          yTraLower[cLower][x],
+          {x, 0, 1},
+          PlotPoints -> plotPointsGeneral,
+          PlotRange -> {-yMax, yMax},
+          PlotStyle -> BoundaryTracingStyle["TracedGeneral"]
+        ]
+      , {i, n}],
+      (* Patched portions: upper-branch(i) *)
+      Table[
+        xLeft = xCornerList[[i]];
+        xRight = If[i > 1,
+          xIntList[[i - 1]],
+          Max[xIntList]
+        ];
+        cUpper = cUpperList[[i]];
+        Plot[
+          yTraUpper[cUpper][x],
+          {x, xLeft, xRight},
+          PlotPoints -> plotPointsPatched,
+          PlotRange -> {-yMax, yMax},
+          PlotStyle -> BoundaryTracingStyle["Traced"]
+        ]
+      , {i, n}],
+      (* Patched portions: lower-branch(i) *)
+      Table[
+        xLeft = xCornerList[[i]];
+        xRight = If[i < n,
+          xIntList[[i]],
+          Max[xIntList]
+        ];
+        cLower = cLowerList[[i]];
+        Plot[
+          yTraLower[cLower][x],
+          {x, xLeft, xRight},
+          PlotPoints -> plotPointsPatched,
+          PlotRange -> {-yMax, yMax},
+          PlotStyle -> BoundaryTracingStyle["Traced"]
+        ]
+      , {i, n}],
       (* Critical terminal curve *)
       Graphics @ {BoundaryTracingStyle["Terminal"],
         Line @ {{xTerm, -yMax}, {xTerm, yMax}}
