@@ -345,3 +345,162 @@ Module[
     ]
   ]
 ] // Ex["plane-traced-boundaries.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: Traced boundaries, patched (plane-traced-boundaries-patched.pdf)*)
+
+
+(*
+  REMEMBER:
+    the positive signed branch is the lower;
+    the negative signed branch is the upper.
+  This is because the sign in the tracing equation is \[MinusPlus].
+  Therefore in a spike (shaped like <),
+  the lower-branch curve is actually higher.
+  However, writing each curve as y == c \[MinusPlus] 2F1(x; ...),
+  note that the lower-branch curve has lower c.
+  Now, to generate assorted patchings of traced boundaries,
+  we choose the corners (x_1, y_1), ..., (x_n, y_n)
+  with y_1 < ... < y_n
+  and determine the intersections
+  between lower-branch(i) and upper-branch(i+1)
+  for i == 1, ..., n - 1.
+  The corners (x_i, y_i) cannot be chosen arbitrarily,
+  so don't be dumb.
+ *)
+Module[
+ {yTraUpper, yTraLower,
+  cornerListList,
+  xMin, xMax, yMin, yMax,
+  imageSize,
+  plotList,
+  xCornerList, yCornerList,
+  cUpperList, cLowerList,
+  xCorner, yCorner,
+  cUpper, cLower,
+  n, xIntList, yIntList,
+  restricted, unrestrictedAndRestricted,
+  xInt, yInt,
+  xLeft, xRight,
+  xTerm
+ },
+  (* Avoid confusion (note yTra == -2F1(x; ...)) *)
+  yTraUpper[c_][x_] := c + yTra[x];
+  yTraLower[c_][x_] := c - yTra[x];
+  (* List of lists of corners *)
+  cornerListList = List[
+    Table[{0.4, y}, {y, Subdivide[-0.6, 0.6, 4]}],
+    Table[{0.8, y}, {y, Subdivide[-0.7, 0.7, 8]}],
+    {
+      {0.6, -0.54},
+      {0.81, -0.435},
+      {0.77, -0.15},
+      {0.23, -0.06},
+      {0.45, 0.},
+      {0.7, 0.15},
+      {0.3, 0.6}
+    }
+  ];
+  (* Critical terminal curve *)
+  xTerm = 1;
+  (* Plot range *)
+  xMin = 0.2;
+  xMax = 1.05 xTerm;
+  yMax = 0.7;
+  imageSize = 240;
+  (* Build a plot for each of these lists *)
+  plotList = Table[
+    {xCornerList, yCornerList} = Transpose[cornerList];
+    (*
+      List of constants {cUpper, cLower}
+      for the pair of traced boundaries
+      through each corner point
+     *)
+    {cUpperList, cLowerList} =
+      Transpose @ Table[
+        {xCorner, yCorner} = corner;
+        cUpper = yCorner - yTra[xCorner];
+        cLower = yCorner + yTra[xCorner];
+        {cUpper, cLower}
+      , {corner, cornerList}];
+    (*
+      List of intersections between
+      lower-branch(i) and upper-branch(i+1)
+     *)
+    n = Length[cornerList];
+    {xIntList, yIntList} =
+      Transpose @ Table[
+        cLower = cLowerList[[i]];
+        cUpper = cUpperList[[i + 1]];
+        xInt = SeekRoot[
+          yTraUpper[cUpper][#] - yTraLower[cLower][#] &,
+          {0, 1}
+        ];
+        yInt = yTraUpper[cUpper][xInt];
+        {xInt, yInt}
+      , {i, n - 1}];
+    (* Restricted domain (for patched portions) *)
+    restricted[x0_, x1_] :=
+      Piecewise[
+        {{1, x0 <= # <= x1}},
+        Indeterminate
+      ] &;
+    unrestrictedAndRestricted[x0_, x1_] :=
+      {1, restricted[x0, x1][#]} &;
+    (* Plot *)
+    Show[
+      (*
+        Traced boundaries
+        {general curves, patched portions}
+      *)
+      Plot[
+        Table[
+          {
+            (* Upper-branch(i) *)
+            xLeft = xCornerList[[i]];
+            xRight = If[i > 1,
+              xIntList[[i - 1]],
+              Max[xIntList]
+            ];
+            cUpper = cUpperList[[i]];
+            (
+              yTraUpper[cUpper][x]
+              unrestrictedAndRestricted[xLeft, xRight][x]
+            ),
+            (* Lower-branch(i) *)
+            xLeft = xCornerList[[i]];
+            xRight = If[i < n,
+              xIntList[[i]],
+              Max[xIntList]
+            ];
+            cLower = cLowerList[[i]];
+            (
+              yTraLower[cLower][x]
+              unrestrictedAndRestricted[xLeft, xRight][x]
+            )
+          }
+        , {i, n}] // Evaluate,
+        {x, 0, 1},
+        AspectRatio -> Automatic,
+        Axes -> None,
+        ImageSize -> 480,
+        PlotRange -> {{xMin, xMax}, {-yMax, yMax}},
+        PlotStyle -> {
+          BoundaryTracingStyle["TracedGeneral"],
+          BoundaryTracingStyle["Traced"]
+        }
+      ],
+      (* Critical terminal curve *)
+      Graphics @ {BoundaryTracingStyle["Terminal"],
+        Line @ {{xTerm, -yMax}, {xTerm, yMax}}
+      }
+    ]
+  , {cornerList, cornerListList}]
+  // GraphicsRow[#,
+    Spacings -> {
+      0.2 imageSize,
+      Automatic
+    }
+  ] &
+](* // Ex["plane-traced-boundaries-patched.pdf"]*)
