@@ -516,4 +516,4 @@ Module[
       Automatic
     }
   ] &
-](* // Ex["plane-traced-boundaries-patched.pdf"]*)
+] // Ex["plane-traced-boundaries-patched.pdf"]
