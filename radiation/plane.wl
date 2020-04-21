@@ -512,7 +512,7 @@ Module[
   , {cornerList, cornerListList}]
   // GraphicsRow[#,
     Spacings -> {
-      0.2 imageSize,
+      0.5 imageSize,
       Automatic
     }
   ] &
