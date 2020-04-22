@@ -149,7 +149,7 @@ Table[
 *)
 domainCornerRangeList["regular-long"] = {{2, 4}};
 domainCornerRangeList["regular-short"] = {{3, 7}};
-domainCornerRangeList["irregular"] = {{1, 2}, {3, 6}};
+domainCornerRangeList["irregular"] = {{1, 2}, {3, 6}, {7, 7}};
 (*
   Location of constant-temperature boundaries
   among each list of corners
@@ -158,7 +158,8 @@ domainXBathList["regular-long"] = {1};
 domainXBathList["regular-short"] = {Way[patchedIntXList["regular-long"][[3]], 1]};
 domainXBathList["irregular"] = {
   Way[patchedIntXList["irregular"][[1]], patchedIntXList["irregular"][[2]], 1/3],
-  Way[patchedIntXList["irregular"][[2]], patchedIntXList["irregular"][[-2]], 1/5]
+  Way[patchedIntXList["irregular"][[2]], patchedIntXList["irregular"][[-2]], 1/5],
+  Way[patchedCornerXList["irregular"][[-2]], patchedIntXList["irregular"][[-2]]]
 };
 
 
