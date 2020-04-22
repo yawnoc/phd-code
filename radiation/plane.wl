@@ -551,3 +551,90 @@ Module[
     }
   ] &
 ] // Ex["plane-traced-boundaries-patched.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: Domains (plane-domains.pdf)*)
+
+
+Module[
+ {xTerm,
+  xMin, xMax, yMin, yMax,
+  imageSize,
+  plotPointsPatched,
+  iRangeList, xBathList,
+  plotList,
+  n, cUpperList, cLowerList, xCornerList, xIntList,
+  iMin, iMax, xBath, yBathBottom, yBathTop,
+  cUpper, cLower,
+  xLeft, xRight
+ },
+  (* Critical terminal curve *)
+  xTerm = 1;
+  (* Plot range *)
+  xMin = 0.2;
+  xMax = 1.05 xTerm;
+  yMax = 0.7;
+  imageSize = 240;
+  (* Plot points *)
+  plotPointsPatched = 2;
+  (*
+    Corners used to build domains (specified by index i)
+    among each list of corners
+  *)
+  iRangeList["regular-long"] = {{2, 4}};
+  iRangeList["regular-short"] = {{3, 7}};
+  iRangeList["irregular"] = {{1, 2}, {3, 6}};
+  (*
+    Location of constant-temperature boundaries
+    among each list of corners
+  *)
+  xBathList["regular-long"] = {xTerm};
+  xBathList["regular-short"] = {Way[patchedIntXList["regular-long"][[3]], xTerm]};
+  xBathList["irregular"] = {
+    Way[patchedIntXList["irregular"][[1]], patchedIntXList["irregular"][[2]], 1/3],
+    Way[patchedIntXList["irregular"][[2]], patchedIntXList["irregular"][[-2]]]
+  };
+  (* Build a plot for each list of corners *)
+  plotList = Table[
+    (* *)
+    n = patchedCornerNum[id];
+    cUpperList = patchedCUpperList[id];
+    cLowerList = patchedCLowerList[id];
+    xCornerList = patchedCornerXList[id];
+    xIntList = patchedIntXList[id];
+    (* Plot *)
+    Show[
+      EmptyAxes[{xMin, xMax}, {-yMax, yMax},
+        AspectRatio -> Automatic,
+        Axes -> None,
+        ImageSize -> 480
+      ],
+      (* Critical terminal curve *)
+      ParametricPlot[
+        {xTerm, y}, {y, -yMax, yMax},
+        PlotPoints -> 2,
+        PlotStyle -> BoundaryTracingStyle["Terminal", "Background"]
+      ],
+      (* Domains *)
+      Table[
+        {iMin, iMax} = iRangeList[id][[domainNum]];
+        (* Constant-temperature (Dirichlet) boundary *)
+        xBath = xBathList[id][[domainNum]];
+        yBathBottom = yTraUpper[cUpperList[[iMin]]] @ xBath;
+        yBathTop = yTraLower[cLowerList[[iMax]]] @ xBath;
+        ParametricPlot[
+          {xBath, y}, {y, yBathBottom, yBathTop},
+          PlotPoints -> 2,
+          PlotStyle -> BoundaryTracingStyle["Contour"]
+        ]
+      , {domainNum, Length @ iRangeList[id]}]
+    ]
+  , {id, patchedIdList}]
+  // GraphicsRow[#,
+    Spacings -> {
+      0.5 imageSize,
+      Automatic
+    }
+  ] &
+] // Ex["plane-domains.pdf"]
