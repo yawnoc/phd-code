@@ -627,6 +627,7 @@ Module[
       (* Domains *)
       Table[
         {iMin, iMax} = iRangeList[[j]];
+        {
         (* Constant-temperature (Dirichlet) boundary *)
         xBath = xBathList[[j]];
         yBathBottom = yTraUpper[cUpperList[[iMin]]] @ xBath;
@@ -635,8 +636,7 @@ Module[
           {xBath, y}, {y, yBathBottom, yBathTop},
           PlotPoints -> 2,
           PlotStyle -> BoundaryTracingStyle["Contour"]
-        ]
-      , {j, Length[iRangeList]}],
+        ],
         (* Patched portions: upper-branch(i) *)
         Table[
           xLeft = xCornerList[[i]];
@@ -663,6 +663,8 @@ Module[
             PlotStyle -> BoundaryTracingStyle["Traced"]
           ]
         , {i, iMin, iMax}]
+        }
+      , {j, Length[iRangeList]}]
     ]
   , {id, patchedIdList}]
   // GraphicsRow[#,
