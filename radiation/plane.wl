@@ -537,9 +537,11 @@ Module[
         ]
       , {i, n}],
       (* Critical terminal curve *)
-      Graphics @ {BoundaryTracingStyle["Terminal"],
-        Line @ {{xTerm, -yMax}, {xTerm, yMax}}
-      }
+      ParametricPlot[
+        {xTerm, y}, {y, -yMax, yMax},
+        PlotPoints -> 2,
+        PlotStyle -> BoundaryTracingStyle["Terminal"]
+      ]
     ]
   , {id, patchedIdList}]
   // GraphicsRow[#,
