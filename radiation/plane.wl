@@ -158,7 +158,7 @@ domainXBathList["regular-long"] = {1};
 domainXBathList["regular-short"] = {Way[patchedIntXList["regular-long"][[3]], 1]};
 domainXBathList["irregular"] = {
   Way[patchedIntXList["irregular"][[1]], patchedIntXList["irregular"][[2]], 1/3],
-  Way[patchedIntXList["irregular"][[2]], patchedIntXList["irregular"][[-2]]]
+  Way[patchedIntXList["irregular"][[2]], patchedIntXList["irregular"][[-2]], 1/5]
 };
 
 
