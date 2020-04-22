@@ -139,6 +139,29 @@ Table[
 , {id, patchedIdList}];
 
 
+(* ::Subsubsection:: *)
+(*Corners for constructing domains*)
+
+
+(*
+  Corners used to build domains (specified by index i)
+  among each list of corners
+*)
+domainCornerRangeList["regular-long"] = {{2, 4}};
+domainCornerRangeList["regular-short"] = {{3, 7}};
+domainCornerRangeList["irregular"] = {{1, 2}, {3, 6}};
+(*
+  Location of constant-temperature boundaries
+  among each list of corners
+*)
+domainXBathList["regular-long"] = {1};
+domainXBathList["regular-short"] = {Way[patchedIntXList["regular-long"][[3]], 1]};
+domainXBathList["irregular"] = {
+  Way[patchedIntXList["irregular"][[1]], patchedIntXList["irregular"][[2]], 1/3],
+  Way[patchedIntXList["irregular"][[2]], patchedIntXList["irregular"][[-2]]]
+};
+
+
 (* ::Section:: *)
 (*Traced boundary algebra*)
 
@@ -562,9 +585,9 @@ Module[
   xMin, xMax, yMin, yMax,
   imageSize,
   plotPointsPatched,
-  iRangeList, xBathList,
   plotList,
   n, cUpperList, cLowerList, xCornerList, xIntList,
+  iRangeList, xBathList,
   iMin, iMax, xBath, yBathBottom, yBathTop,
   cUpper, cLower,
   xLeft, xRight
@@ -578,23 +601,6 @@ Module[
   imageSize = 240;
   (* Plot points *)
   plotPointsPatched = 2;
-  (*
-    Corners used to build domains (specified by index i)
-    among each list of corners
-  *)
-  iRangeList["regular-long"] = {{2, 4}};
-  iRangeList["regular-short"] = {{3, 7}};
-  iRangeList["irregular"] = {{1, 2}, {3, 6}};
-  (*
-    Location of constant-temperature boundaries
-    among each list of corners
-  *)
-  xBathList["regular-long"] = {xTerm};
-  xBathList["regular-short"] = {Way[patchedIntXList["regular-long"][[3]], xTerm]};
-  xBathList["irregular"] = {
-    Way[patchedIntXList["irregular"][[1]], patchedIntXList["irregular"][[2]], 1/3],
-    Way[patchedIntXList["irregular"][[2]], patchedIntXList["irregular"][[-2]]]
-  };
   (* Build a plot for each list of corners *)
   plotList = Table[
     (* *)
@@ -603,6 +609,8 @@ Module[
     cLowerList = patchedCLowerList[id];
     xCornerList = patchedCornerXList[id];
     xIntList = patchedIntXList[id];
+    iRangeList = domainCornerRangeList[id];
+    xBathList = domainXBathList[id];
     (* Plot *)
     Show[
       EmptyAxes[{xMin, xMax}, {-yMax, yMax},
@@ -618,9 +626,9 @@ Module[
       ],
       (* Domains *)
       Table[
-        {iMin, iMax} = iRangeList[id][[domainNum]];
+        {iMin, iMax} = iRangeList[[j]];
         (* Constant-temperature (Dirichlet) boundary *)
-        xBath = xBathList[id][[domainNum]];
+        xBath = xBathList[[j]];
         yBathBottom = yTraUpper[cUpperList[[iMin]]] @ xBath;
         yBathTop = yTraLower[cLowerList[[iMax]]] @ xBath;
         ParametricPlot[
@@ -628,7 +636,7 @@ Module[
           PlotPoints -> 2,
           PlotStyle -> BoundaryTracingStyle["Contour"]
         ]
-      , {domainNum, Length @ iRangeList[id]}]
+      , {j, Length[iRangeList]}]
     ]
   , {id, patchedIdList}]
   // GraphicsRow[#,
