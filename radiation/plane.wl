@@ -628,41 +628,41 @@ Module[
       Table[
         {iMin, iMax} = iRangeList[[j]];
         {
-        (* Constant-temperature (Dirichlet) boundary *)
-        xBath = xBathList[[j]];
-        yBathBottom = yTraUpper[cUpperList[[iMin]]] @ xBath;
-        yBathTop = yTraLower[cLowerList[[iMax]]] @ xBath;
-        ParametricPlot[
-          {xBath, y}, {y, yBathBottom, yBathTop},
-          PlotPoints -> 2,
-          PlotStyle -> BoundaryTracingStyle["Contour"]
-        ],
-        (* Patched portions: upper-branch(i) *)
-        Table[
-          xLeft = xCornerList[[i]];
-          xRight = If[i > iMin, xIntList[[i - 1]], xBath];
-          cUpper = cUpperList[[i]];
-          Plot[
-            yTraUpper[cUpper][x],
-            {x, xLeft, xRight},
-            PlotPoints -> plotPointsPatched,
-            PlotRange -> {-yMax, yMax},
-            PlotStyle -> BoundaryTracingStyle["Traced"]
-          ]
-        , {i, iMin, iMax}],
-        (* Patched portions: lower-branch(i) *)
-        Table[
-          xLeft = xCornerList[[i]];
-          xRight = If[i < iMax, xIntList[[i]], xBath];
-          cLower = cLowerList[[i]];
-          Plot[
-            yTraLower[cLower][x],
-            {x, xLeft, xRight},
-            PlotPoints -> plotPointsPatched,
-            PlotRange -> {-yMax, yMax},
-            PlotStyle -> BoundaryTracingStyle["Traced"]
-          ]
-        , {i, iMin, iMax}]
+          (* Constant-temperature (Dirichlet) boundary *)
+          xBath = xBathList[[j]];
+          yBathBottom = yTraUpper[cUpperList[[iMin]]] @ xBath;
+          yBathTop = yTraLower[cLowerList[[iMax]]] @ xBath;
+          ParametricPlot[
+            {xBath, y}, {y, yBathBottom, yBathTop},
+            PlotPoints -> 2,
+            PlotStyle -> BoundaryTracingStyle["Contour"]
+          ],
+          (* Patched portions: upper-branch(i) *)
+          Table[
+            xLeft = xCornerList[[i]];
+            xRight = If[i > iMin, xIntList[[i - 1]], xBath];
+            cUpper = cUpperList[[i]];
+            Plot[
+              yTraUpper[cUpper][x],
+              {x, xLeft, xRight},
+              PlotPoints -> plotPointsPatched,
+              PlotRange -> {-yMax, yMax},
+              PlotStyle -> BoundaryTracingStyle["Traced"]
+            ]
+          , {i, iMin, iMax}],
+          (* Patched portions: lower-branch(i) *)
+          Table[
+            xLeft = xCornerList[[i]];
+            xRight = If[i < iMax, xIntList[[i]], xBath];
+            cLower = cLowerList[[i]];
+            Plot[
+              yTraLower[cLower][x],
+              {x, xLeft, xRight},
+              PlotPoints -> plotPointsPatched,
+              PlotRange -> {-yMax, yMax},
+              PlotStyle -> BoundaryTracingStyle["Traced"]
+            ]
+          , {i, iMin, iMax}]
         }
       , {j, Length[iRangeList]}]
     ]
