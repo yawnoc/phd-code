@@ -467,7 +467,7 @@ Module[
   (* Plot points *)
   plotPointsGeneral = 3;
   plotPointsPatched = 2;
-  (* Build a plot for each of these lists *)
+  (* Build a plot for each list of corners *)
   plotList = Table[
     (* *)
     n = patchedCornerNum[id];
