@@ -155,7 +155,7 @@ domainCornerRangeList["irregular"] = {{1, 2}, {3, 6}, {7, 7}};
   among each list of corners
 *)
 domainXBathList["regular-long"] = {1};
-domainXBathList["regular-short"] = {Way[patchedIntXList["regular-long"][[3]], 1]};
+domainXBathList["regular-short"] = {Way[patchedIntXList["regular-short"][[3]], 1]};
 domainXBathList["irregular"] = {
   Way[patchedIntXList["irregular"][[1]], patchedIntXList["irregular"][[2]], 1/3],
   Way[patchedIntXList["irregular"][[2]], patchedIntXList["irregular"][[-2]], 1/5],
