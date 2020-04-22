@@ -623,7 +623,7 @@ Module[
       ParametricPlot[
         {xTerm, y}, {y, -yMax, yMax},
         PlotPoints -> 2,
-        PlotStyle -> BoundaryTracingStyle["Terminal", "Background"]
+        PlotStyle -> BoundaryTracingStyle["Terminal", "BackgroundDarker"]
       ],
       (* Domains *)
       Table[
