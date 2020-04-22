@@ -77,6 +77,10 @@ BoundaryTracingStyle[type_String : Automatic] := Association[
 ][type];
 
 
+BoundaryTracingStyle[typeSeq__String] :=
+  Directive @@ BoundaryTracingStyle /@ {typeSeq};
+
+
 (* ::Subsubsection:: *)
 (*End of private scope*)
 
