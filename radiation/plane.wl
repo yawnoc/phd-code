@@ -78,7 +78,7 @@ yTraLower[c_][x_] := c - yTra[x];
 
 (* Lists of corners *)
 patchedCornerList = Association[
-  "regular-long" -> Table[{0.4, y}, {y, Subdivide[-0.6, 0.6, 4]}],
+  "regular-long" -> Table[{0.4, y}, {y, Subdivide[-0.6, 0.6, 3]}],
   "regular-short" -> Table[{0.8, y}, {y, Subdivide[-0.7, 0.7, 8]}],
   "irregular" -> {
     {0.6, -0.54},
@@ -147,7 +147,7 @@ Table[
   Corners used to build domains (specified by index i)
   among each list of corners
 *)
-domainCornerRangeList["regular-long"] = {{2, 4}};
+domainCornerRangeList["regular-long"] = {{2, 3}};
 domainCornerRangeList["regular-short"] = {{3, 7}};
 domainCornerRangeList["irregular"] = {{1, 2}, {3, 6}, {7, 7}};
 (*
