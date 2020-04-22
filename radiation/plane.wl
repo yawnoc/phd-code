@@ -636,7 +636,33 @@ Module[
           PlotPoints -> 2,
           PlotStyle -> BoundaryTracingStyle["Contour"]
         ]
-      , {j, Length[iRangeList]}]
+      , {j, Length[iRangeList]}],
+        (* Patched portions: upper-branch(i) *)
+        Table[
+          xLeft = xCornerList[[i]];
+          xRight = If[i > iMin, xIntList[[i - 1]], xBath];
+          cUpper = cUpperList[[i]];
+          Plot[
+            yTraUpper[cUpper][x],
+            {x, xLeft, xRight},
+            PlotPoints -> plotPointsPatched,
+            PlotRange -> {-yMax, yMax},
+            PlotStyle -> BoundaryTracingStyle["Traced"]
+          ]
+        , {i, iMin, iMax}],
+        (* Patched portions: lower-branch(i) *)
+        Table[
+          xLeft = xCornerList[[i]];
+          xRight = If[i < iMax, xIntList[[i]], xBath];
+          cLower = cLowerList[[i]];
+          Plot[
+            yTraLower[cLower][x],
+            {x, xLeft, xRight},
+            PlotPoints -> plotPointsPatched,
+            PlotRange -> {-yMax, yMax},
+            PlotStyle -> BoundaryTracingStyle["Traced"]
+          ]
+        , {i, iMin, iMax}]
     ]
   , {id, patchedIdList}]
   // GraphicsRow[#,
