@@ -11,6 +11,7 @@
 SetDirectory @ ParentDirectory @ NotebookDirectory[];
 << NDSolve`FEM`
 << Conway`
+<< FigureStyles`
 SetDirectory @ FileNameJoin @ {NotebookDirectory[], "cosine"}
 
 
@@ -4221,3 +4222,109 @@ Module[{a, b, source, tSol, mesh, dest},
     ]
   ] // Ex[dest]
 ]
+
+
+(* ::Section:: *)
+(*Figure: (Un)physical region (cosine_simple-physical.pdf)*)
+
+
+Module[
+ {bStep, bValues,
+  xMin, xMax, yMax, imageSize,
+  eps,
+  xMinUnphys, xMaxUnphys, yMaxUnphys,
+  xMinCont, xMaxCont, yMaxCont,
+  numTo1, numBeyond1,
+  plotList,
+  textStyle, arrowStyle,
+  parameterArrow
+ },
+  (* Values of B *)
+  bStep = 3/10;
+  bValues = {1 - bStep, 1, 1 + bStep};
+  (* Plot range *)
+  xMin = 0;
+  xMax = Pi/2 * 3/2;
+  yMax = 2;
+  imageSize = 240;
+  (* Margin *)
+  eps = 0.05;
+  (* Plot range for unphysical domain *)
+  xMinUnphys = xMin - eps;
+  xMaxUnphys = xMax + eps;
+  yMaxUnphys = yMax + eps;
+  (* Plot range for contours *)
+  xMinCont = xMin - eps;
+  xMaxCont = xMax + eps;
+  yMaxCont = yMax + eps;
+  (* Number of contours *)
+  numTo1 = 5;
+  numBeyond1 = 2;
+  (* List of plots *)
+  plotList =
+    Table[
+      Show[
+        EmptyFrame[{xMin, xMax}, {-yMax, yMax},
+          Frame -> None,
+          ImageSize -> imageSize
+        ],
+        (* Unphysical domain *)
+        RegionPlot[
+          tKnown[b][x, y] < 0,
+          {x, xMin, xMax}, {y, -yMax, yMax},
+          BoundaryStyle -> BoundaryTracingStyle["Unphysical"],
+          PlotPoints -> 50,
+          PlotStyle -> BoundaryTracingStyle["Unphysical"]
+        ],
+        (* Known solution contours *)
+        ContourPlot[
+          tKnown[b][x, y],
+          {x, xMinCont, xMaxCont}, {y, -yMaxCont, yMaxCont},
+          ContourLabels -> None,
+          Contours -> numTo1 + numBeyond1,
+          ContourShading -> None,
+          ContourStyle -> BoundaryTracingStyle["BackgroundDarker"],
+          PlotRange -> {0, 1 + (1 + numBeyond1) / numTo1}
+        ],
+        (* Straight contour *)
+        Graphics @ {BoundaryTracingStyle["Contour"],
+          Line @ {{xStraight, -yMaxCont}, {xStraight, yMaxCont}}
+        }
+      ]
+    , {b, bValues}];
+  (* Parameter (B) increase indicator arrow *)
+  textStyle = Style[#, 14] & @* LaTeXStyle;
+  arrowStyle = Directive[Thickness[0.005], Arrowheads[0.04]];
+  parameterArrow =
+    Show[
+      (* B-axis *)
+      Graphics @ {arrowStyle,
+        Arrow @ {{-1, 0}, {1, 0}}
+      },
+      (* B increasing text *)
+      Graphics @ {
+        Text[
+          Row @ {Italicise["B"], " increasing"} // textStyle,
+          {0, 0},
+          {0, -1.3}
+        ]
+      },
+      (* Invisible point for automatic height *)
+      Graphics @ {Opacity[0],
+        Point @ {0, -1/10000}
+      },
+      ImageSize -> 1.7 imageSize,
+      PlotRange -> All
+    ];
+  (* Final figure *)
+  Column[
+    {
+      parameterArrow,
+      GraphicsRow[
+        plotList,
+        Spacings -> {0.2 imageSize, Automatic}
+      ]
+    },
+    Spacings -> 0
+  ]
+] // Ex["cosine_simple-physical.pdf"]
