@@ -74,6 +74,7 @@ BoundaryTracingStyle[type : (_String | Automatic) : Automatic] := Association[
   "Traced" -> Black,
   "TracedUpper" -> Black,
   "TracedLower" -> Black,
+  "Unphysical" -> Black,
   Automatic -> Black
 ][type];
 
