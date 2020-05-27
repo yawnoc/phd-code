@@ -4229,7 +4229,7 @@ Module[{a, b, source, tSol, mesh, dest},
 
 
 Module[
- {bStep, bValues,
+ {bStep, bValues, bMax,
   xMin, xMax, yMax, imageSize,
   eps,
   xMinUnphys, xMaxUnphys, yMaxUnphys,
@@ -4242,6 +4242,7 @@ Module[
   (* Values of B *)
   bStep = 3/10;
   bValues = {1 - bStep, 1, 1 + bStep};
+  bMax = Max[bValues];
   (* Plot range *)
   xMin = 0;
   xMax = Pi/2 * 3/2;
@@ -4251,7 +4252,7 @@ Module[
   eps = 0.05;
   (* Plot range for unphysical domain *)
   xMinUnphys = xMin - eps;
-  xMaxUnphys = xMax + eps;
+  xMaxUnphys = SeekRoot[tKnown[bMax][#, yMax] &, {0, xStraight}] + eps;
   yMaxUnphys = yMax + eps;
   (* Plot range for contours *)
   xMinCont = xMin - eps;
@@ -4273,7 +4274,7 @@ Module[
           tKnown[b][x, y] < 0,
           {x, xMin, xMax}, {y, -yMax, yMax},
           BoundaryStyle -> BoundaryTracingStyle["Unphysical"],
-          PlotPoints -> 50,
+          PlotPoints -> 10,
           PlotStyle -> BoundaryTracingStyle["Unphysical"]
         ],
         (* Known solution contours *)
@@ -4284,6 +4285,7 @@ Module[
           Contours -> numTo1 + numBeyond1,
           ContourShading -> None,
           ContourStyle -> BoundaryTracingStyle["BackgroundDarker"],
+          PlotPoints -> 5,
           PlotRange -> {0, 1 + (1 + numBeyond1) / numTo1}
         ],
         (* Straight contour *)
