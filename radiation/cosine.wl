@@ -4234,6 +4234,7 @@ Module[
   eps,
   xMinUnphys, xMaxUnphys, yMaxUnphys,
   xMinCont, xMaxCont, yMaxCont,
+  yMaxContStraight,
   numTo1, numBeyond1,
   plotList,
   textStyle, arrowStyle,
@@ -4258,6 +4259,8 @@ Module[
   xMinCont = xMin - eps;
   xMaxCont = xMax + eps;
   yMaxCont = yMax + eps;
+  (* Plot range for straight contour *)
+  yMaxContStraight = yMax + 2 eps;
   (* Number of contours *)
   numTo1 = 5;
   numBeyond1 = 2;
@@ -4289,9 +4292,11 @@ Module[
           PlotRange -> {0, 1 + (1 + numBeyond1) / numTo1}
         ],
         (* Straight contour *)
-        Graphics @ {BoundaryTracingStyle["Contour"],
-          Line @ {{xStraight, -yMaxCont}, {xStraight, yMaxCont}}
-        }
+        ParametricPlot[{xStraight, y},
+          {y, -yMaxContStraight, yMaxContStraight},
+          PlotRange -> Full,
+          PlotStyle -> BoundaryTracingStyle["Contour"]
+        ]
       ]
     , {b, bValues}];
   (* Parameter (B) increase indicator arrow *)
