@@ -4326,11 +4326,11 @@ Module[
   (* Final figure *)
   Column[
     {
-      parameterArrow,
       GraphicsRow[
         plotList,
         Spacings -> {0.2 imageSize, Automatic}
-      ]
+      ],
+      parameterArrow
     },
     Spacings -> 0
   ]
