@@ -4270,7 +4270,8 @@ Module[
       Show[
         EmptyFrame[{xMin, xMax}, {-yMax, yMax},
           Frame -> None,
-          ImageSize -> imageSize
+          ImageSize -> imageSize,
+          PlotRangePadding -> None
         ],
         (* Unphysical domain *)
         RegionPlot[
@@ -4295,7 +4296,7 @@ Module[
         ParametricPlot[{xStraight, y},
           {y, -yMaxContStraight, yMaxContStraight},
           PlotRange -> Full,
-          PlotStyle -> BoundaryTracingStyle["Contour"]
+          PlotStyle -> BoundaryTracingStyle["ContourSolid"]
         ]
       ]
     , {b, bValues}];
