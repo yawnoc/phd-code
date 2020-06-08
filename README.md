@@ -14,8 +14,10 @@ Everything should also work in Version&nbsp;11, except the following:
   > Plot3D::idomdim: {x,y} ∈ mesh does not have a valid dimension
     as a plotting domain.
   
-  A workaround is to replace `mesh` with
+  A [workaround] is to replace `mesh` with
   `MeshRegion[MeshOrderAlteration[mesh, 1]]`.
+
+[workaround]: https://mathematica.stackexchange.com/a/180280
 
 LaTeX fonts in the figures were produced ***without*** Szabolcs's [MaTeX][].
 While MaTeX is an excellent package outputting vector text labels,
