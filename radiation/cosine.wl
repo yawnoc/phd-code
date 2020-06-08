@@ -4335,3 +4335,131 @@ Module[
     Spacings -> 0
   ]
 ] // Ex["cosine-physical.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: Simple case (un)physical region and (non-)viable domain (cosine_simple-physical-viable.pdf)*)
+
+
+Module[
+ {b,
+  aStep, aValues,
+  xMin, xMax, yMax, imageSize,
+  eps,
+  xMinUnphys, xMaxUnphys, yMaxUnphys,
+  xMinCont, xMaxCont, yMaxCont,
+  xMinViable, xMaxViable, yMaxViable,
+  yMaxContStraight,
+  numTo1, numBeyond1,
+  plotList,
+  textStyle, arrowStyle,
+  parameterArrow
+ },
+  (* Value of B *)
+  b = 1;
+  (* Values of A *)
+  aStep = 5/10;
+  aValues = {1 - aStep, 1, 1 + aStep};
+  (* Plot range *)
+  xMin = 0;
+  xMax = Pi/2 * 3/2;
+  yMax = 2;
+  imageSize = 240;
+  (* Margin *)
+  eps = 0.05;
+  (* Plot range for unphysical domain *)
+  xMinUnphys = xMin - eps;
+  xMaxUnphys = SeekRoot[tKnown[b][#, yMax] &, {0, xStraight}] + eps;
+  yMaxUnphys = yMax + eps;
+  (* Plot range for contours *)
+  xMinCont = xMin - eps;
+  xMaxCont = xMax + eps;
+  yMaxCont = yMax + eps;
+  (* Plot range for viable domain *)
+  xMinViable = xMin - eps;
+  xMaxViable = xMax + eps;
+  yMaxViable = yMax + eps;
+  (* Plot range for straight contour *)
+  yMaxContStraight = yMax + eps;
+  (* Number of contours *)
+  numTo1 = 5;
+  numBeyond1 = 2;
+  (* List of plots *)
+  plotList =
+    Table[
+      Show[
+        EmptyFrame[{xMin, xMax}, {-yMax, yMax},
+          Frame -> None,
+          ImageSize -> imageSize,
+          PlotRangePadding -> None
+        ],
+        (* Unphysical domain *)
+        RegionPlot[
+          tKnown[b][x, y] < 0,
+          {x, xMinUnphys, xMaxUnphys}, {y, -yMaxUnphys, yMaxUnphys},
+          BoundaryStyle -> BoundaryTracingStyle["Unphysical"],
+          PlotPoints -> 12,
+          PlotStyle -> BoundaryTracingStyle["Unphysical"]
+        ],
+        (* Known solution contours *)
+        ContourPlot[
+          tKnown[b][x, y],
+          {x, xMinCont, xMaxCont}, {y, -yMaxCont, yMaxCont},
+          ContourLabels -> None,
+          Contours -> numTo1 + numBeyond1,
+          ContourShading -> None,
+          ContourStyle -> BoundaryTracingStyle["BackgroundDarker"],
+          PlotPoints -> 5,
+          PlotRange -> {0, 1 + (1 + numBeyond1) / numTo1}
+        ],
+        (* Straight contour *)
+        ParametricPlot[{xStraight, y},
+          {y, -yMaxContStraight, yMaxContStraight},
+          PlotRange -> Full,
+          PlotStyle -> BoundaryTracingStyle["ContourSolid"]
+        ],
+        (* Non-viable domain *)
+        RegionPlot[vi[a, b][x, y] < 0,
+          {x, xMinViable, xMaxViable}, {y, -yMaxViable, yMaxViable},
+          BoundaryStyle -> BoundaryTracingStyle["Terminal"],
+          PlotPoints -> 10,
+          PlotStyle -> BoundaryTracingStyle["NonViable"]
+        ]
+      ]
+    , {a, aValues}];
+  (* Parameter (A) increase indicator arrow *)
+  textStyle = Style[#, 14] & @* LaTeXStyle;
+  arrowStyle = Directive[Thickness[0.005], Arrowheads[0.04]];
+  parameterArrow =
+    Show[
+      (* A-axis *)
+      Graphics @ {arrowStyle,
+        Arrow @ {{-1, 0}, {1, 0}}
+      },
+      (* A increasing text *)
+      Graphics @ {
+        Text[
+          Row @ {Italicise["A"], " increasing"} // textStyle,
+          {0, 0},
+          {0, -1.3}
+        ]
+      },
+      (* Invisible point for automatic height *)
+      Graphics @ {Opacity[0],
+        Point @ {0, -1/10000}
+      },
+      ImageSize -> 1.7 imageSize,
+      PlotRange -> All
+    ];
+  (* Final figure *)
+  Column[
+    {
+      GraphicsRow[
+        plotList,
+        Spacings -> {0.2 imageSize, Automatic}
+      ],
+      parameterArrow
+    },
+    Spacings -> 0
+  ]
+] // Ex["cosine_simple-physical-viable.pdf"]
