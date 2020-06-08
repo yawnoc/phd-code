@@ -4225,7 +4225,7 @@ Module[{a, b, source, tSol, mesh, dest},
 
 
 (* ::Section:: *)
-(*Figure: (Un)physical region (cosine_simple-physical.pdf)*)
+(*Figure: (Un)physical region (cosine-physical.pdf)*)
 
 
 Module[
@@ -4334,4 +4334,4 @@ Module[
     },
     Spacings -> 0
   ]
-] // Ex["cosine_simple-physical.pdf"]
+] // Ex["cosine-physical.pdf"]
