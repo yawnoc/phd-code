@@ -4593,6 +4593,7 @@ Module[
           // {#, {#[[1]], -#[[2]]}} &
           // Evaluate,
         {s, DomainStart[xy], DomainEnd[xy]}
+        , PlotPoints -> 2
         , PlotStyle -> BoundaryTracingStyle["Traced"]
       ]
     , {xy, xyTraSimpFigure}]
