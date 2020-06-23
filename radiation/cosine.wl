@@ -4560,8 +4560,8 @@ Module[
   yMaxContStraight = yMax + eps;
   Show[
     EmptyFrame[{xMin, xMax}, {-yMax, yMax},
-      Frame -> None,
       ImageSize -> imageSize,
+      LabelStyle -> LatinModernLabelStyle[12],
       PlotRangePadding -> None
     ],
     (* Unphysical domain *)
