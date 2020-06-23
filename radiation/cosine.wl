@@ -1861,6 +1861,66 @@ glowStyle = Directive[Thick, Yellow, Opacity[0.7]];
 inflDotStyle = Directive[Red, Opacity[0.7], pointStyle];
 
 
+(* ::Subsection:: *)
+(*Computations for figures*)
+
+
+(* ::Subsubsection:: *)
+(*Simple case (B = 1) traced boundaries*)
+
+
+(* ::Subsubsubsection:: *)
+(*Starting points along T = 0 contour*)
+
+
+startXYSimpFigure =
+  Module[{b, yMax, num, eps, yValues},
+    (* Constants *)
+    b = 1;
+    yMax = 2;
+    num = 16;
+    eps = 10^-4;
+    (* Reduce crowding near y == 0 *)
+    yValues = Subdivide[-yMax, yMax, num];
+    yValues = DeleteCases[yValues, 0];
+    (* Return starting points *)
+    Table[
+      {ArcCos[(1 - eps) Sech[y] / b], y}
+    , {y, yValues}]
+  ];
+
+
+(* ::Subsubsubsection:: *)
+(*Traced boundaries*)
+
+
+xyTraSimpFigure =
+  Module[{a, b, sMax, viTol, xInit, yInit},
+    a = 1/2;
+    b = 1;
+    sMax = 4;
+    viTol = 10^-6;
+    Table[
+      {xInit, yInit} = xyInit;
+      With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+        NDSolveValue[
+          {
+            xyTraSystem[a, b],
+            x[0] == xInit, y[0] == yInit,
+            WhenEvent[
+              {
+                vi[a, b][x[s], y[s]] < viTol,
+                tKnown[b][x[s], y[s]] < 0
+              },
+              "StopIntegration"
+            ]
+          }, {x, y}, {s, -sMax, sMax}
+        ]
+      ]
+    , {xyInit, startXYSimpFigure}]
+  ];
+
+
 (* ::Section:: *)
 (*Known solution*)
 
@@ -4464,3 +4524,77 @@ Module[
     Spacings -> 0
   ]
 ] // Ex["cosine_simple-physical-viable.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: Simple case traced boundaries (cosine_simple-traced-boundaries.pdf)*)
+
+
+Module[
+ {a, b,
+  xMin, xMax, yMax, imageSize,
+  eps,
+  xMinUnphys, xMaxUnphys, yMaxUnphys,
+  xMinViable, xMaxViable, yMaxViable,
+  yMaxContStraight
+ },
+  (* Values of A and B *)
+  a = 1/2;
+  b = 1;
+  (* Plot range *)
+  xMin = 0;
+  xMax = Pi/2 * 3/2;
+  yMax = 2;
+  imageSize = 240;
+  (* Margin *)
+  eps = 0.05;
+  (* Plot range for unphysical domain *)
+  xMinUnphys = xMin - eps;
+  xMaxUnphys = SeekRoot[tKnown[b][#, yMax] &, {0, xStraight}] + eps;
+  yMaxUnphys = yMax + eps;
+  (* Plot range for viable domain *)
+  xMinViable = xMin - eps;
+  xMaxViable = xMax + eps;
+  yMaxViable = yMax + eps;
+  (* Plot range for straight contour *)
+  yMaxContStraight = yMax + eps;
+  Show[
+    EmptyFrame[{xMin, xMax}, {-yMax, yMax},
+      Frame -> None,
+      ImageSize -> imageSize,
+      PlotRangePadding -> None
+    ],
+    (* Unphysical domain *)
+    RegionPlot[
+      tKnown[b][x, y] < 0,
+      {x, xMinUnphys, xMaxUnphys}, {y, -yMaxUnphys, yMaxUnphys},
+      BoundaryStyle -> BoundaryTracingStyle["Unphysical"],
+      PlotPoints -> 12,
+      PlotStyle -> BoundaryTracingStyle["Unphysical"]
+    ],
+    (* Straight contour *)
+    ParametricPlot[{xStraight, y},
+      {y, -yMaxContStraight, yMaxContStraight},
+      PlotRange -> Full,
+      PlotStyle -> BoundaryTracingStyle["ContourSolid"]
+    ],
+    (* Non-viable domain *)
+    RegionPlot[vi[a, b][x, y] < 0,
+      {x, xMinViable, xMaxViable}, {y, -yMaxViable, yMaxViable},
+      BoundaryStyle -> BoundaryTracingStyle["Terminal"],
+      PlotPoints -> 10,
+      PlotStyle -> BoundaryTracingStyle["NonViable"]
+    ],
+    (* Traced boundaries *)
+    Table[
+      ParametricPlot[
+        xy[s]
+          // Through
+          // {#, {#[[1]], -#[[2]]}} &
+          // Evaluate,
+        {s, DomainStart[xy], DomainEnd[xy]}
+        , PlotStyle -> BoundaryTracingStyle["Traced"]
+      ]
+    , {xy, xyTraSimpFigure}]
+  ]
+] // Ex["cosine_simple-traced-boundaries.pdf"]
