@@ -88,6 +88,7 @@ ClearAll["Conway`*`*"];
   PrettyString,
   ReInterpolate,
   SeekFirstRootBisection,
+  SeekParametricIntersection,
   SeekRoot,
   SeekRootBisection,
   SeparatedRow,
@@ -767,6 +768,41 @@ SeekFirstRootBisection[
       }
     ]
   ];
+
+
+(* ::Subsubsection:: *)
+(*SeekParametricIntersection*)
+
+
+SeekParametricIntersection::usage = (
+  "SeekParametricIntersection["
+  <> "{x1, y1}, {x2, y2}, "
+  <> "{start1, end1}, {start2, end2}, "
+  <> "prop1 (def 1/2), prop2 (def 1/2)]\n"
+  <> "Seeks intersection of the parametric curves "
+  <> "(x1, y1)(t1) and (x2, y2)(t2) "
+  <> "over the domains start1 < t1 < end1, start2 < t2 < end2 respectively "
+  <> "with initial guess at proportions prop1 and prop2 of the way respectively. "
+  <> "If both x1 and x2 are interpolating functions, "
+  <> "{start1, end1} and {start2, end2} are chosen automatically if omitted."
+);
+
+
+SeekParametricIntersection[
+  {x1_, y1_}, {x2_, y2_},
+  {start1_, end1_}, {start2_, end2_},
+  prop1_ : 1/2, prop2_ : 1/2
+] :=
+  Module[{t1Init, t2Init},
+    (* Compute initial guess *)
+    t1Init = Way[start1, end1, prop1];
+    t2Init = Way[start2, end2, prop2];
+    (* Return {t1, t2} *)
+    FindRoot[
+      {x1[#1] - x2[#2], y1[#1] - y2[#2]} &,
+      {{t1Init}, {t2Init}}
+    ]
+  ]
 
 
 (* ::Subsubsection:: *)
