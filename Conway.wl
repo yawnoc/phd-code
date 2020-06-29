@@ -805,6 +805,17 @@ SeekParametricIntersection[
   ]
 
 
+SeekParametricIntersection[
+  {x1_InterpolatingFunction, y1_}, {x2_InterpolatingFunction, y2_},
+  prop1_ : 1/2, prop2_ : 1/2
+] :=
+  SeekParametricIntersection[
+    {x1, y1}, {x2, y2},
+    {DomainStart[x1], DomainEnd[x1]}, {DomainStart[x2], DomainEnd[x2]},
+    prop1, prop2
+  ];
+
+
 (* ::Subsubsection:: *)
 (*SeekRoot*)
 
