@@ -2002,6 +2002,25 @@ patchedBoundaryLowerList =
   ];
 
 
+patchedIntersectionList =
+  Table[
+    SeekParametricIntersection[
+      patchedBoundaryLowerList[[i]],
+      patchedBoundaryUpperList[[i + 1]]
+    ]
+  , {i, patchedCornerNum - 1}];
+
+
+{patchedIntersectionLowerList, patchedIntersectionUpperList} =
+  Transpose @ patchedIntersectionList;
+AppendTo[patchedIntersectionLowerList,
+  DomainStart @ patchedBoundaryLowerList[[patchedCornerNum]]
+];
+PrependTo[patchedIntersectionUpperList,
+  DomainEnd @ patchedBoundaryUpperList[[1]]
+];
+
+
 (* ::Section:: *)
 (*Known solution*)
 
