@@ -1921,6 +1921,84 @@ xyTraSimpFigure =
   ];
 
 
+(* ::Subsubsection:: *)
+(*Simple case (B = 1) traced boundaries, patched*)
+
+
+(*
+  Corners (x_1, y_1), ..., (x_n, y_n) are (carefully) chosen,
+  then the intersections between lower-branch(i) and upper-branch(i+1),
+  for i == 1, ..., n - 1, chosen. Note that within each spike,
+  the lower-branch curve is physically higher (in y).
+*)
+
+
+patchedCornerList = {
+  {1, -0.5},
+  {0.8, -0.3},
+  {0.85, -0.13},
+  {1.1, 0.2},
+  {1.15, 0.3},
+  {0.9, 0.8},
+  {1.3, 1.6},
+  Nothing
+};
+
+
+patchedBoundaryUpperList =
+  Module[{a, b, sMax, viTol, xInit, yInit},
+    a = 1/2;
+    b = 1;
+    sMax = 4;
+    viTol = 10^-6;
+    Table[
+      {xInit, yInit} = xyInit;
+      With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+        NDSolveValue[
+          {
+            xyTraSystem[a, b],
+            x[0] == xInit, y[0] == yInit,
+            WhenEvent[
+              {
+                vi[a, b][x[s], y[s]] < viTol,
+                tKnown[b][x[s], y[s]] < 0
+              },
+              "StopIntegration"
+            ]
+          }, {x, y}, {s, -sMax, sMax}
+        ]
+      ]
+    , {xyInit, patchedCornerList}]
+  ];
+
+
+patchedBoundaryLowerList =
+  Module[{a, b, sMax, viTol, xInit, yInit},
+    a = 1/2;
+    b = 1;
+    sMax = 4;
+    viTol = 10^-6;
+    Table[
+      {xInit, yInit} = xyInit;
+      With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+        NDSolveValue[
+          {
+            xyTraSystem[a, b, False],
+            x[0] == xInit, y[0] == yInit,
+            WhenEvent[
+              {
+                vi[a, b][x[s], y[s]] < viTol,
+                tKnown[b][x[s], y[s]] < 0
+              },
+              "StopIntegration"
+            ]
+          }, {x, y}, {s, -sMax, sMax}
+        ]
+      ]
+    , {xyInit, patchedCornerList}]
+  ];
+
+
 (* ::Section:: *)
 (*Known solution*)
 
@@ -4599,3 +4677,7 @@ Module[
     , {xy, xyTraSimpFigure}]
   ]
 ] // Ex["cosine_simple-traced-boundaries.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: Simple case traced boundaries, patched (cosine_simple-traced-boundaries-patched.pdf)*)
