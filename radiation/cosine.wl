@@ -4703,3 +4703,90 @@ Module[
 
 (* ::Section:: *)
 (*Figure: Simple case traced boundaries, patched (cosine_simple-traced-boundaries-patched.pdf)*)
+
+
+Module[
+ {a, b,
+  xMin, xMax, yMax, imageSize,
+  eps,
+  xMinUnphys, xMaxUnphys, yMaxUnphys,
+  xMinViable, xMaxViable, yMaxViable,
+  yMaxContStraight
+ },
+  (* Values of A and B *)
+  a = 1/2;
+  b = 1;
+  (* Plot range *)
+  xMin = 0;
+  xMax = Pi/2 * 3/2;
+  yMax = 2;
+  imageSize = 240;
+  (* Margin *)
+  eps = 0.05;
+  (* Plot range for unphysical domain *)
+  xMinUnphys = xMin - eps;
+  xMaxUnphys = SeekRoot[tKnown[b][#, yMax] &, {0, xStraight}] + eps;
+  yMaxUnphys = yMax + eps;
+  (* Plot range for viable domain *)
+  xMinViable = xMin - eps;
+  xMaxViable = xMax + eps;
+  yMaxViable = yMax + eps;
+  (* Plot range for straight contour *)
+  yMaxContStraight = yMax + eps;
+  Show[
+    EmptyFrame[{xMin, xMax}, {-yMax, yMax},
+      Frame -> None,
+      ImageSize -> imageSize,
+      PlotRangePadding -> None
+    ],
+    (* Traced boundaries (background) *)
+    Table[
+      ParametricPlot[
+        xy[s]
+          // Through
+          // Evaluate,
+        {s, DomainStart[xy], DomainEnd[xy]}
+        , PlotPoints -> 2
+        , PlotStyle -> BoundaryTracingStyle["BackgroundDarker"]
+      ]
+    , {xy, Join[patchedBoundaryUpperList, patchedBoundaryLowerList]}],
+    (* Unphysical domain *)
+    RegionPlot[
+      tKnown[b][x, y] < 0,
+      {x, xMinUnphys, xMaxUnphys}, {y, -yMaxUnphys, yMaxUnphys},
+      BoundaryStyle -> BoundaryTracingStyle["Unphysical"],
+      PlotPoints -> 12,
+      PlotStyle -> BoundaryTracingStyle["Unphysical"]
+    ],
+    (* Non-viable domain *)
+    RegionPlot[vi[a, b][x, y] < 0,
+      {x, xMinViable, xMaxViable}, {y, -yMaxViable, yMaxViable},
+      BoundaryStyle -> None,
+      PlotPoints -> 10,
+      PlotStyle -> BoundaryTracingStyle["NonViable"]
+    ],
+    (* Traced boundaries (lower) *)
+    Table[
+      ParametricPlot[
+        patchedBoundaryLowerList[[i]][s]
+          // Through
+          // Evaluate,
+        {s, patchedIntersectionLowerList[[i]], 0}
+        , PlotPoints -> 3
+        , PlotStyle -> BoundaryTracingStyle["Traced"]
+      ]
+    , {i, patchedCornerNum}],
+    (* Traced boundaries (upper) *)
+    Table[
+      ParametricPlot[
+        patchedBoundaryUpperList[[i]][s]
+          // Through
+          // Evaluate,
+        {s, 0, patchedIntersectionUpperList[[i]]}
+        , PlotPoints -> 3
+        , PlotStyle -> BoundaryTracingStyle["Traced"]
+      ]
+    , {i, patchedCornerNum}],
+    {}
+  ]
+] // Ex["cosine_simple-traced-boundaries-patched.pdf"]
