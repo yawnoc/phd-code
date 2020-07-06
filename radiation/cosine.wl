@@ -1945,12 +1945,15 @@ patchedCornerList = {
 };
 
 
+patchedCornerNum = Length[patchedCornerList];
+
+
 patchedBoundaryUpperList =
   Module[{a, b, sMax, viTol, xInit, yInit},
     a = 1/2;
     b = 1;
     sMax = 4;
-    viTol = 10^-6;
+    viTol = 0;
     Table[
       {xInit, yInit} = xyInit;
       With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
@@ -1977,7 +1980,7 @@ patchedBoundaryLowerList =
     a = 1/2;
     b = 1;
     sMax = 4;
-    viTol = 10^-6;
+    viTol = 0;
     Table[
       {xInit, yInit} = xyInit;
       With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
