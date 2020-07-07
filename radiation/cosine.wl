@@ -4654,7 +4654,7 @@ Module[
   xMaxUnphys = SeekRoot[tKnown[b][#, yMax] &, {0, xStraight}] + eps;
   yMaxUnphys = yMax + eps;
   (* Plot range for viable domain *)
-  xMinViable = xMin - eps;
+  xMinViable = x0Simp[a] - eps;
   xMaxViable = xMax + eps;
   yMaxViable = yMax + eps;
   (* Plot range for straight contour *)
@@ -4680,10 +4680,10 @@ Module[
       PlotStyle -> BoundaryTracingStyle["ContourSolid"]
     ],
     (* Non-viable domain *)
-    RegionPlot[vi[a, b][x, y] < 0,
+    RegionPlot[vi[a, b][x, y] < 0 && tKnown[b][x, y] > 0,
       {x, xMinViable, xMaxViable}, {y, -yMaxViable, yMaxViable},
-      BoundaryStyle -> BoundaryTracingStyle["Terminal"],
-      PlotPoints -> 10,
+      BoundaryStyle -> None,
+      PlotPoints -> 2,
       PlotStyle -> BoundaryTracingStyle["NonViable"]
     ],
     (* Traced boundaries *)
