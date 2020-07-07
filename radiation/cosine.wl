@@ -4536,10 +4536,6 @@ Module[
   xMinCont = xMin - eps;
   xMaxCont = xMax + eps;
   yMaxCont = yMax + eps;
-  (* Plot range for viable domain *)
-  xMinViable = xMin - eps;
-  xMaxViable = xMax + eps;
-  yMaxViable = yMax + eps;
   (* Plot range for straight contour *)
   yMaxContStraight = yMax + eps;
   (* Number of contours *)
@@ -4548,6 +4544,11 @@ Module[
   (* List of plots *)
   plotList =
     Table[
+      (* Plot range for viable domain *)
+      xMinViable = x0Simp[a] - eps;
+      xMaxViable = xMax + eps;
+      yMaxViable = yMax + eps;
+      (* Plot *)
       Show[
         EmptyFrame[{xMin, xMax}, {-yMax, yMax},
           Frame -> None,
@@ -4580,10 +4581,10 @@ Module[
           PlotStyle -> BoundaryTracingStyle["ContourSolid"]
         ],
         (* Non-viable domain *)
-        RegionPlot[vi[a, b][x, y] < 0,
+        RegionPlot[vi[a, b][x, y] < 0 && tKnown[b][x, y] > 0,
           {x, xMinViable, xMaxViable}, {y, -yMaxViable, yMaxViable},
           BoundaryStyle -> BoundaryTracingStyle["Terminal"],
-          PlotPoints -> 10,
+          PlotPoints -> 8,
           PlotStyle -> BoundaryTracingStyle["NonViable"]
         ]
       ]
