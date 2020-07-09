@@ -2,6 +2,10 @@
 
 Code for Conway's Ph.D., for Mathematica Version&nbsp;12.
 
+See also: [phd-thesis](https://github.com/yawnoc/phd-thesis)
+
+## Mathematica version
+
 Everything should also work in Version&nbsp;11, except the following:
 
 * Nonlinear PDEs / boundary conditions passed to `NDSolve` for
@@ -18,6 +22,8 @@ Everything should also work in Version&nbsp;11, except the following:
   `MeshRegion[MeshOrderAlteration[mesh, 1]]`.
 
 [workaround]: https://mathematica.stackexchange.com/a/180280
+
+## Figure fonts
 
 LaTeX fonts in the figures were produced ***without*** Szabolcs's [MaTeX][].
 While MaTeX is an excellent package outputting vector text labels,
