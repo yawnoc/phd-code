@@ -2,6 +2,8 @@
 
 Code for Conway's Ph.D., for Mathematica Version&nbsp;12.
 
+Licensed under "MIT No Attribution" (MIT-0), see [LICENSE](LICENSE).
+
 See also: [phd-thesis](https://github.com/yawnoc/phd-thesis)
 
 ## Mathematica version
