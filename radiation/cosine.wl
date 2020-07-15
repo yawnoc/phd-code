@@ -4673,12 +4673,6 @@ Module[
       PlotPoints -> 12,
       PlotStyle -> BoundaryTracingStyle["Unphysical"]
     ],
-    (* Straight contour *)
-    ParametricPlot[{xStraight, y},
-      {y, -yMaxContStraight, yMaxContStraight},
-      PlotRange -> Full,
-      PlotStyle -> BoundaryTracingStyle["ContourSolid"]
-    ],
     (* Non-viable domain *)
     RegionPlot[vi[a, b][x, y] < 0 && tKnown[b][x, y] > 0,
       {x, xMinViable, xMaxViable}, {y, -yMaxViable, yMaxViable},
