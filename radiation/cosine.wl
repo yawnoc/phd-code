@@ -4703,7 +4703,7 @@ Module[
 
 
 (* ::Section:: *)
-(*Figure: Simple case traced boundaries, patched spikes (cosine_simple-traced-boundaries-patched-spikes.pdf)*)
+(*Figure: Simple case traced boundaries, patched spiky (cosine_simple-traced-boundaries-patched-spiky.pdf)*)
 
 
 Module[
@@ -4790,4 +4790,4 @@ Module[
     , {i, patchedCornerNum}],
     {}
   ]
-] // Ex["cosine_simple-traced-boundaries-patched-spikes.pdf"]
+] // Ex["cosine_simple-traced-boundaries-patched-spiky.pdf"]
