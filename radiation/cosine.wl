@@ -1922,7 +1922,7 @@ xyTraSimpFigure =
 
 
 (* ::Subsubsection:: *)
-(*Simple case (B = 1) traced boundaries, patched*)
+(*Simple case (B = 1) traced boundaries, patched spiky*)
 
 
 (*
