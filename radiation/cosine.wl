@@ -4924,7 +4924,8 @@ Module[
   xMinCont, xMaxCont, yMaxCont,
   xMinViable, xMaxViable, yMaxViable,
   contNum, tContMin, tContStep, tContValues,
-  textStyle
+  tContOrd, xOrdGuess, yOrdGuess, xOrd, yOrd,
+  textStyle, textVerticalShift
  },
   (* Values of A and B *)
   a = 1/2;
@@ -4951,8 +4952,19 @@ Module[
   xMinViable = xMin - eps;
   xMaxViable = xMax + eps;
   yMaxViable = yMax + eps;
+  (* Determine ordinary terminal point *)
+  tContOrd = tContMin + tContStep;
+  xOrdGuess = Way[x0, xMax];
+  yOrdGuess = Way[0, yMax];
+  {xOrd, yOrd} = FindRoot[
+    Function[{x, y},
+      {tKnown[b][x, y] - tContOrd, vi[a, b][x, y]}
+    ],
+    {{xOrdGuess}, {yOrdGuess}}
+  ];
   (* Text style *)
   textStyle = Style[#, 18] & @* LaTeXStyle;
+  textVerticalShift = -0.25;
   (* Plot *)
   Show[
     EmptyFrame[{xMin, xMax}, {-yMax, yMax},
@@ -4978,6 +4990,19 @@ Module[
       PlotPoints -> 7,
       PlotStyle -> BoundaryTracingStyle["NonViable"]
     ],
+    (* Ordinary terminal point (x_ord, y_ord) *)
+    Graphics @ {
+      GeneralStyle["Point"],
+      Point @ {xOrd, yOrd}
+    },
+    Graphics @ {
+      Text[
+        "ordinary",
+        {xOrd, yOrd},
+        {-1.4, textVerticalShift}
+      ] // textStyle,
+      {}
+    },
     (* Critical terminal point (x_0, 0) *)
     Graphics @ {
       GeneralStyle["Point"],
@@ -4987,12 +5012,12 @@ Module[
       Text[
         ""[Subscript[Italicise["x"], 0], 0],
         {x0, 0},
-        {1.5, -0.25}
+        {1.5, textVerticalShift}
       ] // textStyle,
       Text[
         "critical",
         {x0, 0},
-        {-1.5, -0.25}
+        {-1.45, textVerticalShift}
       ] // textStyle,
       {}
     },
