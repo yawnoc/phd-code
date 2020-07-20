@@ -4910,3 +4910,92 @@ Module[
     {}
   ]
 ] // Ex["cosine_simple-traced-boundaries-patched-smooth.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: Simple case terminal points (cosine_simple-terminal-points.pdf)*)
+
+
+Module[
+ {a, b,
+  x0,
+  eps,
+  xMin, xMax, yMax, imageSize,
+  xMinCont, xMaxCont, yMaxCont,
+  xMinViable, xMaxViable, yMaxViable,
+  contNum, tContMin, tContStep, tContValues,
+  textStyle
+ },
+  (* Values of A and B *)
+  a = 1/2;
+  b = 1;
+  (* Critical terminal x-coordinate x_0 *)
+  x0 = x0Simp[a];
+  (* Margin *)
+  eps = 0.01;
+  (* Plot range *)
+  xMin = x0 - 0.5 (xStraight - x0);
+  xMax = xStraight;
+  yMax = 1;
+  imageSize = 240;
+  (* Plot range for contours *)
+  xMinCont = x0 - eps;
+  xMaxCont = xMax + eps;
+  yMaxCont = yMax + eps;
+  (* Contours *)
+  contNum = 4;
+  tContMin = tKnown[b][x0, 0];
+  tContStep = 0.03;
+  tContValues = tContMin + tContStep (Range[contNum] - 1);
+  (* Plot range for viable domain *)
+  xMinViable = xMin - eps;
+  xMaxViable = xMax + eps;
+  yMaxViable = yMax + eps;
+  (* Text style *)
+  textStyle = Style[#, 18] & @* LaTeXStyle;
+  (* Plot *)
+  Show[
+    EmptyFrame[{xMin, xMax}, {-yMax, yMax},
+      AspectRatio -> 2,
+      Frame -> None,
+      ImageSize -> imageSize,
+      PlotRangePadding -> None
+    ],
+    (* Known solution contours *)
+    ContourPlot[
+      tKnown[b][x, y],
+      {x, xMinCont, xMaxCont}, {y, -yMaxCont, yMaxCont},
+      ContourLabels -> None,
+      Contours -> tContValues,
+      ContourShading -> None,
+      ContourStyle -> BoundaryTracingStyle["BackgroundDarker"],
+      PlotPoints -> 12
+    ],
+    (* Non-viable domain *)
+    RegionPlot[vi[a, b][x, y] < 0 && tKnown[b][x, y] > 0,
+      {x, xMinViable, xMaxViable}, {y, -yMaxViable, yMaxViable},
+      BoundaryStyle -> BoundaryTracingStyle["Terminal"],
+      PlotPoints -> 7,
+      PlotStyle -> BoundaryTracingStyle["NonViable"]
+    ],
+    (* Critical terminal point (x_0, 0) *)
+    Graphics @ {
+      GeneralStyle["Point"],
+      Point @ {x0, 0}
+    },
+    Graphics @ {
+      Text[
+        ""[Subscript[Italicise["x"], 0], 0],
+        {x0, 0},
+        {1.5, -0.25}
+      ] // textStyle,
+      Text[
+        "critical",
+        {x0, 0},
+        {-1.5, -0.25}
+      ] // textStyle,
+      {}
+    },
+    {}
+  ]
+] (*// Ex["cosine_simple-terminal-points"]*)
