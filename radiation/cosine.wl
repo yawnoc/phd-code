@@ -4949,7 +4949,7 @@ Module[
   tContStep = 0.03;
   tContValues = tContMin + tContStep (Range[contNum] - 1);
   (* Plot range for viable domain *)
-  xMinViable = xMin - eps;
+  xMinViable = x0 - eps;
   xMaxViable = xMax + eps;
   yMaxViable = yMax + eps;
   (* Determine ordinary terminal point *)
@@ -4981,13 +4981,13 @@ Module[
       Contours -> tContValues,
       ContourShading -> None,
       ContourStyle -> BoundaryTracingStyle["BackgroundDarker"],
-      PlotPoints -> 12
+      PlotPoints -> 8
     ],
     (* Non-viable domain *)
     RegionPlot[vi[a, b][x, y] < 0 && tKnown[b][x, y] > 0,
       {x, xMinViable, xMaxViable}, {y, -yMaxViable, yMaxViable},
       BoundaryStyle -> BoundaryTracingStyle["Terminal"],
-      PlotPoints -> 7,
+      PlotPoints -> 9,
       PlotStyle -> BoundaryTracingStyle["NonViable"]
     ],
     (* Ordinary terminal point (x_ord, y_ord) *)
@@ -5023,4 +5023,4 @@ Module[
     },
     {}
   ]
-] (*// Ex["cosine_simple-terminal-points"]*)
+] // Ex["cosine_simple-terminal-points.pdf"]
