@@ -4824,7 +4824,8 @@ Module[
   eps,
   xMinUnphys, xMaxUnphys, yMaxUnphys,
   xMinViable, xMaxViable, yMaxViable,
-  yMaxContStraight
+  yMaxContStraight,
+  textStyle, textStyleBracket
  },
   (* Values of A and B *)
   a = 1/2;
@@ -4848,6 +4849,10 @@ Module[
   yMaxViable = yMax + eps;
   (* Plot range for straight contour *)
   yMaxContStraight = yMax + eps;
+  (* Text style *)
+  textStyle = Style[#, 18] & @* LaTeXStyle;
+  textStyleBracket = Style[#, Larger] &;
+  (* Plot *)
   Show[
     EmptyFrame[{xMin, xMax}, {-yMax, yMax},
       Frame -> None,
@@ -4900,7 +4905,14 @@ Module[
     },
     Graphics @ {
       Text[
-        ""[Subscript[Italicise["x"], 0], 0],
+        Row @ {
+          "(" // textStyleBracket,
+          "\[NegativeVeryThinSpace]",
+          Subscript[Italicise["x"], 0],
+          ",\[ThinSpace]",
+          0,
+          ")" // textStyleBracket
+        },
         {x0, 0},
         {1.5, -0.25}
       ]
@@ -4925,7 +4937,7 @@ Module[
   xMinViable, xMaxViable, yMaxViable,
   contNum, tContMin, tContStep, tContValues,
   tContOrd, xOrdGuess, yOrdGuess, xOrd, yOrd,
-  textStyle, textVerticalShift
+  textStyle, textStyleBracket, textVerticalShift
  },
   (* Values of A and B *)
   a = 1/2;
@@ -4964,6 +4976,7 @@ Module[
   ];
   (* Text style *)
   textStyle = Style[#, 18] & @* LaTeXStyle;
+  textStyleBracket = Style[#, Larger] &;
   textVerticalShift = -0.25;
   (* Plot *)
   Show[
@@ -5010,7 +5023,14 @@ Module[
     },
     Graphics @ {
       Text[
-        ""[Subscript[Italicise["x"], 0], 0],
+        Row @ {
+          "(" // textStyleBracket,
+          "\[NegativeVeryThinSpace]",
+          Subscript[Italicise["x"], 0],
+          ",\[ThinSpace]",
+          0,
+          ")" // textStyleBracket
+        },
         {x0, 0},
         {1.5, textVerticalShift}
       ] // textStyle,
