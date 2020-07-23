@@ -2993,6 +2993,23 @@ With[{y = \[FormalY], a = \[FormalCapitalA], s = \[FormalCapitalS]},
 ]
 
 
+(* ::Text:: *)
+(*More compact version:*)
+
+
+With[{y = \[FormalY], a = \[FormalCapitalA], c = \[FormalCapitalC], s = \[FormalCapitalS]},
+  Block[{$Assumptions = 0 < a <= 1 && 0 < y < ArcCosh[1/a]},
+    curTra[a, 1][Pi/2, y] == (
+      a^2 c / Sqrt[a^2 c^2 - 1] * (
+        2 s - (1 + s^2) (a^2 s + 4 Sqrt[a^2 (1 + s^2) - 1])
+      )
+    )
+      /. {c -> Cosh[y], s -> Sinh[y]}
+      // FullSimplify
+  ]
+]
+
+
 (* ::Subsection:: *)
 (*Horizontal coordinate x at critical y = y(A)*)
 
