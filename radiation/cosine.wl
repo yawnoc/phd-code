@@ -5083,3 +5083,138 @@ Module[
     {}
   ]
 ] // Ex["cosine_simple-terminal-points.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: Simple case candidate domains (cosine_simple-candidate-domains.pdf)*)
+
+
+Module[
+  {
+    b,
+    numA,
+    aStep, aValues,
+    aMin, xRadAMin, yEndAMin,
+    eps,
+    yMaxFrame, xMinFrame, xMaxFrame,
+    imageSize,
+    plotList,
+    xRad, yEnd,
+    textStyle, arrowStyle,
+    parameterArrow,
+    xGraphicsAInfl, xGraphicsA1,
+    dummyForTrailingCommas
+   },
+  (* Value of B *)
+  b = 1;
+  (* Number of A from A_i to 1 inclusive *)
+  numA = 4;
+  (* Values of A *)
+  aStep = (1 - aInflSimp) / (numA - 1);
+  aValues = aInflSimp + aStep * Range[-1, numA - 1];
+  (* Plot range *)
+  aMin = Min[aValues];
+  xRadAMin = xTraCandSimp[aMin, True];
+  yEndAMin = DomainEnd[xRadAMin];
+  eps = 0.02;
+  yMaxFrame = yEndAMin;
+  xMinFrame = (1 - eps) x0Simp[aMin];
+  xMaxFrame = (1 + eps) xStraight;
+  (* List of plots *)
+  imageSize = 96;
+  plotList =
+    Table[
+      (* Radiation boundary x == x(y) for convex domain *)
+      xRad = xTraCandSimp[a, True];
+      yEnd = DomainEnd[xRad];
+      xRad = Function[{y}, xRad[Abs @ y] // Evaluate];
+      (* Plot *)
+      Show[
+        EmptyFrame[
+          {xMinFrame, xMaxFrame}, {-yMaxFrame, yMaxFrame}
+          , Frame -> None
+          , ImageSize -> 4 imageSize
+            (* NOTE: GraphicsRow makes the plot smaller *)
+          , PlotRangePadding -> None
+        ],
+        (* Convex domain *)
+        ParametricPlot[
+          {
+            {xRad[y], y},
+            {xStraight, y}
+          }
+          , {y, -yEnd, yEnd}
+          , PlotStyle -> BoundaryTracingStyle /@ {"Traced", "Contour"}
+        ]
+      ]
+      , {a, aValues}
+    ];
+  (* Parameter (A) increase indicator arrow *)
+  textStyle = Style[#, 20] & @* LaTeXStyle;
+  arrowStyle = Directive[Thickness[0.005], Arrowheads[0.04]];
+  parameterArrow =
+    Show[
+      (* A-axis *)
+      Graphics @ {arrowStyle,
+        Arrow @ {{0, 0}, {1, 0}}
+      },
+      Graphics @ {
+        Text[
+          Italicise["A"] // textStyle
+          , {1, 0}
+          , {-2, 0}
+        ]
+      },
+      (* A == A_infl *)
+      xGraphicsAInfl = 0.355;
+      Graphics @ {arrowStyle,
+        Line @ {
+          {xGraphicsAInfl, 0},
+          {xGraphicsAInfl, -0.01}
+        }
+      },
+      Graphics @ {
+        Text[
+          Subscript[Italicise["A"], "i"] // textStyle
+          , {xGraphicsAInfl, 0}
+          , {0, 1.3}
+        ]
+      },
+      (* A == 1 *)
+      xGraphicsA1 = 0.86;
+      Graphics @ {arrowStyle,
+        Line @ {
+          {xGraphicsA1, 0},
+          {xGraphicsA1, -0.01}
+        }
+      },
+      Graphics @ {
+        Text[
+          1 // textStyle
+          , {xGraphicsA1, 0}
+          , {0, 1.3}
+        ]
+      },
+      {}
+      , ImageSize -> 4.2 imageSize
+      , PlotRange -> All
+    ];
+  (* Final figure *)
+  Column[
+    {
+      Row @ {
+        GraphicsRow[
+          plotList
+          , Spacings -> {4 imageSize, 0}
+        ],
+        (* Adjust horizontal position *)
+        Row @ {
+          Graphics[ImageSize -> 0.2 imageSize]
+        }
+      },
+      parameterArrow
+    }
+    , Center
+    , Spacings -> 0
+  ]
+]
