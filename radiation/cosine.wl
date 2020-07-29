@@ -4568,7 +4568,8 @@ Module[
   numTo1, numBeyond1,
   plotList,
   textStyle, arrowStyle,
-  parameterArrow
+  parameterArrow,
+  xGraphicsATick
  },
   (* Value of B *)
   b = 1;
@@ -4644,27 +4645,37 @@ Module[
       ]
     , {a, aValues}];
   (* Parameter (A) increase indicator arrow *)
-  textStyle = Style[#, 14] & @* LaTeXStyle;
+  textStyle = Style[#, 16] & @* LaTeXStyle;
   arrowStyle = Directive[Thickness[0.005], Arrowheads[0.04]];
   parameterArrow =
     Show[
       (* A-axis *)
       Graphics @ {arrowStyle,
-        Arrow @ {{-1, 0}, {1, 0}}
+        Arrow @ {{0, 0}, {1, 0}}
       },
-      (* A increasing text *)
       Graphics @ {
         Text[
-          Row @ {Italicise["A"], " increasing"} // textStyle,
-          {0, 0},
-          {0, -1.3}
+          Italicise["A"] // textStyle,
+          {1, 0},
+          {-2, 0}
         ]
       },
-      (* Invisible point for automatic height *)
-      Graphics @ {Opacity[0],
-        Point @ {0, -1/10000}
+      (* A == 1 *)
+      xGraphicsATick = 0.54;
+      Graphics @ {arrowStyle,
+        Line @ {
+          {xGraphicsATick, 0},
+          {xGraphicsATick, -0.01}
+        }
       },
-      ImageSize -> 1.7 imageSize,
+      Graphics @ {
+        Text[
+          1 // textStyle
+          , {xGraphicsATick, 0}
+          , {0, 1.3}
+        ]
+      },
+      ImageSize -> 1.85 imageSize,
       PlotRange -> All
     ];
   (* Final figure *)
@@ -4672,7 +4683,7 @@ Module[
     {
       GraphicsRow[
         plotList,
-        Spacings -> {0.2 imageSize, Automatic}
+        Spacings -> {0.2 imageSize, 0}
       ],
       parameterArrow
     },
