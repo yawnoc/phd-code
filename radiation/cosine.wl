@@ -5100,6 +5100,8 @@ Module[
     imageSize,
     plotList,
     xRad, yEnd,
+    xRadEvenExtension,
+    yInfl, xInfl,
     textStyle, arrowStyle,
     parameterArrow,
     xGraphicsAInfl, xGraphicsA1,
@@ -5127,7 +5129,20 @@ Module[
       (* Radiation boundary x == x(y) for convex domain *)
       xRad = xTraCandSimp[a, True];
       yEnd = DomainEnd[xRad];
-      xRad = Function[{y}, xRad[Abs @ y] // Evaluate];
+      xRadEvenExtension = Function[{y}, xRad[Abs @ y] // Evaluate];
+      (* Point of inflection *)
+      Which[
+        a < aInflSimp,
+          yInfl = SeekRoot[
+            curTra[a, b][xRad[#], #] &,
+            {DomainStart[xRad], DomainEnd[xRad]}
+          ],
+        a == aInflSimp,
+          yInfl = DomainEnd[xRad],
+        True,
+          yInfl = Indeterminate
+      ];
+      xInfl = xRad[yInfl];
       (* Plot *)
       Show[
         EmptyFrame[
@@ -5140,12 +5155,20 @@ Module[
         (* Convex domain *)
         ParametricPlot[
           {
-            {xRad[y], y},
+            {xRadEvenExtension[y], y},
             {xStraight, y}
           }
           , {y, -yEnd, yEnd}
           , PlotStyle -> BoundaryTracingStyle /@ {"Traced", "Contour"}
-        ]
+        ],
+        (* Point of inflection *)
+        If[NumericQ[yInfl],
+          Graphics @ {GeneralStyle["Point"],
+            Point @ {{xInfl, yInfl}, {xInfl, -yInfl}}
+          },
+          {}
+        ],
+        {}
       ]
       , {a, aValues}
     ];
