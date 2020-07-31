@@ -5159,6 +5159,7 @@ Module[
             {xStraight, y}
           }
           , {y, -yEnd, yEnd}
+          , PlotPoints -> 2
           , PlotStyle -> BoundaryTracingStyle /@ {"Traced", "Contour"}
         ],
         (* Point of inflection *)
@@ -5240,4 +5241,4 @@ Module[
     , Center
     , Spacings -> 0
   ]
-]
+] // Ex["cosine_simple-candidate-domains.pdf"]
