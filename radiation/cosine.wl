@@ -5113,7 +5113,7 @@ Module[
   numA = 4;
   (* Values of A *)
   aStep = (1 - aInflSimp) / (numA - 1);
-  aValues = aInflSimp + aStep * Range[-1, numA - 1];
+  aValues = aInflSimp + aStep * Range[-2, numA - 1];
   (* Plot range *)
   aMin = Min[aValues];
   xRadAMin = xTraCandSimp[aMin, True];
@@ -5189,7 +5189,7 @@ Module[
         ]
       },
       (* A == A_infl *)
-      xGraphicsAInfl = 0.355;
+      xGraphicsAInfl = 0.41;
       Graphics @ {arrowStyle,
         Line @ {
           {xGraphicsAInfl, 0},
@@ -5204,7 +5204,7 @@ Module[
         ]
       },
       (* A == 1 *)
-      xGraphicsA1 = 0.86;
+      xGraphicsA1 = 0.863;
       Graphics @ {arrowStyle,
         Line @ {
           {xGraphicsA1, 0},
@@ -5228,11 +5228,11 @@ Module[
       Row @ {
         GraphicsRow[
           plotList
-          , Spacings -> {4 imageSize, 0}
+          , Spacings -> {3.2 imageSize, 0}
         ],
         (* Adjust horizontal position *)
         Row @ {
-          Graphics[ImageSize -> 0.2 imageSize]
+          Graphics[ImageSize -> 0.5 imageSize]
         }
       },
       parameterArrow
