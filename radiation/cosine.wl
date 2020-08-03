@@ -1880,9 +1880,7 @@ startXYSimpFigure =
     yMax = 2;
     num = 16;
     eps = 10^-4;
-    (* Reduce crowding near y == 0 *)
     yValues = Subdivide[-yMax, yMax, num];
-    yValues = DeleteCases[yValues, 0];
     (* Return starting points *)
     Table[
       {ArcCos[(1 - eps) Sech[y] / b], y}
