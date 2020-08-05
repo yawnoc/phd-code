@@ -5276,7 +5276,7 @@ Module[
   };
   (* Plot range *)
   xMin = 0;
-  xMax = Pi/2 * 3/2;
+  xMax = 2;
   yMax = 3;
   imageSize = 240;
   (* Margin *)
@@ -5469,7 +5469,7 @@ Module[
         ]
       },
       {}
-      , ImageSize -> 2.25 imageSize
+      , ImageSize -> 2.07 imageSize
       , PlotRange -> All
     ];
   (* Final figure *)
@@ -5477,7 +5477,7 @@ Module[
     {
       GraphicsRow[
         plotList,
-        Spacings -> {0.2 imageSize, 0}
+        Spacings -> {0.3 imageSize, 0}
       ],
       parameterArrow
     },
