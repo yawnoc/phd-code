@@ -5253,6 +5253,7 @@ Module[
     eps,
     plotList,
     xMinViable, xMaxViable, yMaxViable,
+    plotPointsUnphys,
     xMinUnphys, xMaxUnphys, yMaxUnphys,
     textStyle, textStyleBracket, arrowStyle,
     parameterArrow,
@@ -5282,14 +5283,15 @@ Module[
   (* List of plots *)
   plotList =
     Table[
-      (* Plot range for viable domain *)
-      xMinViable = xMin - eps;
-      xMaxViable = xMax + eps;
-      yMaxViable = yMax + eps;
       (* Plot range for unphysical domain *)
       xMinUnphys = xMin - eps;
       xMaxUnphys = SeekRoot[tKnown[b][#, yMax] &, {0, xStraight}] + eps;
       yMaxUnphys = yMax + eps;
+      plotPointsUnphys = If[b == 1, 13, 5];
+      (* Plot range for viable domain *)
+      xMinViable = xMin - eps;
+      xMaxViable = xMax + eps;
+      yMaxViable = yMax + eps;
       (* Plot *)
       Show[
         EmptyFrame[{xMin, xMax}, {-yMax, yMax}
@@ -5303,7 +5305,7 @@ Module[
           , {x, xMinUnphys, xMaxUnphys}
           , {y, -yMaxUnphys, yMaxUnphys}
           , BoundaryStyle -> BoundaryTracingStyle["Unphysical"]
-          , PlotPoints -> 13
+          , PlotPoints -> plotPointsUnphys
           , PlotStyle -> BoundaryTracingStyle["Unphysical"]
         ],
         (* Non-viable domain *)
