@@ -5468,6 +5468,25 @@ Module[
           , {0, 1.4}
         ]
       },
+      (* Regime labels *)
+      Graphics @ {
+        Text[
+          "gentle" // textStyle
+          , {Way[0, xGraphicsBNat, 0.25], 0}
+          , {0, -1.3}
+        ],
+        Text[
+          "fair" // textStyle
+          , {Way[xGraphicsBNat, xGraphicsB1, 0.48], 0}
+          , {0, -1.3}
+        ],
+        Text[
+          "steep" // textStyle
+          , {Way[xGraphicsB1, 1, 0.69], 0}
+          , {0, -1.3}
+        ],
+        {}
+      },
       {}
       , ImageSize -> 2.07 imageSize
       , PlotRange -> All
