@@ -5252,9 +5252,10 @@ Module[
     xMin, xMax, yMax, imageSize,
     eps,
     plotList,
-    xMinViable, xMaxViable, yMaxViable,
-    plotPointsUnphys,
     xMinUnphys, xMaxUnphys, yMaxUnphys,
+    plotPointsUnphys,
+    xMinViable, xMaxViable, yMaxViable,
+    plotPointsViable,
     textStyle, textStyleBracket, arrowStyle,
     parameterArrow,
     xGraphicsBNat, xGraphicsB1,
@@ -5292,6 +5293,7 @@ Module[
       xMinViable = xMin - eps;
       xMaxViable = xMax + eps;
       yMaxViable = yMax + eps;
+      plotPointsViable = If[b < 1, 7, 4];
       (* Plot *)
       Show[
         EmptyFrame[{xMin, xMax}, {-yMax, yMax}
@@ -5314,7 +5316,7 @@ Module[
           , {x, xMinViable, xMaxViable}
           , {y, -yMaxViable, yMaxViable}
           , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
-          , PlotPoints -> 60
+          , PlotPoints -> plotPointsViable
           , PlotStyle -> BoundaryTracingStyle["NonViable"]
         ],
         {}
