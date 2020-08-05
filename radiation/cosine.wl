@@ -5518,3 +5518,75 @@ Module[
     Spacings -> 0
   ]
 ] // Ex["cosine_general-physical-viable.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: General case critical terminal points (cosine_general-critical.pdf)*)
+
+
+Module[
+  {
+    a,
+    bN, xN,
+    bMin, bMax,
+    xMin, xMax, xMaxFilling,
+    xFillingFunction,
+    dummyForTrailingCommas
+  },
+  (* Value of A *)
+  a = 1;
+  (* Critical values B_\[Natural] and x_\[Natural] *)
+  (* (N needed otherwise Epilog doesn't work) *)
+  bN = bNat[a] // N;
+  xN = xNat[a] // N;
+  (* Plot range *)
+  bMin = 0;
+  bMax = 1.7;
+  xMin = 0;
+  xMax = 2;
+  xMaxFilling = Way[Pi/2, xMax, 2/3];
+  (* Filling function for B < B_\[Natural] *)
+  xFillingFunction[b_] :=
+    Piecewise @ {
+      {xMin, b < bN},
+      {Indeterminate, True}
+    };
+  (* Plot *)
+  Plot[
+    {xSharp[a, b], xFlat[a, b], xFillingFunction[b]}
+    , {b, bMin, bMax}
+    , AspectRatio -> 1 / 1.5
+    , AxesLabel -> {bIt, xIt}
+    , Epilog -> {
+        (* Guiding lines for critical values *)
+        BoundaryTracingStyle["Contour"],
+        Line @ {{0, xN}, {bN, xN}, {bN, 0}},
+        (* Points for regime transitions *)
+        GeneralStyle["Point"],
+        Point @ {{bN, xN}, {1, 0}},
+        {}
+      }
+    , Filling -> {1 -> xMaxFilling, 2 -> xMin, 3 -> xMaxFilling}
+    , FillingStyle -> BoundaryTracingStyle["NonViable"]
+    , ImageSize -> 240
+    , LabelStyle -> LatinModernLabelStyle[16]
+    , PlotLegends -> Placed[
+        {
+          xIt == Subscript[xIt, "\[Sharp]"],
+          xIt == Subscript[xIt, "\[Flat]"],
+          Nothing
+        },
+        After
+      ]
+    , PlotRange -> {xMin, xMax}
+    , PlotRangeClipping -> False
+    , PlotStyle -> {Black, Directive[Black, Dashed], None}
+    , Ticks -> {
+        {0, {bN, Subscript[bIt, "\[Natural]"]}, 1},
+        {0, {xN, Subscript[xIt, "\[Natural]"]}}
+      }
+  ]
+] // Ex["cosine_general-critical.pdf"]
+
+
+
