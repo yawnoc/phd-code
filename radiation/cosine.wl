@@ -5217,6 +5217,21 @@ Module[
           , {0, 1.3}
         ]
       },
+      (* Convexity-interval labels *)
+      Graphics @ {
+        Text[
+          "non\[Hyphen]convex" // textStyle
+          (* NOTE: use '\\[Hyphen]' to prevent parsing as minus sign *)
+          , {Way[0, xGraphicsAInfl], 0}
+          , {0, -1.3}
+        ],
+        Text[
+          "convex" // textStyle
+          , {Way[xGraphicsAInfl, xGraphicsA1], 0}
+          , {0, -1.3}
+        ],
+        {}
+      },
       {}
       , ImageSize -> 4.2 imageSize
       , PlotRange -> All
