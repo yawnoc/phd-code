@@ -43,6 +43,22 @@ This approach only requires the installation of the following fonts:
 * "LM Roman 10" `lmroman10-regular.otf` <br>
   <http://www.gust.org.pl/projects/e-foundry/latin-modern/download>
 
+## Workflow
+
+Using Mathematica to do applied maths is an exploratory process.
+Each section of the included notebooks contains explorations
+which I thought useful at the time of writing.
+Some are `Manipulate` visualisations,
+some are static plots which I have exported as reminders for myself,
+and some are complete dead ends.
+
+**Don't simply run all the code in a notebook.**
+This will not be very illuminating,
+not to mention time-consuming since you will end up
+doing computations which needn't be redone.
+Usually you want to run *just* the initialisation section,
+and after that, run a visualisation cell and then do some new exploration.
+
 Timings referred to in the comments are for an
 Intel(R) Core(TM) i7-7700 CPU @ 3.60 GHz (8 GB RAM)
 with a `Benchmark[]` score of about 2.4.
