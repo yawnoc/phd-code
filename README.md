@@ -43,6 +43,11 @@ This approach only requires the installation of the following fonts:
 * "LM Roman 10" `lmroman10-regular.otf` <br>
   <http://www.gust.org.pl/projects/e-foundry/latin-modern/download>
 
+On Windows there are some [issues with spacing around Greek characters][greek]
+due to a bug ... the solution is to use Linux instead.
+
+[greek]: https://mathematica.stackexchange.com/q/219745
+
 ## Workflow
 
 Using Mathematica to do applied maths is an exploratory process.
