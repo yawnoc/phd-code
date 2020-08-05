@@ -5271,14 +5271,14 @@ Module[
     (* Case 2 *) bN,
     (* Case 3 *) Way[bN, 1, 0.03],
     (* Case 4 *) 1,
-    (* Case 5 *) 1.3,
+    (* Case 5 *) 2,
     Nothing
   };
   (* Plot range *)
   xMin = 0;
   xMax = Pi/2 * 3/2;
   yMax = 3;
-  imageSize = 215;
+  imageSize = 270;
   (* Margin *)
   eps = 0.1;
   (* List of plots *)
@@ -5288,12 +5288,12 @@ Module[
       xMinUnphys = xMin - eps;
       xMaxUnphys = SeekRoot[tKnown[b][#, yMax] &, {0, xStraight}] + eps;
       yMaxUnphys = yMax + eps;
-      plotPointsUnphys = If[b == 1, 13, 5];
+      plotPointsUnphys = If[b == 1, 9, 5];
       (* Plot range for viable domain *)
-      xMinViable = xMin - eps;
+      xMinViable = If[b < 1, xMin - eps, xSharp[a, b] - eps];
       xMaxViable = xMax + eps;
       yMaxViable = yMax + eps;
-      plotPointsViable = If[b < 1, 7, 4];
+      plotPointsViable = If[b < 1, 7, 8];
       (* Plot *)
       Show[
         EmptyFrame[{xMin, xMax}, {-yMax, yMax}
@@ -5318,6 +5318,96 @@ Module[
           , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
           , PlotPoints -> plotPointsViable
           , PlotStyle -> BoundaryTracingStyle["NonViable"]
+        ],
+        (* Cirtical terminal points *)
+        Which[
+          b == bN,
+          {
+            Graphics @ {GeneralStyle["Point"],
+              Point @ {N @ xNat[a], 0}
+            },
+            Graphics @ {
+              Text[
+                Subscript[Italicise["x"], "\[Natural]"] // textStyle
+                , {N @ xNat[a], 0}
+                , {0, -1.5}
+             ]
+            },
+            {}
+          },
+          bN < b < 1,
+          {
+            Graphics @ {GeneralStyle["Point"],
+              Point @ {N @ xFlat[a, b], 0}
+            },
+            Graphics @ {
+              Text[
+                Subscript[Italicise["x"], "\[Flat]"] // textStyle
+                , {N @ xFlat[a, b], 0}
+                , {0, -1.5}
+             ]
+            },
+            Graphics @ {GeneralStyle["Point"],
+              Point @ {N @ xSharp[a, b], 0}
+            },
+            Graphics @ {
+              Text[
+                Subscript[Italicise["x"], "\[Sharp]"] // textStyle
+                , {N @ xSharp[a, b], 0}
+                , {0.7, -1.5}
+             ]
+            },
+            {}
+          },
+          b == 1,
+          {
+            Graphics @ {BoundaryTracingStyle["Background"], GeneralStyle["Point"],
+              Point @ {N @ xFlat[a, b], 0}
+            },
+            Graphics @ {
+              Text[
+                Subscript[Italicise["x"], "\[Flat]"] // textStyle
+                , {N @ xFlat[a, b], 0}
+                , {-2.3, -0.3}
+             ]
+            },
+            Graphics @ {GeneralStyle["Point"],
+              Point @ {N @ xSharp[a, b], 0}
+            },
+            Graphics @ {
+              Text[
+                Subscript[Italicise["x"], "\[Sharp]"] // textStyle
+                , {N @ xSharp[a, b], 0}
+                , {1.5, -1.1}
+             ]
+            },
+            {}
+          },
+          b > 1,
+          {
+            Graphics @ {White, GeneralStyle["Point"],
+              Point @ {N @ xFlat[a, b], 0}
+            },
+            Graphics @ {White,
+              Text[
+                Subscript[Italicise["x"], "\[Flat]"] // textStyle
+                , {N @ xFlat[a, b], 0}
+                , {0, -1.2}
+             ]
+            },
+            Graphics @ {GeneralStyle["Point"],
+              Point @ {N @ xSharp[a, b], 0}
+            },
+            Graphics @ {
+              Text[
+                Subscript[Italicise["x"], "\[Sharp]"] // textStyle
+                , {N @ xSharp[a, b], 0}
+                , {1.5, -1.1}
+             ]
+            },
+            {}
+          },
+          True, {}
         ],
         {}
       ]
