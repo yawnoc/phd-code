@@ -5254,9 +5254,9 @@ Module[
     plotList,
     xMinViable, xMaxViable, yMaxViable,
     xMinUnphys, xMaxUnphys, yMaxUnphys,
-    textStyle, arrowStyle,
+    textStyle, textStyleBracket, arrowStyle,
     parameterArrow,
-    xGraphicsB1,
+    xGraphicsBNat, xGraphicsB1,
     dummyForTrailingCommas
   },
   (* Value of A *)
@@ -5321,6 +5321,7 @@ Module[
     ];
   (* Parameter (B) increase indicator arrow *)
   textStyle = Style[#, 16] & @* LaTeXStyle;
+  textStyleBracket = Style[#, 22] &;
   arrowStyle = Directive[Thickness[0.005], Arrowheads[0.04]];
   parameterArrow =
     Show[
@@ -5335,8 +5336,31 @@ Module[
           {-2, 0}
         ]
       },
+      (* B == B_nat *)
+      xGraphicsBNat = 0.288;
+      Graphics @ {arrowStyle,
+        Line @ {
+          {xGraphicsBNat, 0},
+          {xGraphicsBNat, -0.01}
+        }
+      },
+      Graphics @ {
+        Text[
+          Row @ {
+            Subscript[Italicise["B"], "\[Natural]"],
+            "(" // textStyleBracket,
+            "\[NegativeVeryThinSpace]",
+            Italicise["A"],
+            ")" // textStyleBracket,
+            Nothing
+          }
+            // textStyle
+          , {xGraphicsBNat, 0}
+          , {0, 1.4}
+        ]
+      },
       (* B == 1 *)
-      xGraphicsB1 = 0.72;
+      xGraphicsB1 = 0.725;
       Graphics @ {arrowStyle,
         Line @ {
           {xGraphicsB1, 0},
