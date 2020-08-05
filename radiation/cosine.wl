@@ -5240,3 +5240,129 @@ Module[
     , Spacings -> 0
   ]
 ] // Ex["cosine_simple-candidate-domains.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: General case (un)physical region and (non-)viable domain (cosine_general-physical-viable.pdf)*)
+
+
+Module[
+  {
+    a, bN, bValues,
+    xMin, xMax, yMax, imageSize,
+    eps,
+    plotList,
+    xMinViable, xMaxViable, yMaxViable,
+    xMinUnphys, xMaxUnphys, yMaxUnphys,
+    textStyle, arrowStyle,
+    parameterArrow,
+    xGraphicsB1,
+    dummyForTrailingCommas
+  },
+  (* Value of A *)
+  a = 1;
+  (* Value of B at gentle-to-fair transition *)
+  bN = bNat[a];
+  (* Values of B *)
+  bValues = {
+    (* Case 1 *) 0.7 bN,
+    (* Case 2 *) bN,
+    (* Case 3 *) Way[bN, 1, 0.03],
+    (* Case 4 *) 1,
+    (* Case 5 *) 1.3,
+    Nothing
+  };
+  (* Plot range *)
+  xMin = 0;
+  xMax = Pi/2 * 3/2;
+  yMax = 3;
+  imageSize = 215;
+  (* Margin *)
+  eps = 0.1;
+  (* List of plots *)
+  plotList =
+    Table[
+      (* Plot range for viable domain *)
+      xMinViable = xMin - eps;
+      xMaxViable = xMax + eps;
+      yMaxViable = yMax + eps;
+      (* Plot range for unphysical domain *)
+      xMinUnphys = xMin - eps;
+      xMaxUnphys = SeekRoot[tKnown[b][#, yMax] &, {0, xStraight}] + eps;
+      yMaxUnphys = yMax + eps;
+      (* Plot *)
+      Show[
+        EmptyFrame[{xMin, xMax}, {-yMax, yMax}
+          , Frame -> None
+          , ImageSize -> imageSize
+          , PlotRangePadding -> None
+        ],
+        (* Unphysical domain *)
+        RegionPlot[
+          tKnown[b][x, y] < 0
+          , {x, xMinUnphys, xMaxUnphys}
+          , {y, -yMaxUnphys, yMaxUnphys}
+          , BoundaryStyle -> BoundaryTracingStyle["Unphysical"]
+          , PlotPoints -> 13
+          , PlotStyle -> BoundaryTracingStyle["Unphysical"]
+        ],
+        (* Non-viable domain *)
+        RegionPlot[
+          vi[a, b][x, y] < 0 && tKnown[b][x, y] > 0
+          , {x, xMinViable, xMaxViable}
+          , {y, -yMaxViable, yMaxViable}
+          , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
+          , PlotPoints -> 60
+          , PlotStyle -> BoundaryTracingStyle["NonViable"]
+        ],
+        {}
+      ]
+      , {b, bValues}
+    ];
+  (* Parameter (B) increase indicator arrow *)
+  textStyle = Style[#, 16] & @* LaTeXStyle;
+  arrowStyle = Directive[Thickness[0.005], Arrowheads[0.04]];
+  parameterArrow =
+    Show[
+      (* B-axis *)
+      Graphics @ {arrowStyle,
+        Arrow @ {{0, 0}, {1, 0}}
+      },
+      Graphics @ {
+        Text[
+          Italicise["B"] // textStyle,
+          {1, 0},
+          {-2, 0}
+        ]
+      },
+      (* B == 1 *)
+      xGraphicsB1 = 0.72;
+      Graphics @ {arrowStyle,
+        Line @ {
+          {xGraphicsB1, 0},
+          {xGraphicsB1, -0.01}
+        }
+      },
+      Graphics @ {
+        Text[
+          1 // textStyle
+          , {xGraphicsB1, 0}
+          , {0, 1.4}
+        ]
+      },
+      {}
+      , ImageSize -> 2.25 imageSize
+      , PlotRange -> All
+    ];
+  (* Final figure *)
+  Column[
+    {
+      GraphicsRow[
+        plotList,
+        Spacings -> {0.2 imageSize, 0}
+      ],
+      parameterArrow
+    },
+    Spacings -> 0
+  ]
+] // Ex["cosine_general-physical-viable.pdf"]
