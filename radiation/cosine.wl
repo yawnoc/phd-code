@@ -5278,7 +5278,7 @@ Module[
   xMin = 0;
   xMax = Pi/2 * 3/2;
   yMax = 3;
-  imageSize = 270;
+  imageSize = 240;
   (* Margin *)
   eps = 0.1;
   (* List of plots *)
@@ -5361,7 +5361,7 @@ Module[
           },
           b == 1,
           {
-            Graphics @ {BoundaryTracingStyle["Background"], GeneralStyle["Point"],
+            Graphics @ {LightGray, GeneralStyle["Translucent"], GeneralStyle["Point"],
               Point @ {N @ xFlat[a, b], 0}
             },
             Graphics @ {
