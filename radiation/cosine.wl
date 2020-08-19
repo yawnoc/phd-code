@@ -592,6 +592,16 @@ Table[
         // Most
         // Cases[{x_, y_} /; vi[a, b][x, y] > 0]
     );
+    (*
+      ----------------------------------------------------------------
+      Critical terminal points along y-axis
+        (x == 0, y == y_0)
+      ----------------------------------------------------------------
+    *)
+    startXYGen[a][regime]["vertical"] = {
+      {0, y0[a, b]},
+      {0, -y0[a, b]}
+    };
   ]
 , {a, aValuesGen}];
 
@@ -707,6 +717,16 @@ Table[
         // Rest
         // Most
     );
+    (*
+      ----------------------------------------------------------------
+      Critical terminal points along y-axis
+        (x == 0, y == y_0)
+      ----------------------------------------------------------------
+    *)
+    startXYGen[a][regime]["vertical"] = {
+      {0, y0[a, b]},
+      {0, -y0[a, b]}
+    };
     (*
       ----------------------------------------------------------------
       Hyperbolic critical terminal point (x = x_\[Natural], y = 0)
@@ -830,6 +850,16 @@ Table[
         // Rest
         // Most
     );
+    (*
+      ----------------------------------------------------------------
+      Critical terminal points along y-axis
+        (x == 0, y == y_0)
+      ----------------------------------------------------------------
+    *)
+    startXYGen[a][regime]["vertical"] = {
+      {0, y0[a, b]},
+      {0, -y0[a, b]}
+    };
     (*
       ----------------------------------------------------------------
       Hyperbolic critical terminal points
@@ -1014,11 +1044,11 @@ Table[
 
 
 idListGen =
-  With[{d = "disconnected", c = "connected", h = "hyperbolic"},
+  With[{d = "disconnected", c = "connected", h = "hyperbolic", v = "vertical"},
     Association[
-      "gentle" -> {d, c},
-      "gentle_fair" -> {d, c, h},
-      "fair" -> {d, c, h},
+      "gentle" -> {d, c, v},
+      "gentle_fair" -> {d, c, h, v},
+      "fair" -> {d, c, h, v},
       "fair_steep" -> {c, h},
       "steep" -> {c, h}
     ]
