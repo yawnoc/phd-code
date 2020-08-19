@@ -2254,7 +2254,7 @@ DynamicModule[
   aMin = 0.01;
   aMax = 2;
   (* Values of B *)
-  bInit = 1;
+  bInit = 1.01 bNat[aInit];
   bMin = 0;
   bMax = 5;
   (* Plot range *)
@@ -2325,6 +2325,19 @@ DynamicModule[
       Graphics @ {straightStyle,
         Line @ {{xStraight, -yMaxCont}, {xStraight, yMaxCont}}
       },
+      (* Critical terminal points along x == 0 *)
+      Which[
+        (* B < 1 *)
+        b < 1,
+        {
+          Graphics @ {Directive[Black, pointStyle],
+            Point @ {{0, y0[a, b]}, {0, -y0[a, b]}}
+          }
+        },
+        (* Otherwise don't care *)
+        True,
+        {}
+      ],
       (* Critical terminal points along y == 0 *)
       Which[
         (* Two distinct terminal points, x_\[Flat] & x_\[Sharp] *)
