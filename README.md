@@ -61,7 +61,7 @@ and some are complete dead ends.
 This will not be very illuminating,
 not to mention time-consuming since you will end up
 doing computations which needn't be redone.
-Usually you want to run *just* the initialisation section,
+Usually you want to run *only* the initialisation section,
 and after that, run a visualisation cell and then do some new exploration.
 
 Timings referred to in the comments are for an
