@@ -141,6 +141,73 @@ aNamesSimpConvex = AssociationThread[
 
 
 (* ::Subsubsection:: *)
+(*Critical terminal points along x = 0*)
+
+
+(* ::Text:: *)
+(*Along the y-axis, there are critical terminal points at y = \[PlusMinus]y_0 when B < 1.*)
+(*When B = 1, \[PlusMinus]y_0 merges with x_\[Flat] at the origin.*)
+(*When B > 1, we don't really care because \[PlusMinus]y_0 lie in the unphysical region*)
+(*(note that things are a bit iffy because the non-viable region containing the origin*)
+(*might join with other non-viable blobs for B sufficiently large).*)
+
+
+(* ::Subsubsubsection:: *)
+(*Critical terminal point y_0*)
+
+
+(* ::Text:: *)
+(*Observe that \[CapitalPhi](x = 0) = -(1 - B C)^8 / A^2 + B^2 (C^2 - 1), where C = cosh(y).*)
+(*Note that for B < 1, the critical terminal point y_0 lies in the strictly physical region,*)
+(*i.e. at C = cosh(y) < 1/B.*)
+
+
+With[{c = \[FormalC], a = \[FormalCapitalA], b = \[FormalCapitalB]},
+  Solve[
+    {
+      -(1 - b c)^8 / a^2 + b^2 (c^2 - 1) == 0,
+      1 < c < 1/b,
+      0 < a,
+      0 < b < 1
+    },
+    c,
+    Reals
+  ]
+]
+
+
+y0CriticalA[b_] := Root[
+  -65536
+  + 458752 b^2
+  - 1376256 b^4
+  + 2293760 b^6
+  - 2293760 b^8
+  + 1376256 b^10
+  - 458752 b^12
+  + 65536 b^14
+  + (729 - 77200 b^2 - 449856 b^4 - 283392 b^6 - 13824 b^8) #^2
+  + 729 b^2 #^4 &,
+  2
+]
+
+
+y0PolyC[a_, b_] := Function[
+  1 + a^2 b^2 - 8 b #
+  + (28 b^2 - a^2 b^2) #^2
+  - 56 b^3 #^3
+  + 70 b^4 #^4
+  - 56 b^5 #^5
+  + 28 b^6 #^6
+  - 8 b^7 #^7
+  + b^8 #^8
+]
+
+
+y0[a_, b_] /; 0 < b < 1 && 0 < a < y0CriticalA[b] := ArcCosh @ Root[y0PolyC[a, b], 1];
+y0[a_, b_] /; 0 < b < 1 && a >= y0CriticalA[b] := ArcCosh @ Root[y0PolyC[a, b], 3];
+
+
+(* ::Subsubsection:: *)
 (*Critical terminal points along y = 0*)
 
 
