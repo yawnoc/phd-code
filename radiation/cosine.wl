@@ -5381,7 +5381,7 @@ Module[
     plotPointsUnphys,
     xMinViable, xMaxViable, yMaxViable,
     plotPointsViable,
-    textStyle, textStyleBracket, arrowStyle,
+    textStyle, arrowStyle,
     parameterArrow,
     xGraphicsBNat, xGraphicsB1,
     dummyForTrailingCommas
@@ -5444,10 +5444,34 @@ Module[
           , PlotPoints -> plotPointsViable
           , PlotStyle -> BoundaryTracingStyle["NonViable"]
         ],
-        (* Cirtical terminal points *)
+        (* Critical terminal points *)
         Which[
+          b < bN,
+          {
+            Graphics @ {GeneralStyle["Point"],
+              Point @ {{0, N @ y0[a, b]}, {0, N @ -y0[a, b]}}
+            },
+            Graphics @ {
+              Text[
+                Subscript[Italicise["y"], 0] // textStyle
+                , {0, N @ y0[a, b]}
+                , {-1.2, -1.2}
+             ]
+            },
+            {}
+          },
           b == bN,
           {
+            Graphics @ {GeneralStyle["Point"],
+              Point @ {{0, N @ y0[a, b]}, {0, N @ -y0[a, b]}}
+            },
+            Graphics @ {
+              Text[
+                Subscript[Italicise["y"], 0] // textStyle
+                , {0, N @ y0[a, b]}
+                , {-1, -1.2}
+             ]
+            },
             Graphics @ {GeneralStyle["Point"],
               Point @ {N @ xNat[a], 0}
             },
@@ -5455,7 +5479,7 @@ Module[
               Text[
                 Subscript[Italicise["x"], "\[Natural]"] // textStyle
                 , {N @ xNat[a], 0}
-                , {0, -1.5}
+                , {0.3, -1.35}
              ]
             },
             {}
@@ -5463,13 +5487,23 @@ Module[
           bN < b < 1,
           {
             Graphics @ {GeneralStyle["Point"],
+              Point @ {{0, N @ y0[a, b]}, {0, N @ -y0[a, b]}}
+            },
+            Graphics @ {
+              Text[
+                Subscript[Italicise["y"], 0] // textStyle
+                , {0, N @ y0[a, b]}
+                , {-0.95, -1.4}
+             ]
+            },
+            Graphics @ {GeneralStyle["Point"],
               Point @ {N @ xFlat[a, b], 0}
             },
             Graphics @ {
               Text[
                 Subscript[Italicise["x"], "\[Flat]"] // textStyle
                 , {N @ xFlat[a, b], 0}
-                , {0, -1.5}
+                , {-0.3, -1.25}
              ]
             },
             Graphics @ {GeneralStyle["Point"],
@@ -5479,15 +5513,22 @@ Module[
               Text[
                 Subscript[Italicise["x"], "\[Sharp]"] // textStyle
                 , {N @ xSharp[a, b], 0}
-                , {0.7, -1.5}
+                , {0.7, -1.25}
              ]
             },
             {}
           },
           b == 1,
           {
-            Graphics @ {LightGray, GeneralStyle["Translucent"], GeneralStyle["Point"],
+            Graphics @ {Lighter[Gray, 0.75], GeneralStyle["Translucent"], GeneralStyle["Point"],
               Point @ {N @ xFlat[a, b], 0}
+            },
+            Graphics @ {White,
+              Text[
+                Subscript[Italicise["y"], 0] // textStyle
+                , {N @ xFlat[a, b], 0}
+                , {-1, -1.8}
+             ]
             },
             Graphics @ {
               Text[
@@ -5540,7 +5581,6 @@ Module[
     ];
   (* Parameter (B) increase indicator arrow *)
   textStyle = Style[#, 16] & @* LaTeXStyle;
-  textStyleBracket = Style[#, 22] &;
   arrowStyle = Directive[Thickness[0.005], Arrowheads[0.04]];
   parameterArrow =
     Show[
@@ -5565,14 +5605,7 @@ Module[
       },
       Graphics @ {
         Text[
-          Row @ {
-            Subscript[Italicise["B"], "\[Natural]"],
-            "(" // textStyleBracket,
-            "\[NegativeVeryThinSpace]",
-            Italicise["A"],
-            ")" // textStyleBracket,
-            Nothing
-          }
+          Subscript[Italicise["B"], "\[Natural]"]
             // textStyle
           , {xGraphicsBNat, 0}
           , {0, 1.4}
@@ -5697,6 +5730,3 @@ Module[
       }
   ]
 ] // Ex["cosine_general-critical.pdf"]
-
-
-
