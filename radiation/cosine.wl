@@ -369,7 +369,7 @@ bValueGen["steep"][a_] := 2;
 
 
 aAsymm = 12;
-bAsymm = 105/100 bNat[aAsymm];
+bAsymm = 104/100 bNat[aAsymm];
 
 
 (* ::Subsection:: *)
@@ -1597,7 +1597,7 @@ Module[
 (* ::Text:: *)
 (*The asymmetric domain shall have corner at*)
 (*  x-coordinate 1/4 of the way from x_i(straight) to x_i(axis), and*)
-(*  y-coordinate 9/10 of the way from 0 to the negative y, along that x,*)
+(*  y-coordinate 1/2 of the way from 0 to the negative y, along that x,*)
 (*    where inflection occurs for the lower branch.*)
 
 
@@ -1616,7 +1616,7 @@ Module[
     xAsymmCorner:
       1/4 of the way from x_i(straight) to x_i(axis)
     yAsymmCorner:
-      9/10 of the way from 0 to the negative y, along that x,
+      1/2 of the way from 0 to the negative y, along that x,
       where inflection occurs for the lower branch.
    *)
   xAsymmCorner = Way[xInflStraight, xInflAxis, 1/4];
@@ -1624,7 +1624,7 @@ Module[
     curTra[a, b][xAsymmCorner, #] &,
     {0, -0.5}
   ];
-  yAsymmCorner = Way[0, yInflNegative, 9/10];
+  yAsymmCorner = Way[0, yInflNegative, 1/2];
   (*
     ------------------------------------------------
     Asymmetric domain boundaries
