@@ -5215,7 +5215,11 @@ Module[
   xMinViable, xMaxViable, yMaxViable,
   contNum, tContMin, tContStep, tContValues,
   tContOrd, xOrdGuess, yOrdGuess, xOrd, yOrd,
-  textStyle, textStyleBracket, textVerticalShift
+  textStyle, textStyleBracket, textVerticalShift,
+  plot,
+  legendLabelStyle,
+  legendCurves, legendRegions,
+  dummyForTrailingCommas
  },
   (* Values of A and B *)
   a = 1/2;
@@ -5228,7 +5232,7 @@ Module[
   xMin = x0 - 0.5 (xStraight - x0);
   xMax = xStraight;
   yMax = 1;
-  imageSize = 240;
+  imageSize = 210;
   (* Plot range for contours *)
   xMinCont = x0 - eps;
   xMaxCont = xMax + eps;
@@ -5257,7 +5261,7 @@ Module[
   textStyleBracket = Style[#, Larger] &;
   textVerticalShift = -0.25;
   (* Plot *)
-  Show[
+  plot = Show[
     EmptyFrame[{xMin, xMax}, {-yMax, yMax},
       AspectRatio -> 2,
       Frame -> None,
@@ -5320,6 +5324,28 @@ Module[
       {}
     },
     {}
+  ];
+  (* Legend *)
+  legendLabelStyle = LatinModernLabelStyle[16];
+  legendCurves =
+    CurveLegend[
+      BoundaryTracingStyle /@ {"BackgroundDarker", "Terminal"},
+      {Row @ {Italicise["T"], "\[Hyphen]contour"}, "terminal curve"}
+      , LabelStyle -> legendLabelStyle
+    ];
+  legendRegions =
+    RegionLegend[
+      BoundaryTracingStyle /@ {"NonViable"},
+      {"non\[Hyphen]viable domain"}
+      , LabelStyle -> legendLabelStyle
+    ];
+  (* Combined *)
+  Grid[
+    {{
+      plot,
+      Column[Join[legendCurves, legendRegions], Spacings -> -0.5]
+    }}
+    , Spacings -> 3
   ]
 ] // Ex["cosine_simple-terminal-points.pdf"]
 
