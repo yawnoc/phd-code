@@ -5992,24 +5992,6 @@ Module[
       ],
       {}
     },
-    (* Critical terminal points *)
-    Graphics @ {GeneralStyle["Point"], PointSize[Medium],
-      Point @ {{N @ xFlatAsymm, 0}, {N @ xSharpAsymm, 0}}
-    },
-    Graphics @ {
-      Text[
-        Subscript[Italicise["x"], "\[Flat]"] // textStyle
-        , {N @ xFlatAsymm, 0}
-        , {-2, -0.1}
-      ]
-    },
-    Graphics @ {
-      Text[
-        Subscript[Italicise["x"], "\[Sharp]"] // textStyle
-        , {N @ xSharpAsymm, 0}
-        , {2, -0.25}
-      ]
-    },
     {}
   ]
 ] // Ex["cosine_general-traced-convex_portions.pdf"]
