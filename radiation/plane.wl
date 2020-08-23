@@ -593,6 +593,10 @@ Module[
 (*Figure: Domains (plane-domains.pdf)*)
 
 
+(* ::Subsection:: *)
+(*Main figure*)
+
+
 Module[
  {xTerm,
   xMin, xMax, yMin, yMax,
@@ -698,3 +702,27 @@ Module[
     }
   ] &
 ] // Ex["plane-domains.pdf"]
+
+
+(* ::Subsection:: *)
+(*Legend*)
+
+
+Module[
+  {
+    latinModernStyle,
+    curves,
+    dummyForTrailingCommas
+  },
+  latinModernStyle = LatinModernLabelStyle[14];
+  curves =
+    CurveLegend[
+      BoundaryTracingStyle @* ReleaseHold /@
+        {"Traced", "Contour", Hold @ Sequence["Terminal", "BackgroundDarker"]},
+      {"radiation", "constant temperature", "critical terminal curve"}
+      , LabelStyle -> LatinModernLabelStyle[14]
+    ];
+  Grid[{curves}
+    , Spacings -> {{0, 1, 3}, 0}
+  ]
+] // Ex["plane-domains-legend.pdf"]
