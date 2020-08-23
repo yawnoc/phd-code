@@ -25,6 +25,10 @@ ClearAll["Global`*"];
 (*Figure: Terminal points (terminal-*.pdf)*)
 
 
+(* ::Subsection:: *)
+(*Main (sub)figures*)
+
+
 (*
   In all cases we put \[CapitalPhi] == y + 3/2 x^2,
   with a terminal point (x, y) == (0, 0).
@@ -165,6 +169,10 @@ Module[
     ] // Ex @ FString["terminal-{case}.pdf"]
   , {case, caseList}]
 ]
+
+
+(* ::Subsection:: *)
+(*Legend*)
 
 
 Module[
