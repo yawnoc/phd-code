@@ -167,6 +167,34 @@ Module[
 ]
 
 
+Module[
+  {
+    latinModernStyle,
+    curves, regions,
+    dummyForTrailingCommas
+  },
+  latinModernStyle = LatinModernLabelStyle[14];
+  curves =
+    CurveLegend[
+      BoundaryTracingStyle /@ {"Terminal", "Contour", "Traced"},
+      {"terminal curve", Row @ {Italicise["T"], "\[Hyphen]contour"}, "traced boundaries"}
+      , LabelStyle -> LatinModernLabelStyle[14]
+    ];
+  regions = (
+    RegionLegend[
+      BoundaryTracingStyle /@ {"NonViable", "Viable"},
+      {"non\[Hyphen]viable domain", "viable domain"}
+      , LabelStyle -> LatinModernLabelStyle[14]
+    ]
+  );
+  (* Combine *)
+  Grid[{curves, regions // Insert[Null, 2]}
+    , Alignment -> Left
+    , Spacings -> {4, -1}
+  ]
+] // Ex["terminal-legend.pdf"]
+
+
 (* ::Section:: *)
 (*Figure: Curvilinear coordinates (orthogonal-curvilinear-coordinates.pdf)*)
 
