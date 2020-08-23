@@ -5881,7 +5881,7 @@ Module[
           // Evaluate
           ,
         {s, DomainStart[xy], DomainEnd[xy]}
-        , PlotStyle -> BoundaryTracingStyle["BackgroundDarker"]
+        , PlotStyle -> BoundaryTracingStyle["Background"]
         , PlotPoints -> 2
       ]
       , {xy, asymmInflectionFrontierList}
@@ -5950,6 +5950,13 @@ Module[
       , PlotPoints -> 12
       , PlotStyle -> BoundaryTracingStyle["NonViable"]
     ],
+    (* Straight contour *)
+    ParametricPlot[
+      {xStraight, y},
+      {y, -yMaxCont, yMaxCont}
+      , PlotPoints -> 2
+      , PlotStyle -> BoundaryTracingStyle["Contour"]
+    ],
     (* Convex portions of traced boundaries *)
     Table[
       ParametricPlot[
@@ -5985,13 +5992,6 @@ Module[
       ],
       {}
     },
-    (* Straight contour *)
-    ParametricPlot[
-      {xStraight, y},
-      {y, -yMaxCont, yMaxCont}
-      , PlotPoints -> 2
-      , PlotStyle -> BoundaryTracingStyle["Contour"]
-    ],
     (* Critical terminal points *)
     Graphics @ {GeneralStyle["Point"], PointSize[Medium],
       Point @ {{N @ xFlatAsymm, 0}, {N @ xSharpAsymm, 0}}
@@ -6012,4 +6012,4 @@ Module[
     },
     {}
   ]
-] // Ex["cosine_general-traced-convex_portions.pdf"];
+] // Ex["cosine_general-traced-convex_portions.pdf"]
