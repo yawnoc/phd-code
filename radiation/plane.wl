@@ -598,6 +598,7 @@ Module[
   xMin, xMax, yMin, yMax,
   imageSize,
   plotPointsPatched,
+  textStyle,
   plotList,
   n, cUpperList, cLowerList, xCornerList, xIntList,
   iRangeList, xBathList,
@@ -609,11 +610,13 @@ Module[
   xTerm = 1;
   (* Plot range *)
   xMin = 0.2;
-  xMax = 1.05 xTerm;
+  xMax = 1.1 xTerm;
   yMax = 0.7;
   imageSize = 240;
   (* Plot points *)
   plotPointsPatched = 2;
+  (* Styles *)
+  textStyle = Style[#, 14] & @* LaTeXStyle;
   (* Build a plot for each list of corners *)
   plotList = Table[
     (* *)
@@ -637,6 +640,14 @@ Module[
         PlotPoints -> 2,
         PlotStyle -> BoundaryTracingStyle["Terminal", "BackgroundDarker"]
       ],
+      Graphics @ {Gray,
+        Text[
+          Italicise["x"] == 1
+          , {1, 0}
+          , {0, 1}
+          , {0, 1}
+        ] // textStyle
+      },
       (* Domains *)
       Table[
         {iMin, iMax} = iRangeList[[j]];
