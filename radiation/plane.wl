@@ -593,10 +593,6 @@ Module[
 (*Figure: Domains (plane-domains.pdf)*)
 
 
-(* ::Subsection:: *)
-(*Main figure*)
-
-
 Module[
  {xTerm,
   xMin, xMax, yMin, yMax,
@@ -608,7 +604,10 @@ Module[
   iRangeList, xBathList,
   iMin, iMax, xBath, yBathBottom, yBathTop,
   cUpper, cLower,
-  xLeft, xRight
+  xLeft, xRight,
+  legendLabelStyle,
+  legendCurves,
+  dummyForTrailingCommas
  },
   (* Critical terminal curve *)
   xTerm = 1;
@@ -694,35 +693,19 @@ Module[
         }
       , {j, Length[iRangeList]}]
     ]
-  , {id, patchedIdList}]
-  // GraphicsRow[#,
-    Spacings -> {
-      0.5 imageSize,
-      Automatic
-    }
-  ] &
-] // Ex["plane-domains.pdf"]
-
-
-(* ::Subsection:: *)
-(*Legend*)
-
-
-Module[
-  {
-    latinModernStyle,
-    curves,
-    dummyForTrailingCommas
-  },
-  latinModernStyle = LatinModernLabelStyle[14];
-  curves =
+  , {id, patchedIdList}];
+  (* Legend *)
+  legendLabelStyle = LatinModernLabelStyle[14];
+  legendCurves =
     CurveLegend[
       BoundaryTracingStyle @* ReleaseHold /@
         {"Traced", "Contour", Hold @ Sequence["Terminal", "BackgroundDarker"]},
       {"radiation", "constant temperature", "critical terminal curve"}
       , LabelStyle -> LatinModernLabelStyle[14]
     ];
-  Grid[{curves}
-    , Spacings -> {{0, 1, 3}, 0}
-  ]
-] // Ex["plane-domains-legend.pdf"]
+  (* Combine *)
+  Column @ {
+    GraphicsRow[plotList, Spacings -> {0.5 imageSize, Automatic}],
+    Grid[{legendCurves}, Spacings -> {{0, 1, 3}, 0}]
+  }
+] // Ex["plane-domains.pdf"]
