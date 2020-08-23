@@ -2142,6 +2142,93 @@ patchedBoundarySmooth =
   ];
 
 
+(* ::Subsubsection:: *)
+(*General case (B arbitrary) asymmetric domain construction*)
+
+
+(* ::Subsubsubsection:: *)
+(*x_\[Flat] and x_\[Sharp]*)
+
+
+xFlatAsymm = xFlat[aAsymm, bAsymm];
+xSharpAsymm = xSharp[aAsymm, bAsymm];
+
+
+(* ::Subsubsubsection:: *)
+(*Inflection frontiers for the lower branch*)
+
+
+asymmInflectionFrontierList =
+  Module[{a, b, xyInitList},
+    a = aAsymm;
+    b = bAsymm;
+    xyInitList = {
+      {xInflAxis, 0},
+      {xStraight, yInflStraight},
+      Nothing
+    };
+    Table[
+      With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+        NDSolveValue[
+          {
+            curContourSystem[a, b],
+            x[0] == xyInit[[1]], y[0] == xyInit[[2]],
+            WhenEvent[
+              {
+                x[s] < 0,
+                x[s] > Pi,
+                Abs @ y[s] > 2,
+                vi[a, b][x[s], y[s]] < 0,
+                False
+              },
+              "StopIntegration"
+            ]
+          },
+          {x, y},
+          {s, -6, 6}
+          , NoExtrapolation
+        ]
+      ]
+      , {xyInit, xyInitList}
+    ]
+  ];
+
+
+(* ::Subsubsubsection:: *)
+(*Convex portions of traced boundaries*)
+
+
+asymmConvexPortionsList =
+  Module[{a, b, xInitList, sConvexLower},
+    a = aAsymm;
+    b = bAsymm;
+    xInitList = Subdivide[xInflStraight, xInflAxis, 4];
+    Table[
+      With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+        (*
+          NOTE: WhenEvent detection doesn't work at the initial point,
+          hence the If hack.
+        *)
+        sConvexLower = If[xInit == Last[xInitList], 0, -6];
+        NDSolveValue[
+          {
+            xyTraSystem[a, b],
+            x[0] == xInit, y[0] == 0,
+            WhenEvent[
+              curTra[a, b, True][x[s], y[s]] < 0,
+              "StopIntegration"
+            ]
+          },
+          {x, y},
+          {s, sConvexLower, 6}
+          , NoExtrapolation
+        ]
+      ]
+      , {xInit, xInitList}
+    ]
+  ];
+
+
 (* ::Section:: *)
 (*Known solution*)
 
@@ -5730,3 +5817,199 @@ Module[
       }
   ]
 ] // Ex["cosine_general-critical.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: General case traced boundary convex portions (cosine_general-traced-convex_portions.pdf)*)
+
+
+Module[
+  {
+    a, b,
+    yReflection, includeYReflection,
+    textStyle,
+    xMin, xMax, yMax,
+    margin,
+    xMinNon, xMaxNon, yMaxNon,
+    yMaxCont,
+    xyInflectionOuter,
+    sInflectionOuterLabel, xInflectionOuterLabel, yInflectionOuterLabel,
+    xyInflectionInner,
+    sInflectionInnerLabel, xInflectionInnerLabel, yInflectionInnerLabel,
+    xyTracedLeftmost,
+    sTracedLeftmostLabel, xTracedLeftmostLabel, yTracedLeftmostLabel,
+    dummyForTrailingCommas
+  },
+  (* Values of A and B *)
+  a = aAsymm;
+  b = bAsymm;
+  (* Reflection in y (across x-axis) *)
+  yReflection = # * {1, -1} &;
+  includeYReflection = {#, yReflection[#]} &;
+  (* Text style *)
+  textStyle = Style[#, 12] & @* LaTeXStyle;
+  (* Plot range *)
+  xMin = Floor[0.9 xFlat[a, b], 0.2];
+  xMax = Ceiling[1.1 xSharp[a, b], 0.2];
+  yMax = Ceiling[0.9 (xMax - xMin), 0.2];
+  (* Absolute plot range margin *)
+  margin = 0.1;
+  (* Plot range for non-viable domain *)
+  xMinNon = xMin - margin;
+  xMaxNon = xMax + margin;
+  yMaxNon = (
+    Table[
+      SeekRoot[vi[a, b][x, #] &, {0, yMax}]
+      , {x, {xMin, xMax}}
+    ]
+      // Max[#] + margin &
+  );
+  (* Plot range for straight contour *)
+  yMaxCont = yMax + margin;
+  (* Plot *)
+  Show[
+    EmptyFrame[{xMin, xMax}, {-yMax, yMax}
+      , ImageSize -> 240
+      , LabelStyle -> LatinModernLabelStyle[12]
+    ],
+    (* Inflection frontiers *)
+    Table[
+      ParametricPlot[
+        xy[s] (* lower branch *)
+          // Through
+          // includeYReflection (* upper branch *)
+          // Evaluate
+          ,
+        {s, DomainStart[xy], DomainEnd[xy]}
+        , PlotStyle -> BoundaryTracingStyle["BackgroundDarker"]
+        , PlotPoints -> 2
+      ]
+      , {xy, asymmInflectionFrontierList}
+    ],
+    (* Inflection frontier labels (outer) *)
+    xyInflectionOuter = asymmInflectionFrontierList // Last;
+    xInflectionOuterLabel = Way[xMin, xStraight, 0.5];
+    sInflectionOuterLabel = SeekRoot[
+      xyInflectionOuter[[1]][#] - xInflectionOuterLabel &,
+      {DomainStart[xyInflectionOuter], DomainEnd[xyInflectionOuter]}
+    ];
+    yInflectionOuterLabel = xyInflectionOuter[[2]] @ sInflectionOuterLabel;
+    Graphics @ {Gray,
+      Text[
+        "lower inflects" // textStyle
+        , {xInflectionOuterLabel, yInflectionOuterLabel}
+        , {0, -1.2}
+        , -ParametricTangent[xyInflectionOuter, sInflectionOuterLabel]
+      ],
+      Text[
+        "upper inflects" // textStyle
+        , {xInflectionOuterLabel, yInflectionOuterLabel} // yReflection
+        , {0, 0.8}
+        , -ParametricTangent[xyInflectionOuter, sInflectionOuterLabel] // yReflection
+      ],
+      {}
+    },
+    (* Inflection frontier labels (inner) *)
+    xyInflectionInner = asymmInflectionFrontierList // First;
+    xInflectionInnerLabel = Way[xFlatAsymm, xInflAxis, 0.28];
+    sInflectionInnerLabel = SeekRoot[
+      xyInflectionInner[[2]]'[#] &,
+      {DomainStart[xyInflectionInner], DomainEnd[xyInflectionInner]}
+    ];
+    {xInflectionInnerLabel, yInflectionInnerLabel} =
+      xyInflectionInner[sInflectionInnerLabel] // Through;
+    Graphics @ {Gray,
+      Text[
+        "lower" // textStyle
+        , {xInflectionInnerLabel, yInflectionInnerLabel}
+        , {0, 0.8}
+      ],
+      Text[
+        "inflects" // textStyle
+        , {xInflectionInnerLabel, yInflectionInnerLabel}
+        , {0, 2.1}
+      ],
+      Text[
+        "upper" // textStyle
+        , {xInflectionInnerLabel, yInflectionInnerLabel} // yReflection
+        , {0, -2.7}
+      ],
+      Text[
+        "inflects" // textStyle
+        , {xInflectionInnerLabel, yInflectionInnerLabel} // yReflection
+        , {0, -1.2}
+      ],
+      {}
+    },
+    (* Non-viable domain *)
+    RegionPlot[
+      vi[a, b][x, y] < 0
+      , {x, xMinNon, xMaxNon}
+      , {y, -yMaxNon, yMaxNon}
+      , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
+      , PlotPoints -> 12
+      , PlotStyle -> BoundaryTracingStyle["NonViable"]
+    ],
+    (* Convex portions of traced boundaries *)
+    Table[
+      ParametricPlot[
+        xy[s] (* upper branch *)
+          // Through
+          // includeYReflection (* lower branch *)
+          // Evaluate
+          ,
+        {s, DomainStart[xy], DomainEnd[xy]}
+        , PlotStyle -> BoundaryTracingStyle["Traced"]
+        , PlotPoints -> 2
+      ]
+      , {xy, asymmConvexPortionsList}
+    ],
+    (* Traced boundary labels *)
+    xyTracedLeftmost = asymmConvexPortionsList // First;
+    sTracedLeftmostLabel =
+      Way[DomainStart[xyTracedLeftmost], DomainEnd[xyTracedLeftmost], 0.63];
+    {xTracedLeftmostLabel, yTracedLeftmostLabel} =
+      xyTracedLeftmost[sTracedLeftmostLabel] // Through;
+    Graphics @ {
+      Text[
+        "upper branch" // textStyle
+        , {xTracedLeftmostLabel, yTracedLeftmostLabel}
+        , {0, 0.7}
+        , ParametricTangent[xyTracedLeftmost, sTracedLeftmostLabel]
+      ],
+      Text[
+        "lower branch" // textStyle
+        , {xTracedLeftmostLabel, yTracedLeftmostLabel} // yReflection
+        , {0, -1.2}
+        , ParametricTangent[xyTracedLeftmost, sTracedLeftmostLabel] // yReflection
+      ],
+      {}
+    },
+    (* Straight contour *)
+    ParametricPlot[
+      {xStraight, y},
+      {y, -yMaxCont, yMaxCont}
+      , PlotPoints -> 2
+      , PlotStyle -> BoundaryTracingStyle["Contour"]
+    ],
+    (* Critical terminal points *)
+    Graphics @ {GeneralStyle["Point"], PointSize[Medium],
+      Point @ {{N @ xFlatAsymm, 0}, {N @ xSharpAsymm, 0}}
+    },
+    Graphics @ {
+      Text[
+        Subscript[Italicise["x"], "\[Flat]"] // textStyle
+        , {N @ xFlatAsymm, 0}
+        , {-2, -0.1}
+      ]
+    },
+    Graphics @ {
+      Text[
+        Subscript[Italicise["x"], "\[Sharp]"] // textStyle
+        , {N @ xSharpAsymm, 0}
+        , {2, -0.25}
+      ]
+    },
+    {}
+  ]
+] // Ex["cosine_general-traced-convex_portions.pdf"];
