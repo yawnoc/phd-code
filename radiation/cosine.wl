@@ -4784,6 +4784,10 @@ Module[
 (*Figure: Simple case (un)physical region and (non-)viable domain (cosine_simple-physical-viable.pdf)*)
 
 
+(* ::Subsection:: *)
+(*Main figure*)
+
+
 Module[
  {b,
   aStep, aValues,
@@ -4918,6 +4922,36 @@ Module[
     Spacings -> 0
   ]
 ] // Ex["cosine_simple-physical-viable.pdf"]
+
+
+(* ::Subsection:: *)
+(*Legend*)
+
+
+Module[
+  {
+    latinModernStyle,
+    regions, curves,
+    dummyForTrailingCommas
+  },
+  latinModernStyle = LatinModernLabelStyle[14];
+  regions =
+    RegionLegend[
+      BoundaryTracingStyle /@ {"NonViable", "Unphysical"},
+      {"non\[Hyphen]viable domain", "unphysical region"}
+      , LabelStyle -> LatinModernLabelStyle[14]
+    ];
+  curves =
+    CurveLegend[
+      BoundaryTracingStyle /@ {"Terminal", "BackgroundDarker"},
+      {"terminal curve", Row @ {Italicise["T"], "\[Hyphen]contour"}}
+      , LabelStyle -> LatinModernLabelStyle[14]
+    ];
+  Grid[{regions, curves}
+    , Alignment -> Left
+    , Spacings -> {6, -1}
+  ]
+] // Ex["cosine_simple-physical-viable-legend.pdf"]
 
 
 (* ::Section:: *)
