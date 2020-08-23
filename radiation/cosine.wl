@@ -4626,10 +4626,6 @@ Module[{a, b, source, tSol, mesh, dest},
 (*Figure: (Un)physical region (cosine-physical.pdf)*)
 
 
-(* ::Subsection:: *)
-(*Main figure*)
-
-
 Module[
  {bStep, bValues, bMax,
   xMin, xMax, yMax, imageSize,
@@ -4641,7 +4637,10 @@ Module[
   plotList,
   textStyle, arrowStyle,
   parameterArrow,
-  xGraphicsBTick
+  xGraphicsBTick,
+  legendLabelStyle,
+  legendRegions, legendCurves,
+  dummyForTrailingCommas
  },
   (* Values of B *)
   bStep = 3/10;
@@ -4737,47 +4736,36 @@ Module[
       ImageSize -> 1.85 imageSize,
       PlotRange -> All
     ];
-  (* Final figure *)
-  Column[
-    {
-      GraphicsRow[
-        plotList,
-        Spacings -> {0.2 imageSize, 0}
-      ],
-      parameterArrow
-    },
-    Spacings -> 0
-  ]
-] // Ex["cosine-physical.pdf"]
-
-
-(* ::Subsection:: *)
-(*Legend*)
-
-
-Module[
-  {
-    latinModernStyle,
-    regions, curves,
-    dummyForTrailingCommas
-  },
-  latinModernStyle = LatinModernLabelStyle[14];
-  regions =
+  (* Legend *)
+  legendLabelStyle = LatinModernLabelStyle[12];
+  legendRegions =
     RegionLegend[
       {BoundaryTracingStyle["Unphysical"]},
       {"unphysical region"}
-      , LabelStyle -> LatinModernLabelStyle[14]
+      , LabelStyle -> legendLabelStyle
+      , LegendMarkerSize -> 14
     ];
-  curves =
+  legendCurves =
     CurveLegend[
       {BoundaryTracingStyle["BackgroundDarker"]},
       {Row @ {Italicise["T"], "\[Hyphen]contour"}}
-      , LabelStyle -> LatinModernLabelStyle[14]
+      , LabelStyle -> legendLabelStyle
     ];
-  Grid[List @ Join[regions, curves]
-    , Spacings -> {4, 0}
+  (* Final figure *)
+  Column[
+    {
+      Column[
+        {
+          GraphicsRow[plotList, Spacings -> {0.2 imageSize, 0}],
+          parameterArrow
+        }
+        , Spacings -> 0
+      ],
+      Grid[List @ Join[legendRegions, legendCurves], Spacings -> {4, 0}]
+    }
+    , Alignment -> Center
   ]
-] // Ex["cosine-physical-legend.pdf"]
+] // Ex["cosine-physical.pdf"]
 
 
 (* ::Section:: *)
