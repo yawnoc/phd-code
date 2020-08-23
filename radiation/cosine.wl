@@ -4772,10 +4772,6 @@ Module[
 (*Figure: Simple case (un)physical region and (non-)viable domain (cosine_simple-physical-viable.pdf)*)
 
 
-(* ::Subsection:: *)
-(*Main figure*)
-
-
 Module[
  {b,
   aStep, aValues,
@@ -4789,7 +4785,10 @@ Module[
   plotList,
   textStyle, arrowStyle,
   parameterArrow,
-  xGraphicsATick
+  xGraphicsATick,
+  legendLabelStyle,
+  legendRegions, legendCurves,
+  dummyForTrailingCommas
  },
   (* Value of B *)
   b = 1;
@@ -4898,48 +4897,38 @@ Module[
       ImageSize -> 1.85 imageSize,
       PlotRange -> All
     ];
-  (* Final figure *)
-  Column[
-    {
-      GraphicsRow[
-        plotList,
-        Spacings -> {0.2 imageSize, 0}
-      ],
-      parameterArrow
-    },
-    Spacings -> 0
-  ]
-] // Ex["cosine_simple-physical-viable.pdf"]
-
-
-(* ::Subsection:: *)
-(*Legend*)
-
-
-Module[
-  {
-    latinModernStyle,
-    regions, curves,
-    dummyForTrailingCommas
-  },
-  latinModernStyle = LatinModernLabelStyle[14];
-  regions =
+  (* Legend *)
+  legendLabelStyle = LatinModernLabelStyle[11];
+  legendRegions =
     RegionLegend[
       BoundaryTracingStyle /@ {"NonViable", "Unphysical"},
       {"non\[Hyphen]viable domain", "unphysical region"}
-      , LabelStyle -> LatinModernLabelStyle[14]
+      , LabelStyle -> legendLabelStyle
     ];
-  curves =
+  legendCurves =
     CurveLegend[
       BoundaryTracingStyle /@ {"Terminal", "BackgroundDarker"},
       {"terminal curve", Row @ {Italicise["T"], "\[Hyphen]contour"}}
-      , LabelStyle -> LatinModernLabelStyle[14]
+      , LabelStyle -> legendLabelStyle
     ];
-  Grid[{regions, curves}
-    , Alignment -> Left
-    , Spacings -> {6, -1}
+  (* Final figure *)
+  Column[
+    {
+      Column[
+        {
+          GraphicsRow[plotList, Spacings -> {0.2 imageSize, 0}],
+          parameterArrow
+        }
+        , Spacings -> 0
+      ],
+      Grid[{legendRegions, legendCurves}
+        , Alignment -> Left
+        , Spacings -> {6, -1}
+      ]
+    }
+    , Alignment -> Center
   ]
-] // Ex["cosine_simple-physical-viable-legend.pdf"]
+] // Ex["cosine_simple-physical-viable.pdf"]
 
 
 (* ::Section:: *)
