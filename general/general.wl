@@ -206,7 +206,7 @@ Module[
   x0, y0, u0, v0,
   du, dv,
   xLeft, xRight, yTop, yBottom,
-  contourStyle, originalStyle, displacedStyle,
+  originalStyle, displacedStyle,
   orthogonalityMarkerLength, orthogonalityMarkerStyle,
   basisVectorLength, basisVectorStyle,
   textStyle,
@@ -254,12 +254,11 @@ Module[
   yTop = 0.3;
   yBottom = 0.3;
   (* Styles *)
-  contourStyle = Black;
-  originalStyle = contourStyle;
-  displacedStyle = Directive[contourStyle, Dashed];
+  originalStyle = Black;
+  displacedStyle = BoundaryTracingStyle["Contour"];
   orthogonalityMarkerLength = 0.02;
   orthogonalityMarkerStyle = Directive[
-    EdgeForm[contourStyle],
+    EdgeForm[Black],
     FaceForm[None]
   ];
   basisVectorLength = 0.13;
