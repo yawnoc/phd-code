@@ -4737,7 +4737,7 @@ Module[
       PlotRange -> All
     ];
   (* Legend *)
-  legendLabelStyle = LatinModernLabelStyle[12];
+  legendLabelStyle = LatinModernLabelStyle[11];
   legendRegions =
     RegionLegend[
       {BoundaryTracingStyle["Unphysical"]},

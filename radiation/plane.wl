@@ -695,17 +695,20 @@ Module[
     ]
   , {id, patchedIdList}];
   (* Legend *)
-  legendLabelStyle = LatinModernLabelStyle[14];
+  legendLabelStyle = LatinModernLabelStyle[15];
   legendCurves =
     CurveLegend[
       BoundaryTracingStyle @* ReleaseHold /@
         {"Traced", "Contour", Hold @ Sequence["Terminal", "BackgroundDarker"]},
       {"radiation", "constant temperature", "critical terminal curve"}
-      , LabelStyle -> LatinModernLabelStyle[14]
+      , LabelStyle -> legendLabelStyle
     ];
   (* Combine *)
-  Column @ {
-    GraphicsRow[plotList, Spacings -> {0.5 imageSize, Automatic}],
-    Grid[{legendCurves}, Spacings -> {{0, 1, 3}, 0}]
-  }
+  Column[
+    {
+      GraphicsRow[plotList, Spacings -> {0.5 imageSize, Automatic}],
+      Grid[{legendCurves}, Spacings -> {1, 0}]
+    }
+    , Alignment -> Center
+  ]
 ] // Ex["plane-domains.pdf"]
