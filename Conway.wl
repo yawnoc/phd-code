@@ -65,6 +65,7 @@ ClearAll["Conway`*`*"];
 
 {
   BoxedLabel,
+  CurveLegend,
   DefaultColours,
   DeleteNearbyPoints,
   DomainEnd,
@@ -87,6 +88,7 @@ ClearAll["Conway`*`*"];
   PlotOptions,
   PreciseOptions,
   PrettyString,
+  RegionLegend,
   ReInterpolate,
   SeekFirstRootBisection,
   SeekParametricIntersection,
@@ -124,6 +126,35 @@ BoxedLabel::usage = (
 
 BoxedLabel[expr_, opts : OptionsPattern[Framed]] :=
   Framed[expr, ImageMargins -> {{0, 0}, {10, 0}}, opts];
+
+
+(* ::Subsubsection:: *)
+(*CurveLegend*)
+
+
+CurveLegend::usage = (
+  "CurveLegend[styleList, labelList, opts]\n"
+  <> "Returns list of individual LineLegends for each {style, label} pair. "
+  <> "To be used in Grid."
+);
+
+
+CurveLegend[
+  styleList_List, labelList_List,
+  opts : OptionsPattern[LineLegend]
+] :=
+  Module[{nMax, style, label},
+    nMax = Length /@ {styleList, labelList} // Min;
+    Table[
+      style = styleList[[n]];
+      label = labelList[[n]];
+      LineLegend[{style}, {label}
+        , opts
+        , LegendMarkerSize -> {48, 16}
+      ]
+    , {n, nMax}
+    ]
+  ];
 
 
 (* ::Subsubsection:: *)
@@ -694,6 +725,35 @@ PrettyString::usage = (
 
 PrettyString[ruleSeq___Rule][expr_] :=
   expr /. s_String :> StringReplace[s, {ruleSeq}];
+
+
+(* ::Subsubsection:: *)
+(*RegionLegend*)
+
+
+RegionLegend::usage = (
+  "RegionLegend[styleList, labelList, opts]\n"
+  <> "Returns list of individual SwatchLegends for each {style, label} pair. "
+  <> "To be used in Grid."
+);
+
+
+RegionLegend[
+  styleList_List, labelList_List,
+  opts : OptionsPattern[SwatchLegend]
+] :=
+  Module[{nMax, style, label},
+    nMax = Length /@ {styleList, labelList} // Min;
+    Table[
+      style = styleList[[n]];
+      label = labelList[[n]];
+      SwatchLegend[{style}, {label}
+        , opts
+        , LegendMarkerSize -> 16
+      ]
+    , {n, nMax}
+    ]
+  ];
 
 
 (* ::Subsubsection:: *)
