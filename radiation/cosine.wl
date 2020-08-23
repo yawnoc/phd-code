@@ -6015,6 +6015,10 @@ Module[
 ] // Ex["cosine_general-traced-convex_portions.pdf"]
 
 
+(* ::Section:: *)
+(*Figure: General case asymmetric convex domain (cosine_general-traced-convex_domain.pdf)*)
+
+
 Module[
   {
     a, b,
