@@ -83,6 +83,7 @@ ClearAll["Conway`*`*"];
   ModuleSymbol,
   NoExtrapolation,
   OffsetCharacterCode,
+  ParametricTangent,
   PlotOptions,
   PreciseOptions,
   PrettyString,
@@ -617,6 +618,21 @@ OffsetCharacterCode[initial_, ""] :=
 
 OffsetCharacterCode[initial_, final_String] :=
   OffsetCharacterCode[initial, First @ ToCharacterCode[final]];
+
+
+(* ::Subsubsection:: *)
+(*ParametricTangent*)
+
+
+ParametricTangent::usage = (
+  "ParametricTangent[{x, y, ...}, s]\n"
+  <> "Returns (un-normalised) tangent vector of {x, y, ...} evaluated at s."
+  <> "To be used for rotation of Text labelling a parametric curve."
+);
+
+
+ParametricTangent[funList_List, s_] :=
+  Table[fun'[s], {fun, funList}];
 
 
 (* ::Subsubsection:: *)
