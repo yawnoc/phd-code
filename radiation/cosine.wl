@@ -6013,3 +6013,68 @@ Module[
     {}
   ]
 ] // Ex["cosine_general-traced-convex_portions.pdf"]
+
+
+Module[
+  {
+    a, b,
+    yReflection, includeYReflection,
+    xMin, xMax, yMax,
+    margin,
+    yTop, yBottom,
+    dummyForTrailingCommas
+  },
+  (* Values of A and B *)
+  a = aAsymm;
+  b = bAsymm;
+  (* Reflection in y (across x-axis) *)
+  yReflection = # * {1, -1} &;
+  includeYReflection = {#, yReflection[#]} &;
+  (* Plot range *)
+  xMin = Floor[0.9 xFlat[a, b], 0.2];
+  xMax = Ceiling[1.1 xSharp[a, b], 0.2];
+  yMax = Ceiling[0.9 (xMax - xMin), 0.2];
+  (* Absolute plot range margin *)
+  margin = 0.1;
+  (* Endpoints for constant temperature boundary *)
+  yTop = xyTraAsymm["lower"][[2]] @ DomainStart @ xyTraAsymm["lower"];
+  yBottom = xyTraAsymm["upper"][[2]] @ DomainEnd @ xyTraAsymm["upper"];
+  (* Plot *)
+  Show[
+    EmptyFrame[{xMin, xMax}, {-yMax, yMax}
+      , ImageSize -> 240
+      , LabelStyle -> LatinModernLabelStyle[12]
+    ],
+    (* Inflection frontiers *)
+    Table[
+      ParametricPlot[
+        xy[s] (* lower branch *)
+          // Through
+          // includeYReflection (* upper branch *)
+          // Evaluate
+          ,
+        {s, DomainStart[xy], DomainEnd[xy]}
+        , PlotStyle -> BoundaryTracingStyle["Background"]
+        , PlotPoints -> 2
+      ]
+      , {xy, asymmInflectionFrontierList}
+    ],
+    (* Straight contour *)
+    ParametricPlot[
+      {xStraight, y},
+      {y, yTop, yBottom}
+      , PlotPoints -> 2
+      , PlotStyle -> BoundaryTracingStyle["Contour"]
+    ],
+    (* Domain radiation boundaries *)
+    Table[
+      ParametricPlot[
+        xyTraAsymm[id][s] // Through,
+        {s, DomainStart @ xyTraAsymm[id], DomainEnd @ xyTraAsymm[id]}
+        , PlotStyle -> BoundaryTracingStyle["Traced"]
+      ]
+      , {id, {"upper", "lower"}}
+    ],
+    {}
+  ]
+] // Ex["cosine_general-traced-convex_domain.pdf"]
