@@ -185,7 +185,7 @@ Module[
   curves =
     CurveLegend[
       BoundaryTracingStyle /@ {"Terminal", "Contour", "Traced"},
-      {"terminal curve", Row @ {Italicise["T"], "\[Hyphen]contour"}, "traced boundaries"}
+      {"terminal curve", Row @ {Italicise["T"], "\[Hyphen]contour"}, "traced boundary"}
       , LabelStyle -> LatinModernLabelStyle[14]
     ];
   regions = (
