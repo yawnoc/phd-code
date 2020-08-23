@@ -4626,6 +4626,10 @@ Module[{a, b, source, tSol, mesh, dest},
 (*Figure: (Un)physical region (cosine-physical.pdf)*)
 
 
+(* ::Subsection:: *)
+(*Main figure*)
+
+
 Module[
  {bStep, bValues, bMax,
   xMin, xMax, yMax, imageSize,
@@ -4745,6 +4749,35 @@ Module[
     Spacings -> 0
   ]
 ] // Ex["cosine-physical.pdf"]
+
+
+(* ::Subsection:: *)
+(*Legend*)
+
+
+Module[
+  {
+    latinModernStyle,
+    regions, curves,
+    dummyForTrailingCommas
+  },
+  latinModernStyle = LatinModernLabelStyle[14];
+  regions =
+    RegionLegend[
+      {BoundaryTracingStyle["Unphysical"]},
+      {"unphysical region"}
+      , LabelStyle -> LatinModernLabelStyle[14]
+    ];
+  curves =
+    CurveLegend[
+      {BoundaryTracingStyle["BackgroundDarker"]},
+      {Row @ {Italicise["T"], "\[Hyphen]contour"}}
+      , LabelStyle -> LatinModernLabelStyle[14]
+    ];
+  Grid[List @ Join[regions, curves]
+    , Spacings -> {4, 0}
+  ]
+] // Ex["cosine-physical-legend.pdf"]
 
 
 (* ::Section:: *)
