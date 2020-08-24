@@ -6129,13 +6129,14 @@ Module[
 
 
 (* ::Section:: *)
-(*Figure: General case asymmetric convex domain (cosine_general-traced-asymmetric_domain.pdf)*)
+(*Figure: General case asymmetric convex domain (cosine_general-asymmetric_domain.pdf)*)
 
 
 Module[
   {
     a, b,
     yReflection, includeYReflection,
+    textStyle,
     xMin, xMax, yMax,
     margin,
     yTop, yBottom,
@@ -6147,6 +6148,8 @@ Module[
   (* Reflection in y (across x-axis) *)
   yReflection = # * {1, -1} &;
   includeYReflection = {#, yReflection[#]} &;
+  (* Text style *)
+  textStyle = Style[#, 12] & @* LaTeXStyle;
   (* Plot range *)
   xMin = Floor[0.9 xFlat[a, b], 0.2];
   xMax = Ceiling[1.1 xSharp[a, b], 0.2];
@@ -6192,6 +6195,15 @@ Module[
       ]
       , {id, {"upper", "lower"}}
     ],
+    (* Straight contour label *)
+    Graphics @ {
+      Text[
+        xIt == SeparatedRow["VeryThin"]["\[Pi]", "/", 2] // textStyle
+        , {xStraight, 0}
+        , {0, 1}
+        , {0, 1}
+      ]
+    },
     {}
   ]
-] // Ex["cosine_general-traced-asymmetric_domain.pdf"]
+] // Ex["cosine_general-asymmetric_domain.pdf"]
