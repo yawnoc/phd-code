@@ -5848,6 +5848,9 @@ Module[
     bMin, bMax,
     xMin, xMax, xMaxFilling,
     xFillingFunction,
+    visiblePlotStyles, plot,
+    legendLabelStyleCurves, legendLabelStyleRegions,
+    legendCurves, legendRegions,
     dummyForTrailingCommas
   },
   (* Value of A *)
@@ -5869,7 +5872,8 @@ Module[
       {Indeterminate, True}
     };
   (* Plot *)
-  Plot[
+  visiblePlotStyles = {Black, Directive[Black, Dashed]};
+  plot = Plot[
     {xSharp[a, b], xFlat[a, b], xFillingFunction[b]}
     , {b, bMin, bMax}
     , AspectRatio -> 1 / 1.5
@@ -5887,22 +5891,38 @@ Module[
     , FillingStyle -> BoundaryTracingStyle["NonViable"]
     , ImageSize -> 240
     , LabelStyle -> LatinModernLabelStyle[16]
-    , PlotLegends -> Placed[
-        {
-          xIt == Subscript[xIt, "\[Sharp]"],
-          xIt == Subscript[xIt, "\[Flat]"],
-          Nothing
-        },
-        After
-      ]
     , PlotRange -> {xMin, xMax}
     , PlotRangeClipping -> False
-    , PlotStyle -> {Black, Directive[Black, Dashed], None}
+    , PlotStyle -> Append[visiblePlotStyles, None]
     , Ticks -> {
         {0, {bN, Subscript[bIt, "\[Natural]"]}, 1},
         {0, {xN, Subscript[xIt, "\[Natural]"]}}
       }
-  ]
+  ];
+  (* Legend *)
+  legendLabelStyleCurves = LatinModernLabelStyle[16];
+  legendLabelStyleRegions = LatinModernLabelStyle[12];
+  legendCurves =
+    CurveLegend[
+      visiblePlotStyles,
+      TraditionalForm[Row @ {xIt, Spacer[2.5]} == Subscript[xIt, #]] &
+        /@ {"\[Sharp]", "\[Flat]"}
+      , LabelStyle -> legendLabelStyleCurves
+    ];
+  legendRegions =
+    RegionLegend[
+      BoundaryTracingStyle /@ {"NonViable"},
+      {"non\[Hyphen]viable"}
+      , LabelStyle -> legendLabelStyleRegions
+    ];
+  (* Combined *)
+  Grid @ {{
+    plot,
+    Grid[
+      Transpose @ {Join[legendCurves, legendRegions]}
+      , Spacings -> {Automatic, {{-1.2}, -0.6, Automatic}}
+    ]
+  }}
 ] // Ex["cosine_general-critical.pdf"]
 
 
