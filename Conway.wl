@@ -82,6 +82,7 @@ ClearAll["Conway`*`*"];
   LatinModernFontStyle,
   LaTeXStyle,
   ModuleSymbol,
+  NodeLegend,
   NoExtrapolation,
   OffsetCharacterCode,
   ParametricTangent,
@@ -591,6 +592,34 @@ ModuleSymbol::usage = (
 
 ModuleSymbol[name_String, num_Integer] :=
   Symbol @ StringJoin[name, "$", ToString[num]];
+
+
+(* ::Subsubsection:: *)
+(*NodeLegend*)
+
+
+NodeLegend::usage = (
+  "NodeLegend[styleList, labelList, opts]\n"
+  <> "Returns list of individual PointLegends for each {style, label} pair. "
+  <> "To be used in Grid."
+);
+
+
+NodeLegend[
+  styleList_List, labelList_List,
+  opts : OptionsPattern[PointLegend]
+] :=
+  Module[{nMax, style, label},
+    nMax = Length /@ {styleList, labelList} // Min;
+    Table[
+      style = styleList[[n]];
+      label = labelList[[n]];
+      PointLegend[{style}, {label}
+        , opts
+      ]
+    , {n, nMax}
+    ]
+  ];
 
 
 (* ::Subsubsection:: *)
