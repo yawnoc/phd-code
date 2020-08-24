@@ -5370,6 +5370,8 @@ Module[
     textStyle, arrowStyle,
     parameterArrow,
     xGraphicsAInfl, xGraphicsA1,
+    legendLabelStyle,
+    legendCurves, legendNodes,
     dummyForTrailingCommas
    },
   (* Value of B *)
@@ -5503,24 +5505,39 @@ Module[
       , ImageSize -> 4.2 imageSize
       , PlotRange -> All
     ];
+  (* Legend *)
+  legendLabelStyle = LatinModernLabelStyle[15];
+  legendCurves =
+    CurveLegend[
+      BoundaryTracingStyle /@ {"Traced", "Contour"},
+      {"radiation", "constant temperature"}
+      , LabelStyle -> legendLabelStyle
+    ];
+  legendNodes =
+    NodeLegend[
+      {Automatic},
+      {"inflection"}
+      , LabelStyle -> legendLabelStyle
+      , LegendMarkerSize -> 13
+    ];
   (* Final figure *)
-  Column[
-    {
-      Row @ {
-        GraphicsRow[
-          plotList
-          , Spacings -> {3.2 imageSize, 0}
-        ],
-        (* Adjust horizontal position *)
+  Grid @ {{
+    Column[
+      {
         Row @ {
-          Graphics[ImageSize -> 0.5 imageSize]
-        }
-      },
-      parameterArrow
-    }
+          GraphicsRow[plotList, Spacings -> {3.2 imageSize, 0}],
+          Row @ {Graphics[ImageSize -> 0.5 imageSize]}
+        },
+        parameterArrow
+      }
     , Center
     , Spacings -> 0
-  ]
+    ],
+    Column[
+      Join[legendCurves, legendNodes, {Spacer @ {0, 73}}]
+      , Spacings -> -0.5
+    ]
+  }}
 ] // Ex["cosine_simple-candidate-domains.pdf"]
 
 
