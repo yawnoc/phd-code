@@ -2203,13 +2203,14 @@ asymmConvexPortionsList =
     a = aAsymm;
     b = bAsymm;
     xInitList = Subdivide[xInflStraight, xInflAxis, 4];
+    xInitList = Append[xInitList, xSharpAsymm];
     Table[
       With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
         (*
           NOTE: WhenEvent detection doesn't work at the initial point,
           hence the If hack.
         *)
-        sConvexLower = If[xInit == Last[xInitList], 0, -6];
+        sConvexLower = If[xInit >= xInflAxis, 0, -6];
         NDSolveValue[
           {
             xyTraSystem[a, b],
@@ -5961,7 +5962,7 @@ Module[
   {
     a, b,
     yReflection, includeYReflection,
-    textStyle,
+    textStyle, textStylePoint,
     xMin, xMax, yMax,
     margin,
     xMinNon, xMaxNon, yMaxNon,
@@ -5982,6 +5983,7 @@ Module[
   includeYReflection = {#, yReflection[#]} &;
   (* Text style *)
   textStyle = Style[#, 12] & @* LaTeXStyle;
+  textStylePoint = Style[#, 16] & @* LaTeXStyle;
   (* Plot range *)
   xMin = Floor[0.9 xFlat[a, b], 0.2];
   xMax = Ceiling[1.1 xSharp[a, b], 0.2];
@@ -6129,6 +6131,28 @@ Module[
         , {xStraight, -Way[yInflectionOuterLabel, yMax, 2/3]}
         , {0, -1.2}
         , {0, 1}
+      ]
+    },
+    (* Critical terminal point (x_\[Flat], 0) *)
+    Graphics @ {GeneralStyle["Point"],
+      Point @ {N @ xFlatAsymm, 0}
+    },
+    Graphics @ {
+      Text[
+        Subscript[Italicise["x"], "\[Flat]"] // textStylePoint
+        , {N @ xFlatAsymm, 0}
+        , {-1.8, -0.55}
+      ]
+    },
+    (* Critical terminal point (x_\[Sharp], 0) *)
+    Graphics @ {GeneralStyle["Point"],
+      Point @ {N @ xSharpAsymm, 0}
+    },
+    Graphics @ {
+      Text[
+        Subscript[Italicise["x"], "\[Sharp]"] // textStylePoint
+        , {N @ xSharpAsymm, 0}
+        , {1.8, -0.55}
       ]
     },
     {}
