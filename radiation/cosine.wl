@@ -6114,11 +6114,19 @@ Module[
       ],
       {}
     },
-    (* Straight contour label *)
+    (* Straight contour and constant temperature labels *)
     Graphics @ {
       Text[
         xIt == SeparatedRow["VeryThin"]["\[Pi]", "/", 2] // textStyle
         , {xStraight, Way[yInflectionOuterLabel, yMax, 2/3]}
+        , {0, -1.2}
+        , {0, 1}
+      ]
+    },
+    Graphics @ {
+      Text[
+        Italicise["T"] == 1 // textStyle
+        , {xStraight, -Way[yInflectionOuterLabel, yMax, 2/3]}
         , {0, -1.2}
         , {0, 1}
       ]
@@ -6195,11 +6203,19 @@ Module[
       ]
       , {id, {"upper", "lower"}}
     ],
-    (* Straight contour label *)
+    (* Straight contour and constant temperature labels *)
     Graphics @ {
       Text[
         xIt == SeparatedRow["VeryThin"]["\[Pi]", "/", 2] // textStyle
-        , {xStraight, 0}
+        , {xStraight, Way[yBottom, yTop, 7/10]}
+        , {0, 1}
+        , {0, 1}
+      ]
+    },
+    Graphics @ {
+      Text[
+        Italicise["T"] == 1 // textStyle
+        , {xStraight, Way[yBottom, yTop, 3/10]}
         , {0, 1}
         , {0, 1}
       ]
