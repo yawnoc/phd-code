@@ -5955,7 +5955,11 @@ Module[
 
 
 (* ::Section:: *)
-(*Figure: General case traced boundary convex portions (cosine_general-traced-boundaries-convex.pdf)*)
+(*Figure: General case asymmetric convex domain construction (cosine_general-asymmetric-construction)*)
+
+
+(* ::Subsection:: *)
+(*General case traced boundary convex portions (cosine_general-traced-boundaries-convex.pdf)*)
 
 
 Module[
@@ -6160,8 +6164,8 @@ Module[
 ] // Ex["cosine_general-traced-boundaries-convex.pdf"]
 
 
-(* ::Section:: *)
-(*Figure: General case asymmetric convex domain (cosine_general-asymmetric_domain.pdf)*)
+(* ::Subsection:: *)
+(*General case asymmetric convex domain (cosine_general-asymmetric_domain.pdf)*)
 
 
 Module[
@@ -6247,3 +6251,41 @@ Module[
     {}
   ]
 ] // Ex["cosine_general-asymmetric_domain.pdf"]
+
+
+(* ::Subsection:: *)
+(*Legend (cosine_general-asymmetric-construction-legend.pdf)*)
+
+
+Module[
+  {
+    legendLabelStyle,
+    topRow, bottomRow,
+    dummyForTrailingCommas
+  },
+  legendLabelStyle = LatinModernLabelStyle[16];
+  topRow =
+    CurveLegend[
+      BoundaryTracingStyle /@ {"Background", "Traced", "Contour"},
+      {"inflection frontier", "traced boundary (radiation)", "constant temperature"}
+      , LabelStyle -> legendLabelStyle
+    ];
+  bottomRow = Join[
+    RegionLegend[
+      BoundaryTracingStyle /@ {"NonViable"},
+      {"non\[Hyphen]viable domain"}
+      , LabelStyle -> legendLabelStyle
+    ],
+    CurveLegend[
+      BoundaryTracingStyle /@ {"Terminal"},
+      {"terminal curve"}
+      , LabelStyle -> legendLabelStyle
+    ],
+    {}
+  ];
+  (* Combine *)
+  Grid[{topRow, bottomRow}
+    , Alignment -> Left
+    , Spacings -> {1.4, -1}
+  ]
+] // Ex["cosine_general-asymmetric-construction-legend.pdf"]
