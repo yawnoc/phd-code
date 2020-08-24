@@ -5954,7 +5954,7 @@ Module[
 
 
 (* ::Section:: *)
-(*Figure: General case traced boundary convex portions (cosine_general-traced-convex_portions.pdf)*)
+(*Figure: General case traced boundary convex portions (cosine_general-traced-boundaries-convex.pdf)*)
 
 
 Module[
@@ -6030,16 +6030,14 @@ Module[
     yInflectionOuterLabel = xyInflectionOuter[[2]] @ sInflectionOuterLabel;
     Graphics @ {Gray,
       Text[
-        "lower inflects" // textStyle
+        "lower" // textStyle
         , {xInflectionOuterLabel, yInflectionOuterLabel}
         , {0, -1.2}
-        , -ParametricTangent[xyInflectionOuter, sInflectionOuterLabel]
       ],
       Text[
-        "upper inflects" // textStyle
+        "upper" // textStyle
         , {xInflectionOuterLabel, yInflectionOuterLabel} // yReflection
         , {0, 0.8}
-        , -ParametricTangent[xyInflectionOuter, sInflectionOuterLabel] // yReflection
       ],
       {}
     },
@@ -6059,17 +6057,7 @@ Module[
         , {0, 0.8}
       ],
       Text[
-        "inflects" // textStyle
-        , {xInflectionInnerLabel, yInflectionInnerLabel}
-        , {0, 2.1}
-      ],
-      Text[
         "upper" // textStyle
-        , {xInflectionInnerLabel, yInflectionInnerLabel} // yReflection
-        , {0, -2.7}
-      ],
-      Text[
-        "inflects" // textStyle
         , {xInflectionInnerLabel, yInflectionInnerLabel} // yReflection
         , {0, -1.2}
       ],
@@ -6113,22 +6101,31 @@ Module[
       xyTracedLeftmost[sTracedLeftmostLabel] // Through;
     Graphics @ {
       Text[
-        "upper branch" // textStyle
+        "upper" // textStyle
         , {xTracedLeftmostLabel, yTracedLeftmostLabel}
         , {0, 0.7}
         , ParametricTangent[xyTracedLeftmost, sTracedLeftmostLabel]
       ],
       Text[
-        "lower branch" // textStyle
+        "lower" // textStyle
         , {xTracedLeftmostLabel, yTracedLeftmostLabel} // yReflection
         , {0, -1.2}
         , ParametricTangent[xyTracedLeftmost, sTracedLeftmostLabel] // yReflection
       ],
       {}
     },
+    (* Straight contour label *)
+    Graphics @ {
+      Text[
+        xIt == SeparatedRow["VeryThin"]["\[Pi]", "/", 2] // textStyle
+        , {xStraight, Way[yInflectionOuterLabel, yMax, 2/3]}
+        , {0, -1.2}
+        , {0, 1}
+      ]
+    },
     {}
   ]
-] // Ex["cosine_general-traced-convex_portions.pdf"]
+] // Ex["cosine_general-traced-boundaries-convex.pdf"]
 
 
 (* ::Section:: *)
