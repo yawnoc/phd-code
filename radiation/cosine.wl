@@ -5558,6 +5558,7 @@ Module[
     textStyle, arrowStyle,
     parameterArrow,
     xGraphicsBNat, xGraphicsB1,
+    legendLabelStyle,
     dummyForTrailingCommas
   },
   (* Value of A *)
@@ -5823,16 +5824,42 @@ Module[
       , ImageSize -> 2.07 imageSize
       , PlotRange -> All
     ];
+  (* Legend *)
+  legendLabelStyle = LatinModernLabelStyle[12];
   (* Final figure *)
   Column[
     {
-      GraphicsRow[
-        plotList,
-        Spacings -> {0.3 imageSize, 0}
+      Column[
+        {
+          GraphicsRow[plotList, Spacings -> {0.3 imageSize, 0}],
+          parameterArrow
+        }
+        , Spacings -> 0
       ],
-      parameterArrow
-    },
-    Spacings -> 0
+      Grid[
+        Transpose @ {
+          RegionLegend[
+            {BoundaryTracingStyle["NonViable"]},
+            {"non\[Hyphen]viable domain"}
+            , LabelStyle -> legendLabelStyle
+          ],
+          CurveLegend[
+            {BoundaryTracingStyle["Terminal"]},
+            {"terminal curve"}
+            , LabelStyle -> legendLabelStyle
+          ],
+          RegionLegend[
+            {BoundaryTracingStyle["Unphysical"]},
+            {"unphysical region"}
+            , LabelStyle -> legendLabelStyle
+          ],
+          Nothing
+        }
+        , Alignment -> Left
+        , Spacings -> {1, 0}
+      ]
+    }
+    , Alignment -> Center
   ]
 ] // Ex["cosine_general-physical-viable.pdf"]
 
