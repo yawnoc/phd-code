@@ -6447,3 +6447,33 @@ Module[
     , Alignment -> Center
   ]
 ] // Ex["cosine-verification-domain-meshes.pdf"]
+
+
+(* ::Subsection:: *)
+(*Number of mesh elements*)
+
+
+(* ::Subsubsection:: *)
+(*Simple case: lens-shaped domain*)
+
+
+Module[{a, nameSuffix, mesh},
+  a = aValuesSimpConvex // First;
+  nameSuffix = aNamesSimpConvex[a];
+  mesh =
+    Import @ FString["cosine_simple-verification-mesh-{nameSuffix}.txt"]
+      // Uncompress // #[[2]] &;
+  mesh
+]
+
+
+(* ::Subsubsection:: *)
+(*General case: asymmetric domain*)
+
+
+Module[{mesh},
+  mesh =
+    Import["cosine_general-verification-mesh-asymmetric.txt"]
+      // Uncompress // First;
+  mesh
+]
