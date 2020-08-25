@@ -66,6 +66,7 @@ ClearAll["Conway`*`*"];
 {
   BoxedLabel,
   CurveLegend,
+  DecimalPlacesForm,
   DefaultColours,
   DeleteNearbyPoints,
   DomainEnd,
@@ -156,6 +157,20 @@ CurveLegend[
     , {n, nMax}
     ]
   ];
+
+
+(* ::Subsubsection:: *)
+(*DecimalPlacesForm*)
+
+
+DecimalPlacesForm::usage = (
+  "DecimalPlacesForm[n][x]\n"
+  <> "Return x formatted to n decimal places."
+);
+
+
+DecimalPlacesForm[n_Integer][x_] :=
+  DecimalForm[N[x], {Infinity, n}];
 
 
 (* ::Subsubsection:: *)
