@@ -5467,7 +5467,7 @@ Module[
       },
       Graphics @ {
         Text[
-          Subscript[Italicise["A"], "i"] // textStyle
+          Subscript[Italicise["A"], "i"] == N[aInflSimp] // textStyle
           , {xGraphicsAInfl, 0}
           , {0, 1.3}
         ]
