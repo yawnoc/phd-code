@@ -6403,7 +6403,9 @@ Module[
         EmptyFrame[{xMin, xMax}, {-yMax, yMax}
           , ImageSize -> imageSizeDomains
           , LabelStyle -> LatinModernLabelStyle[12]
-          , PlotLabel -> SeparatedRow[","][aIt == a, bIt == N[b]]
+          , PlotLabel -> SeparatedRow[","][
+              aIt == a, bIt == SignificantFiguresForm[5][b]
+            ]
         ],
         (* Constant-temperature boundary *)
         ParametricPlot[
