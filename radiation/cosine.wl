@@ -6289,3 +6289,158 @@ Module[
     , Spacings -> {1.4, -1}
   ]
 ] // Ex["cosine_general-asymmetric-construction-legend.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: Verification domains and meshes (cosine-verification-domain-meshes.pdf)*)
+
+
+Module[
+  {
+    xHalfWidth, yMax,
+    imageSizeDomains,
+    simpleDomain, simpleMeshList, simpleMesh,
+    generalDomain, generalMesh,
+    legendCurves, legend,
+    dummyForTrailingCommas
+  },
+  (* Plot range *)
+  xHalfWidth = 0.45;
+  yMax = 0.8;
+  (* Image size for domains (fixed height) *)
+  imageSizeDomains = {Automatic, 270};
+  (* Simple case: lens-shaped domain *)
+  Module[
+    {
+      a, b,
+      xRad, yEnd, xRadEvenExtension,
+      xCentre, xMin, xMax,
+      nameSuffix, mesh,
+      nMeshPortions, yMinMeshPortion, yMaxMeshPortion,
+      dummyForTrailingCommas1
+    },
+    (* Values of A and B *)
+    a = aValuesSimpConvex // First;
+    b = 1;
+    (* Radiation boundary x == x(y) for convex domain *)
+    xRad = xTraCandSimp[a, True];
+    yEnd = DomainEnd[xRad];
+    xRadEvenExtension = Function[{y}, xRad[Abs @ y] // Evaluate];
+    (* Plot range *)
+    xCentre = Way[x0Simp[a], xStraight];
+    xMin = xCentre - xHalfWidth;
+    xMax = xCentre + xHalfWidth;
+    (* Import mesh *)
+    nameSuffix = aNamesSimpConvex[a];
+    mesh =
+      Import @ FString["cosine_simple-verification-mesh-{nameSuffix}.txt"]
+        // Uncompress // #[[2]] &;
+    (* Domain plot *)
+    simpleDomain =
+      Show[
+        EmptyFrame[{xMin, xMax}, {-yMax, yMax}
+          , ImageSize -> imageSizeDomains
+          , LabelStyle -> LatinModernLabelStyle[12]
+          , PlotLabel -> SeparatedRow[","][aIt == N[a], bIt == b]
+        ],
+        (* Boundaries *)
+        ParametricPlot[
+          {{xRadEvenExtension[y], y}, {xStraight, y}}
+          , {y, -yEnd, yEnd}
+          , PlotPoints -> 2
+          , PlotStyle -> BoundaryTracingStyle /@ {"Traced", "Contour"}
+        ],
+        {}
+      ];
+    (* Mesh *)
+    nMeshPortions = 3;
+    simpleMeshList =
+      Table[
+        yMinMeshPortion = Way[yEnd, -yEnd, (n - 1) / nMeshPortions];
+        yMaxMeshPortion = Way[yEnd, -yEnd, n / nMeshPortions];
+        Show[mesh["Wireframe"]
+          , PlotRange -> {Automatic, {yMinMeshPortion, yMaxMeshPortion}}
+        ]
+        , {n, nMeshPortions}
+      ];
+    simpleMesh =
+      Grid[
+        {simpleMeshList}
+        , Spacings -> {{2 -> 0.8, 3 -> 0.2}, 0}
+        (* non-uniform spacing looks better (an optical illusion) *)
+      ];
+  ];
+  (* General case: asymmetric domain *)
+  Module[
+    {
+      a, b,
+      yTop, yBottom,
+      xCentre, xMin, xMax,
+      mesh,
+      dummyForTrailingCommas1
+    },
+    (* Values of A and B *)
+    a = aAsymm;
+    b = bAsymm;
+    (* Endpoints for constant temperature boundary *)
+    yTop = xyTraAsymm["lower"][[2]] @ DomainStart @ xyTraAsymm["lower"];
+    yBottom = xyTraAsymm["upper"][[2]] @ DomainEnd @ xyTraAsymm["upper"];
+    (* Plot range *)
+    xCentre = Way[
+      xyTraAsymm["upper"][DomainStart @ xyTraAsymm["upper"]] // Through // First,
+      xStraight
+    ];
+    xMin = xCentre - xHalfWidth;
+    xMax = xCentre + xHalfWidth;
+    (* Import mesh *)
+    mesh =
+      Import["cosine_general-verification-mesh-asymmetric.txt"]
+        // Uncompress // First;
+    (* Domain plot *)
+    generalDomain =
+      Show[
+        EmptyFrame[{xMin, xMax}, {-yMax, yMax}
+          , ImageSize -> imageSizeDomains
+          , LabelStyle -> LatinModernLabelStyle[12]
+          , PlotLabel -> SeparatedRow[","][aIt == a, bIt == N[b]]
+        ],
+        (* Constant-temperature boundary *)
+        ParametricPlot[
+          {xStraight, y},
+          {y, yTop, yBottom}
+          , PlotPoints -> 2
+          , PlotStyle -> BoundaryTracingStyle["Contour"]
+        ],
+        (* Radiation boundaries *)
+        Table[
+          ParametricPlot[
+            xyTraAsymm[id][s] // Through,
+            {s, DomainStart @ xyTraAsymm[id], DomainEnd @ xyTraAsymm[id]}
+            , PlotStyle -> BoundaryTracingStyle["Traced"]
+          ]
+          , {id, {"upper", "lower"}}
+        ],
+        {}
+      ];
+    (* Mesh *)
+    generalMesh = Show[mesh["Wireframe"]];
+  ];
+  (* Legend *)
+  legendCurves =
+    CurveLegend[
+      BoundaryTracingStyle /@ {"Traced", "Contour"},
+      {"radiation", "constant temperature"}
+      , LabelStyle -> LatinModernLabelStyle[13]
+    ];
+  legend = Grid[{legendCurves}, Spacings -> {2.5, 0}];
+  (* Combined plot *)
+  Column[
+    {
+      Grid[{{simpleDomain, simpleMesh, generalDomain, generalMesh}}
+        , Spacings -> {3 -> 3, Automatic}
+      ],
+      legend
+    }
+    , Alignment -> Center
+  ]
+] // Ex["cosine-verification-domain-meshes.pdf"]
