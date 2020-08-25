@@ -97,6 +97,7 @@ ClearAll["Conway`*`*"];
   SeekRoot,
   SeekRootBisection,
   SeparatedRow,
+  SignificantFiguresForm,
   SortByPhi,
   ToName,
   UniformRange,
@@ -1067,6 +1068,34 @@ SeparatedRow[sep_: ""][xSeq___] :=
       "NonBreaking" -> "\[NonBreakingSpace]",
       Automatic -> ""
     }
+  ];
+
+
+(* ::Subsubsection:: *)
+(*SignificantFiguresForm*)
+
+
+SignificantFiguresForm::usage = (
+  "SignificantFiguresForm[n][x]\n"
+  <> "Return x formatted to n significant figures."
+);
+
+
+SignificantFiguresForm[n_Integer][x_] :=
+  Module[{pMin, pMax, digitsSpec},
+    (* Threshold exponents for scientific notation *)
+    {pMin, pMax} = ScientificNotationThreshold /. Options[NumberForm];
+    (* NumberForm digits specification *)
+    digitsSpec =
+      If[10 ^ pMin <= Abs[x] < 10^pMax,
+        (* Not scientific notation *)
+        {n, n - Floor[1 + Log10 @ Abs[x]]}
+        ,
+        (* Scientific notation *)
+        {n, n - 1}
+      ];
+    (* Return formatted number *)
+    NumberForm[N[x], digitsSpec]
   ];
 
 
