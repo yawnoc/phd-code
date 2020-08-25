@@ -6487,3 +6487,56 @@ Module[{mesh},
       // Uncompress // First;
   mesh
 ]
+
+
+(* ::Subsection:: *)
+(*Maximum relative error throughout mesh*)
+
+
+(* ::Subsubsection:: *)
+(*Simple case: lens-shaped domain*)
+
+
+Module[
+  {
+    a, b,
+    nameSuffix, name, tSol, mesh,
+    relError,
+    dummyForTrailingCommas1
+  },
+  (* Values of A and B *)
+  a = aValuesSimpConvex // First;
+  b = 1;
+  (* Import numerical solution *)
+  nameSuffix = aNamesSimpConvex[a];
+  name = FString @ "cosine_simple-verification-solution-{nameSuffix}.txt";
+  tSol = Import[name] // Uncompress;
+  mesh = tSol["ElementMesh"];
+  (* Relative error *)
+  relError[x_, y_] := tSol[x, y] / tKnown[b][x, y] - 1;
+  relError @@@ mesh["Coordinates"] // Abs // Max // PercentForm
+]
+
+
+(* ::Subsubsection:: *)
+(*General case: asymmetric domain*)
+
+
+Module[
+  {
+    a, b,
+    name, tSol, mesh,
+    relError,
+    dummyForTrailingCommas1
+  },
+  (* Values of A and B *)
+  a = aAsymm;
+  b = bAsymm;
+  (* Import numerical solution *)
+  name = "cosine_general-verification-solution-asymmetric.txt";
+  tSol = Import[name] // Uncompress;
+  mesh = tSol["ElementMesh"];
+  (* Relative error *)
+  relError[x_, y_] := tSol[x, y] / tKnown[b][x, y] - 1;
+  relError @@@ mesh["Coordinates"] // Abs // Max // PercentForm
+]
