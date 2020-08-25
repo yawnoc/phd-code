@@ -6342,7 +6342,13 @@ Module[
         EmptyFrame[{xMin, xMax}, {-yMax, yMax}
           , ImageSize -> imageSizeDomains
           , LabelStyle -> LatinModernLabelStyle[12]
-          , PlotLabel -> SeparatedRow[","][aIt == N[a], bIt == b]
+          , PlotLabel -> Column[
+              {
+                "Lens\[Hyphen]shaped",
+                SeparatedRow[","][aIt == N[a], bIt == b]
+              }
+              , Alignment -> Center
+            ]
         ],
         (* Boundaries *)
         ParametricPlot[
@@ -6403,8 +6409,12 @@ Module[
         EmptyFrame[{xMin, xMax}, {-yMax, yMax}
           , ImageSize -> imageSizeDomains
           , LabelStyle -> LatinModernLabelStyle[12]
-          , PlotLabel -> SeparatedRow[","][
-              aIt == a, bIt == SignificantFiguresForm[5][b]
+          , PlotLabel -> Column[
+              {
+                "Asymmetric",
+                SeparatedRow[","][aIt == a, bIt == SignificantFiguresForm[5][b]]
+              }
+              , Alignment -> Center
             ]
         ],
         (* Constant-temperature boundary *)
