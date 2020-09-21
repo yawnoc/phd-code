@@ -16,6 +16,7 @@ SetDirectory @ ParentDirectory @ NotebookDirectory[];
 << NDSolve`FEM`
 << Conway`
 << Curvilinear`
+<< FigureStyles`
 SetDirectory @ FileNameJoin @ {NotebookDirectory[], "line"}
 
 
@@ -1428,3 +1429,43 @@ Module[{source, tSol, mesh, tExact},
     ]
   ]
 ] // Ex["line-verification-rel_error-2d.png"]
+
+
+(* ::Section:: *)
+(*Figure: Auxiliary function (line-auxiliary-function)*)
+
+
+Module[{textStyle},
+  textStyle = Style[#, 18] & @* LaTeXStyle;
+  Show[
+    Plot[psi[r], {r, 0, 1}
+      , AxesLabel -> {rIt, LaTeXStyle["\[Psi]"]}
+      , ImageSize -> 360
+      , LabelStyle -> LatinModernLabelStyle[15]
+      , PlotRange -> All
+      , PlotRangeClipping -> False
+      , PlotRangePadding -> {Automatic, {0.05, Automatic}}
+      , PlotStyle -> Black
+      , PlotOptions[Axes] // Evaluate
+    ],
+    Graphics @ {
+      (* Guiding lines for critical values *)
+      BoundaryTracingStyle["Contour"],
+      Line @ {{0, aNat}, {rNat, aNat}, {rNat, 0}},
+      (* rNat *)
+      Text[
+        Subscript[rIt, "Nat"] // textStyle,
+        {rNat, 0},
+        {-0.2, 1.0}
+      ],
+      (* aNat *)
+      Text[
+        Subscript[aIt, "Nat"] // textStyle,
+        {0, aNat},
+        {1.5, 0}
+      ],
+      {}
+    },
+    {}
+  ] // PrettyString["Nat" -> "\[Natural]"]
+] // Ex["line-auxiliary-function.pdf"]
