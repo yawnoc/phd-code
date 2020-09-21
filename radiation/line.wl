@@ -1469,3 +1469,185 @@ Module[{textStyle},
     {}
   ] // PrettyString["Nat" -> "\[Natural]"]
 ] // Ex["line-auxiliary-function.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: viable domain (line-viable)*)
+
+
+Module[
+  {
+    aStep, aValues, aMin,
+    imageSize, rMax,
+    plotList,
+    rMaxNon,
+    textStyle, arrowStyle,
+    parameterArrow,
+    xGraphicsANat,
+    legendLabelStyle,
+    dummyForTrailingCommas
+  },
+  (* Values of A *)
+  aStep = 3/100;
+  aValues = aNat + aStep * Range[-1, 1];
+  aMin = Min[aValues];
+  (* Plot range *)
+  imageSize = 180;
+  rMax = 1.05 rSharp[aMin];
+  (* List of plots *)
+  plotList =
+    Table[
+      rMaxNon = If[a < aNat, rSharp[a], rNat];
+      Show[
+        EmptyFrame[{-rMax, rMax}, {-rMax, 1.3 rMax}
+          , ImageSize -> imageSize
+          , Frame -> None
+          , FrameLabel -> None
+          , FrameTicks -> None
+        ],
+        (* Non-viable domain *)
+        RegionPlot[
+          vi[a] @ RPolar[x, y] < 0
+          , {x, -rMaxNon, rMaxNon}
+          , {y, -rMaxNon, rMaxNon}
+          , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
+          , PlotPoints -> 9
+          , PlotStyle -> BoundaryTracingStyle["NonViable"]
+        ],
+        (* Transition terminal curve *)
+        If[a == aNat,
+          ContourPlot[
+            RPolar[x, y] == rNat
+            , {x, -rMaxNon, rMaxNon}
+            , {y, -rMaxNon, rMaxNon}
+            , ContourLabels -> None
+            , ContourStyle -> BoundaryTracingStyle["Terminal"]
+            , PlotPoints -> 7
+          ],
+          {}
+        ],
+        (* Terminal curve labels *)
+        Which[
+          a < aNat,
+          {
+            Graphics @ {
+              Text[
+                rIt == Subscript[rIt, "\[Flat]"] // textStyle
+                , {0, rFlat[a]}
+                , {0, 1.2}
+             ]
+            },
+            Graphics @ {
+              Text[
+                rIt == Subscript[rIt, "\[Sharp]"] // textStyle
+                , {0, rSharp[a]}
+                , {0, -1}
+             ]
+            },
+            {}
+          },
+          a == aNat,
+          {
+            Graphics @ {
+              Text[
+                rIt == Subscript[rIt, "\[Natural]"] // textStyle
+                , {0, rNat}
+                , {0, -1}
+             ]
+            },
+            {}
+          },
+          True, {}
+        ],
+        {}
+      ]
+      , {a, aValues}
+    ];
+  (* Parameter (B) increase indicator arrow *)
+  textStyle = Style[#, 18] & @* LaTeXStyle;
+  arrowStyle = Directive[Thickness[0.005], Arrowheads[0.04]];
+  parameterArrow =
+    Show[
+      (* A-axis *)
+      Graphics @ {arrowStyle,
+        Arrow @ {{0, 0}, {1, 0}}
+      },
+      Graphics @ {
+        Text[
+          aIt // textStyle,
+          {1, 0},
+          {-2, 0}
+        ]
+      },
+      (* A == A_nat *)
+      xGraphicsANat = 0.5;
+      Graphics @ {arrowStyle,
+        Line @ {
+          {xGraphicsANat, 0},
+          {xGraphicsANat, -0.01}
+        }
+      },
+      Graphics @ {
+        Text[
+          Subscript[Italicise["A"], "\[Natural]"]
+            // textStyle
+          , {xGraphicsANat, 0}
+          , {0, 1.4}
+        ]
+      },
+      (* Regime labels *)
+      Graphics @ {
+        Text[
+          "hot" // textStyle
+          , {Way[0, xGraphicsANat, 0.31], 0}
+          , {0, -1.3}
+        ],
+        Text[
+          "cold" // textStyle
+          , {Way[xGraphicsANat, 1, 0.5], 0}
+          , {0, -1.3}
+        ],
+        {}
+      },
+      {}
+      , ImageSize -> 2.45 imageSize
+      , PlotRange -> All
+    ];
+  (* Legend *)
+  legendLabelStyle = LatinModernLabelStyle[14];
+  (* Final figure *)
+  Column[
+    {
+      Column[
+        {
+          GraphicsRow[plotList, Spacings -> 0],
+          parameterArrow
+        }
+        , Spacings -> 0
+      ],
+      Grid[
+        Transpose @ {
+          RegionLegend[
+            {BoundaryTracingStyle["Viable"]},
+            {"viable domain"}
+            , LabelStyle -> legendLabelStyle
+          ],
+          RegionLegend[
+            {BoundaryTracingStyle["NonViable"]},
+            {"non\[Hyphen]viable domain"}
+            , LabelStyle -> legendLabelStyle
+          ],
+          CurveLegend[
+            {BoundaryTracingStyle["Terminal"]},
+            {"terminal curve"}
+            , LabelStyle -> legendLabelStyle
+          ],
+          Nothing
+        }
+        , Alignment -> Left
+        , Spacings -> {1, 0}
+      ]
+    }
+    , Alignment -> Center
+  ]
+] // Ex["line-viable.pdf"]
