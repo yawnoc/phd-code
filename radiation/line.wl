@@ -1651,3 +1651,95 @@ Module[
     , Alignment -> Center
   ]
 ] // Ex["line-viable.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: critical terminal radii (line-critical)*)
+
+
+Module[
+  {
+    aMax,
+    textStyle,
+    plotStyles, plot,
+    rPatch, aPatch,
+    legendLabelStyleCurves, legendLabelStyleRegions,
+    legendCurves, legendRegions,
+    dummyForTrailingCommas
+  },
+  aMax = Ceiling[aNat] - 0.1;
+  textStyle = Style[#, 18] & @* LaTeXStyle;
+  (* Plot *)
+  plotStyles = {Black, Directive[Black, Dashed]};
+  plot = Show[
+    (* Terminal radii *)
+    Plot[{rSharp[a], rFlat[a]}, {a, 0, aNat}
+      (* Non-viable domain *)
+      , AspectRatio -> 1
+      , AxesLabel -> {aIt, rIt}
+      , Filling -> {1 -> {2}}
+      , FillingStyle -> BoundaryTracingStyle["NonViable"]
+      , ImageSize -> 320
+      , LabelStyle -> LatinModernLabelStyle[16]
+      , PlotRange -> {{0, aMax}, Full}
+      , PlotRangeClipping -> False
+      , PlotRangePadding -> {{0.02, Automatic}, {0, Automatic}}
+      , PlotStyle -> plotStyles
+    ],
+    (* Patch missing piece near r == 1 *)
+    rPatch = 0.9877;
+    aPatch = psi[rPatch];
+    ParametricPlot[{a, rSharp[a]}, {a, 0, aPatch}
+      , PlotPoints -> 2
+      , PlotStyle -> plotStyles[[1]]
+    ],
+    (* Critical radii *)
+    Graphics @ {
+      (* Guiding lines *)
+      BoundaryTracingStyle["Contour"],
+      Line @ {{0, rNat}, {aNat, rNat}, {aNat, 0}},
+      (* rNat *)
+      Text[
+        Subscript[rIt, "Nat"] // textStyle,
+        {0, rNat},
+        {2, -0.1}
+      ],
+      (* rNat *)
+      Text[
+        Subscript[aIt, "Nat"] // textStyle,
+        {aNat, 0},
+        {0, 1.2}
+      ],
+      {}
+    },
+    {}
+  ];
+  (* Legend *)
+  legendLabelStyleCurves = LatinModernLabelStyle[18];
+  legendLabelStyleRegions = LatinModernLabelStyle[15];
+  legendCurves =
+    CurveLegend[
+      plotStyles,
+      TraditionalForm[Row @ {rIt, Spacer[2.4]} == Subscript[rIt, #]] &
+        /@ {"Sharp", "Flat"}
+      , LabelStyle -> legendLabelStyleCurves
+    ];
+  legendRegions =
+    RegionLegend[
+      BoundaryTracingStyle /@ {"NonViable"},
+      {"non\[Hyphen]viable"}
+      , LabelStyle -> legendLabelStyleRegions
+    ];
+  (* Combined *)
+  Grid @ {{
+    plot,
+    Grid[
+      Transpose @ {Join[legendCurves, legendRegions]}
+      , Spacings -> {Automatic, {{-1.2}, -0.7, Automatic}}
+    ]
+  }} // PrettyString[
+    "Sharp" -> "\[Sharp]",
+    "Flat" -> "\[Flat]",
+    "Nat" -> "\[Natural]"
+  ]
+] // Ex["line-critical.pdf"]
