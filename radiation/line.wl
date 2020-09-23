@@ -1948,7 +1948,7 @@ Module[
       , {p, 0, 1}
       , AxesLabel -> Italicise @ {"x", "y"}
       , AxesStyle -> GrayLevel[0.6]
-      , ImageSize -> 320
+      , ImageSize -> 270
       , LabelStyle -> LatinModernLabelStyle[18]
         (* NOTE: LatinModernLabelStyle[16] results in cut-off x-label *)
       , Method -> {"AxesInFront" -> False}
@@ -1969,7 +1969,7 @@ Module[
       Text[
         "lower" // textStyle
         , xyLower[pLowerLabel]
-        , {0, -1.7}
+        , {0, -1.6}
       ],
       {}
     },
