@@ -1898,3 +1898,81 @@ Module[
     "Nat" -> "\[Natural]"
   ]
 ] // Ex["line-critical.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: cold regime concave corner (line-traced-boundaries-cold-concave)*)
+
+
+Module[
+  {
+    a,
+    imageSize, rMaxShow,
+    rCorner, phiCorner,
+    phiMin, phiMax, rTraced,
+    xyUpper, xyLower,
+    textStyle,
+    pUpperLabel, pLowerLabel,
+    dummyForTrailingCommas
+  },
+  (* Value of A *)
+  a = 1.1 aNat;
+  (* Plot range *)
+  imageSize = 240;
+  rMaxShow = 2 rNat;
+  (* Location of concave corner *)
+  rCorner = 0.1 rMaxShow;
+  phiCorner = 213 Degree;
+  (* Traced boundaries *)
+  phiMin = -0.83 Pi;
+  phiMax = 0;
+  With[{r = \[FormalR]},
+    rTraced = NDSolveValue[
+      {r'[phi] == 1 / phiTraDer[a][r[phi]], r[0] == rCorner},
+      r, {phi, phiMin, phiMax},
+      NoExtrapolation
+    ];
+  ];
+  xyUpper[p_] := XYPolar[rTraced[#], # + phiCorner] & @ Way[phiMin, phiMax, p];
+  xyLower[p_] := XYPolar[rTraced[#], -# + phiCorner] & @ Way[phiMin, phiMax, 1 - p];
+  (* Text style *)
+  textStyle = Style[#, 18] & @* LaTeXStyle;
+  (* Branch label proportions of traced boundary *)
+  pUpperLabel = 0.05;
+  pLowerLabel = 0.59;
+  (* Plot *)
+  Show[
+    (* Traced boundaries *)
+    ParametricPlot[
+      {xyUpper[p], xyLower[p]} // Evaluate
+      , {p, 0, 1}
+      , AxesLabel -> Italicise @ {"x", "y"}
+      , AxesStyle -> GrayLevel[0.6]
+      , ImageSize -> 320
+      , LabelStyle -> LatinModernLabelStyle[18]
+        (* NOTE: LatinModernLabelStyle[16] results in cut-off x-label *)
+      , Method -> {"AxesInFront" -> False}
+        (* https://mathematica.stackexchange.com/a/26918 *)
+      , PlotStyle -> BoundaryTracingStyle["Traced"]
+      , Ticks -> None
+    ]
+      /. line_Line :> {Arrowheads[{0, 0.06, 0}], Arrow[line]}
+      (* https://mathematica.stackexchange.com/a/102182 *)
+    ,
+    (* Branch labels *)
+    Graphics @ {
+      Text[
+        "upper" // textStyle
+        , xyUpper[pUpperLabel]
+        , {0, 1.1}
+      ],
+      Text[
+        "lower" // textStyle
+        , xyLower[pLowerLabel]
+        , {0, -1.7}
+      ],
+      {}
+    },
+    {}
+  ]
+] // Ex["line-traced-boundaries-cold-concave.pdf"]
