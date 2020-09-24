@@ -2530,3 +2530,13 @@ Module[
     , Alignment -> Center
   ]
 ] // Ex["line-verification-domain-mesh.pdf"]
+
+
+(* ::Subsection:: *)
+(*Number of mesh elements*)
+
+
+Module[{mesh},
+  mesh = Import["line-verification-mesh.txt"] // Uncompress // #[[3]]&;
+  mesh
+]
