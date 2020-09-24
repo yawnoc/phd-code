@@ -2253,3 +2253,134 @@ Module[
     {}
   ]
 ] // Ex["line-traced-boundaries-hot-protrusion.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: convex domains (line-domains.pdf)*)
+
+
+(*
+  Basically the following:
+  - "line-hot-traced-convex-regular-5.pdf"
+  - "line-hot-traced-convex-regular-4.pdf"
+  - "line-hot-traced-convex-generic.pdf"
+*)
+
+
+Module[
+  {
+    a, rSh,
+    caseList,
+    mod2Pi, phi,
+    xMax, yMax, imageSize,
+    numSpikes, modNumSpikes,
+    rSpike, phiSpike, phiCentre, phiHalfWidth,
+    plotList, caseIsRegular,
+    phiPlotted,
+    dummyForTrailingCommas
+  },
+  (* Constants *)
+  a = aHot;
+  rSh = rSharp[a];
+  (* Cases to be plotted *)
+  caseList = {"pentagon", "square", "generic"};
+  (* Abbreviations *)
+  mod2Pi = Mod[#, 2 Pi] &;
+  phi[r_] := phiTraHot["outer"][r];
+  (* List of plots *)
+  xMax = rInfl;
+  yMax = 0.9 rInfl;
+  imageSize = 240;
+  plotList = Table[
+    (* Define spikes *)
+    ClearAll[numSpikes, rSpike, phiSpike, phiHalfWidth, phiCentre];
+    caseIsRegular = case != "generic";
+    Which[
+      caseIsRegular,
+        numSpikes = <|"pentagon" -> 5, "square" -> 4|> @ case;
+        rSpike[n_] := SeekRoot[
+          phi[(1 + 10^-6) rSh] - phi[#] - Pi / numSpikes &,
+          {rSh, rInfl}
+        ] // Evaluate;
+        phiSpike[n_] = phi[rSpike[1]];
+        phiHalfWidth[n_] = Pi / numSpikes;
+        phiCentre[n_] := (n - 1) * 2 phiHalfWidth[n];
+      ,
+      Not[caseIsRegular],
+        numSpikes = 2;
+        modNumSpikes = Mod[#, numSpikes, 1] &;
+        rSpike[1] = rInfl;
+        rSpike[2] = Way[rSh, rInfl, 3/4];
+        Table[
+          phiSpike[n] = phiTraHot["outer"] @ rSpike[n]
+          , {n, numSpikes}
+        ];
+        phiCentre[1] = 0;
+        phiCentre[2] = 135 Degree;
+        phiCentre[n_] := phiCentre[n // modNumSpikes];
+        Table[
+          phiHalfWidth[n] =
+            phiTraHot["outer"][(1 + 10^-6) rSh] - phiSpike[n]
+          , {n, numSpikes}
+        ];
+        phiHalfWidth[n_] := phiHalfWidth[n // modNumSpikes];
+      ,
+      True, {}
+    ];
+    (* Plot of constructed domain *)
+    Show[
+      EmptyFrame[{-xMax, xMax}, {-yMax, yMax}
+        , Frame -> None
+        , ImageSize -> imageSize
+      ],
+      (* Outer terminal curve (effective incircle) *)
+      ContourPlot[RPolar[x, y] == rSh
+        , {x, -xMax, xMax}
+        , {y, -yMax, yMax}
+        , ContourLabels -> None
+        , PlotPoints -> 7
+        , ContourStyle -> BoundaryTracingStyle /@ {
+            "Terminal", "BackgroundDarker"
+          }
+      ],
+      (* Traced boundaries (spikes) *)
+      Table[
+        phiPlotted[r_] := phiTraHot["outer"][r] - phiSpike[n];
+        ParametricPlot[
+          {
+            XYPolar[r, phiCentre[n] + phiPlotted[r]],
+            XYPolar[r, phiCentre[n] - phiPlotted[r]]
+          } // Evaluate
+          , {r, rSh, rSpike[n]}
+          , PlotPoints -> 2
+          , PlotStyle -> BoundaryTracingStyle["Traced"]
+        ]
+        , {n, numSpikes}
+      ],
+      (* Traced boundaries (terminal curve portions) *)
+      If[Not[caseIsRegular],
+        Table[
+          ParametricPlot[
+            XYPolar[rSh, ph] // Evaluate,
+            {
+              ph,
+              phiCentre[n] + phiHalfWidth[n] // mod2Pi,
+              phiCentre[n + 1] - phiHalfWidth[n + 1] // mod2Pi
+            }
+            , PlotPoints -> 2
+            , PlotStyle -> BoundaryTracingStyle["Traced"]
+          ]
+          , {n, numSpikes}
+        ]
+        , {}
+      ],
+      {}
+    ]
+    , {case, caseList}
+  ];
+  (* Final figure *)
+  GraphicsRow[plotList
+    , PlotRangePadding -> 0
+    , Spacings -> -0.1 imageSize
+  ]
+] // Ex["line-domains.pdf"]
