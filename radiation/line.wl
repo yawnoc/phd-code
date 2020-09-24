@@ -2540,3 +2540,20 @@ Module[{mesh},
   mesh = Import["line-verification-mesh.txt"] // Uncompress // #[[3]]&;
   mesh
 ]
+
+
+(* ::Subsection:: *)
+(*Maximum relative error throughout mesh*)
+
+
+Module[{source, tSol, mesh, tExact, relError},
+  (* Import solution *)
+  source = "line-verification-solution.txt";
+  tSol = Import[source] // Uncompress;
+  mesh = tSol["ElementMesh"];
+  (* Known exact solution *)
+  tExact[x_, y_] := Log[1 / RPolar[x, y]];
+  (* Relative error *)
+  relError[x_, y_] := tSol[x, y] / tExact[x, y] - 1;
+  relError @@@ mesh["Coordinates"] // Abs // Max // PercentForm
+]
