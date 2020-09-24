@@ -1976,3 +1976,102 @@ Module[
     {}
   ]
 ] // Ex["line-traced-boundaries-cold-concave.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: hot regime concave corner on inner viable island (line-traced-boundaries-hot-inner-concave.pdf)*)
+
+
+Module[
+  {
+    a,
+    imageSize, rMaxShow, rMaxNon,
+    rCorner, phiCorner,
+    phiMin, phiMax, rTraced,
+    xyUpper, xyLower,
+    textStyle, textStyleBigger,
+    pUpperLabel, pLowerLabel,
+    dummyForTrailingCommas
+  },
+  (* Value of A *)
+  a = (1 - 4/1000) aNat;
+  (* Plot range *)
+  imageSize = 170;
+  rMaxShow = 1 rSharp[a];
+  rMaxNon = rSharp[a];
+  (* Location of concave corner *)
+  rCorner = 0.37 rFlat[a];
+  phiCorner = 227 Degree;
+  (* Traced boundaries *)
+  phiMin = -0.75 Pi;
+  phiMax = 0;
+  With[{r = \[FormalR]},
+    rTraced = NDSolveValue[
+      {r'[phi] == 1 / phiTraDer[a][r[phi]], r[0] == rCorner},
+      r, {phi, phiMin, phiMax},
+      NoExtrapolation
+    ];
+  ];
+  xyUpper[p_] := XYPolar[rTraced[#], # + phiCorner] & @ Way[phiMin, phiMax, p];
+  xyLower[p_] := XYPolar[rTraced[#], -# + phiCorner] & @ Way[phiMin, phiMax, 1 - p];
+  (* Text style *)
+  textStyle = Style[#, 12] & @* LaTeXStyle;
+  textStyleBigger = Style[#, 14] & @* LaTeXStyle;
+  (* Branch label proportions of traced boundary *)
+  pUpperLabel = 0.3;
+  pLowerLabel = 0.48;
+  (* Plot *)
+  Show[
+    EmptyFrame[{-rMaxShow, rMaxShow}, {-rMaxShow, rMaxShow}
+      , Frame -> None
+      , ImageSize -> imageSize
+      , PlotRange -> All
+      , PlotRangeClipping -> False
+    ],
+    (* Non-viable domain *)
+    RegionPlot[
+      vi[a] @ RPolar[x, y] < 0
+      , {x, -rMaxNon, rMaxNon}
+      , {y, -rMaxNon, rMaxNon}
+      , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
+      , PlotPoints -> 9
+      , PlotStyle -> BoundaryTracingStyle["NonViable"]
+    ],
+    (* Traced boundaries *)
+    ParametricPlot[
+      {xyUpper[p], xyLower[p]} // Evaluate
+      , {p, 0, 1}
+      , PlotStyle -> BoundaryTracingStyle["Traced"]
+    ] /. line_Line :> {Arrowheads[{0, 0.06, 0}], Arrow[line]},
+    (* Branch labels *)
+    Graphics @ {
+      Text[
+        "upper" // textStyle
+        , xyUpper[pUpperLabel]
+        , {-1.4, 0}
+      ],
+      Text[
+        "lower" // textStyle
+        , xyLower[pLowerLabel]
+        , {0, -1.5}
+      ],
+      {}
+    },
+    (* Terminal curve labels *)
+    Graphics @ {
+      Text[
+        rIt == Subscript[rIt, "\[Flat]"] // textStyleBigger
+        , {0, -rFlat[a]}
+        , {0, -1.3}
+     ]
+    },
+    Graphics @ {
+      Text[
+        rIt == Subscript[rIt, "\[Sharp]"] // textStyleBigger
+        , {0, -rSharp[a]}
+        , {0, 0.5}
+     ]
+    },
+    {}
+  ]
+] // Ex["line-traced-boundaries-hot-inner-concave.pdf"]
