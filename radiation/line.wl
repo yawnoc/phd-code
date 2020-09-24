@@ -438,6 +438,7 @@ Module[{dest},
 
 aIt = Italicise["A"];
 rIt = Italicise["r"];
+tIt = Italicise["T"];
 
 
 (* ::Subsection:: *)
@@ -2384,3 +2385,148 @@ Module[
     , Spacings -> -0.1 imageSize
   ]
 ] // Ex["line-domains.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: verification domain and mesh (line-verification-domain-mesh.pdf)*)
+
+
+Module[
+  {
+    a, rSh,
+    rBath, tBath,
+    caseList,
+    mod2Pi, phi,
+    xMax, yMax, imageSize,
+    textStyle,
+    numSpikes, modNumSpikes,
+    domainPlot,
+    rSpike, phiSpike, phiCentre, phiHalfWidth,
+    phiPlotted,
+    mesh,
+    meshGraphic,
+    legendCurves, legend,
+    dummyForTrailingCommas
+  },
+  (* Constants *)
+  a = aHot;
+  rSh = rSharp[a];
+  (* Heat bath (Dirichlet condition) *)
+  rBath = rSh / 2;
+  tBath = Log[1 / rBath];
+  (* Cases to be plotted *)
+  caseList = {"pentagon", "square", "generic"};
+  (* Abbreviations *)
+  mod2Pi = Mod[#, 2 Pi] &;
+  phi[r_] := phiTraHot["outer"][r];
+  (* Plot range *)
+  xMax = rInfl;
+  yMax = 0.9 rInfl;
+  imageSize = 240;
+  textStyle = Style[#, 16] & @* LaTeXStyle;
+  (* Define spikes *)
+  numSpikes = 2;
+  modNumSpikes = Mod[#, numSpikes, 1] &;
+  rSpike[1] = rInfl;
+  rSpike[2] = Way[rSh, rInfl, 3/4];
+  Table[
+    phiSpike[n] = phiTraHot["outer"] @ rSpike[n]
+    , {n, numSpikes}
+  ];
+  phiCentre[1] = 0;
+  phiCentre[2] = 135 Degree;
+  phiCentre[n_] := phiCentre[n // modNumSpikes];
+  Table[
+    phiHalfWidth[n] =
+      phiTraHot["outer"][(1 + 10^-6) rSh] - phiSpike[n]
+    , {n, numSpikes}
+  ];
+  phiHalfWidth[n_] := phiHalfWidth[n // modNumSpikes];
+  (* Domain plot *)
+  domainPlot = Show[
+    EmptyFrame[{-xMax, xMax}, {-yMax, yMax}
+      , Frame -> None
+      , ImageSize -> imageSize
+      , PlotRange -> All
+    ],
+    (* Heat bath (Dirichlet condition) *)
+    ContourPlot[RPolar[x, y] == rBath
+      , {x, -rBath, rBath}
+      , {y, -rBath, rBath}
+      , ContourLabels -> None
+      , PlotPoints -> Automatic
+      , ContourStyle -> BoundaryTracingStyle["Contour"]
+    ],
+    (* Traced boundaries (spikes) *)
+    Table[
+      phiPlotted[r_] := phiTraHot["outer"][r] - phiSpike[n];
+      ParametricPlot[
+        {
+          XYPolar[r, phiCentre[n] + phiPlotted[r]],
+          XYPolar[r, phiCentre[n] - phiPlotted[r]]
+        } // Evaluate
+        , {r, rSh, rSpike[n]}
+        , PlotPoints -> 2
+        , PlotStyle -> BoundaryTracingStyle["Traced"]
+      ]
+      , {n, numSpikes}
+    ],
+    (* Traced boundaries (terminal curve portions) *)
+    Table[
+      ParametricPlot[
+        XYPolar[rSh, ph] // Evaluate,
+        {
+          ph,
+          phiCentre[n] + phiHalfWidth[n] // mod2Pi,
+          phiCentre[n + 1] - phiHalfWidth[n + 1] // mod2Pi
+        }
+        , PlotPoints -> 2
+        , PlotStyle -> BoundaryTracingStyle["Traced"]
+      ]
+      , {n, numSpikes}
+    ],
+    (* Heat bath (Dirichlet condition) labels *)
+    Graphics @ {
+      Text[
+        tIt == Subscript[tIt, "\[NegativeThickSpace]d"] // textStyle
+        (* NOTE: negative thick space for better kerning *)
+        , {0, rBath}
+        , {0, 1.6}
+     ]
+    },
+    Graphics @ {
+      Text[
+        rIt == Subscript[rIt, "d"] // textStyle
+        , {0, -rBath}
+        , {0, -1.6}
+     ]
+    },
+    {}
+  ];
+  (* Import mesh *)
+  mesh = Import["line-verification-mesh.txt"] // Uncompress // #[[3]]&;
+  (* Mesh graphic *)
+  meshGraphic =
+    Show[
+      mesh["Wireframe"]
+      , ImageSize -> imageSize
+    ];
+  (* Legend *)
+  legendCurves =
+    CurveLegend[
+      BoundaryTracingStyle /@ {"Traced", "Contour"},
+      {"radiation", "constant temperature"}
+      , LabelStyle -> LatinModernLabelStyle[15]
+    ];
+  legend = Grid[{legendCurves}, Spacings -> {2.5, 0}];
+  (* Combined plot *)
+  Column[
+    {
+      Grid[{{domainPlot, meshGraphic}}
+        , Spacings -> {3 -> 3, Automatic}
+      ],
+      legend
+    }
+    , Alignment -> Center
+  ]
+] // Ex["line-verification-domain-mesh.pdf"]
