@@ -2145,3 +2145,117 @@ Module[
     , ImageSize -> 180
   ]
 ] // Ex["line-hot-outer-tangent-line.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: hot regime protrusion*)
+(*(line-traced-boundaries-hot-protrusion.pdf)*)
+
+
+Module[
+  {
+    a,
+    imageSize, rMaxShow, rSh,
+    rCorner, phiCorner,
+    eps, rMin, phiTraced,
+    xyUpper, xyLower,
+    textStyle, textStyleBigger,
+    pUpperLabel, pLowerLabel,
+    dummyForTrailingCommas
+  },
+  (* Value of A *)
+  a = 0.75 aNat;
+  (* Plot range *)
+  imageSize = 240;
+  rMaxShow = rInfl;
+  rSh = rSharp[a];
+  (* Location of (convex) protrusion corner *)
+  rCorner = Way[rSh, rInfl, 2/3];
+  phiCorner = 90 Degree;
+  (* Traced boundaries *)
+  eps = 10.^-6;
+  rMin = (1 + eps) rSh;
+  With[{phi = \[FormalPhi]},
+    phiTraced = NDSolveValue[
+      {phi'[r] == phiTraDer[a][r], phi[rCorner] == 0},
+      phi, {r, rMin, rCorner},
+      NoExtrapolation
+    ];
+  ];
+  xyUpper[p_] := XYPolar[#, phiTraced[#] + phiCorner] & @ Way[rMin, rCorner, 1 - p];
+  xyLower[p_] := XYPolar[#, -phiTraced[#] + phiCorner] & @ Way[rMin, rCorner, p];
+  (* Text style *)
+  textStyle = Style[#, 16] & @* LaTeXStyle;
+  textStyleBigger = Style[#, 18] & @* LaTeXStyle;
+  (* Branch label proportions of traced boundary *)
+  pUpperLabel = 0.6;
+  pLowerLabel = 0.4;
+  (* Plot *)
+  Show[
+    EmptyFrame[{-rMaxShow, rMaxShow}, {-rMaxShow, rMaxShow}
+      , Frame -> None
+      , ImageSize -> imageSize
+      , PlotRange -> All
+      , PlotRangeClipping -> False
+    ],
+    (* Outer terminal curve r == r_sharp *)
+    ContourPlot[
+      RPolar[x, y] == rSh
+      , {x, -rSh, rSh}
+      , {y, -rSh, rSh}
+      , ContourLabels -> None
+      , ContourStyle -> BoundaryTracingStyle["Terminal"]
+      , PlotPoints -> 13
+    ],
+    (* Frontier of inflection r == r_infl *)
+    ContourPlot[
+      RPolar[x, y] == rInfl
+      , {x, -rInfl, rInfl}
+      , {y, -rInfl, rInfl}
+      , ContourLabels -> None
+      , ContourStyle -> BoundaryTracingStyle["Contour"]
+      , PlotPoints -> 13
+    ],
+    (* Traced boundaries (protrusion) *)
+    ParametricPlot[
+      xyLower[p]
+      , {p, 0, 1}
+      , PlotStyle -> BoundaryTracingStyle["Traced"]
+    ] /. line_Line :> {Arrowheads[{0, {0.06, 0.7}, 0}], Arrow[line]},
+    ParametricPlot[
+      xyUpper[p]
+      , {p, 0, 1}
+      , PlotStyle -> BoundaryTracingStyle["Traced"]
+    ] /. line_Line :> {Arrowheads[{0, 0.06, 0}], Arrow[line]},
+    (* Branch labels *)
+    Graphics @ {
+      Text[
+        "upper" // textStyle
+        , xyUpper[pUpperLabel]
+        , {1.5, 0}
+      ],
+      Text[
+        "lower" // textStyle
+        , xyLower[pLowerLabel]
+        , {-1.6, 0}
+      ],
+      {}
+    },
+    (* Radii labels *)
+    Graphics @ {
+      Text[
+        rIt == Subscript[rIt, "\[Sharp]"] // textStyleBigger
+        , {0, -rSh}
+        , {0, -1.45}
+     ]
+    },
+    Graphics @ {
+      Text[
+        rIt == Subscript[rIt, "i"] // textStyleBigger
+        , {0, -rInfl}
+        , {0, -1.4}
+     ]
+    },
+    {}
+  ]
+] // Ex["line-traced-boundaries-hot-protrusion.pdf"]
