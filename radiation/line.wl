@@ -2075,3 +2075,73 @@ Module[
     {}
   ]
 ] // Ex["line-traced-boundaries-hot-inner-concave.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: hot regime outer viable mainland tangent line (line-hot-outer-tangent-line.pdf)*)
+
+
+Module[
+  {
+    rSharp, phi, xi,
+    yMax,
+    angleMarkerLength,
+    orthogonalityMarkerLength, orthogonalityMarkerStyle,
+    textStyle,
+    dummyForTrailingCommas
+  },
+  (* Coordinates *)
+  rSharp = 1;
+  phi = 40 Degree;
+  xi = rSharp (Sec[phi] - 1); (* see (r2.24) *)
+  (* Vertical extent of tangent line *)
+  yMax = 1.1 rSharp;
+  (* Styles *)
+  angleMarkerLength = 0.25 rSharp;
+  orthogonalityMarkerLength = 0.1 rSharp;
+  orthogonalityMarkerStyle = Directive[EdgeForm[Black], FaceForm[None]];
+  textStyle = Style[#, 20] & @* LaTeXStyle;
+  (* Plot *)
+  Show[
+    Graphics @ {
+      (* Circle r == r_sharp *)
+      Circle[{0, 0}, rSharp],
+      (* Radius unto tangent line *)
+      Line @ {{0, 0}, {rSharp, 0}},
+      Text[
+        Subscript[rIt, "\[Sharp]"] // textStyle
+        , {rSharp/2, 0}
+        , {0, 0.6}
+      ],
+      (* Radius at azimuthal angle *)
+      Line @ {{0, 0}, XYPolar[rSharp + xi, phi]},
+      Text[
+        Subscript[rIt, "\[Sharp]"] // textStyle
+        , XYPolar[rSharp/2, phi]
+        , XYPolar[1.5, 0.8 phi - Pi/2]
+      ],
+      Text[
+        "\[Xi]" // textStyle
+        , XYPolar[rSharp + xi/2, phi]
+        , XYPolar[1.4, phi - Pi/2]
+      ],
+      (* Azimuthal angle marker *)
+      Circle[{0, 0}, angleMarkerLength, {0, phi}],
+      Text[
+        "\[Phi]" // textStyle
+        , XYPolar[angleMarkerLength, phi/2]
+        , XYPolar[2, 0.7 phi/2 + Pi]
+      ],
+      (* Tangent line *)
+      Line @ {{rSharp, -yMax}, {rSharp, yMax}},
+      (* Orthogonality marker *)
+      Line[
+        {rSharp, 0} + orthogonalityMarkerLength * # & /@{
+          {0, 1}, {-1, 1}, {-1, 0}
+        }
+      ],
+      {}
+    }
+    , ImageSize -> 180
+  ]
+] // Ex["line-hot-outer-tangent-line.pdf"]
