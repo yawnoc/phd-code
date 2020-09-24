@@ -291,20 +291,18 @@ Module[{dest},
       (* Critical terminal curve *)
       rSh = rSharp[a];
       (* Spikes *)
-      nSpike = 3;
+      nSpike = 2;
       modNSpike = Mod[#, nSpike, 1] &;
       mod2Pi = Mod[#, 2 Pi] &;
       (* Spike radii *)
       rSpike[1] = rInfl;
       rSpike[2] = Way[rSh, rInfl, 3/4];
-      rSpike[3] = Way[rSh, rInfl, 1/4];
       Table[
         phiSpike[n] = phiTraHot["outer"] @ rSpike[n]
       , {n, nSpike}];
       (* Spike centres *)
       phiCentre[1] = 0;
-      phiCentre[2] = 140 Degree;
-      phiCentre[3] = 250 Degree;
+      phiCentre[2] = 135 Degree;
       phiCentre[n_] := phiCentre[n // modNSpike];
       (* Spike angular half-widths *)
       Table[
