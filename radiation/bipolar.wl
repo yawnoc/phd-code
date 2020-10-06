@@ -1495,6 +1495,21 @@ transStyle =
 
 
 (* ::Subsection:: *)
+(*Algebra*)
+
+
+(* Check v == r_- / r_+ (Page r3-2) *)
+With[{x = \[FormalX], y = \[FormalY]},
+  Module[{rMinus, rPlus},
+    rMinus = Sqrt[(x + 1)^2 + y^2];
+    rPlus = Sqrt[(x - 1)^2 + y^2];
+    VBipolar[x, y] == Log[rMinus / rPlus]
+      // FullSimplify[#, Element[{x, y}, Reals]] &
+  ]
+]
+
+
+(* ::Subsection:: *)
 (*Interactive visualiser*)
 
 
