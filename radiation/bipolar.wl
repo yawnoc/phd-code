@@ -1498,7 +1498,7 @@ transStyle =
 (*Algebra*)
 
 
-(* Check v == r_- / r_+ (Page r3-2) *)
+(* Check v == log(r_- / r_+) (Page r3-2) *)
 With[{x = \[FormalX], y = \[FormalY]},
   Module[{rMinus, rPlus},
     rMinus = Sqrt[(x + 1)^2 + y^2];
