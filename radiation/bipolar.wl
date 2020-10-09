@@ -3695,22 +3695,37 @@ DynamicModule[
   {
     aMin, aMax, aInit,
     xMin, xMax, yMax,
+    aInflRationalised,
     aRationalised,
+    vInnerInfl,
     vInner, vOuter,
     dummyForTrailingCommas
   },
   (* A values *)
   {aMin, aMax} = {0.9986, 1} aNat0;
-  aInit = aInfl // N;
+  aInit = 0.999 aInfl // N;
   (* Plot range *)
-  xMin = 0;
+  xMin = 0.5 XBipolar[0, vNat0];
   xMax = 1.03 XBipolar[0, vNat0];
   yMax = 0.1 xMax;
   (* Visualise *)
   Manipulate[
-    (* Rationalise value of A *)
-    aRationalised = a // Rationalize[#, 0] &;
-    (* Compute outer candidate boundary *)
+    (* Rationalise values of A *)
+    aInflRationalised = aInfl // N // Rationalize[#, 0] &;
+    aRationalised = a // N // Rationalize[#, 0] &;
+    (* Compute inflection (borderline convex) inner boundary *)
+    vInnerInfl =
+      With[{v = \[FormalV]},
+        NDSolveValue[
+          {
+            v'[u] == Re @ vTraDer[aInflRationalised][u, v[u]],
+            v[0] == vSharp0[aInflRationalised]
+          }, v, {u, -Pi, 0}
+          , NoExtrapolation
+          , PreciseOptions[]
+        ]
+      ];
+    (* Compute inner and outer candidate boundaries *)
     vInner =
       With[{v = \[FormalV]},
         NDSolveValue[
@@ -3738,6 +3753,14 @@ DynamicModule[
       EmptyFrame[{xMin, xMax}, {-yMax, yMax}
         , ImageSize -> Full
         , PlotLabel -> BoxedLabel @ transStyle[a][aIt == N[a]]
+      ],
+      Table[
+        ParametricPlot[
+          {XYBipolar[u, v[u]], XYBipolar[-u, v[u]]}
+          , {u, DomainStart[v], DomainEnd[v]}
+          , PlotStyle -> LightGray
+        ]
+        , {v, {vInnerInfl}}
       ],
       Table[
         ParametricPlot[
