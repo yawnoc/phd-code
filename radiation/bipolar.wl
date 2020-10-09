@@ -256,7 +256,7 @@ vInfl = InverseFunction[
 
 
 (* ::Subsubsection:: *)
-(*Candidate boundary (at u = -\[Pi])*)
+(*Inner candidate boundary corner coordinate (at u = -\[Pi])*)
 
 
 (* ::Text:: *)
@@ -270,6 +270,29 @@ vTraCandCorn[a_] /; 0 < a <= aNat0 :=
       {
         v'[u] == Re @ vTraDer[a][u, v[u]],
         v[0] == vSharp0[a],
+        WhenEvent[vi[a][u, v[u]] < 0, "StopIntegration"]
+      }, v[-Pi], {u, -Pi, 0},
+      NoExtrapolation,
+      PreciseOptions[]
+    ]
+  ];
+
+
+(* ::Subsubsection:: *)
+(*Outer candidate boundary corner coordinate (at u = -\[Pi])*)
+
+
+(* ::Text:: *)
+(*From v = v_\[Flat]0, not considered in radiation-3-bipolar.pdf.*)
+
+
+(* The hyperbolic coordinate (v) at u == -\[Pi] *)
+vTraCandCornOuter[a_] /; 0 < a <= aNat0 :=
+  With[{v = \[FormalV]},
+    NDSolveValue[
+      {
+        v'[u] == Re @ vTraDer[a][u, v[u]],
+        v[0] == vFlat0[a],
         WhenEvent[vi[a][u, v[u]] < 0, "StopIntegration"]
       }, v[-Pi], {u, -Pi, 0},
       NoExtrapolation,
