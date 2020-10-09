@@ -3621,7 +3621,7 @@ With[{v = \[FormalV], a = \[FormalCapitalA]},
 
 
 (* ::Subsection:: *)
-(*Hyperbolic coordinate at u = -\[Pi] for candidate boundaries*)
+(*Hyperbolic coordinate at u = -\[Pi] for inner candidate boundaries*)
 
 
 Module[
@@ -3677,6 +3677,81 @@ Module[
     ]
   ]
 ] // Ex["bipolar-candidate-v-corner.pdf"]
+
+
+(* ::Subsection:: *)
+(*Hyperbolic coordinate at u = -\[Pi] for outer candidate boundaries*)
+
+
+(* ::Subsubsection:: *)
+(*Visualisation for both outer and inner*)
+
+
+(* ::Text:: *)
+(*Conclusion: outer candidate boundary is never convex.*)
+
+
+DynamicModule[
+  {
+    aMin, aMax, aInit,
+    xMin, xMax, yMax,
+    aRationalised,
+    vInner, vOuter,
+    dummyForTrailingCommas
+  },
+  (* A values *)
+  {aMin, aMax} = {0.9986, 1} aNat0;
+  aInit = aInfl // N;
+  (* Plot range *)
+  xMin = 0;
+  xMax = 1.03 XBipolar[0, vNat0];
+  yMax = 0.1 xMax;
+  (* Visualise *)
+  Manipulate[
+    (* Rationalise value of A *)
+    aRationalised = a // Rationalize[#, 0] &;
+    (* Compute outer candidate boundary *)
+    vInner =
+      With[{v = \[FormalV]},
+        NDSolveValue[
+          {
+            v'[u] == Re @ vTraDer[aRationalised][u, v[u]],
+            v[0] == vSharp0[aRationalised]
+          }, v, {u, -Pi, 0}
+          , NoExtrapolation
+          , PreciseOptions[]
+        ]
+      ];
+    vOuter =
+      With[{v = \[FormalV]},
+        NDSolveValue[
+          {
+            v'[u] == Re @ vTraDer[aRationalised][u, v[u]],
+            v[0] == vFlat0[aRationalised]
+          }, v, {u, -Pi, 0}
+          , NoExtrapolation
+          , PreciseOptions[]
+        ]
+      ];
+    (* Plot *)
+    Show[
+      EmptyFrame[{xMin, xMax}, {-yMax, yMax}
+        , ImageSize -> Full
+        , PlotLabel -> BoxedLabel @ transStyle[a][aIt == N[a]]
+      ],
+      Table[
+        ParametricPlot[
+          {XYBipolar[u, v[u]], XYBipolar[-u, v[u]]}
+          , {u, DomainStart[v], DomainEnd[v]}
+          , PlotStyle -> {upperStyle, lowerStyle}
+        ]
+        , {v, {vOuter, vInner}}
+      ],
+      {}
+    ]
+    , {{a, aInit}, aMin, aMax}
+  ]
+]
 
 
 (* ::Section:: *)
