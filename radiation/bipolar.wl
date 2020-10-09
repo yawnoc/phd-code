@@ -256,7 +256,7 @@ vInfl = InverseFunction[
 
 
 (* ::Subsubsection:: *)
-(*Candidate boundary (at u = -\[Pi])*)
+(*Inner candidate boundary corner coordinate (at u = -\[Pi])*)
 
 
 (* ::Text:: *)
@@ -270,6 +270,29 @@ vTraCandCorn[a_] /; 0 < a <= aNat0 :=
       {
         v'[u] == Re @ vTraDer[a][u, v[u]],
         v[0] == vSharp0[a],
+        WhenEvent[vi[a][u, v[u]] < 0, "StopIntegration"]
+      }, v[-Pi], {u, -Pi, 0},
+      NoExtrapolation,
+      PreciseOptions[]
+    ]
+  ];
+
+
+(* ::Subsubsection:: *)
+(*Outer candidate boundary corner coordinate (at u = -\[Pi])*)
+
+
+(* ::Text:: *)
+(*From v = v_\[Flat]0, not considered in radiation-3-bipolar.pdf.*)
+
+
+(* The hyperbolic coordinate (v) at u == -\[Pi] *)
+vTraCandCornOuter[a_] /; 0 < a <= aNat0 :=
+  With[{v = \[FormalV]},
+    NDSolveValue[
+      {
+        v'[u] == Re @ vTraDer[a][u, v[u]],
+        v[0] == vFlat0[a],
         WhenEvent[vi[a][u, v[u]] < 0, "StopIntegration"]
       }, v[-Pi], {u, -Pi, 0},
       NoExtrapolation,
@@ -3598,7 +3621,7 @@ With[{v = \[FormalV], a = \[FormalCapitalA]},
 
 
 (* ::Subsection:: *)
-(*Hyperbolic coordinate at u = -\[Pi] for candidate boundaries*)
+(*Hyperbolic coordinate at u = -\[Pi] for inner candidate boundaries*)
 
 
 Module[
@@ -3654,6 +3677,104 @@ Module[
     ]
   ]
 ] // Ex["bipolar-candidate-v-corner.pdf"]
+
+
+(* ::Subsection:: *)
+(*Hyperbolic coordinate at u = -\[Pi] for outer candidate boundaries*)
+
+
+(* ::Subsubsection:: *)
+(*Visualisation for both outer and inner*)
+
+
+(* ::Text:: *)
+(*Conclusion: outer candidate boundary is never convex.*)
+
+
+DynamicModule[
+  {
+    aMin, aMax, aInit,
+    xMin, xMax, yMax,
+    aInflRationalised,
+    aRationalised,
+    vInnerInfl,
+    vInner, vOuter,
+    dummyForTrailingCommas
+  },
+  (* A values *)
+  {aMin, aMax} = {0.9986, 1} aNat0;
+  aInit = 0.999 aInfl // N;
+  (* Plot range *)
+  xMin = 0.5 XBipolar[0, vNat0];
+  xMax = 1.03 XBipolar[0, vNat0];
+  yMax = 0.1 xMax;
+  (* Visualise *)
+  Manipulate[
+    (* Rationalise values of A *)
+    aInflRationalised = aInfl // N // Rationalize[#, 0] &;
+    aRationalised = a // N // Rationalize[#, 0] &;
+    (* Compute inflection (borderline convex) inner boundary *)
+    vInnerInfl =
+      With[{v = \[FormalV]},
+        NDSolveValue[
+          {
+            v'[u] == Re @ vTraDer[aInflRationalised][u, v[u]],
+            v[0] == vSharp0[aInflRationalised]
+          }, v, {u, -Pi, 0}
+          , NoExtrapolation
+          , PreciseOptions[]
+        ]
+      ];
+    (* Compute inner and outer candidate boundaries *)
+    vInner =
+      With[{v = \[FormalV]},
+        NDSolveValue[
+          {
+            v'[u] == Re @ vTraDer[aRationalised][u, v[u]],
+            v[0] == vSharp0[aRationalised]
+          }, v, {u, -Pi, 0}
+          , NoExtrapolation
+          , PreciseOptions[]
+        ]
+      ];
+    vOuter =
+      With[{v = \[FormalV]},
+        NDSolveValue[
+          {
+            v'[u] == Re @ vTraDer[aRationalised][u, v[u]],
+            v[0] == vFlat0[aRationalised]
+          }, v, {u, -Pi, 0}
+          , NoExtrapolation
+          , PreciseOptions[]
+        ]
+      ];
+    (* Plot *)
+    Show[
+      EmptyFrame[{xMin, xMax}, {-yMax, yMax}
+        , ImageSize -> Full
+        , PlotLabel -> BoxedLabel @ transStyle[a][aIt == N[a]]
+      ],
+      Table[
+        ParametricPlot[
+          {XYBipolar[u, v[u]], XYBipolar[-u, v[u]]}
+          , {u, DomainStart[v], DomainEnd[v]}
+          , PlotStyle -> LightGray
+        ]
+        , {v, {vInnerInfl}}
+      ],
+      Table[
+        ParametricPlot[
+          {XYBipolar[u, v[u]], XYBipolar[-u, v[u]]}
+          , {u, DomainStart[v], DomainEnd[v]}
+          , PlotStyle -> {upperStyle, lowerStyle}
+        ]
+        , {v, {vOuter, vInner}}
+      ],
+      {}
+    ]
+    , {{a, aInit}, aMin, aMax}
+  ]
+]
 
 
 (* ::Section:: *)
