@@ -277,6 +277,58 @@ Show[
 ] // Ex["plane-traced-with-known.png"]
 
 
+(* ::Section:: *)
+(*Self-incident boundary ratio plots*)
+
+
+Module[
+  {
+    intervalList,
+    numPoints,
+    xSub, flatFractions, stringFractions,
+    x1, x2,
+    x1String, x2String, fileName,
+    xValues, xRatioTable,
+    dummyForTrailingCommas
+  },
+  (* List of intervals {x1, x2} to plot the ratio for *)
+  intervalList = {
+    {0, 1},
+    {0, 1/2}, {1/2, 1},
+    {0, 1/3}, {1/3, 2/3}, {2/3, 1},
+    {0, 1/4}, {1/4, 1/2}, {1/2, 3/4}, {3/4, 1},
+    Nothing
+  };
+  (* Number of points for sampling *)
+  numPoints = 50;
+  (* Nice labels *)
+  xSub[n_] := Subscript[Italicise["x"], n];
+  flatFractions = Rational[a_, b_] :> SeparatedRow["/"][a, b];
+  stringFractions = {
+    Rational[a_, b_] :> StringForm["``o``", a, b],
+    n_Integer :> ToString[n]
+  };
+  (* Make plots *)
+  Table[
+    (* Get interval endpoints *)
+    {x1, x2} = interval;
+    (* Build table of values *)
+    xValues = Subdivide[x1, x2, numPoints];
+    xRatioTable = Table[{x, boundaryRatio[x1, x2][x]}, {x, xValues}];
+    (* Plot and export *)
+    {x1String, x2String} = {x1, x2} /. stringFractions;
+    fileName = StringTemplate["plane-boundary-ratio-x1-``-x2-``.png"][x1String, x2String];
+    ListPlot[xRatioTable
+      , Joined -> True
+      , AxesLabel -> Italicise /@ {"x", "R"}
+      , PlotLabel -> {xSub[1], xSub[2]} == (interval /. flatFractions)
+      , PlotOptions[Axes] // Evaluate
+    ] // Ex[fileName]
+    , {interval, intervalList}
+  ] // Quiet
+]
+
+
 (* ::Section::Closed:: *)
 (*Figure: Traced boundaries, single spike (plane-traced-boundary-spike.pdf)*)
 
