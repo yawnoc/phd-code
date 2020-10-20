@@ -44,6 +44,33 @@ With[{x = \[FormalX]},
 
 
 (* ::Subsection:: *)
+(*Self-incident boundary ratio*)
+
+
+boundaryIntegrand[x_, xx_] :=
+  Module[{y, yDer},
+    y = -yTra[#] &;
+    yDer = -yTraDer[#] &;
+    Divide[
+      Times[
+        xx^4,
+        -(x - xx) yDer[xx] + (y[x] - y[xx]),
+        +(x - xx) yDer[x]  - (y[x] - y[xx])
+      ],
+      Times[
+        2,
+        ((x - xx)^2 + (y[x] - y[xx])^2) ^ (3/2),
+        Sqrt[1 + yDer[x]^2]
+      ]
+    ]
+  ] // Evaluate;
+
+
+boundaryRatio[x1_, x2_][x_] :=
+  1/x^4 * NIntegrate[boundaryIntegrand[x, xx], {xx, x1, x2}];
+
+
+(* ::Subsection:: *)
 (*Parameters for figures*)
 
 
