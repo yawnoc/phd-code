@@ -33,6 +33,7 @@ ClearAll["Global`*"];
 (*See (r1.17) to (r1.20) (Page r1-2 of manuscripts/radiation-1-plane.pdf).*)
 
 
+(* NOTE: making yTraDer negative was a really dumb decision. Too late to change it though. *)
 yTraDer = Function[{x}, -x^4 / Sqrt[1 - x^8]];
 yTra = Function[{x}, Integrate[yTraDer[x], x] // Evaluate];
 yTraMax = Abs @ yTra[1];
@@ -45,6 +46,10 @@ With[{x = \[FormalX]},
 
 (* ::Subsection:: *)
 (*Self-incident boundary ratio*)
+
+
+(* ::Subsubsection:: *)
+(*Exact expression*)
 
 
 boundaryRatioIntegrand[x_, xx_] :=
@@ -68,6 +73,39 @@ boundaryRatioIntegrand[x_, xx_] :=
 
 boundaryRatio[x1_, x2_][x_] :=
   1/x^4 * NIntegrate[boundaryRatioIntegrand[x, xx], {xx, x1, x2}];
+
+
+(* ::Subsubsection:: *)
+(*Crude upper bound*)
+
+
+boundaryRatioBoundIntegrand[x_, xx_] :=
+  Module[{y},
+    y = -yTra[#] &;
+    Divide[
+      xx^4 * (x - xx)^4,
+      ((x - xx)^2 + (y[x] - y[xx])^2) ^ (3/2)
+    ]
+  ] // Evaluate;
+
+
+boundaryRatioBoundPrefactor[x1_, x2_][x_] :=
+  Module[{y, yDer, yDer2},
+    y = -yTra[#] &;
+    yDer = -yTraDer[#] &;
+    yDer2 = yDer';
+    Divide[
+      (yDer2 @ Max[x1, x2, x])^2,
+      8 x^4 * Sqrt[1 + yDer[x]^2]
+    ]
+  ] // Evaluate;
+
+
+boundaryRatioBound[x1_, x2_][x_] :=
+  Times[
+    boundaryRatioBoundPrefactor[x1, x2][x],
+    NIntegrate[boundaryRatioBoundIntegrand[x, xx], {xx, x1, x2}]
+  ]
 
 
 (* ::Subsection:: *)
@@ -281,6 +319,10 @@ Show[
 (*Self-incident boundary ratio plots*)
 
 
+(* ::Subsection:: *)
+(*Exact expression*)
+
+
 Module[
   {
     intervalList,
@@ -323,6 +365,69 @@ Module[
       , AxesLabel -> Italicise /@ {"x", "R"}
       , PlotLabel -> {xSub[1], xSub[2]} == (interval /. flatFractions)
       , PlotOptions[Axes] // Evaluate
+    ] // Ex[fileName]
+    , {interval, intervalList}
+  ] // Quiet
+]
+
+
+(* ::Subsection:: *)
+(*Crude upper bound*)
+
+
+Module[
+  {
+    intervalList,
+    numPoints,
+    xSub, flatFractions, stringFractions,
+    x1, x2,
+    x1String, x2String, fileName,
+    xValues, xRatioTable,
+    dummyForTrailingCommas
+  },
+  (* List of intervals {x1, x2} to plot the ratio for *)
+  intervalList = {
+    {0, 1},
+    {0, 1/2}, {1/2, 1},
+    {0, 1/3}, {1/3, 2/3}, {2/3, 1},
+    {0, 1/4}, {1/4, 1/2}, {1/2, 3/4}, {3/4, 1},
+    Nothing
+  };
+  (* Number of points for sampling *)
+  numPoints = 50;
+  (* Nice labels *)
+  xSub[n_] := Subscript[Italicise["x"], n];
+  flatFractions = Rational[a_, b_] :> SeparatedRow["/"][a, b];
+  stringFractions = {
+    Rational[a_, b_] :> StringForm["``o``", a, b],
+    n_Integer :> ToString[n]
+  };
+  (* Make plots *)
+  Table[
+    (* Get interval endpoints *)
+    {x1, x2} = interval;
+    (* Build table of values *)
+    xValues = Subdivide[x1, x2, numPoints];
+    xRatioTable = Table[{x, boundaryRatio[x1, x2][x]}, {x, xValues}];
+    (* Plot and export *)
+    {x1String, x2String} = {x1, x2} /. stringFractions;
+    fileName = StringTemplate["plane-boundary-ratio-with-bound-x1-``-x2-``.png"][x1String, x2String];
+    Show[
+      (* Crude upper bound *)
+      Plot[boundaryRatioBound[x1, x2][x]
+        , {x, x1, x2}
+        , AxesLabel -> Italicise /@ {"x", "R"}
+        , PlotLabel -> {xSub[1], xSub[2]} == (interval /. flatFractions)
+        , PlotRange -> {{x1, x2}, {0, Automatic}}
+        , PlotStyle -> Directive[Red, Dashed]
+        , PlotOptions[Axes] // Evaluate
+      ],
+      (* Exact expression *)
+      ListPlot[xRatioTable
+        , Joined -> True
+        , PlotRange -> All
+      ],
+      {}
     ] // Ex[fileName]
     , {interval, intervalList}
   ] // Quiet
