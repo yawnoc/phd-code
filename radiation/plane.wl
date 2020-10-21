@@ -47,7 +47,7 @@ With[{x = \[FormalX]},
 (*Self-incident boundary ratio*)
 
 
-boundaryIntegrand[x_, xx_] :=
+boundaryRatioIntegrand[x_, xx_] :=
   Module[{y, yDer},
     y = -yTra[#] &;
     yDer = -yTraDer[#] &;
@@ -67,7 +67,7 @@ boundaryIntegrand[x_, xx_] :=
 
 
 boundaryRatio[x1_, x2_][x_] :=
-  1/x^4 * NIntegrate[boundaryIntegrand[x, xx], {xx, x1, x2}];
+  1/x^4 * NIntegrate[boundaryRatioIntegrand[x, xx], {xx, x1, x2}];
 
 
 (* ::Subsection:: *)
