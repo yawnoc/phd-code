@@ -108,6 +108,22 @@ boundaryRatioBound[x1_, x2_][x_] :=
   ]
 
 
+(* ::Subsubsection:: *)
+(*Ultra-crude upper bound*)
+
+
+boundaryRatioBoundUltra[x1_, x2_] /; x1 < x2 :=
+  Module[{y, yDer, yDer2},
+    y = -yTra[#] &;
+    yDer = -yTraDer[#] &;
+    yDer2 = yDer';
+    Divide[
+      (x2 - x1)^2 * (x2/x1)^4 * yDer2[x2]^2,
+      8 (1 + yDer[x1]^2) ^ 2
+    ] // N
+  ] // Evaluate;
+
+
 (* ::Subsection:: *)
 (*Parameters for figures*)
 
@@ -417,7 +433,10 @@ Module[
       Plot[boundaryRatioBound[x1, x2][x]
         , {x, x1, x2}
         , AxesLabel -> Italicise /@ {"x", "R"}
-        , PlotLabel -> {xSub[1], xSub[2]} == (interval /. flatFractions)
+        , PlotLabel -> Column @ {
+            {xSub[1], xSub[2]} == (interval /. flatFractions),
+            Subscript[Italicise["R"], "ultra"] == boundaryRatioBoundUltra[x1, x2]
+          }
         , PlotRange -> {{x1, x2}, {0, Automatic}}
         , PlotStyle -> Directive[Red, Dashed]
         , PlotOptions[Axes] // Evaluate
