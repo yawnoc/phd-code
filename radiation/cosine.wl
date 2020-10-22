@@ -3385,6 +3385,38 @@ Module[{aMin, aMax},
 ] // Ex["cosine_simple-traced-convex-aspect-ratio.pdf"]
 
 
+(* ::Subsection:: *)
+(*Non-convex lens-like candidate self-radiation*)
+
+
+(* ::Text:: *)
+(*See Pages r6-4 and r6-5 of manuscripts/radiation-6-self.pdf.*)
+
+
+Module[
+  {
+    numValues, aValues,
+    xCandidate, yEnd,
+    dummyForTrailingCommas
+  },
+  (* Values of A for sampling *)
+  numValues = 16;
+  aValues = Subdivide[0, aInflSimp, numValues + 1] // Rest // Most;
+  (* For each value of A *)
+  Table[
+    (* Compute the candidate boundary *)
+    xCandidate = xTraCandSimp[a, True];
+    (* Get the ending y-coordinate y_e *)
+    yEnd = DomainEnd[xCandidate];
+    (* Plot the candidate boundary for a check *)
+    ParametricPlot[{xCandidate[y], y}
+      , {y, 0, yEnd}
+    ]
+    , {a, aValues}
+  ]
+]
+
+
 (* ::Section:: *)
 (*General case (B arbitrary) plots*)
 
