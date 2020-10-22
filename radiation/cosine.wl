@@ -3397,6 +3397,7 @@ Module[
   {
     numValues, aValues,
     xCandidate, yEnd,
+    xDer, xDer2,
     dummyForTrailingCommas
   },
   (* Values of A for sampling *)
@@ -3408,9 +3409,22 @@ Module[
     xCandidate = xTraCandSimp[a, True];
     (* Get the ending y-coordinate y_e *)
     yEnd = DomainEnd[xCandidate];
+    (* Analytic expressions for derivatives (better than numeric) *)
+    xDer[y_] := xTraDer[a, 1][xCandidate[y], y];
     (* Plot the candidate boundary for a check *)
-    ParametricPlot[{xCandidate[y], y}
+    ParametricPlot[
+      {
+        {xCandidate[y], y}, {xCandidate'[y], y}, {xCandidate''[y], y},
+        {xDer[y], y},
+        Nothing
+      }
       , {y, 0, yEnd}
+      , ImageSize -> 240
+      , PlotStyle -> {
+          Automatic, Automatic, Automatic,
+          Directive[Yellow, Dotted],
+          Nothing
+        }
     ]
     , {a, aValues}
   ]
