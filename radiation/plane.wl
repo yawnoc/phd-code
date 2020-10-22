@@ -52,6 +52,10 @@ With[{x = \[FormalX]},
 (*Exact expression*)
 
 
+(* ::Text:: *)
+(*See (r6.15) (Page r6-2 of manuscripts/radiation-6-self.pdf).*)
+
+
 boundaryRatioIntegrand[x_, xx_] :=
   Module[{y, yDer},
     y = -yTra[#] &;
@@ -77,6 +81,10 @@ boundaryRatio[x1_, x2_][x_] :=
 
 (* ::Subsubsection:: *)
 (*Crude upper bound*)
+
+
+(* ::Text:: *)
+(*See (r6.22) (Page r6-3 of manuscripts/radiation-6-self.pdf).*)
 
 
 boundaryRatioBoundIntegrand[x_, xx_] :=
@@ -110,6 +118,10 @@ boundaryRatioBound[x1_, x2_][x_] :=
 
 (* ::Subsubsection:: *)
 (*Ultra-crude upper bound*)
+
+
+(* ::Text:: *)
+(*See (r6.26) (Page r6-4 of manuscripts/radiation-6-self.pdf).*)
 
 
 boundaryRatioBoundUltra[x1_, x2_] /; x1 < x2 :=
