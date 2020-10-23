@@ -3413,10 +3413,10 @@ Module[
     xDer[y_] := xTraDer[a, 1][xCandidate[y], y];
     xDer2[y_] := curTra[a, 1][xCandidate[y], y];
     (* Plot the candidate boundary for a check *)
-    ParametricPlot[
+    Plot[
       {
-        {xCandidate[y], y}, {xCandidate'[y], y}, {xCandidate''[y], y},
-        {xDer[y], y}, {xDer2[y], y},
+        xCandidate[y], xCandidate'[y], xCandidate''[y],
+        xDer[y], xDer2[y],
         Nothing
       } // Evaluate
       , {y, 0, yEnd}
