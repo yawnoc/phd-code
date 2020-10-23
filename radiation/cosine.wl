@@ -3399,7 +3399,6 @@ Module[
     b,
     xCandidate, yEnd,
     xDer, xDer2, xDer3,
-    tDer,
     yInfl, xInfl,
     yView, xView,
     yEx, xEx,
@@ -3460,43 +3459,14 @@ Module[
     (* Minimum and maximum temperature *)
     (* NOTE: only need endpoints since dT/dy is never zero *)
     {tMin, tMax} = MinMax @ Table[tKnown[b][xCandidate[y], y], {y, {yView, yEnd}}];
-    (* Compute ultra-crude self-incident boundary ratio (see (r6.32)) *)
+    (* Compute ultra-crude bound for self-incident boundary ratio R (see (r6.32)) *)
     rBound =
       Divide[
         (yEnd - yView)^2 * (tMax / tMin)^4 * xDer2Max^2,
         8 (1 + xDerMin^2) ^ 2
       ];
-    (* Plot candidate boundary for a check *)
-    Plot[
-      {
-        xCandidate[y],
-        xDer[y], xDer2[y], xDer3[y],
-        tKnown[b][xCandidate[y], y],
-        10 tDer[y],
-        Nothing
-      } // Evaluate
-      , {y, yView, yEnd}
-      , Epilog -> {
-          (* Inflection *)
-          Directive[Black, PointSize[Large]],
-          Point @ {yInfl, xInfl},
-          (* Self-viewing extremity *)
-          Directive[Red, PointSize[Large]],
-          Point @ {yView, xView},
-          (* Line from end unto self-viewing extremity *)
-          Red,
-          Line @ {{yEnd, Pi/2}, {yView, xView}},
-          (* Maximum (absolute) second derivative *)
-          Cyan,
-          Point @ {yXDer2Max, xDer2[yXDer2Max]},
-          (* Minimum (absolute) first derivative *)
-          Pink,
-          Point @ {yXDerMin, xDer[yXDerMin]},
-          {}
-        }
-      , ImageSize -> 240
-      , PlotLabel -> {a, rBound}
-    ]
+    (* Return pair of values (A, R) *)
+    {a, rBound}
     , {a, aValues}
   ]
 ]
