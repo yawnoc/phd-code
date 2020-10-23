@@ -3421,13 +3421,13 @@ Module[
       + Derivative[0, 1][curTra[a, 1]][xCandidate[y], y]
     );
     (* Find inflection y-coordinate y_i *)
-    yInfl = SeekRoot[xDer2, {0, yEnd}] // Quiet;
+    yInfl = SeekRoot[xDer2, {0, yEnd}, 16] // Quiet;
     xInfl = xCandidate[yInfl];
     (* Find self-viewing extremity y-coordinate y_v (see (r6.29)) *)
     yView = SeekRoot[xCandidate[#] + (yEnd - #) xDer[#] - Pi/2 &, {0, yInfl}];
     xView = xCandidate[yView];
     (* Extremum for second derivative *)
-    yEx = SeekRoot[xDer3, {0, yEnd}, 8] // Quiet;
+    yEx = SeekRoot[xDer3, {0, yEnd}, 16] // Quiet;
     xEx = xCandidate[yEx];
     (* Plot candidate boundary for a check *)
     Plot[
