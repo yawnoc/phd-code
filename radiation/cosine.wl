@@ -3399,6 +3399,7 @@ Module[
     xCandidate, yEnd,
     xDer, xDer2,
     yInfl, xInfl,
+    yView, xView,
     dummyForTrailingCommas
   },
   (* Values of A for sampling *)
@@ -3416,7 +3417,10 @@ Module[
     (* Find inflection y-coordinate y_i *)
     yInfl = SeekRoot[xDer2, {0, yEnd}] // Quiet;
     xInfl = xCandidate[yInfl];
-    (* Plot the candidate boundary for a check *)
+    (* Find self-viewing extremity y-coordinate y_v (see (r6.29)) *)
+    yView = SeekRoot[xCandidate[#] + (yEnd - #) xDer[#] - Pi/2 &, {0, yInfl}];
+    xView = xCandidate[yView];
+    (* Plot candidate boundary for a check *)
     Plot[
       {
         xCandidate[y],
@@ -3425,8 +3429,15 @@ Module[
       } // Evaluate
       , {y, 0, yEnd}
       , Epilog -> {
-          Directive[Red, PointSize[Large]],
+          (* Inflection *)
+          Directive[Black, PointSize[Large]],
           Point @ {yInfl, xInfl},
+          (* Self-viewing extremity *)
+          Directive[Red, PointSize[Large]],
+          Point @ {yView, xView},
+          (* Line from end unto self-viewing extremity *)
+          Red,
+          Line @ {{yEnd, Pi/2}, {yView, xView}},
           {}
         }
       , ImageSize -> 240
