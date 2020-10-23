@@ -3405,6 +3405,7 @@ Module[
     yEx, xEx,
     yXDer2Max, xDer2Max,
     yXDerMin, xDerMin,
+    tMin, tMax,
     dummyForTrailingCommas
   },
   (* Values of A for sampling *)
@@ -3455,6 +3456,9 @@ Module[
         1
       ];
     xDerMin = Abs @ xDer[yXDerMin];
+    (* Minimum and maximum temperature *)
+    (* NOTE: only need endpoints since dT/dy is never zero *)
+    {tMin, tMax} = MinMax @ Table[tKnown[b][xCandidate[y], y], {y, {yView, yEnd}}];
     (* Plot candidate boundary for a check *)
     Plot[
       {
@@ -3484,7 +3488,7 @@ Module[
           {}
         }
       , ImageSize -> 240
-      , PlotLabel -> {a, yEx}
+      , PlotLabel -> {a, tMin, tMax}
     ]
     , {a, aValues}
   ]
