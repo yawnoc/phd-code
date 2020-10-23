@@ -3452,6 +3452,7 @@ Module[
       {
         xCandidate[y],
         xDer[y], xDer2[y], xDer3[y],
+        tKnown[1][xCandidate[y], y],
         Nothing
       } // Evaluate
       , {y, yView, yEnd}
