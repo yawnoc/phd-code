@@ -3502,6 +3502,10 @@ Module[{aMin, aMax},
 (*Non-convex lens-like candidate self-radiation*)
 
 
+(* ::Subsubsection:: *)
+(*A vs R_crude*)
+
+
 Module[
   {
     aMin, aMax,
@@ -3547,6 +3551,105 @@ Module[
     {}
   ]
 ] // Ex["cosine_simple-candidate-boundary-ratio-bound-ultra.pdf"]
+
+
+(* ::Subsubsection:: *)
+(*Practical non-convex lenses*)
+
+
+Module[
+  {
+    b,
+    aValues,
+    aMin, xRadAMin, yEndAMin,
+    eps,
+    yMaxFrame, xMinFrame, xMaxFrame,
+    imageSize,
+    plotList,
+    xRad, yEnd,
+    xRadEvenExtension,
+    yInfl, xInfl,
+    dummyForTrailingCommas
+   },
+  (* Value of B *)
+  b = 1;
+  (* Values of A *)
+  aValues = Subdivide[aPracCandSimp, aInflSimp, 4];
+  (* Plot range *)
+  aMin = Min[aValues];
+  xRadAMin = xTraCandSimp[aMin, True];
+  yEndAMin = DomainEnd[xRadAMin];
+  eps = 0.02;
+  yMaxFrame = yEndAMin;
+  xMinFrame = (1 - eps) x0Simp[aMin];
+  xMaxFrame = (1 + eps) xStraight;
+  (* List of plots *)
+  imageSize = 96;
+  plotList =
+    Table[
+      (* Radiation boundary x == x(y) for convex domain *)
+      xRad = xTraCandSimp[a, True];
+      yEnd = DomainEnd[xRad];
+      xRadEvenExtension = Function[{y}, xRad[Abs @ y] // Evaluate];
+      (* Point of inflection *)
+      Which[
+        a < aInflSimp,
+          yInfl = SeekRoot[
+            curTra[a, b][xRad[#], #] &,
+            {DomainStart[xRad], DomainEnd[xRad]}
+          ],
+        a == aInflSimp,
+          yInfl = DomainEnd[xRad],
+        True,
+          yInfl = Indeterminate
+      ];
+      xInfl = xRad[yInfl];
+      (* Plot *)
+      Show[
+        EmptyFrame[
+          {xMinFrame, xMaxFrame}, {-yMaxFrame, yMaxFrame}
+          , Frame -> None
+          , ImageSize -> 4 imageSize
+            (* NOTE: GraphicsRow makes the plot smaller *)
+          , PlotRangePadding -> None
+        ],
+        (* Convex domain *)
+        ParametricPlot[
+          {
+            {xRadEvenExtension[y], y},
+            {xStraight, y}
+          }
+          , {y, -yEnd, yEnd}
+          , PlotPoints -> 2
+          , PlotStyle -> BoundaryTracingStyle /@ {"Traced", "Contour"}
+        ],
+        (* Point of inflection *)
+        If[NumericQ[yInfl],
+          Graphics @ {GeneralStyle["Point"],
+            Point @ {{xInfl, yInfl}, {xInfl, -yInfl}}
+          },
+          {}
+        ],
+        {}
+      ]
+      , {a, aValues}
+    ];
+  (* Final figure *)
+  Grid @ {{
+    Column[
+      {
+        Row @ {
+          GraphicsRow[plotList, Spacings -> {3.2 imageSize, 0}],
+          Row @ {Graphics[ImageSize -> 0.5 imageSize]}
+        },
+        Nothing
+      }
+    , Center
+    , Spacings -> 0
+    ],
+    Nothing
+  }}
+]
 
 
 (* ::Section:: *)
