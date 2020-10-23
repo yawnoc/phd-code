@@ -3398,6 +3398,7 @@ Module[
     numValues, aValues,
     xCandidate, yEnd,
     xDer, xDer2,
+    yInfl, xInfl,
     dummyForTrailingCommas
   },
   (* Values of A for sampling *)
@@ -3412,6 +3413,9 @@ Module[
     (* Analytic expressions for derivatives (better than numeric) *)
     xDer[y_] := xTraDer[a, 1][xCandidate[y], y];
     xDer2[y_] := curTra[a, 1][xCandidate[y], y];
+    (* Get the inflection y-coordinate y_i *)
+    yInfl = SeekRoot[xDer2, {0, yEnd}] // Quiet;
+    xInfl = xCandidate[yInfl];
     (* Plot the candidate boundary for a check *)
     Plot[
       {
@@ -3420,6 +3424,11 @@ Module[
         Nothing
       } // Evaluate
       , {y, 0, yEnd}
+      , Epilog -> {
+          Directive[Red, PointSize[Large]],
+          Point @ {yInfl, xInfl},
+          {}
+        }
       , ImageSize -> 240
       , PlotLabel -> N[a]
     ]
