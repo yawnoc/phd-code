@@ -3401,6 +3401,7 @@ Module[
     yInfl, xInfl,
     yView, xView,
     yEx, xEx,
+    yXDer2Max, xDer2Max,
     dummyForTrailingCommas
   },
   (* Values of A for sampling *)
@@ -3429,6 +3430,14 @@ Module[
     (* Extremum for second derivative *)
     yEx = SeekRoot[xDer3, {0, yEnd}, 16] // Quiet;
     xEx = xCandidate[yEx];
+    (* Maximum absolute value for second derivative *)
+    yXDer2Max =
+      First @ MaximalBy[
+        {yView, yEnd, If[yView < yEx < yEnd, yEx, Nothing]},
+        Abs @* xDer2,
+        1
+      ];
+    xDer2Max = Abs @ xDer2[yXDer2Max];
     (* Plot candidate boundary for a check *)
     Plot[
       {
@@ -3449,8 +3458,7 @@ Module[
           Line @ {{yEnd, Pi/2}, {yView, xView}},
           (* Extremum for second derivative *)
           Cyan,
-          Point @ {yEx, 0},
-          Point @ {yEx, xDer2[yEx]},
+          Point @ {yXDer2Max, xDer2Max},
           {}
         }
       , ImageSize -> 240
