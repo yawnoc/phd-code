@@ -1406,6 +1406,20 @@ candidateBoundaryRatioTable =
   ];
 
 
+(* ::Subsubsubsection:: *)
+(*Cutoff where non-convex lens-like candidates are yet practical*)
+
+
+rPracCandSimp = 1/100; (* 1 percent *)
+aPracCandSimp =
+  Module[{rUltraInterpolation, aMin, aMax},
+    rUltraInterpolation = Interpolation[candidateBoundaryRatioTable];
+    aMin = DomainStart[rUltraInterpolation];
+    aMax = DomainEnd[rUltraInterpolation];
+    SeekRoot[rUltraInterpolation[#] - rPracCandSimp &, {aMin, aMax}]
+  ]
+
+
 (* ::Subsubsection:: *)
 (*General case (B arbitrary)*)
 
@@ -3488,36 +3502,51 @@ Module[{aMin, aMax},
 (*Non-convex lens-like candidate self-radiation*)
 
 
-(* ::Text:: *)
-(*See Pages r6-4 and r6-5 of manuscripts/radiation-6-self.pdf.*)
-
-
 Module[
   {
     aMin, aMax,
-    rCutoff,
+    rMin, rMax,
     dummyForTrailingCommas
   },
   aMin = 0;
   aMax = aInflSimp;
-  rCutoff = 1/100;
+  rMin = 10^-8;
+  rMax = 20;
   Show[
     ListLogPlot[
       candidateBoundaryRatioTable
       , AxesLabel -> {aIt, Subscript[Italicise["R"], "crude"]}
       , Joined -> True
-      , PlotMarkers -> Automatic
-      , PlotRange -> All
+      , PlotRange -> {rMin, rMax}
+      , PlotRangeClipping -> False
       , PlotOptions[Axes] // Evaluate
     ],
     Plot[
-      rCutoff // Log
+      rPracCandSimp // Log
       , {a, aMin, aMax}
       , PlotStyle -> Red
     ],
+    Graphics @ {
+      Directive[Red, Dashed],
+      Line @ {{aPracCandSimp, rPracCandSimp // Log}, {aPracCandSimp, rMin // Log}},
+      Directive[Red, PointSize[Large]],
+      Point @ {aPracCandSimp, rMin // Log},
+      Red,
+      Text[
+        Subscript[Italicise["R"], "p"] == PercentForm @ N[rPracCandSimp]
+        , {aMin, rPracCandSimp // Log}
+        , {-1.2, -1.2}
+      ],
+      Text[
+        Subscript[aIt, "p"] == aPracCandSimp
+        , {aPracCandSimp, rMin // Log}
+        , {-1.2, -1}
+      ],
+      {}
+    },
     {}
   ]
-]
+] // Ex["cosine_simple-candidate-boundary-ratio-bound-ultra.pdf"]
 
 
 (* ::Section:: *)
