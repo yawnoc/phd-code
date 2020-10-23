@@ -3406,14 +3406,14 @@ Module[
   aValues = Subdivide[0, aInflSimp, numValues + 1] // Rest // Most;
   (* For each value of A *)
   Table[
-    (* Compute the candidate boundary *)
+    (* Compute candidate boundary *)
     xCandidate = xTraCandSimp[a, True];
-    (* Get the ending y-coordinate y_e *)
+    (* Get ending y-coordinate y_e *)
     yEnd = DomainEnd[xCandidate];
     (* Analytic expressions for derivatives (better than numeric) *)
     xDer[y_] := xTraDer[a, 1][xCandidate[y], y];
     xDer2[y_] := curTra[a, 1][xCandidate[y], y];
-    (* Get the inflection y-coordinate y_i *)
+    (* Find inflection y-coordinate y_i *)
     yInfl = SeekRoot[xDer2, {0, yEnd}] // Quiet;
     xInfl = xCandidate[yInfl];
     (* Plot the candidate boundary for a check *)
