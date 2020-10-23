@@ -3421,6 +3421,7 @@ Module[
       } // Evaluate
       , {y, 0, yEnd}
       , ImageSize -> 240
+      , PlotLabel -> N[a]
       , PlotStyle -> {
           Automatic, Automatic, Automatic,
           Directive[Yellow, Dotted], Directive[Pink, Dotted],
