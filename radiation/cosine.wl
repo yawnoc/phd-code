@@ -3398,6 +3398,7 @@ Module[
     numValues, aValues,
     xCandidate, yEnd,
     xDer, xDer2, xDer3,
+    tDer,
     yInfl, xInfl,
     yView, xView,
     yEx, xEx,
@@ -3418,9 +3419,13 @@ Module[
     xDer[y_] := xTraDer[a, 1][xCandidate[y], y];
     xDer2[y_] := curTra[a, 1][xCandidate[y], y];
     xDer3[y_] := (
-      (* dF/dy == \[PartialD]F/\[PartialD]x dx/dy + \[PartialD]F/\[PartialD]y *)
+      (* dF/dy == \[PartialD]F/\[PartialD]x * dx/dy + \[PartialD]F/\[PartialD]y *)
       Derivative[1, 0][curTra[a, 1]][xCandidate[y], y] * xDer[y]
       + Derivative[0, 1][curTra[a, 1]][xCandidate[y], y]
+    );
+    tDer[y_] := (
+      (* dT/dy == \[PartialD]T/\[PartialD]x * dx/dy + \[PartialD]T/\[PartialD]y *)
+      p[1][xCandidate[y], y] * xDer[y] + q[1][xCandidate[y], y]
     );
     (* Find inflection y-coordinate y_i *)
     yInfl = SeekRoot[xDer2, {0, yEnd}, 16] // Quiet;
@@ -3453,6 +3458,7 @@ Module[
         xCandidate[y],
         xDer[y], xDer2[y], xDer3[y],
         tKnown[1][xCandidate[y], y],
+        10 tDer[y],
         Nothing
       } // Evaluate
       , {y, yView, yEnd}
