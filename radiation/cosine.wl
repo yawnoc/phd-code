@@ -1307,6 +1307,119 @@ aspectRatioSimp[a_] :=
   ];
 
 
+(* ::Subsubsubsection:: *)
+(*Non-convex lens-like candidate self-radiation upper bound*)
+
+
+(* ::Text:: *)
+(*See Pages r6-4 and r6-5 of manuscripts/radiation-6-self.pdf,*)
+(*in particular (r6.32) for the ultra-crude upper bound for R.*)
+
+
+(* Compute A vs R{ultra} *)
+(* (This is not terribly slow, nevertheless compute once and store.) *)
+(* (Delete the file manually to compute from scratch.) *)
+candidateBoundaryRatioTable =
+  Module[
+    {
+      dest,
+      aMin, aMax,
+      numValues, aValues,
+      b,
+      aRTable,
+      xCandidate, yEnd,
+      xDer, xDer2, xDer3,
+      yInfl, xInfl,
+      yView, xView,
+      yEx, xEx,
+      yXDer2Max, xDer2Max,
+      yXDerMin, xDerMin,
+      tMin, tMax,
+      rBound,
+      rCutoff,
+      dummyForTrailingCommas
+    },
+    dest = "cosine_simple-candidate-boundary-ratio-bound-ultra.txt";
+    ExportIfNotExists[dest,
+      (* Values of A for sampling *)
+      aMin = 0;
+      aMax = aInflSimp;
+      numValues = 50;
+      aValues = Subdivide[aMin, aMax, numValues + 1] // Rest // Most;
+      (* Value of B *)
+      b = 1;
+      (* For each value of A *)
+      Table[
+        (* Compute candidate boundary *)
+        xCandidate = xTraCandSimp[a, True];
+        (* Get ending y-coordinate y_e *)
+        yEnd = DomainEnd[xCandidate];
+        (* Analytic expressions for derivatives (better than numeric) *)
+        xDer[y_] := xTraDer[a, b][xCandidate[y], y];
+        xDer2[y_] := curTra[a, b][xCandidate[y], y];
+        xDer3[y_] := (
+          (* dF/dy == \[PartialD]F/\[PartialD]x * dx/dy + \[PartialD]F/\[PartialD]y *)
+          Derivative[1, 0][curTra[a, b]][xCandidate[y], y] * xDer[y]
+          + Derivative[0, 1][curTra[a, b]][xCandidate[y], y]
+        );
+        (* Find inflection y-coordinate y_i *)
+        yInfl = SeekRoot[xDer2, {0, yEnd}, 32] // Quiet;
+        xInfl = xCandidate[yInfl];
+        (* Find self-viewing extremity y-coordinate y_v (see (r6.29)) *)
+        yView = SeekRoot[xCandidate[#] + (yEnd - #) xDer[#] - Pi/2 &, {0, yInfl}];
+        xView = xCandidate[yView];
+        (* Extremum for second derivative *)
+        yEx = SeekRoot[xDer3, {0, yEnd}, 32] // Quiet;
+        xEx = xCandidate[yEx];
+        (* Maximum absolute value for second derivative *)
+        yXDer2Max =
+          First @ MaximalBy[
+            {yView, yEnd, If[yView < yEx < yEnd, yEx, Nothing]},
+            Abs @* xDer2,
+            1
+          ];
+        xDer2Max = Abs @ xDer2[yXDer2Max];
+        (* Minimum absolute value for first derivative *)
+        yXDerMin =
+          First @ MinimalBy[
+            {yView, yEnd, yInfl},
+            Abs @* xDer,
+            1
+          ];
+        xDerMin = Abs @ xDer[yXDerMin];
+        (* Minimum and maximum temperature *)
+        (* NOTE: only need endpoints since dT/dy is never zero *)
+        {tMin, tMax} = MinMax @ Table[tKnown[b][xCandidate[y], y], {y, {yView, yEnd}}];
+        (* Compute ultra-crude bound for self-incident boundary ratio R (see (r6.32)) *)
+        rBound =
+          Divide[
+            (yEnd - yView)^2 * (tMax / tMin)^4 * xDer2Max^2,
+            8 (1 + xDerMin^2) ^ 2
+          ];
+        (* Return pair of values (A, R) *)
+        {a, rBound}
+        , {a, aValues}
+      ] // Compress
+    ];
+    (* Import *)
+    Import[dest] // Uncompress
+  ];
+
+
+(* ::Subsubsubsection:: *)
+(*Cutoff where non-convex lens-like candidates are yet practical*)
+
+
+rPracCandSimp = 1/100; (* 1 percent *)
+aPracCandSimp =
+  Module[{rUltraInterpolation, aMin, aMax},
+    rUltraInterpolation = Interpolation[candidateBoundaryRatioTable];
+    aMin = DomainStart[rUltraInterpolation];
+    aMax = DomainEnd[rUltraInterpolation];
+    SeekRoot[rUltraInterpolation[#] - rPracCandSimp &, {aMin, aMax}]
+  ]
+
+
 (* ::Subsubsection:: *)
 (*General case (B arbitrary)*)
 
@@ -3383,6 +3496,160 @@ Module[{aMin, aMax},
     ]
   ]
 ] // Ex["cosine_simple-traced-convex-aspect-ratio.pdf"]
+
+
+(* ::Subsection:: *)
+(*Non-convex lens-like candidate self-radiation*)
+
+
+(* ::Subsubsection:: *)
+(*A vs R_crude*)
+
+
+Module[
+  {
+    aMin, aMax,
+    rMin, rMax,
+    dummyForTrailingCommas
+  },
+  aMin = 0;
+  aMax = aInflSimp;
+  rMin = 10^-8;
+  rMax = 20;
+  Show[
+    ListLogPlot[
+      candidateBoundaryRatioTable
+      , AxesLabel -> {aIt, Subscript[Italicise["R"], "crude"]}
+      , Joined -> True
+      , PlotRange -> {rMin, rMax}
+      , PlotRangeClipping -> False
+      , PlotOptions[Axes] // Evaluate
+    ],
+    Plot[
+      rPracCandSimp // Log
+      , {a, aMin, aMax}
+      , PlotStyle -> Red
+    ],
+    Graphics @ {
+      Directive[Red, Dashed],
+      Line @ {{aPracCandSimp, rPracCandSimp // Log}, {aPracCandSimp, rMin // Log}},
+      Directive[Red, PointSize[Large]],
+      Point @ {aPracCandSimp, rMin // Log},
+      Red,
+      Text[
+        Subscript[Italicise["R"], "p"] == PercentForm @ N[rPracCandSimp]
+        , {aMin, rPracCandSimp // Log}
+        , {-1.2, -1.2}
+      ],
+      Text[
+        Subscript[aIt, "p"] == aPracCandSimp
+        , {aPracCandSimp, rMin // Log}
+        , {-1.2, -1}
+      ],
+      {}
+    },
+    {}
+  ]
+] // Ex["cosine_simple-candidate-boundary-ratio-bound-ultra.pdf"]
+
+
+(* ::Subsubsection:: *)
+(*Practical non-convex lenses*)
+
+
+Module[
+  {
+    b,
+    aValues,
+    aMin, xRadAMin, yEndAMin,
+    eps,
+    yMaxFrame, xMinFrame, xMaxFrame,
+    imageSize,
+    plotList,
+    xRad, yEnd,
+    xRadEvenExtension,
+    yInfl, xInfl,
+    dummyForTrailingCommas
+   },
+  (* Value of B *)
+  b = 1;
+  (* Values of A *)
+  aValues = Subdivide[aPracCandSimp, aInflSimp, 4];
+  (* Plot range *)
+  aMin = Min[aValues];
+  xRadAMin = xTraCandSimp[aMin, True];
+  yEndAMin = DomainEnd[xRadAMin];
+  eps = 0.02;
+  yMaxFrame = yEndAMin;
+  xMinFrame = (1 - eps) x0Simp[aMin];
+  xMaxFrame = (1 + eps) xStraight;
+  (* List of plots *)
+  imageSize = 96;
+  plotList =
+    Table[
+      (* Radiation boundary x == x(y) for convex domain *)
+      xRad = xTraCandSimp[a, True];
+      yEnd = DomainEnd[xRad];
+      xRadEvenExtension = Function[{y}, xRad[Abs @ y] // Evaluate];
+      (* Point of inflection *)
+      Which[
+        a < aInflSimp,
+          yInfl = SeekRoot[
+            curTra[a, b][xRad[#], #] &,
+            {DomainStart[xRad], DomainEnd[xRad]}
+          ],
+        a == aInflSimp,
+          yInfl = DomainEnd[xRad],
+        True,
+          yInfl = Indeterminate
+      ];
+      xInfl = xRad[yInfl];
+      (* Plot *)
+      Show[
+        EmptyFrame[
+          {xMinFrame, xMaxFrame}, {-yMaxFrame, yMaxFrame}
+          , Frame -> None
+          , ImageSize -> 4 imageSize
+            (* NOTE: GraphicsRow makes the plot smaller *)
+          , PlotRangePadding -> None
+        ],
+        (* Convex domain *)
+        ParametricPlot[
+          {
+            {xRadEvenExtension[y], y},
+            {xStraight, y}
+          }
+          , {y, -yEnd, yEnd}
+          , PlotPoints -> 2
+          , PlotStyle -> BoundaryTracingStyle /@ {"Traced", "Contour"}
+        ],
+        (* Point of inflection *)
+        If[NumericQ[yInfl],
+          Graphics @ {GeneralStyle["Point"],
+            Point @ {{xInfl, yInfl}, {xInfl, -yInfl}}
+          },
+          {}
+        ],
+        {}
+      ]
+      , {a, aValues}
+    ];
+  (* Final figure *)
+  Grid @ {{
+    Column[
+      {
+        Row @ {
+          GraphicsRow[plotList, Spacings -> {3.2 imageSize, 0}],
+          Row @ {Graphics[ImageSize -> 0.5 imageSize]}
+        },
+        Nothing
+      }
+    , Center
+    , Spacings -> 0
+    ],
+    Nothing
+  }}
+]
 
 
 (* ::Section:: *)
