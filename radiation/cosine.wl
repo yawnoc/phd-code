@@ -3402,6 +3402,7 @@ Module[
     yView, xView,
     yEx, xEx,
     yXDer2Max, xDer2Max,
+    yXDerMin, xDerMin,
     dummyForTrailingCommas
   },
   (* Values of A for sampling *)
@@ -3438,6 +3439,14 @@ Module[
         1
       ];
     xDer2Max = Abs @ xDer2[yXDer2Max];
+    (* Minimum absolute value for first derivative *)
+    yXDerMin =
+      First @ MinimalBy[
+        {yView, yEnd, yInfl},
+        Abs @* xDer,
+        1
+      ];
+    xDerMin = Abs @ xDer[yXDerMin];
     (* Plot candidate boundary for a check *)
     Plot[
       {
@@ -3456,9 +3465,12 @@ Module[
           (* Line from end unto self-viewing extremity *)
           Red,
           Line @ {{yEnd, Pi/2}, {yView, xView}},
-          (* Extremum for second derivative *)
+          (* Maximum (absolute) second derivative *)
           Cyan,
-          Point @ {yXDer2Max, xDer2Max},
+          Point @ {yXDer2Max, xDer2[yXDer2Max]},
+          (* Minimum (absolute) first derivative *)
+          Pink,
+          Point @ {yXDerMin, xDer[yXDerMin]},
           {}
         }
       , ImageSize -> 240
