@@ -3396,6 +3396,7 @@ Module[{aMin, aMax},
 Module[
   {
     numValues, aValues,
+    b,
     xCandidate, yEnd,
     xDer, xDer2, xDer3,
     tDer,
@@ -3409,6 +3410,8 @@ Module[
   (* Values of A for sampling *)
   numValues = 16;
   aValues = Subdivide[0, aInflSimp, numValues + 1] // Rest // Most;
+  (* Value of B *)
+  b = 1;
   (* For each value of A *)
   Table[
     (* Compute candidate boundary *)
@@ -3416,16 +3419,16 @@ Module[
     (* Get ending y-coordinate y_e *)
     yEnd = DomainEnd[xCandidate];
     (* Analytic expressions for derivatives (better than numeric) *)
-    xDer[y_] := xTraDer[a, 1][xCandidate[y], y];
-    xDer2[y_] := curTra[a, 1][xCandidate[y], y];
+    xDer[y_] := xTraDer[a, b][xCandidate[y], y];
+    xDer2[y_] := curTra[a, b][xCandidate[y], y];
     xDer3[y_] := (
       (* dF/dy == \[PartialD]F/\[PartialD]x * dx/dy + \[PartialD]F/\[PartialD]y *)
-      Derivative[1, 0][curTra[a, 1]][xCandidate[y], y] * xDer[y]
-      + Derivative[0, 1][curTra[a, 1]][xCandidate[y], y]
+      Derivative[1, 0][curTra[a, b]][xCandidate[y], y] * xDer[y]
+      + Derivative[0, 1][curTra[a, b]][xCandidate[y], y]
     );
     tDer[y_] := (
       (* dT/dy == \[PartialD]T/\[PartialD]x * dx/dy + \[PartialD]T/\[PartialD]y *)
-      p[1][xCandidate[y], y] * xDer[y] + q[1][xCandidate[y], y]
+      p[b][xCandidate[y], y] * xDer[y] + q[b][xCandidate[y], y]
     );
     (* Find inflection y-coordinate y_i *)
     yInfl = SeekRoot[xDer2, {0, yEnd}, 16] // Quiet;
@@ -3457,7 +3460,7 @@ Module[
       {
         xCandidate[y],
         xDer[y], xDer2[y], xDer3[y],
-        tKnown[1][xCandidate[y], y],
+        tKnown[b][xCandidate[y], y],
         10 tDer[y],
         Nothing
       } // Evaluate
