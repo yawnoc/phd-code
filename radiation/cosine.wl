@@ -3395,8 +3395,10 @@ Module[{aMin, aMax},
 
 Module[
   {
+    aMin, aMax,
     numValues, aValues,
     b,
+    aRTable,
     xCandidate, yEnd,
     xDer, xDer2, xDer3,
     yInfl, xInfl,
@@ -3406,15 +3408,18 @@ Module[
     yXDerMin, xDerMin,
     tMin, tMax,
     rBound,
+    rCutoff,
     dummyForTrailingCommas
   },
   (* Values of A for sampling *)
-  numValues = 16;
-  aValues = Subdivide[0, aInflSimp, numValues + 1] // Rest // Most;
+  aMin = 0;
+  aMax = aInflSimp;
+  numValues = 32;
+  aValues = Subdivide[aMin, aMax, numValues + 1] // Rest // Most;
   (* Value of B *)
   b = 1;
   (* For each value of A *)
-  Table[
+  aRTable = Table[
     (* Compute candidate boundary *)
     xCandidate = xTraCandSimp[a, True];
     (* Get ending y-coordinate y_e *)
@@ -3468,6 +3473,23 @@ Module[
     (* Return pair of values (A, R) *)
     {a, rBound}
     , {a, aValues}
+  ];
+  (* Plot A vs R *)
+  rCutoff = 1/100;
+  Show[
+    ListLogPlot[
+      aRTable
+      , AxesLabel -> {aIt, Subscript[Italicise["R"], "crude"]}
+      , Joined -> True
+      , PlotMarkers -> Automatic
+      , PlotOptions[Axes] // Evaluate
+    ],
+    Plot[
+      rCutoff // Log
+      , {a, aMin, aMax}
+      , PlotStyle -> Red
+    ],
+    {}
   ]
 ]
 
