@@ -3397,9 +3397,10 @@ Module[
   {
     numValues, aValues,
     xCandidate, yEnd,
-    xDer, xDer2,
+    xDer, xDer2, xDer3,
     yInfl, xInfl,
     yView, xView,
+    yEx, xEx,
     dummyForTrailingCommas
   },
   (* Values of A for sampling *)
@@ -3414,17 +3415,25 @@ Module[
     (* Analytic expressions for derivatives (better than numeric) *)
     xDer[y_] := xTraDer[a, 1][xCandidate[y], y];
     xDer2[y_] := curTra[a, 1][xCandidate[y], y];
+    xDer3[y_] := (
+      (* dF/dy == \[PartialD]F/\[PartialD]x dx/dy + \[PartialD]F/\[PartialD]y *)
+      Derivative[1, 0][curTra[a, 1]][xCandidate[y], y] * xDer[y]
+      + Derivative[0, 1][curTra[a, 1]][xCandidate[y], y]
+    );
     (* Find inflection y-coordinate y_i *)
     yInfl = SeekRoot[xDer2, {0, yEnd}] // Quiet;
     xInfl = xCandidate[yInfl];
     (* Find self-viewing extremity y-coordinate y_v (see (r6.29)) *)
     yView = SeekRoot[xCandidate[#] + (yEnd - #) xDer[#] - Pi/2 &, {0, yInfl}];
     xView = xCandidate[yView];
+    (* Extremum for second derivative *)
+    yEx = SeekRoot[xDer3, {0, yEnd}, 8] // Quiet;
+    xEx = xCandidate[yEx];
     (* Plot candidate boundary for a check *)
     Plot[
       {
         xCandidate[y],
-        xDer[y], xDer2[y],
+        xDer[y], xDer2[y], xDer3[y],
         Nothing
       } // Evaluate
       , {y, yView, yEnd}
@@ -3438,10 +3447,14 @@ Module[
           (* Line from end unto self-viewing extremity *)
           Red,
           Line @ {{yEnd, Pi/2}, {yView, xView}},
+          (* Extremum for second derivative *)
+          Cyan,
+          Point @ {yEx, 0},
+          Point @ {yEx, xDer2[yEx]},
           {}
         }
       , ImageSize -> 240
-      , PlotLabel -> N[a]
+      , PlotLabel -> {a, yEx}
     ]
     , {a, aValues}
   ]
