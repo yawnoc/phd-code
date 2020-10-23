@@ -3427,7 +3427,7 @@ Module[
         xDer[y], xDer2[y],
         Nothing
       } // Evaluate
-      , {y, 0, yEnd}
+      , {y, yView, yEnd}
       , Epilog -> {
           (* Inflection *)
           Directive[Black, PointSize[Large]],
