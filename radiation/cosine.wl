@@ -3406,6 +3406,7 @@ Module[
     yXDer2Max, xDer2Max,
     yXDerMin, xDerMin,
     tMin, tMax,
+    rBound,
     dummyForTrailingCommas
   },
   (* Values of A for sampling *)
@@ -3459,6 +3460,12 @@ Module[
     (* Minimum and maximum temperature *)
     (* NOTE: only need endpoints since dT/dy is never zero *)
     {tMin, tMax} = MinMax @ Table[tKnown[b][xCandidate[y], y], {y, {yView, yEnd}}];
+    (* Compute ultra-crude self-incident boundary ratio (see (r6.32)) *)
+    rBound =
+      Divide[
+        (yEnd - yView)^2 * (tMax / tMin)^4 * xDer2Max^2,
+        8 (1 + xDerMin^2) ^ 2
+      ];
     (* Plot candidate boundary for a check *)
     Plot[
       {
@@ -3488,7 +3495,7 @@ Module[
           {}
         }
       , ImageSize -> 240
-      , PlotLabel -> {a, tMin, tMax}
+      , PlotLabel -> {a, rBound}
     ]
     , {a, aValues}
   ]
