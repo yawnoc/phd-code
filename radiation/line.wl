@@ -2557,3 +2557,38 @@ Module[{source, tSol, mesh, tExact, relError},
   relError[x_, y_] := tSol[x, y] / tExact[x, y] - 1;
   relError @@@ mesh["Coordinates"] // Abs // Max // PercentForm
 ]
+
+
+(* ::Section:: *)
+(*Physical range*)
+
+
+(* ::Text:: *)
+(*See (r2.45) and (r2.47).*)
+
+
+Module[
+  {
+    r, eps, k, sigma,
+    tMin, tMax,
+    pMin, pMax,
+    dummyForTrailingCommas
+  },
+  (* Parameters *)
+  r = Quantity[3, "Centimeters"];
+  eps = 0.9;
+  k = Quantity[0.15, "Watts" / "Meters" / "Kelvins"];
+  sigma = Quantity[5.67 10^-8, "Watts" / "Meters"^2 / "Kelvins"^4];
+  (* Temperature range *)
+  tMin = (k / (4 eps sigma r)) ^ (1/3);
+  tMax = (k / (2 eps sigma r)) ^ (1/3);
+  (* Power per length *)
+  pMin = 2 Pi k^(4/3) / (256 eps sigma r) ^ (1/3);
+  pMax = 2 Pi k^(4/3) / (16 eps sigma r) ^ (1/3);
+  (* Pretty table *)
+  {
+    {"Temperature", tMin, tMax},
+    {"", UnitConvert[tMin, "DegreesCelsius"], UnitConvert[tMax, "DegreesCelsius"]},
+    {"Power per length", pMin, pMax}
+  } // TableForm
+]
