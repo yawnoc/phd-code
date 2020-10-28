@@ -2574,10 +2574,19 @@ Module[
     pMin, pMax,
     dummyForTrailingCommas
   },
-  (* Parameters *)
-  r = Quantity[3, "Centimeters"];
-  eps = 0.9;
-  k = Quantity[0.15, "Watts" / "Meters" / "Kelvins"];
+  (* Inradius *)
+  r = Quantity[4, "Centimeters"];
+  (* PVC emissivity and conductivity *)
+  (*
+    See Table 2 of
+    M. Lucchi, M. Lorenzini (2018).
+    Transient analysis of the radiative heating of rotating PVC pipes
+    in a oven for end-forming process.
+    Applied Thermal Engineering 129, 84--92.
+  *)
+  eps = 0.93;
+  k = Quantity[0.18, "Watts" / "Meters" / "Kelvins"];
+  (* Stefan--Boltzmann constant *)
   sigma = Quantity[5.67 10^-8, "Watts" / "Meters"^2 / "Kelvins"^4];
   (* Temperature range *)
   tMin = (k / (4 eps sigma r)) ^ (1/3);
@@ -2587,8 +2596,11 @@ Module[
   pMax = 2 Pi k^(4/3) / (16 eps sigma r) ^ (1/3);
   (* Pretty table *)
   {
+    {"Inradius", r},
+    {"Emissivity", eps},
+    {"Conductivity", k},
     {"Temperature", tMin, tMax},
     {"", UnitConvert[tMin, "DegreesCelsius"], UnitConvert[tMax, "DegreesCelsius"]},
     {"Power per length", pMin, pMax}
   } // TableForm
-]
+] // Ex["line-physical-range.pdf"]
