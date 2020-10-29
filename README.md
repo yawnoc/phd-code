@@ -2,8 +2,6 @@
 
 Code for Conway's Ph.D., for Mathematica Version&nbsp;12.
 
-Licensed under "MIT No Attribution" (MIT-0), see [LICENSE](LICENSE).
-
 See also: [phd-thesis](https://github.com/yawnoc/phd-thesis)
 
 ## Figure fonts
@@ -50,3 +48,8 @@ Intel(R) Core(TM) i7-7700 CPU @ 3.60 GHz (8 GB RAM)
 with a `Benchmark[]` score of about 2.4.
 
 [MaTeX]: https://github.com/szhorvat/MaTeX
+
+## License
+
+This repository is licensed under "MIT No Attribution" (MIT-0),
+see [LICENSE](LICENSE).
