@@ -204,3 +204,50 @@ With[{u = \[FormalU], v = \[FormalV], x = \[FormalX], y = \[FormalY]},
     AVBipolar[u, v] == Cross @ AUBipolar[u, v] // FullSimplify
   } // TableForm[#, TableDepth -> 1] &
 ]
+
+
+(* ::Section:: *)
+(*Testing greys for printing*)
+
+
+Module[
+  {
+    fun1, fun2,
+    pValues,
+    greyList, blackList,
+    intensityValues, thicknessValues,
+    dummyForTrailingCommas
+  },
+  (* Functions to be plotted *)
+  fun1[p_][x_] := (1 - p) - x;
+  fun2[p_][x_] := x^p;
+  pValues = Subdivide[4];
+  greyList[x_] := Table[{fun1[p][x], fun2[p][x]}, {p, pValues}];
+  blackList[x_] := Table[fun2[p][x], {p, pValues}];
+  (* List of plots *)
+  intensityValues = Range[0.3, 0.8, 0.1];
+  thicknessValues = {Automatic, Thick};
+  Table[
+    Show[
+      (* Background greys *)
+      Plot[greyList[x], {x, 0, 1}
+        , AxesLabel -> {None, None}
+        , AspectRatio -> 1/2
+        , ImageSize -> 360
+        , PlotLabel -> StringTemplate["GrayLevel[``], ``"][intensity, thickness]
+        , PlotRange -> {-0.2, 1}
+        , PlotStyle -> GrayLevel[intensity]
+        , PlotOptions[Axes] // Evaluate
+      ],
+      (* Main blacks *)
+      Plot[blackList[x], {x, 0.2, 0.4}
+        , PlotStyle -> Directive[Black, thickness]
+        , PlotOptions[Axes] // Evaluate
+      ],
+      {}
+    ]
+    , {intensity, intensityValues}
+    , {thickness, thicknessValues}
+  ]
+    // TableForm[#, TableHeadings -> {intensityValues, thicknessValues}] &
+] // Ex["test-grey-figure.pdf"]
