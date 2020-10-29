@@ -2,7 +2,7 @@
 
 Code for Conway's Ph.D., for Mathematica Version&nbsp;12.
 
-See also: [phd-thesis](https://github.com/yawnoc/phd-thesis)
+For the thesis, see [phd-thesis](https://github.com/yawnoc/phd-thesis).
 
 ## Figure fonts
 
