@@ -55,7 +55,9 @@ Begin["`Private`"];
 
 
 GeneralStyle[type_String : Automatic] := Association[
+  "DefaultThick" -> AbsoluteThickness[1.5],
   "Point" -> PointSize[Large],
+  "Thick" -> AbsoluteThickness[2.5],
   "Translucent" -> Opacity[0.7],
   Automatic -> Automatic
 ][type];
@@ -66,12 +68,32 @@ GeneralStyle[type_String : Automatic] := Association[
 
 
 BoundaryTracingStyle[type : (_String | Automatic) : Automatic] := Association[
-  "Background" -> GrayLevel[0.7],
-  "Contour" -> Directive[AbsoluteDashing @ {1, 4}, Black],
-  "ContourImportant" -> Gray,
-  "NonViable" -> Directive[GeneralStyle["Translucent"], LightGray],
-  "Terminal" -> Directive[AbsoluteDashing @ {12, 6}, Black],
-  "Traced" -> Directive[AbsoluteThickness[2.5], Black],
+  "Background" -> Directive[
+    GeneralStyle["DefaultThick"],
+    GrayLevel[0.7]
+  ],
+  "Contour" -> Directive[
+    GeneralStyle["DefaultThick"],
+    AbsoluteDashing @ {1, 4},
+    Black
+  ],
+  "ContourImportant" -> Directive[
+    GeneralStyle["Thick"],
+    Gray
+  ],
+  "NonViable" -> Directive[
+    GeneralStyle["Translucent"],
+    LightGray
+  ],
+  "Terminal" -> Directive[
+    GeneralStyle["DefaultThick"],
+    AbsoluteDashing @ {12, 6},
+    Black
+  ],
+  "Traced" -> Directive[
+    GeneralStyle["Thick"],
+    Black
+  ],
   "Unphysical" -> Black,
   "Viable" -> White,
   Automatic -> Black
