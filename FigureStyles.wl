@@ -55,6 +55,7 @@ Begin["`Private`"];
 
 
 GeneralStyle[type_String : Automatic] := Association[
+  "Dashed" -> AbsoluteDashing @ {12, 6},
   "DefaultThick" -> AbsoluteThickness[1.5],
   "Point" -> PointSize[Large],
   "Thick" -> AbsoluteThickness[2.5],
@@ -87,7 +88,7 @@ BoundaryTracingStyle[type : (_String | Automatic) : Automatic] := Association[
   ],
   "Terminal" -> Directive[
     GeneralStyle["DefaultThick"],
-    AbsoluteDashing @ {12, 6},
+    GeneralStyle["Dashed"],
     Black
   ],
   "Traced" -> Directive[
