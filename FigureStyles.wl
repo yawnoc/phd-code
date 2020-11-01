@@ -66,8 +66,7 @@ GeneralStyle[type_String : Automatic] := Association[
 
 
 BoundaryTracingStyle[type : (_String | Automatic) : Automatic] := Association[
-  "Background" -> GrayLevel[0.93],
-  "BackgroundDarker" -> GrayLevel[0.85],
+  "Background" -> GrayLevel[0.8],
   "Contour" -> Directive[Dotted, Black],
   "ContourSolid" -> Gray,
   "NonViable" -> Directive[GeneralStyle["Translucent"], LightGray],
