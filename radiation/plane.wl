@@ -732,7 +732,7 @@ Module[
           {x, 0, 1},
           PlotPoints -> plotPointsGeneral,
           PlotRange -> {-yMax, yMax},
-          PlotStyle -> BoundaryTracingStyle["Traced", "Background"]
+          PlotStyle -> BoundaryTracingStyle["Background"]
         ]
       , {i, n}],
       (* General boundaries: lower-branch(i) *)
@@ -743,7 +743,7 @@ Module[
           {x, 0, 1},
           PlotPoints -> plotPointsGeneral,
           PlotRange -> {-yMax, yMax},
-          PlotStyle -> BoundaryTracingStyle["Traced", "Background"]
+          PlotStyle -> BoundaryTracingStyle["Background"]
         ]
       , {i, n}],
       (* Patched portions: upper-branch(i) *)
