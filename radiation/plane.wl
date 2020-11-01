@@ -856,7 +856,7 @@ Module[
       ParametricPlot[
         {xTerm, y}, {y, -yMax, yMax},
         PlotPoints -> 2,
-        PlotStyle -> BoundaryTracingStyle["Terminal", "BackgroundDarker"]
+        PlotStyle -> BoundaryTracingStyle["Terminal", "Background"]
       ],
       Graphics @ {Gray,
         Text[
@@ -914,7 +914,7 @@ Module[
   legendCurves =
     CurveLegend[
       BoundaryTracingStyle @* ReleaseHold /@
-        {"Traced", "Contour", Hold @ Sequence["Terminal", "BackgroundDarker"]},
+        {"Traced", "Contour", Hold @ Sequence["Terminal", "Background"]},
       {"radiation", "constant temperature", "critical terminal curve"}
       , LabelStyle -> legendLabelStyle
     ];
