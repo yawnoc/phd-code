@@ -6168,7 +6168,10 @@ Module[
       {Indeterminate, True}
     };
   (* Plot *)
-  visiblePlotStyles = {Black, Directive[Black, Dashed]};
+  visiblePlotStyles = {
+    Directive[Black, GeneralStyle["Thick"]],
+    Directive[Black, GeneralStyle["Thick"], GeneralStyle["Dashed"]]
+  };
   plot = Plot[
     {xSharp[a, b], xFlat[a, b], xFillingFunction[b]}
     , {b, bMin, bMax}
