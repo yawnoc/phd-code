@@ -2341,7 +2341,7 @@ Module[
         , ContourLabels -> None
         , PlotPoints -> 7
         , ContourStyle -> BoundaryTracingStyle /@ {
-            "Terminal", "BackgroundDarker"
+            "Terminal", "Background"
           }
       ],
       (* Traced boundaries (spikes) *)
