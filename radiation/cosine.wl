@@ -5112,7 +5112,7 @@ Module[
           ContourLabels -> None,
           Contours -> numTo1 + numBeyond1,
           ContourShading -> None,
-          ContourStyle -> BoundaryTracingStyle["BackgroundDarker"],
+          ContourStyle -> BoundaryTracingStyle["Background"],
           PlotPoints -> 5,
           PlotRange -> {0, 1 + (1 + numBeyond1) / numTo1}
         ],
@@ -5120,7 +5120,7 @@ Module[
         ParametricPlot[{xStraight, y},
           {y, -yMaxContStraight, yMaxContStraight},
           PlotRange -> Full,
-          PlotStyle -> BoundaryTracingStyle["ContourSolid"]
+          PlotStyle -> BoundaryTracingStyle["ContourImportant"]
         ],
         (* Non-viable domain *)
         RegionPlot[vi[a, b][x, y] < 0 && tKnown[b][x, y] > 0,
@@ -5175,7 +5175,7 @@ Module[
     ];
   legendCurves =
     CurveLegend[
-      BoundaryTracingStyle /@ {"Terminal", "BackgroundDarker"},
+      BoundaryTracingStyle /@ {"Terminal", "Background"},
       {"terminal curve", Row @ {Italicise["T"], "\[Hyphen]contour"}}
       , LabelStyle -> legendLabelStyle
     ];
