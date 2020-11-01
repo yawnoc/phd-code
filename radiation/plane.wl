@@ -465,7 +465,7 @@ Module[
 ]
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Figure: Traced boundaries, single spike (plane-traced-boundary-spike.pdf)*)
 
 
