@@ -4958,7 +4958,7 @@ Module[
           ContourLabels -> None,
           Contours -> numTo1 + numBeyond1,
           ContourShading -> None,
-          ContourStyle -> BoundaryTracingStyle["BackgroundDarker"],
+          ContourStyle -> BoundaryTracingStyle["Background"],
           PlotPoints -> 5,
           PlotRange -> {0, 1 + (1 + numBeyond1) / numTo1}
         ],
@@ -4966,7 +4966,7 @@ Module[
         ParametricPlot[{xStraight, y},
           {y, -yMaxContStraight, yMaxContStraight},
           PlotRange -> Full,
-          PlotStyle -> BoundaryTracingStyle["ContourSolid"]
+          PlotStyle -> BoundaryTracingStyle["ContourImportant"]
         ]
       ]
     , {b, bValues}];
@@ -5015,7 +5015,7 @@ Module[
     ];
   legendCurves =
     CurveLegend[
-      {BoundaryTracingStyle["BackgroundDarker"]},
+      {BoundaryTracingStyle["Background"]},
       {Row @ {Italicise["T"], "\[Hyphen]contour"}}
       , LabelStyle -> legendLabelStyle
     ];
