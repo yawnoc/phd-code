@@ -491,7 +491,7 @@ Module[{yMax, yMaxMore, xTerm},
 ] // Ex["plane-traced-boundary-spike.pdf"]
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Figure: Traced boundaries, various (plane-traced-boundary-various.pdf)*)
 
 
