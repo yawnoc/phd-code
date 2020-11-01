@@ -5314,7 +5314,7 @@ Module[
           // Evaluate,
         {s, DomainStart[xy], DomainEnd[xy]}
         , PlotPoints -> 2
-        , PlotStyle -> BoundaryTracingStyle["BackgroundDarker"]
+        , PlotStyle -> BoundaryTracingStyle["Background"]
       ]
     , {xy, Join[patchedBoundaryUpperList, patchedBoundaryLowerList]}],
     (* Unphysical domain *)
