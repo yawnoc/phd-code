@@ -1440,7 +1440,7 @@ Module[{textStyle},
       , PlotRange -> All
       , PlotRangeClipping -> False
       , PlotRangePadding -> {Automatic, {0.05, Automatic}}
-      , PlotStyle -> Black
+      , PlotStyle -> Directive[Black, GeneralStyle["Thick"]]
       , PlotOptions[Axes] // Evaluate
     ],
     Graphics @ {
