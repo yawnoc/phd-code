@@ -5543,7 +5543,7 @@ Module[
       ContourLabels -> None,
       Contours -> tContValues,
       ContourShading -> None,
-      ContourStyle -> BoundaryTracingStyle["BackgroundDarker"],
+      ContourStyle -> BoundaryTracingStyle["Background"],
       PlotPoints -> 8
     ],
     (* Non-viable domain *)
@@ -5597,7 +5597,7 @@ Module[
   legendLabelStyle = LatinModernLabelStyle[16];
   legendCurves =
     CurveLegend[
-      BoundaryTracingStyle /@ {"BackgroundDarker", "Terminal"},
+      BoundaryTracingStyle /@ {"Background", "Terminal"},
       {Row @ {Italicise["T"], "\[Hyphen]contour"}, "terminal curve"}
       , LabelStyle -> legendLabelStyle
     ];
