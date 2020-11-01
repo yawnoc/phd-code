@@ -465,7 +465,7 @@ Module[
 ]
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Figure: Traced boundaries, single spike (plane-traced-boundary-spike.pdf)*)
 
 
@@ -491,7 +491,7 @@ Module[{yMax, yMaxMore, xTerm},
 ] // Ex["plane-traced-boundary-spike.pdf"]
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Figure: Traced boundaries, various (plane-traced-boundary-various.pdf)*)
 
 
@@ -732,7 +732,7 @@ Module[
           {x, 0, 1},
           PlotPoints -> plotPointsGeneral,
           PlotRange -> {-yMax, yMax},
-          PlotStyle -> BoundaryTracingStyle["Traced", "Background"]
+          PlotStyle -> BoundaryTracingStyle["Background"]
         ]
       , {i, n}],
       (* General boundaries: lower-branch(i) *)
@@ -743,7 +743,7 @@ Module[
           {x, 0, 1},
           PlotPoints -> plotPointsGeneral,
           PlotRange -> {-yMax, yMax},
-          PlotStyle -> BoundaryTracingStyle["Traced", "Background"]
+          PlotStyle -> BoundaryTracingStyle["Background"]
         ]
       , {i, n}],
       (* Patched portions: upper-branch(i) *)
@@ -856,7 +856,7 @@ Module[
       ParametricPlot[
         {xTerm, y}, {y, -yMax, yMax},
         PlotPoints -> 2,
-        PlotStyle -> BoundaryTracingStyle["Terminal", "BackgroundDarker"]
+        PlotStyle -> BoundaryTracingStyle["Terminal", "Background"]
       ],
       Graphics @ {Gray,
         Text[
@@ -914,7 +914,7 @@ Module[
   legendCurves =
     CurveLegend[
       BoundaryTracingStyle @* ReleaseHold /@
-        {"Traced", "Contour", Hold @ Sequence["Terminal", "BackgroundDarker"]},
+        {"Traced", "Contour", Hold @ Sequence["Terminal", "Background"]},
       {"radiation", "constant temperature", "critical terminal curve"}
       , LabelStyle -> legendLabelStyle
     ];

@@ -1440,7 +1440,7 @@ Module[{textStyle},
       , PlotRange -> All
       , PlotRangeClipping -> False
       , PlotRangePadding -> {Automatic, {0.05, Automatic}}
-      , PlotStyle -> Black
+      , PlotStyle -> Directive[Black, GeneralStyle["Thick"]]
       , PlotOptions[Axes] // Evaluate
     ],
     Graphics @ {
@@ -1820,7 +1820,10 @@ Module[
   aMax = Ceiling[aNat] - 0.1;
   textStyle = Style[#, 18] & @* LaTeXStyle;
   (* Plot *)
-  plotStyles = {Black, Directive[Black, Dashed]};
+  plotStyles = {
+    Directive[Black, GeneralStyle["Thick"]],
+    Directive[Black, GeneralStyle["Thick"], GeneralStyle["Dashed"]]
+  };
   plot = Show[
     (* Terminal radii *)
     Plot[{rSharp[a], rFlat[a]}, {a, 0, aNat}
@@ -1942,7 +1945,7 @@ Module[
       {xyUpper[p], xyLower[p]} // Evaluate
       , {p, 0, 1}
       , AxesLabel -> Italicise @ {"x", "y"}
-      , AxesStyle -> GrayLevel[0.6]
+      , AxesStyle -> Darker[Gray]
       , ImageSize -> 270
       , LabelStyle -> LatinModernLabelStyle[18]
         (* NOTE: LatinModernLabelStyle[16] results in cut-off x-label *)
@@ -2341,7 +2344,7 @@ Module[
         , ContourLabels -> None
         , PlotPoints -> 7
         , ContourStyle -> BoundaryTracingStyle /@ {
-            "Terminal", "BackgroundDarker"
+            "Terminal", "Background"
           }
       ],
       (* Traced boundaries (spikes) *)

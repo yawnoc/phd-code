@@ -4958,7 +4958,7 @@ Module[
           ContourLabels -> None,
           Contours -> numTo1 + numBeyond1,
           ContourShading -> None,
-          ContourStyle -> BoundaryTracingStyle["BackgroundDarker"],
+          ContourStyle -> BoundaryTracingStyle["Background"],
           PlotPoints -> 5,
           PlotRange -> {0, 1 + (1 + numBeyond1) / numTo1}
         ],
@@ -4966,7 +4966,7 @@ Module[
         ParametricPlot[{xStraight, y},
           {y, -yMaxContStraight, yMaxContStraight},
           PlotRange -> Full,
-          PlotStyle -> BoundaryTracingStyle["ContourSolid"]
+          PlotStyle -> BoundaryTracingStyle["ContourImportant"]
         ]
       ]
     , {b, bValues}];
@@ -5015,7 +5015,7 @@ Module[
     ];
   legendCurves =
     CurveLegend[
-      {BoundaryTracingStyle["BackgroundDarker"]},
+      {BoundaryTracingStyle["Background"]},
       {Row @ {Italicise["T"], "\[Hyphen]contour"}}
       , LabelStyle -> legendLabelStyle
     ];
@@ -5112,7 +5112,7 @@ Module[
           ContourLabels -> None,
           Contours -> numTo1 + numBeyond1,
           ContourShading -> None,
-          ContourStyle -> BoundaryTracingStyle["BackgroundDarker"],
+          ContourStyle -> BoundaryTracingStyle["Background"],
           PlotPoints -> 5,
           PlotRange -> {0, 1 + (1 + numBeyond1) / numTo1}
         ],
@@ -5120,7 +5120,7 @@ Module[
         ParametricPlot[{xStraight, y},
           {y, -yMaxContStraight, yMaxContStraight},
           PlotRange -> Full,
-          PlotStyle -> BoundaryTracingStyle["ContourSolid"]
+          PlotStyle -> BoundaryTracingStyle["ContourImportant"]
         ],
         (* Non-viable domain *)
         RegionPlot[vi[a, b][x, y] < 0 && tKnown[b][x, y] > 0,
@@ -5175,7 +5175,7 @@ Module[
     ];
   legendCurves =
     CurveLegend[
-      BoundaryTracingStyle /@ {"Terminal", "BackgroundDarker"},
+      BoundaryTracingStyle /@ {"Terminal", "Background"},
       {"terminal curve", Row @ {Italicise["T"], "\[Hyphen]contour"}}
       , LabelStyle -> legendLabelStyle
     ];
@@ -5314,7 +5314,7 @@ Module[
           // Evaluate,
         {s, DomainStart[xy], DomainEnd[xy]}
         , PlotPoints -> 2
-        , PlotStyle -> BoundaryTracingStyle["BackgroundDarker"]
+        , PlotStyle -> BoundaryTracingStyle["Background"]
       ]
     , {xy, Join[patchedBoundaryUpperList, patchedBoundaryLowerList]}],
     (* Unphysical domain *)
@@ -5414,7 +5414,7 @@ Module[
           // Evaluate,
         {s, DomainStart[xy], 0}
         , PlotPoints -> 2
-        , PlotStyle -> BoundaryTracingStyle["BackgroundDarker"]
+        , PlotStyle -> BoundaryTracingStyle["Background"]
       ]
     , {xy, {patchedBoundarySmooth}}],
     (* Unphysical domain *)
@@ -5543,7 +5543,7 @@ Module[
       ContourLabels -> None,
       Contours -> tContValues,
       ContourShading -> None,
-      ContourStyle -> BoundaryTracingStyle["BackgroundDarker"],
+      ContourStyle -> BoundaryTracingStyle["Background"],
       PlotPoints -> 8
     ],
     (* Non-viable domain *)
@@ -5597,7 +5597,7 @@ Module[
   legendLabelStyle = LatinModernLabelStyle[16];
   legendCurves =
     CurveLegend[
-      BoundaryTracingStyle /@ {"BackgroundDarker", "Terminal"},
+      BoundaryTracingStyle /@ {"Background", "Terminal"},
       {Row @ {Italicise["T"], "\[Hyphen]contour"}, "terminal curve"}
       , LabelStyle -> legendLabelStyle
     ];
@@ -6168,7 +6168,10 @@ Module[
       {Indeterminate, True}
     };
   (* Plot *)
-  visiblePlotStyles = {Black, Directive[Black, Dashed]};
+  visiblePlotStyles = {
+    Directive[Black, GeneralStyle["Thick"]],
+    Directive[Black, GeneralStyle["Thick"], GeneralStyle["Dashed"]]
+  };
   plot = Plot[
     {xSharp[a, b], xFlat[a, b], xFillingFunction[b]}
     , {b, bMin, bMax}
