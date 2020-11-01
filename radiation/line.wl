@@ -1820,7 +1820,10 @@ Module[
   aMax = Ceiling[aNat] - 0.1;
   textStyle = Style[#, 18] & @* LaTeXStyle;
   (* Plot *)
-  plotStyles = {Black, Directive[Black, Dashed]};
+  plotStyles = {
+    Directive[Black, GeneralStyle["Thick"]],
+    Directive[Black, GeneralStyle["Thick"], GeneralStyle["Dashed"]]
+  };
   plot = Show[
     (* Terminal radii *)
     Plot[{rSharp[a], rFlat[a]}, {a, 0, aNat}
