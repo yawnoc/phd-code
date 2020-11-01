@@ -1942,7 +1942,7 @@ Module[
       {xyUpper[p], xyLower[p]} // Evaluate
       , {p, 0, 1}
       , AxesLabel -> Italicise @ {"x", "y"}
-      , AxesStyle -> GrayLevel[0.6]
+      , AxesStyle -> Darker[Gray]
       , ImageSize -> 270
       , LabelStyle -> LatinModernLabelStyle[18]
         (* NOTE: LatinModernLabelStyle[16] results in cut-off x-label *)
