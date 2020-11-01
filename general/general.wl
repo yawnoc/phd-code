@@ -138,18 +138,18 @@ Module[
           Frame -> None,
           ImageSize -> imageSize
         ],
-        (* Local T-contour *)
-        ContourPlot[t == 0,
-          {x, -xMaxLess, xMaxLess}, {y, -yMaxLess, yMaxLess},
-          ContourStyle -> BoundaryTracingStyle["Contour"],
-          PlotPoints -> 10
-        ],
         (* Non-viable domain and terminal curve *)
         RegionPlot[vi < 0,
           {x, -xMaxMore, xMaxMore}, {y, -yMaxMore, yMaxMore},
           BoundaryStyle -> BoundaryTracingStyle["Terminal"],
           PlotPoints -> 15,
           PlotStyle -> BoundaryTracingStyle["NonViable"]
+        ],
+        (* Local T-contour *)
+        ContourPlot[t == 0,
+          {x, -xMaxLess, xMaxLess}, {y, -yMaxLess, yMaxLess},
+          ContourStyle -> BoundaryTracingStyle["Contour"],
+          PlotPoints -> 10
         ],
         (* Traced boundaries *)
         Table[
