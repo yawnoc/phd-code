@@ -44,6 +44,14 @@ alpha = Pi/4;
 uKnown[x_, y_] := Exp[(-x+y)/Sqrt[2]] + Exp[(-x-y)/Sqrt[2]];
 
 
+(* ::Subsubsection:: *)
+(*P = \[PartialD]U/\[PartialD]x, Q = \[PartialD]U/\[PartialD]y*)
+
+
+p = Derivative[1, 0] @ uKnown;
+q = Derivative[0, 1] @ uKnown;
+
+
 (* ::Section:: *)
 (*Algebra*)
 
@@ -59,6 +67,9 @@ With[{x = \[FormalX], y = \[FormalY]},
     (* Boundary conditions *)
     XYPolar[1, alpha + Pi/2] . Grad[uKnown[x, y], {x, y}] == 1 /. {y -> x Tan[alpha]},
     XYPolar[1, -alpha - Pi/2] . Grad[uKnown[x, y], {x, y}] == 1 /. {y -> -x Tan[alpha]},
+    (* Derivatives *)
+    p[x, y] == -1/Sqrt[2] (Exp[(-x+y)/Sqrt[2]] + Exp[(-x-y)/Sqrt[2]]),
+    q[x, y] ==  1/Sqrt[2] (Exp[(-x+y)/Sqrt[2]] - Exp[(-x-y)/Sqrt[2]]),
     Nothing
   } // FullSimplify
 ]
