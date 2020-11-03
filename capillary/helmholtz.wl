@@ -73,3 +73,12 @@ With[{x = \[FormalX], y = \[FormalY]},
     Nothing
   } // FullSimplify
 ]
+
+
+(* ::Subsection:: *)
+(*Gradient squared*)
+
+
+With[{x = \[FormalX], y = \[FormalY]},
+  p[x, y]^2 + q[x, y]^2 // Expand
+]
