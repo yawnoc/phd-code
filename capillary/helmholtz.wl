@@ -66,6 +66,13 @@ f = 1;
 vi[x_, y_] := p[x, y]^2 + q[x, y]^2 - f^2 // Expand // Evaluate
 
 
+(* ::Subsection:: *)
+(*Terminal curve x = x(y)*)
+
+
+xTerm[y_] := 1/Sqrt[2] * Log[2 Cosh[Sqrt[2] y]];
+
+
 (* ::Section:: *)
 (*Algebra*)
 
@@ -104,5 +111,15 @@ With[{x = \[FormalX], y = \[FormalY]},
 
 With[{x = \[FormalX], y = \[FormalY]},
   vi[x, y] == Exp[-Sqrt[2] (x-y)] + Exp[-Sqrt[2] (x+y)] - 1
+    // FullSimplify
+]
+
+
+(* ::Subsection:: *)
+(*Check terminal curve*)
+
+
+With[{x = \[FormalX], y = \[FormalY]},
+  vi[x, y] == 0 /. {x -> xTerm[y]}
     // FullSimplify
 ]
