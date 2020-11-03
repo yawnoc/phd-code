@@ -52,6 +52,20 @@ p = Derivative[1, 0] @ uKnown;
 q = Derivative[0, 1] @ uKnown;
 
 
+(* ::Subsection:: *)
+(*Flux function F*)
+
+
+f = 1;
+
+
+(* ::Subsection:: *)
+(*Viability \[CapitalPhi]*)
+
+
+vi[x_, y_] := p[x, y]^2 + q[x, y]^2 - f^2 // Expand // Evaluate
+
+
 (* ::Section:: *)
 (*Algebra*)
 
@@ -81,4 +95,14 @@ With[{x = \[FormalX], y = \[FormalY]},
 
 With[{x = \[FormalX], y = \[FormalY]},
   p[x, y]^2 + q[x, y]^2 // Expand
+]
+
+
+(* ::Subsection:: *)
+(*Check viability*)
+
+
+With[{x = \[FormalX], y = \[FormalY]},
+  vi[x, y] == Exp[-Sqrt[2] (x-y)] + Exp[-Sqrt[2] (x+y)] - 1
+    // FullSimplify
 ]
