@@ -526,6 +526,58 @@ lowerStyle = Red;
 
 
 (* ::Section:: *)
+(*Parsing of boundary value problem*)
+
+
+(* ::Text:: *)
+(*Inner workings of SolveLaplaceYoung in LaplaceYoung.wl.*)
+
+
+Module[
+  {
+    gamma = 1 Degree,
+    mesh = ToElementMesh @ Disk[],
+    prWet = True &,
+    dummyForTrailingCommas
+  },
+  With[{x = \[FormalX], y = \[FormalY], t = \[FormalCapitalT]},
+    Module[{grad, iGrad, iDiv, k, stateData, propList},
+      grad = Grad[#, {x, y}] &;
+      iGrad = Inactive[Grad][#, {x, y}] &;
+      iDiv = Inactive[Div][#, {x, y}] &;
+      k = 1 / Sqrt[1 + # . #] & @ grad @ t[x, y];
+      (* Parsing *)
+      stateData =
+        Quiet[
+          NDSolve`ProcessEquations[
+            {
+              iDiv[-k * IdentityMatrix[2] . iGrad @ t[x, y]] ==
+                - t[x, y]
+                + NeumannValue[Cos[gamma], prWet[x, y]]
+            }
+            , t
+            , Element[{x, y}, mesh]
+          ]
+          , {NDSolve`ProcessEquations::femibcnd}
+        ];
+      propList = {
+        "ReactionCoefficients",
+        "DiffusionCoefficients",
+        Nothing
+      };
+      Table[
+        {
+          prop,
+          stateData[[1]]["FiniteElementData"]["PDECoefficientData"][prop]
+        }
+        , {prop, propList}
+      ] // TableForm
+    ]
+  ]
+]
+
+
+(* ::Section:: *)
 (*Finite element mesh*)
 
 
