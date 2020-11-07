@@ -159,7 +159,7 @@ Module[{mesh, prWet, nElem},
 (*by benchmarking against the exact half-plane solution for gamma = 1 degree.*)
 
 
-(* (This is somewhat slow (~5 sec).) *)
+(* (This is slow (~20 sec).) *)
 Module[
   {
     gamma,
@@ -185,7 +185,7 @@ Module[
   (* Predicate function for wetting boundary (x == 0) *)
   prWet = Function[{x, y}, x == 0];
   (* Fine length scales to test *)
-  ySpacingValues = {0.005, 0.01, 0.02, 0.05, 0.1};
+  ySpacingValues = {0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1};
   (* For each fine length scale *)
   Table[
     (* Boundary points *)
