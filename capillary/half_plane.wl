@@ -151,6 +151,111 @@ Module[{mesh, prWet, nElem},
 
 
 (* ::Section:: *)
+(*Fine length scale*)
+
+
+(* ::Text:: *)
+(*Test what fine length scale to use along x = 0*)
+(*by benchmarking against the exact half-plane solution for gamma = 1 degree.*)
+
+
+(* (This is somewhat slow (~5 sec).) *)
+Module[
+  {
+    gamma,
+    hTheory,
+    xMax, yMax,
+    mod,
+    prWet,
+    ySpacingValues,
+    yValues, boundaryPointList, numPoints,
+    boundaryMesh, mesh,
+    tSol, hNonlinear, relErrorNonlinear,
+    dummyForTrailingCommas
+  },
+  (* Contact angle *)
+  gamma = 1 Degree;
+  (* Theoretical height rise *)
+  hTheory = HHalfPlane[gamma];
+  (* Length scales *)
+  xMax = 10;
+  yMax = 1/2;
+  (* Modulo *)
+  mod[n_] := Mod[#, n, 1] &;
+  (* Predicate function for wetting boundary (x == 0) *)
+  prWet = Function[{x, y}, x == 0];
+  (* Fine length scales to test *)
+  ySpacingValues = {0.005, 0.01, 0.02, 0.05, 0.1};
+  (* For each fine length scale *)
+  Table[
+    (* Boundary points *)
+    yValues = UniformRange[yMax, -yMax, -ySpacing];
+    boundaryPointList = Join[
+      (* Fine length scale along x == 0 *)
+      Table[{0, y}, {y, yValues}],
+      (* Default length scale elsewhere *)
+      {{xMax, -yMax}, {xMax, yMax}},
+      (* Dummy for trailing commas *)
+      {}
+    ];
+    numPoints = Length[boundaryPointList];
+    (* Boundary element mesh *)
+    boundaryMesh =
+      ToBoundaryMesh[
+        "Coordinates" -> boundaryPointList,
+        "BoundaryElements" -> {
+          LineElement[
+            Table[{n, n + 1}, {n, numPoints}] // mod[numPoints]
+          ]
+        },
+        {}
+      ];
+    (* Build mesh *)
+    mesh =
+      ToElementMesh[
+        boundaryMesh
+        , "ImproveBoundaryPosition" -> True
+    ];
+    (* Compute wall height *)
+    tSol = SolveLaplaceYoung[gamma, mesh, prWet];
+    hNonlinear = tSol[0, 0];
+    (* Compare with theoretical height *)
+    relErrorNonlinear = hNonlinear / hTheory - 1;
+    (* Return table row *)
+    {
+      ySpacing,
+      Length @ mesh[[2, 1, 1]],
+      hNonlinear,
+      relErrorNonlinear,
+      Nothing
+    }
+    , {ySpacing, ySpacingValues}
+  ]
+    //
+      TableForm[#
+        , TableHeadings -> {
+            None,
+            {
+              "Fine length",
+              "Mesh elements",
+              "Computed height",
+              "rel. error",
+              Nothing
+            }
+          }
+      ] &
+    //
+      Column @ {
+        {"Contact angle", gamma},
+        {"Theoretical height", hTheory // N},
+        #
+      } &
+    //
+      Ex["half_plane-fine-length-scale.pdf"]
+]
+
+
+(* ::Section:: *)
 (*Numerical solution*)
 
 
