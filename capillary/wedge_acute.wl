@@ -644,6 +644,72 @@ Join @@ Table[
 ] & // Ex["wedge_acute-solution-table.pdf"]
 
 
+(* ::Subsubsection:: *)
+(*Table for theoretical vs computed values*)
+
+
+(* (This is slow (~6 sec) from all the calls to Import.) *)
+Module[
+  {
+    apd, alpha,
+    gamma, k,
+    infiniteHeightQ, infiniteSlopeQ,
+    theoreticalHeight, theoreticalSlope,
+    tSol,
+    computedHeight, computedSlope, slopeRelError,
+    dummyForTrailingCommas
+  },
+  (* Representative value of wedge half-angle *)
+  apd = apdRep;
+  alpha = alphaRep;
+  (* For each contact angle *)
+  Table[
+    (* Theoretical corner height and slope *)
+    gamma = gpd Degree;
+    k = Sin[alpha] / Cos[gamma];
+    infiniteHeightQ = alpha < Pi/2 - gamma;
+    infiniteSlopeQ = alpha <= Pi/2 - gamma;
+    theoreticalHeight = If[infiniteHeightQ, Infinity, "finite"];
+    theoreticalSlope = If[infiniteSlopeQ, Infinity, 1 / Sqrt[k^2 - 1] // N];
+    (* Import numerical solution *)
+    tSol =
+      StringTemplate["solution/wedge_acute-solution-apd-``-gpd-``.txt"][apd, gpd]
+        // Import // Uncompress // First;
+    (* Computed corner height and slope *)
+    computedHeight = tSol[0, 0];
+    computedSlope = -Derivative[1, 0][tSol][0, 0];
+    slopeRelError = If[infiniteSlopeQ, "N/A", computedSlope / theoreticalSlope - 1];
+    (* Build row of table *)
+    {
+      gamma,
+      theoreticalHeight,
+      computedHeight,
+      theoreticalSlope,
+      computedSlope,
+      slopeRelError,
+      Nothing
+    }
+    , {gpd, gpdValues}
+  ]
+    //
+      TableForm[#
+        , TableHeadings -> {
+            None,
+            {
+              "\[Gamma]",
+              "height",
+              "(comp.)",
+              "slope",
+              "(comp.)",
+              "(rel. error)",
+              Nothing
+            }
+          }
+      ] &
+    // Ex["wedge_acute-height-slope-comparison.pdf"]
+]
+
+
 (* ::Section:: *)
 (*Traced boundary plots*)
 
