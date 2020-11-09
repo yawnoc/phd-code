@@ -100,6 +100,19 @@ Module[{expressions},
 ]
 
 
+(* Gamma-tilde *)
+(*
+  Gamma: U+01D6FE MATHEMATICAL ITALIC SMALL GAMMA
+  Tilde: U+0303 COMBINING TILDE
+*)
+(
+  LaTeXStyle /@ {"\[Gamma]" , "\:0303"}
+    // SeparatedRow["\[NegativeMediumSpace]\[NegativeMediumSpace]"] @@ # &
+    // Style[#, 24] &
+    // Ex["gamma-tilde.pdf"]
+)
+
+
 Module[{fun, x},
   fun = Cos[#] - # &;
   x = SeekRoot[fun, {0, 1}];
