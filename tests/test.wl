@@ -112,7 +112,7 @@ Module[{expressions},
     (* U+22C6 STAR OPERATOR \star becomes an asterisk in Mathematica *)
     (* U+2605 BLACK STAR made smaller to approximate \star *)
     (* (but this approach does not scale with font size) *)
-    LaTeXStyle @ Subscript["\[Gamma]", Nest[Style[#, Smaller] &, "\[NegativeMediumSpace]\[FivePointedStar]", 3]],
+    LaTeXStyle @ Subscript["\[Gamma]", Style["\[NegativeVeryThinSpace]\[NegativeThinSpace]\[FivePointedStar]", Magnification -> 0.6]],
     (* Dummy for trailing commas *)
     Nothing
   }
@@ -120,6 +120,9 @@ Module[{expressions},
     // Style[#, 24] &
     // Ex["gamma-tracing.pdf"]
 )
+
+
+3
 
 
 Module[{fun, x},
