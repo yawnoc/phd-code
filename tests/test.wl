@@ -100,16 +100,24 @@ Module[{expressions},
 ]
 
 
-(* Gamma-tilde *)
-(*
-  Gamma: U+01D6FE MATHEMATICAL ITALIC SMALL GAMMA
-  Tilde: U+0303 COMBINING TILDE
-*)
+(* Tests for tracing gamma *)
 (
-  LaTeXStyle /@ {"\[Gamma]" , "\:0303"}
-    // SeparatedRow["\[NegativeMediumSpace]\[NegativeMediumSpace]"] @@ # &
+  {
+    (* U+0303 COMBINING TILDE \tilde *)
+    LaTeXStyle /@ {"\[Gamma]" , "\:0303"} // SeparatedRow["\[NegativeMediumSpace]\[NegativeMediumSpace]"] @@ # &,
+    (* U+2022 BULLET \bullet *)
+    (* (but bullet is too small) *)
+    LaTeXStyle @ Subscript["\[Gamma]", "\[Bullet]"],
+    (* U+22C6 STAR OPERATOR \star becomes an asterisk in Mathematica *)
+    (* U+2605 BLACK STAR made smaller to approximate \star *)
+    (* (but this approach does not scale with font size) *)
+    LaTeXStyle @ Subscript["\[Gamma]", Nest[Style[#, Smaller] &, "\[NegativeMediumSpace]\[FivePointedStar]", 3]],
+    (* Dummy for trailing commas *)
+    Nothing
+  }
+    // SeparatedRow[" "] @@ # &
     // Style[#, 24] &
-    // Ex["gamma-tilde.pdf"]
+    // Ex["gamma-tracing.pdf"]
 )
 
 
