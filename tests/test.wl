@@ -108,6 +108,7 @@ Module[{expressions},
     (* U+2022 BULLET \bullet *)
     (* (but bullet is too small) *)
     LaTeXStyle @ Subscript["\[Gamma]", "\[Bullet]"],
+    LaTeXStyle @ Subscript["\[Gamma]", Style["\[NegativeVeryThinSpace]\[Bullet]", Magnification -> 1.1]],
     (* U+22C6 STAR OPERATOR \star becomes an asterisk in Mathematica *)
     (* U+2605 BLACK STAR made smaller to approximate \star *)
     (* (but this approach does not scale with font size) *)
