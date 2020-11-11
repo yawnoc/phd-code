@@ -710,6 +710,55 @@ Module[
 ]
 
 
+(* ::Subsubsection:: *)
+(*Borderline case comparison with asymptotic*)
+
+
+(* ::Text:: *)
+(*From (34) of King et al. (1999) Quart. J. Mech. Appl. Math., 52 (1), 73\[Dash]97:*)
+(*T ~ T_0 - 2 sqrt(x/T_0) + y^2/4 sqrt(T_0/x)*)
+
+
+Module[
+  {
+    apd, gpd,
+    alpha, gamma,
+    tSol, t0,
+    tAsy,
+    phiValues,
+    dummyForTrailingCommas
+  },
+  (* Borderline case *)
+  apd = 40;
+  gpd = 90 - apd;
+  (* Angles *)
+  alpha = apd * Degree;
+  gamma = gpd * Degree;
+  (* Import numerical solution *)
+  tSol =
+    Import @ StringTemplate["solution/wedge_acute-solution-apd-``-gpd-``.txt"][apd, gpd]
+      // Uncompress // First;
+  (* Corner height *)
+  t0 = tSol[0, 0];
+  (* Asymptotic solution *)
+  tAsy[x_, y_] := t0 - 2 Sqrt[x / t0] + y^2/4 Sqrt[t0/x];
+  (* Plot discrepancy *)
+  phiValues = Subdivide[0, alpha, 4];
+  Table[
+    Plot[
+      {tSol[x, x Tan[phi]], tAsy[x, x Tan[phi]]} // Evaluate
+      , {x, 0, 3}
+      , ImageSize -> 240
+      , PlotLabel -> HoldForm @ "\[Phi]" == phi
+      , PlotRange -> Full
+      , PlotStyle -> {Automatic, Dashed}
+      , PlotOptions[Axes] // Evaluate
+    ]
+    , {phi, phiValues}
+  ]
+] // Ex["wedge_acute-borderline-asymptotic-comparison-test.pdf"]
+
+
 (* ::Section:: *)
 (*Traced boundary plots*)
 
