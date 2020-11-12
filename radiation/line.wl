@@ -2317,15 +2317,10 @@ Module[
         , ImageSize -> imageSize
       ],
       (* Outer terminal curve (effective incircle) *)
-      ContourPlot[RPolar[x, y] == rSh
-        , {x, -xMax, xMax}
-        , {y, -yMax, yMax}
-        , ContourLabels -> None
-        , PlotPoints -> 7
-        , ContourStyle -> BoundaryTracingStyle /@ {
-            "Terminal", "Background"
-          }
-      ],
+      Graphics @ {
+        BoundaryTracingStyle["Terminal", "Background"],
+        Circle[{0, 0}, rSh]
+      },
       (* Traced boundaries (spikes) *)
       Table[
         phiPlotted[r_] := phiTraHot["outer"][r] - phiSpike[n];
