@@ -2184,23 +2184,15 @@ Module[
       , PlotRangeClipping -> False
     ],
     (* Outer terminal curve r == r_sharp *)
-    ContourPlot[
-      RPolar[x, y] == rSh
-      , {x, -rSh, rSh}
-      , {y, -rSh, rSh}
-      , ContourLabels -> None
-      , ContourStyle -> BoundaryTracingStyle["Terminal"]
-      , PlotPoints -> 13
-    ],
+    Graphics @ {
+      BoundaryTracingStyle["Terminal"],
+      Circle[{0, 0}, rSh]
+    },
     (* Frontier of inflection r == r_infl *)
-    ContourPlot[
-      RPolar[x, y] == rInfl
-      , {x, -rInfl, rInfl}
-      , {y, -rInfl, rInfl}
-      , ContourLabels -> None
-      , ContourStyle -> BoundaryTracingStyle["Contour"]
-      , PlotPoints -> 13
-    ],
+    Graphics @ {
+      BoundaryTracingStyle["Contour"],
+      Circle[{0, 0}, rInfl]
+    },
     (* Traced boundaries (protrusion) *)
     ParametricPlot[
       xyLower[p]
