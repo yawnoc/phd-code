@@ -1500,31 +1500,15 @@ Module[
           , FrameLabel -> None
           , FrameTicks -> None
         ],
-        (* Non-viable domain *)
-        RegionPlot[
-          vi[a] @ RPolar[x, y] < 0
-          , {x, -rMaxNon, rMaxNon}
-          , {y, -rMaxNon, rMaxNon}
-          , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
-          , PlotPoints -> 9
-          , PlotStyle -> BoundaryTracingStyle["NonViable"]
-        ],
-        (* Transition terminal curve *)
-        If[a == aNat,
-          ContourPlot[
-            RPolar[x, y] == rNat
-            , {x, -rMaxNon, rMaxNon}
-            , {y, -rMaxNon, rMaxNon}
-            , ContourLabels -> None
-            , ContourStyle -> BoundaryTracingStyle["Terminal"]
-            , PlotPoints -> 7
-          ],
-          {}
-        ],
-        (* Terminal curve labels *)
         Which[
+          (* Hot regime *)
           a < aNat,
           {
+            Graphics @ {
+              FaceForm @ BoundaryTracingStyle["NonViable"],
+              EdgeForm @ BoundaryTracingStyle["Terminal"],
+              Annulus @ {rFlat[a], rSharp[a]}
+            },
             Graphics @ {
               Text[
                 rIt == Subscript[rIt, "\[Flat]"] // textStyle
@@ -1541,8 +1525,13 @@ Module[
             },
             {}
           },
+          (* Transition *)
           a == aNat,
           {
+            Graphics @ {
+              BoundaryTracingStyle["Terminal"],
+              Circle[{0, 0}, rNat]
+            },
             Graphics @ {
               Text[
                 rIt == Subscript[rIt, "\[Natural]"] // textStyle
@@ -1552,6 +1541,7 @@ Module[
             },
             {}
           },
+          (* (Nothing to plot for cold regime) *)
           True, {}
         ],
         {}
