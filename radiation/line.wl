@@ -2427,13 +2427,10 @@ Module[
       , PlotRange -> All
     ],
     (* Heat bath (Dirichlet condition) *)
-    ContourPlot[RPolar[x, y] == rBath
-      , {x, -rBath, rBath}
-      , {y, -rBath, rBath}
-      , ContourLabels -> None
-      , PlotPoints -> Automatic
-      , ContourStyle -> BoundaryTracingStyle["Contour"]
-    ],
+    Graphics @ {
+      BoundaryTracingStyle["Contour"],
+      Circle[{0, 0}, rBath]
+    },
     (* Traced boundaries (spikes) *)
     Table[
       phiPlotted[r_] := phiTraHot["outer"][r] - phiSpike[n];
