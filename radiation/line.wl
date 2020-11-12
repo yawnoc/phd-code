@@ -1500,31 +1500,15 @@ Module[
           , FrameLabel -> None
           , FrameTicks -> None
         ],
-        (* Non-viable domain *)
-        RegionPlot[
-          vi[a] @ RPolar[x, y] < 0
-          , {x, -rMaxNon, rMaxNon}
-          , {y, -rMaxNon, rMaxNon}
-          , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
-          , PlotPoints -> 9
-          , PlotStyle -> BoundaryTracingStyle["NonViable"]
-        ],
-        (* Transition terminal curve *)
-        If[a == aNat,
-          ContourPlot[
-            RPolar[x, y] == rNat
-            , {x, -rMaxNon, rMaxNon}
-            , {y, -rMaxNon, rMaxNon}
-            , ContourLabels -> None
-            , ContourStyle -> BoundaryTracingStyle["Terminal"]
-            , PlotPoints -> 7
-          ],
-          {}
-        ],
-        (* Terminal curve labels *)
         Which[
+          (* Hot regime *)
           a < aNat,
           {
+            Graphics @ {
+              FaceForm @ BoundaryTracingStyle["NonViable"],
+              EdgeForm @ BoundaryTracingStyle["Terminal"],
+              Annulus @ {rFlat[a], rSharp[a]}
+            },
             Graphics @ {
               Text[
                 rIt == Subscript[rIt, "\[Flat]"] // textStyle
@@ -1541,8 +1525,13 @@ Module[
             },
             {}
           },
+          (* Transition *)
           a == aNat,
           {
+            Graphics @ {
+              BoundaryTracingStyle["Terminal"],
+              Circle[{0, 0}, rNat]
+            },
             Graphics @ {
               Text[
                 rIt == Subscript[rIt, "\[Natural]"] // textStyle
@@ -1552,6 +1541,7 @@ Module[
             },
             {}
           },
+          (* (Nothing to plot for cold regime) *)
           True, {}
         ],
         {}
@@ -2027,14 +2017,11 @@ Module[
       , PlotRangeClipping -> False
     ],
     (* Non-viable domain *)
-    RegionPlot[
-      vi[a] @ RPolar[x, y] < 0
-      , {x, -rMaxNon, rMaxNon}
-      , {y, -rMaxNon, rMaxNon}
-      , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
-      , PlotPoints -> 9
-      , PlotStyle -> BoundaryTracingStyle["NonViable"]
-    ],
+    Graphics @ {
+      FaceForm @ BoundaryTracingStyle["NonViable"],
+      EdgeForm @ BoundaryTracingStyle["Terminal"],
+      Annulus @ {rFlat[a], rSharp[a]}
+    },
     (* Traced boundaries *)
     ParametricPlot[
       {xyUpper[p], xyLower[p]} // Evaluate
@@ -2197,23 +2184,15 @@ Module[
       , PlotRangeClipping -> False
     ],
     (* Outer terminal curve r == r_sharp *)
-    ContourPlot[
-      RPolar[x, y] == rSh
-      , {x, -rSh, rSh}
-      , {y, -rSh, rSh}
-      , ContourLabels -> None
-      , ContourStyle -> BoundaryTracingStyle["Terminal"]
-      , PlotPoints -> 13
-    ],
+    Graphics @ {
+      BoundaryTracingStyle["Terminal"],
+      Circle[{0, 0}, rSh]
+    },
     (* Frontier of inflection r == r_infl *)
-    ContourPlot[
-      RPolar[x, y] == rInfl
-      , {x, -rInfl, rInfl}
-      , {y, -rInfl, rInfl}
-      , ContourLabels -> None
-      , ContourStyle -> BoundaryTracingStyle["Contour"]
-      , PlotPoints -> 13
-    ],
+    Graphics @ {
+      BoundaryTracingStyle["Contour"],
+      Circle[{0, 0}, rInfl]
+    },
     (* Traced boundaries (protrusion) *)
     ParametricPlot[
       xyLower[p]
@@ -2338,15 +2317,10 @@ Module[
         , ImageSize -> imageSize
       ],
       (* Outer terminal curve (effective incircle) *)
-      ContourPlot[RPolar[x, y] == rSh
-        , {x, -xMax, xMax}
-        , {y, -yMax, yMax}
-        , ContourLabels -> None
-        , PlotPoints -> 7
-        , ContourStyle -> BoundaryTracingStyle /@ {
-            "Terminal", "Background"
-          }
-      ],
+      Graphics @ {
+        BoundaryTracingStyle["Terminal", "Background"],
+        Circle[{0, 0}, rSh]
+      },
       (* Traced boundaries (spikes) *)
       Table[
         phiPlotted[r_] := phiTraHot["outer"][r] - phiSpike[n];
@@ -2453,13 +2427,10 @@ Module[
       , PlotRange -> All
     ],
     (* Heat bath (Dirichlet condition) *)
-    ContourPlot[RPolar[x, y] == rBath
-      , {x, -rBath, rBath}
-      , {y, -rBath, rBath}
-      , ContourLabels -> None
-      , PlotPoints -> Automatic
-      , ContourStyle -> BoundaryTracingStyle["Contour"]
-    ],
+    Graphics @ {
+      BoundaryTracingStyle["Contour"],
+      Circle[{0, 0}, rBath]
+    },
     (* Traced boundaries (spikes) *)
     Table[
       phiPlotted[r_] := phiTraHot["outer"][r] - phiSpike[n];
