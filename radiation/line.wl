@@ -2017,14 +2017,11 @@ Module[
       , PlotRangeClipping -> False
     ],
     (* Non-viable domain *)
-    RegionPlot[
-      vi[a] @ RPolar[x, y] < 0
-      , {x, -rMaxNon, rMaxNon}
-      , {y, -rMaxNon, rMaxNon}
-      , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
-      , PlotPoints -> 9
-      , PlotStyle -> BoundaryTracingStyle["NonViable"]
-    ],
+    Graphics @ {
+      FaceForm @ BoundaryTracingStyle["NonViable"],
+      EdgeForm @ BoundaryTracingStyle["Terminal"],
+      Annulus @ {rFlat[a], rSharp[a]}
+    },
     (* Traced boundaries *)
     ParametricPlot[
       {xyUpper[p], xyLower[p]} // Evaluate
