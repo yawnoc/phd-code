@@ -165,3 +165,82 @@ Module[{tSol, mesh, x, y},
     , PlotRange -> Full
   ]
 ] // Ex["dip_coating-solution.png"]
+
+
+(* ::Section:: *)
+(*Figure: coating profile ideal vs actual (dip_coating-*)*)
+
+
+Module[
+  {
+    tSol, mesh,
+    tSolMin, tSolMax,
+    zMin, zMax,
+    tIdeal, tActual,
+    globalLighting,
+    coatingOffset, coatingOptions,
+    tCoating,
+    dummyForTrailingCommas
+  },
+  (* Import numerical solution *)
+  tSol = Import["dip_coating-solution.txt"] // Uncompress;
+  mesh = tSol["ElementMesh"];
+  (* Extremal values of solution *)
+  tSolMin = tSol[prismXMax, prismYMax];
+  tSolMax = Max[tSol[prismXMax, 0], tSol[0, prismYMax]];
+  (* Vertical plot range *)
+  zMin = Way[tSolMin, tSolMax, -1.1];
+  zMax = Way[tSolMin, tSolMax, +2];
+  (* Options *)
+  globalLighting = {{"Ambient"}, White};
+  coatingOffset = 0.001;
+  coatingOptions = {
+    Lighting -> globalLighting,
+    Mesh -> None,
+    PlotPoints -> 50,
+    PlotStyle -> White,
+    Nothing
+  };
+  (* Ideal vs actual *)
+  tCoating["ideal"] = Evaluate @ Way[tSolMin, tSolMax] &;
+  tCoating["actual"] = tSol;
+  (* Plot and export *)
+  Table[
+    Show[
+      (* Prism *)
+      Graphics3D @ {
+        Darker[Gray],
+        Cuboid[
+          {-prismXMax, -prismYMax, zMin},
+          {+prismXMax, +prismYMax, zMax}
+        ]
+      },
+      (* Coating along x == x_max *)
+      ParametricPlot3D[
+        {
+          prismXMax + coatingOffset, y,
+          Way[zMin, tCoating[type][prismXMax, y], p]
+        }
+        , {y, -prismYMax, prismYMax}
+        , {p, 0, 1}
+        , coatingOptions // Evaluate
+      ],
+      (* Coating along y == -y_max *)
+      ParametricPlot3D[
+        {
+          x, -prismYMax - coatingOffset,
+          Way[zMin, tCoating[type][x, -prismYMax], p]
+        }
+        , {x, -prismXMax, prismXMax}
+        , {p, 0, 1}
+        , coatingOptions // Evaluate
+      ],
+      {}
+      , Lighting -> globalLighting
+      , Boxed -> False
+      , BoxRatios -> Automatic
+      , ViewPoint -> {2.4, -3.5, 1.6}
+    ]
+    , {type, {"ideal", "actual"}}
+  ]
+]
