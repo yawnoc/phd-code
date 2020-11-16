@@ -239,8 +239,15 @@ Module[
       , Lighting -> globalLighting
       , Boxed -> False
       , BoxRatios -> {Automatic, Automatic, 1.6}
+      , ImageSize -> 5 ImageSizeCentimetre
       , ViewPoint -> {2.4, -3.5, 1.6}
     ]
+      //
+        Ex[
+          StringTemplate["dip_coating-``.png"][type]
+          , Background -> None
+          , ImageResolution -> 4 BasicImageResolution
+        ]
     , {type, {"ideal", "actual"}}
   ]
 ]
