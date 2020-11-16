@@ -64,6 +64,7 @@ ClearAll["Conway`*`*"];
 
 
 {
+  BasicImageResolution,
   BoxedLabel,
   CurveLegend,
   DecimalPlacesForm,
@@ -115,6 +116,19 @@ ClearAll["Conway`*`*"];
 
 
 Begin["`Private`"];
+
+
+(* ::Subsubsection:: *)
+(*BasicImageResolution*)
+
+
+BasicImageResolution::usage = (
+  "BasicImageResolution\n"
+  <> "Returns frugal ImageResolution of 72."
+);
+
+
+BasicImageResolution = 72;
 
 
 (* ::Subsubsection:: *)
