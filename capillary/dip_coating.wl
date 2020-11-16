@@ -202,7 +202,7 @@ Module[
     Nothing
   };
   (* Ideal vs actual *)
-  tCoating["ideal"] = Evaluate @ Way[tSolMin, tSolMax, 0.62] &;
+  tCoating["ideal"] = Evaluate @ Way[tSolMin, tSolMax, 0.6] &;
   tCoating["actual"] = tSol;
   (* Plot and export *)
   Table[
