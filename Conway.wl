@@ -64,6 +64,7 @@ ClearAll["Conway`*`*"];
 
 
 {
+  BasicImageResolution,
   BoxedLabel,
   CurveLegend,
   DecimalPlacesForm,
@@ -77,6 +78,7 @@ ClearAll["Conway`*`*"];
   Ex,
   ExportIfNotExists,
   FString,
+  ImageSizeCentimetre,
   Italicise,
   LatinModernFont,
   LatinModernLabelStyle,
@@ -114,6 +116,19 @@ ClearAll["Conway`*`*"];
 
 
 Begin["`Private`"];
+
+
+(* ::Subsubsection:: *)
+(*BasicImageResolution*)
+
+
+BasicImageResolution::usage = (
+  "BasicImageResolution\n"
+  <> "Returns frugal ImageResolution of 72."
+);
+
+
+BasicImageResolution = 72;
 
 
 (* ::Subsubsection:: *)
@@ -389,6 +404,25 @@ FString[s_String] :=
 
 
 SetAttributes[FString, Listable];
+
+
+(* ::Subsubsection:: *)
+(*ImageSizeCentimetre*)
+
+
+ImageSizeCentimetre::usage = (
+  "ImageSizeCentimetre\n"
+  <> "Returns number of printer's points in 1 centimetre.\n"
+  <> "To be used for raster exports."
+);
+
+
+ImageSizeCentimetre =
+  Module[{inchDividedByPoint, inchDividedByCentimetre},
+    inchDividedByPoint = 72;
+    inchDividedByCentimetre = 254 / 100;
+    inchDividedByPoint / inchDividedByCentimetre
+  ];
 
 
 (* ::Subsubsection:: *)
