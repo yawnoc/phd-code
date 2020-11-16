@@ -77,6 +77,7 @@ ClearAll["Conway`*`*"];
   Ex,
   ExportIfNotExists,
   FString,
+  ImageSizeCentimetre,
   Italicise,
   LatinModernFont,
   LatinModernLabelStyle,
@@ -389,6 +390,25 @@ FString[s_String] :=
 
 
 SetAttributes[FString, Listable];
+
+
+(* ::Subsubsection:: *)
+(*ImageSizeCentimetre*)
+
+
+ImageSizeCentimetre::usage = (
+  "ImageSizeCentimetre\n"
+  <> "Returns number of printer's points in 1 centimetre.\n"
+  <> "To be used for raster exports."
+);
+
+
+ImageSizeCentimetre =
+  Module[{inchDividedByPoint, inchDividedByCentimetre},
+    inchDividedByPoint = 72;
+    inchDividedByCentimetre = 254 / 100;
+    inchDividedByPoint / inchDividedByCentimetre
+  ];
 
 
 (* ::Subsubsection:: *)
