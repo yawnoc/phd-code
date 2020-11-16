@@ -189,8 +189,8 @@ Module[
   tSolMin = tSol[prismXMax, prismYMax];
   tSolMax = Max[tSol[prismXMax, 0], tSol[0, prismYMax]];
   (* Vertical plot range *)
-  zMin = Way[tSolMin, tSolMax, -1.1];
-  zMax = Way[tSolMin, tSolMax, +2];
+  zMin = Way[tSolMin, tSolMax, -0.5];
+  zMax = Way[tSolMin, tSolMax, +1.5];
   (* Options *)
   globalLighting = {{"Ambient"}, White};
   coatingOffset = 0.001;
@@ -238,7 +238,7 @@ Module[
       {}
       , Lighting -> globalLighting
       , Boxed -> False
-      , BoxRatios -> Automatic
+      , BoxRatios -> {Automatic, Automatic, 1.8}
       , ViewPoint -> {2.4, -3.5, 1.6}
     ]
     , {type, {"ideal", "actual"}}
