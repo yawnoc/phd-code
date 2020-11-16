@@ -189,8 +189,8 @@ Module[
   tSolMin = tSol[prismXMax, prismYMax];
   tSolMax = Max[tSol[prismXMax, 0], tSol[0, prismYMax]];
   (* Vertical plot range *)
-  zMin = Way[tSolMin, tSolMax, -0.5];
-  zMax = Way[tSolMin, tSolMax, +1.5];
+  zMin = Way[tSolMin, tSolMax, -0.1];
+  zMax = Way[tSolMin, tSolMax, +1.3];
   (* Options *)
   globalLighting = {{"Ambient"}, White};
   coatingOffset = 0.001;
@@ -202,7 +202,7 @@ Module[
     Nothing
   };
   (* Ideal vs actual *)
-  tCoating["ideal"] = Evaluate @ Way[tSolMin, tSolMax] &;
+  tCoating["ideal"] = Evaluate @ Way[tSolMin, tSolMax, 0.62] &;
   tCoating["actual"] = tSol;
   (* Plot and export *)
   Table[
@@ -238,7 +238,7 @@ Module[
       {}
       , Lighting -> globalLighting
       , Boxed -> False
-      , BoxRatios -> {Automatic, Automatic, 1.8}
+      , BoxRatios -> {Automatic, Automatic, 1.6}
       , ViewPoint -> {2.4, -3.5, 1.6}
     ]
     , {type, {"ideal", "actual"}}
