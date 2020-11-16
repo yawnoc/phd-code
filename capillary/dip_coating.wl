@@ -24,6 +24,13 @@ ClearAll["Global`*"];
 
 
 (* ::Subsection:: *)
+(*Contact angle*)
+
+
+gamma = 10 Degree;
+
+
+(* ::Subsection:: *)
 (*Domain*)
 
 
@@ -105,6 +112,31 @@ ExportIfNotExists["dip_coating-mesh.txt",
         , "RegionHoles" -> {0, 0}
       ];
     mesh // Compress
+  ]
+]
+
+
+(* ::Subsubsection:: *)
+(*Predicate for wetting boundary*)
+
+
+predicateWet =
+  Function[{x, y},
+    RPolar[x, y] < Way[RPolar[prismXMax, prismYMax], vatRMax] // Evaluate
+  ] // Evaluate;
+
+
+(* ::Subsubsection:: *)
+(*Solve PDE*)
+
+
+(* (This is slow (~5 sec), so compute once and store.) *)
+(* (Delete the file manually to compute from scratch.) *)
+ExportIfNotExists["dip_coating-solution.txt",
+  Module[{mesh, tSol, x, y},
+    mesh = Import["dip_coating-mesh.txt"] // Uncompress;
+    tSol = SolveLaplaceYoung[10 Degree, mesh, predicateWet];
+    tSol // Compress
   ]
 ]
 
