@@ -152,3 +152,16 @@ Module[{mesh},
     , PlotLabel -> StringTemplate["`` elements"] @ Length @ mesh[[2, 1, 1]]
   ]
 ] // Ex["dip_coating-mesh.pdf"]
+
+
+(* ::Section:: *)
+(*Solution*)
+
+
+Module[{tSol, mesh, x, y},
+  tSol = Import["dip_coating-solution.txt"] // Uncompress;
+  mesh = tSol["ElementMesh"];
+  Plot3D[tSol[x, y], Element[{x, y}, mesh]
+    , PlotRange -> Full
+  ]
+] // Ex["dip_coating-solution.png"]
