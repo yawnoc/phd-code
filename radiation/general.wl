@@ -22,7 +22,7 @@ ClearAll["Global`*"];
 
 
 (* ::Section:: *)
-(*Figure: radiation BVP (radiation-bvp)*)
+(*Figure: radiation--conduction BVP (radiation-conduction-bvp)*)
 
 
 Module[
@@ -103,4 +103,4 @@ Module[
     {}
     , ImageSize -> 360
   ]
-] // Ex["radiation-bvp.pdf"]
+] // Ex["radiation-conduction-bvp.pdf"]
