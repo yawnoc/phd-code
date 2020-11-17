@@ -83,9 +83,16 @@ yDerivative[eta_] :=
     eta^2 - 2,
     eta Sqrt[4 - eta^2]
   ];
+
+
+(*
+  Lower sign is taken for the x-derivative.
+  Thus (3.1) should technically have a plus-or-minus sign,
+  and (3.2) should have minus-or-plus where it has plus-or-minus.
+*)
 xDerivative[gamma_][eta_] :=
   Divide[
-    2 yDerivative[eta] Cos[gamma],
+    -2 yDerivative[eta] Cos[gamma],
     Sqrt[(eta^2 - etaWall[gamma]^2) (etaWallPlus[gamma]^2 - eta^2)]
   ];
 
@@ -105,7 +112,7 @@ With[{eta = \[FormalEta], gamma = \[FormalGamma]},
       Sqrt[xDerivative[gamma][eta]^2 + yDerivative[eta]^2]
     ]
       ==
-    -Cos[gamma] Sqrt[1 + etaYDerivative[eta]^2]
+    Cos[gamma] Sqrt[1 + etaYDerivative[eta]^2]
     , And[
         0 < eta < etaWall[gamma],
         0 < gamma < Pi/2,
@@ -175,7 +182,7 @@ yTraced[eta_] := yKnown[eta];
 With[{eta = \[FormalEta], gamma = \[FormalGamma]},
   FullSimplify[
     {
-      xTraced[gamma]'[eta] == -xDerivative[gamma][eta],
+      xTraced[gamma]'[eta] == xDerivative[gamma][eta],
       yTraced'[eta] == yDerivative[eta]
     }
     , And[
