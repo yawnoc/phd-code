@@ -482,4 +482,4 @@ Module[
       , Spacings -> 2
     ];
   plot[All]
-]
+] // Ex["half_plane-traced-boundaries.pdf"]
