@@ -35,7 +35,9 @@ ClearAll["FigureStyles`*`*"];
 
 {
   GeneralStyle,
-  BoundaryTracingStyle
+  BoundaryTracingStyle,
+  SquigglyArrow,
+  {}
 };
 
 
@@ -104,6 +106,43 @@ BoundaryTracingStyle[type : (_String | Automatic) : Automatic] := Association[
 
 BoundaryTracingStyle[typeSeq__String] :=
   Directive @@ BoundaryTracingStyle /@ {typeSeq};
+
+
+(* ::Subsubsection:: *)
+(*SquigglyArrow*)
+
+
+SquigglyArrow[{xBase_, yBase_}, phi_: 0, size_: 1] :=
+  Module[{yList, listLength, xList, pointList},
+    (* List of y-coordinates (for x-coordinates 0, ..., 1) *)
+    (*
+      NOTE:
+      - Nonzero y-coordinate in the ConstantArrays is an optical correction
+        to make the straight parts of the arrow appear in line.
+      - Greater number of elements in the second ConstantArray is a correction
+        to make the arrow appear balanced when the arrowhead is included.
+    *)
+    yList =
+      {
+        ConstantArray[-0.1, 5],
+        1, 0, -1, 0, 1, 0, -1,
+        ConstantArray[+0.1, 7],
+        {}
+      }
+        // 0.15 # &
+        // Flatten;
+    (* List of x-coordinates *)
+    listLength = Length[yList];
+    xList = Subdivide[0, 1, listLength - 1];
+    (* Make B-spline arrow *)
+    pointList = {xList, yList} // Transpose;
+    Arrow @ BSplineCurve[
+      pointList
+        // ScalingTransform @ {size, size}
+        // RotationTransform[phi, {0, 0}]
+        // TranslationTransform @ {xBase, yBase}
+    ]
+  ];
 
 
 (* ::Subsubsection:: *)
