@@ -127,3 +127,62 @@ Manipulate[
   ]
   , {gamma, 0, Pi/2 - 10^-6}
 ]
+
+
+(* ::Subsubsection:: *)
+(*Elliptic integral arguments (unnumbered equation after (3.4))*)
+
+
+curlyPhi[gamma_][eta_] :=
+  ArcSin @ Sqrt @ Divide[
+    2 + 2 Sin[gamma] - eta^2,
+    4 Sin[gamma]
+  ];
+
+
+muPlus[gamma_] := 2 Sin[gamma] / (1 + Sin[gamma]);
+muMinus[gamma_] := 2 Sin[gamma] / (1 - Sin[gamma]);
+
+
+(* ::Subsubsection:: *)
+(*Traced boundaries (3.3) & (3.4)*)
+
+
+(*
+  **IMPORTANT**
+  1. There is a typo in (3.3). The very last mu_plus should be a mu_minus.
+  2. F and Pi are defined as per Mathematica's EllipticF and EllipticPi,
+     with the last parameter being m == k^2,
+     rather than k used in Gradsteyn & Ryzhik (1980).
+*)
+xTraced[gamma_][eta_] := (
+  Sqrt[2] Cos[gamma] / Sqrt[1 - Sin[gamma]]
+  Subtract[
+    EllipticF[curlyPhi[gamma][eta], -muMinus[gamma]],
+    1 / (1 + Sin[gamma]) EllipticPi[muPlus[gamma], curlyPhi[gamma][eta], -muMinus[gamma]]
+  ]
+);
+
+
+(* Same as known solution. *)
+yTraced[eta_] := yKnown[eta];
+
+
+(* ::Subsubsubsection:: *)
+(*Verify traced boundaries*)
+
+
+With[{eta = \[FormalEta], gamma = \[FormalGamma]},
+  FullSimplify[
+    {
+      xTraced[gamma]'[eta] == -xDerivative[gamma][eta],
+      yTraced'[eta] == yDerivative[eta]
+    }
+    , And[
+        0 < eta < etaWall[gamma],
+        0 < gamma < Pi/2,
+        assumedPositiveQuantity[gamma][eta] > 0,
+        True
+      ]
+  ]
+]
