@@ -33,6 +33,14 @@ ClearAll["Global`*"];
 
 
 (* ::Subsection:: *)
+(*Constants for gamma in Manipulate*)
+
+
+gammaInitial = 30 Degree;
+gammaClearance = 10^-6;
+
+
+(* ::Subsection:: *)
 (*Known solution*)
 
 
@@ -85,14 +93,9 @@ yDerivative[eta_] :=
   ];
 
 
-(*
-  Lower sign is taken for the x-derivative.
-  Thus (3.1) should technically have a plus-or-minus sign,
-  and (3.2) should have minus-or-plus where it has plus-or-minus.
-*)
 xDerivative[gamma_][eta_] :=
   Divide[
-    -2 yDerivative[eta] Cos[gamma],
+    2 yDerivative[eta] Cos[gamma],
     Sqrt[(eta^2 - etaWall[gamma]^2) (etaWallPlus[gamma]^2 - eta^2)]
   ];
 
@@ -102,7 +105,7 @@ xDerivative[gamma_][eta_] :=
 
 
 (* Mathematica needs a bit of help *)
-assumedPositiveQuantity[gamma_][eta_] := 2 - 4 eta^2 + eta^4 + 2 Cos[2 gamma];
+assumedNegativeQuantity[gamma_][eta_] := 2 - 4 eta^2 + eta^4 + 2 Cos[2 gamma];
 
 
 With[{eta = \[FormalEta], gamma = \[FormalGamma]},
@@ -114,9 +117,9 @@ With[{eta = \[FormalEta], gamma = \[FormalGamma]},
       ==
     Cos[gamma] Sqrt[1 + etaYDerivative[eta]^2]
     , And[
-        0 < eta < etaWall[gamma],
+        etaWall[gamma] < eta < Sqrt[2],
         0 < gamma < Pi/2,
-        assumedPositiveQuantity[gamma][eta] > 0,
+        assumedNegativeQuantity[gamma][eta] < 0,
         True
       ]
   ]
@@ -129,10 +132,10 @@ With[{eta = \[FormalEta], gamma = \[FormalGamma]},
 
 Manipulate[
   Plot[
-    assumedPositiveQuantity[gamma][eta]
-    , {eta, 0, etaWall[gamma]}
+    assumedNegativeQuantity[gamma][eta]
+    , {eta, etaWall[gamma], Sqrt[2]}
   ]
-  , {gamma, 0, Pi/2 - 10^-6}
+  , {{gamma, gammaInitial}, gammaClearance, Pi/2 - gammaClearance}
 ]
 
 
@@ -179,16 +182,17 @@ yTraced[eta_] := yKnown[eta];
 (*Verify traced boundaries*)
 
 
+(* Note the introduced negative sign for the x-component. *)
 With[{eta = \[FormalEta], gamma = \[FormalGamma]},
   FullSimplify[
     {
-      xTraced[gamma]'[eta] == xDerivative[gamma][eta],
+      -xTraced[gamma]'[eta] == xDerivative[gamma][eta],
       yTraced'[eta] == yDerivative[eta]
     }
     , And[
-        0 < eta < etaWall[gamma],
+        etaWall[gamma] < eta < Sqrt[2],
         0 < gamma < Pi/2,
-        assumedPositiveQuantity[gamma][eta] > 0,
+        assumedNegativeQuantity[gamma][eta] < 0,
         True
       ]
   ]
