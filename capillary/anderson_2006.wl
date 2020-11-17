@@ -260,3 +260,36 @@ Manipulate[
   ]
   , {{gamma, gammaInitial}, gammaClearance, Pi/2 - gammaClearance}
 ]
+
+
+(* ::Section:: *)
+(*Reproducing Figure 3*)
+
+
+(*
+  1. From the caption of Figure 2, we guess that Figure 3
+     also has gamma == pi/4.
+  2. We guess that the topmost plot of Figure 3
+     shows the canonically translated copy.
+  3. We guess that all plots have the full vertical range 0 < y < y_wall
+     corresponding to eta_wall < eta < sqrt(2).
+*)
+
+
+(*
+  4. We note that the slope dy/dx at y == 0 (the corner),
+     equal to y-derivative / x-derivative at eta == sqrt(2)),
+     is equal to tan(gamma):
+*)
+With[{eta = \[FormalEta], gamma = \[FormalGamma]},
+  Limit[yDerivative[eta] / xDerivative[gamma][eta], eta -> Sqrt[2]]
+    // FullSimplify[#, 0 < gamma < Pi/2] &
+]
+
+
+(*
+  5. The top plot of Figure 3 appears to have slope 1 at the corner,
+     which is indeed consistent with gamma == pi/4.
+  6. Measurements indicate that all indentations in Figure 3 are full-depth,
+     i.e. extend all the way down to y == 0 (equivalently eta == sqrt(2)).
+*)
