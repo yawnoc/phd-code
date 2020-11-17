@@ -86,7 +86,7 @@ Module[
           , Spacings -> 0.8
         ]
         , conductionXY[5/8 Pi] // RotationTransform[conductionPhi]
-        , {1, -1.2}
+        , {1.1, -1.15}
       ]
     },
     (* Heat bath ellipse *)
