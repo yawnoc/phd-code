@@ -37,7 +37,7 @@ ClearAll["Global`*"];
 
 
 gammaInitial = 30 Degree;
-gammaClearance = 10^-6;
+gammaClearance = 10^-3;
 
 
 (* ::Subsection:: *)
@@ -196,4 +196,29 @@ With[{eta = \[FormalEta], gamma = \[FormalGamma]},
         True
       ]
   ]
+]
+
+
+(* ::Subsubsubsection:: *)
+(*Visualise traced boundaries*)
+
+
+Manipulate[
+  ParametricPlot[
+    {
+      {xTraced[gamma][eta], yTraced[eta]},
+      {-xTraced[gamma][eta], yTraced[eta]}
+    }
+    , {eta, etaWall[gamma], Sqrt[2]}
+    , Epilog -> {
+        Dashed,
+        Line @ {
+          {-2, yTraced @ etaWall[gamma]},
+          {+2, yTraced @ etaWall[gamma]}
+        },
+        {}
+      }
+    , PlotRange -> All
+  ]
+  , {{gamma, gammaInitial}, gammaClearance, Pi/2 - gammaClearance}
 ]
