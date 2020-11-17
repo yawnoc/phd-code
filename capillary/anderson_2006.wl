@@ -462,7 +462,7 @@ Module[
               {xCorner - xC[eta] + xCopy, yC[eta]} // reflectHoriztonal,
               {xCorner + xC[eta] + xCopy, yC[eta]} // reflectHoriztonal
             }
-            , {xCopy, 0, xMax, 2 xCorner}
+            , {xCopy, 0, xMax - xCorner, 2 xCorner}
           ]
           , {eta, sqrt2, etaIntersection}
           , tracedOptions // Evaluate
