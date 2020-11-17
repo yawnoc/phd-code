@@ -222,3 +222,41 @@ Manipulate[
   ]
   , {{gamma, gammaInitial}, gammaClearance, Pi/2 - gammaClearance}
 ]
+
+
+(* ::Subsubsection:: *)
+(*Canonically-translated copy*)
+
+
+(*
+  Defined so that:
+  1. The corner lies at the origin; and
+  2. The boundary extends to the positive-x half.
+*)
+xCanonical[gamma_][eta_] := xTraced[gamma][Sqrt[2]] - xTraced[gamma][eta];
+yCanonical[eta_] := yTraced[eta];
+
+
+(* ::Subsubsubsection:: *)
+(*Visualise traced boundaries*)
+
+
+Manipulate[
+  ParametricPlot[
+    {
+      {xCanonical[gamma][eta], yCanonical[eta]},
+      {-xCanonical[gamma][eta], yCanonical[eta]}
+    }
+    , {eta, etaWall[gamma], Sqrt[2]}
+    , Epilog -> {
+        Dashed,
+        Line @ {
+          {-2, yTraced @ etaWall[gamma]},
+          {+2, yTraced @ etaWall[gamma]}
+        },
+        {}
+      }
+    , PlotRange -> All
+  ]
+  , {{gamma, gammaInitial}, gammaClearance, Pi/2 - gammaClearance}
+]
