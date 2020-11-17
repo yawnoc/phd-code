@@ -293,3 +293,193 @@ With[{eta = \[FormalEta], gamma = \[FormalGamma]},
   6. Measurements indicate that all indentations in Figure 3 are full-depth,
      i.e. extend all the way down to y == 0 (equivalently eta == sqrt(2)).
 *)
+
+
+Module[
+  {
+    gamma,
+    h, sqrt2,
+    xC, yC,
+    reflectHoriztonal,
+    tracedOptions,
+    plotSpacing,
+    maxDepth, maxHalfWidth,
+    xMax, yMax, yMin,
+    commonPlot,
+    plot,
+    dummyForTrailingCommas
+  },
+  (* Constants *)
+  gamma = Pi/4;
+  (* Abbreviations *)
+  h = etaWall[gamma];
+  sqrt2 = Sqrt[2];
+  xC = xCanonical[gamma];
+  yC = yCanonical;
+  reflectHoriztonal[{x_, y_}] := {{x, y}, {-x, y}};
+  tracedOptions = {
+    PlotPoints -> 2,
+    PlotRange -> Full,
+    PlotStyle -> BoundaryTracingStyle["Traced"],
+    Nothing
+  };
+  plotSpacing = 32;
+  (* Maximum depth and half-width of indentations *)
+  maxDepth = yC[h];
+  maxHalfWidth = xC[h];
+  (* Plot range *)
+  xMax = 2.1;
+  yMax = +1.1 maxDepth;
+  yMin = -0.1 maxDepth;
+  (* Common plot (terminal curve) *)
+  commonPlot =
+    Show[
+      EmptyFrame[{-xMax, xMax}, {yMin, yMax}
+        , Frame -> None
+        , ImageSize -> 240
+      ],
+      Graphics @ {
+        BoundaryTracingStyle["Contour"],
+        Line @ {{-xMax, maxDepth}, {+xMax, maxDepth}}
+      },
+      {}
+    ];
+  (* Plot 1: V *)
+  plot[1] =
+    Show[
+      commonPlot,
+      (* V portion *)
+      ParametricPlot[
+        {xC[eta], yC[eta]} // reflectHoriztonal
+        , {eta, sqrt2, h}
+        , tracedOptions // Evaluate
+      ],
+      (* Terminal curve portion *)
+      ParametricPlot[
+        {x, yC[h]} // reflectHoriztonal
+        , {x, xC[h], xMax}
+        , tracedOptions // Evaluate
+      ],
+      {}
+    ];
+  (* Plot 2: W *)
+  plot[2] =
+    Module[{xCorner, etaIntersection},
+      xCorner = 0.15;
+      etaIntersection = SeekRoot[xC[#] - xCorner &, {h, sqrt2}, 5];
+      Show[
+        commonPlot,
+        (* W outer portions *)
+        ParametricPlot[
+          {xCorner + xC[eta], yC[eta]} // reflectHoriztonal
+          , {eta, sqrt2, h}
+          , tracedOptions // Evaluate
+        ],
+        (* W inner portion *)
+        ParametricPlot[
+          {xCorner - xC[eta], yC[eta]} // reflectHoriztonal
+          , {eta, sqrt2, etaIntersection}
+          , tracedOptions // Evaluate
+        ],
+        (* Terminal curve portion *)
+        ParametricPlot[
+          {x, yC[h]} // reflectHoriztonal
+          , {x, xC[h], xMax}
+          , tracedOptions // Evaluate
+        ],
+        {}
+      ]
+    ];
+  (* Plot 3: four bumps *)
+  plot[3] =
+    Module[{xBump, etaBump},
+      xBump = xMax / 4;
+      etaBump = SeekRoot[xC[#] - xBump &, {h, sqrt2}, 5];
+      Show[
+        commonPlot,
+        (* Bumps *)
+        ParametricPlot[
+          Table[
+            {
+              {xC[eta] + xCopy, yC[eta]} // reflectHoriztonal,
+              {2 xBump - xC[eta] + xCopy, yC[eta]} // reflectHoriztonal
+            }
+            , {xCopy, {0, 2 xBump}}
+          ]
+          , {eta, sqrt2, etaBump}
+          , tracedOptions // Evaluate
+        ],
+        {}
+      ]
+    ];
+  (* Plot 4: three Ws and two half-Ws *)
+  plot[4] =
+    Module[{xCorner, etaIntersection, xBump, xBumpDiff, etaBumpDiff},
+      xCorner = 0.15;
+      etaIntersection = SeekRoot[xC[#] - xCorner &, {h, sqrt2}, 5];
+      xBump = xMax / 4 ;
+      xBumpDiff = xBump - xCorner;
+      etaBumpDiff = SeekRoot[xC[#] - xBumpDiff &, {h, sqrt2}, 5];
+      Show[
+        commonPlot,
+        (* W outer portions *)
+        ParametricPlot[
+          Table[
+            {
+              {xC[eta] + xCorner + xCopy, yC[eta]} // reflectHoriztonal,
+              {2 xBump - xCorner - xC[eta] + xCopy, yC[eta]} // reflectHoriztonal
+            }
+            , {xCopy, {0, 2 xBump}}
+          ]
+          , {eta, sqrt2, etaBumpDiff}
+          , tracedOptions // Evaluate
+        ],
+        (* W inner portion *)
+        ParametricPlot[
+          Table[
+            {
+              {xCorner - xC[eta] + xCopy, yC[eta]} // reflectHoriztonal,
+              {2 xBump - xCorner + xC[eta] + xCopy, yC[eta]} // reflectHoriztonal
+            }
+            , {xCopy, {0, 2 xBump}}
+          ]
+          , {eta, sqrt2, etaIntersection}
+          , tracedOptions // Evaluate
+        ],
+        {}
+      ]
+    ];
+  (* Plot 5: Lots of upside-down Vs *)
+  plot[5] =
+    Module[{xCorner, etaIntersection},
+      xCorner = 0.15;
+      etaIntersection = SeekRoot[xC[#] - xCorner &, {h, sqrt2}, 5];
+      Show[
+        commonPlot,
+        ParametricPlot[
+          Table[
+            {
+              {xCorner - xC[eta] + xCopy, yC[eta]} // reflectHoriztonal,
+              {xCorner + xC[eta] + xCopy, yC[eta]} // reflectHoriztonal
+            }
+            , {xCopy, 0, xMax, 2 xCorner}
+          ]
+          , {eta, sqrt2, etaIntersection}
+          , tracedOptions // Evaluate
+        ],
+        {}
+      ]
+    ];
+  plot[All] =
+    Column[
+      {
+        plot[1],
+        GraphicsRow[plot /@ {2, 3}, Spacings -> plotSpacing],
+        GraphicsRow[plot /@ {4, 5}, Spacings -> plotSpacing],
+        Nothing
+      }
+      , Alignment -> Center
+      , Spacings -> 2
+    ];
+  plot[All]
+]
