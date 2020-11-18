@@ -74,6 +74,45 @@ vi[x_, y_] := p[x, y]^2 + q[x, y]^2 - f^2 // Expand // Evaluate
 xTerm[y_] := 1/Sqrt[2] * Log[2 Cosh[Sqrt[2] y]];
 
 
+(* ::Subsection:: *)
+(*Traced boundaries (arc-length parametrisation)*)
+
+
+xDerivative[x_, y_] :=
+  Divide[
+    -q[x, y] f + p[x, y] Re @ Sqrt @ vi[x, y],
+    p[x, y]^2 + q[x, y]^2
+  ];
+yDerivative[x_, y_] :=
+  Divide[
+    +p[x, y] f + q[x, y] Re @ Sqrt @ vi[x, y],
+    p[x, y]^2 + q[x, y]^2
+  ];
+
+
+(* Arc-length parametrisation x == x(s), y == y(s). *)
+xyTraced[
+  {xStart_, yStart_},
+  {sStart_, sEnd_},
+  sSign_: 1,
+  terminationVi_: 0
+] :=
+  With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+    NDSolveValue[
+      {
+        x'[s] == sSign * xDerivative[x[s], y[s]],
+        y'[s] == sSign * yDerivative[x[s], y[s]],
+        x[sStart] == xStart,
+        y[sStart] == yStart,
+        WhenEvent[vi[x[s], y[s]] < terminationVi, "StopIntegration"]
+      }
+      , {x, y}
+      , {s, sStart, sEnd}
+      , NoExtrapolation
+    ]
+  ];
+
+
 (* ::Section:: *)
 (*Algebra*)
 
@@ -323,3 +362,124 @@ Module[
   , Background -> None
   , ImageResolution -> 4 BasicImageResolution
 ]
+
+
+(* ::Section:: *)
+(*Figure: non-viable domain (helmholtz-viable)*)
+
+
+Module[
+  {
+    xMax, yMax, rMax,
+    more, xMaxMore, yMaxMore,
+    dummyForTrailingCommas
+  },
+  (* Plot range *)
+  xMax = 1;
+  yMax = xMax;
+  rMax = RPolar[xMax, yMax];
+  (* Plot range but more *)
+  more = 0.05;
+  xMaxMore = xMax + more;
+  yMaxMore = yMax + more;
+  (* Plot *)
+  Show[
+    EmptyFrame[{0, xMax}, {-yMax, yMax}
+      , ImageSize -> 240
+      , LabelStyle -> LatinModernLabelStyle[12]
+    ],
+    (* Wedge walls *)
+    Graphics @ {BoundaryTracingStyle["Wall"],
+      Line @ {{xMaxMore, yMaxMore}, {0, 0}, {xMaxMore, -yMaxMore}}
+    },
+    (* Non-viable domain *)
+    RegionPlot[
+      vi[x, y] < 0 && Abs[y] < x
+      , {x, 0, xMaxMore}
+      , {y, -yMaxMore, yMaxMore}
+      , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
+      , PlotPoints -> 5
+      , PlotStyle -> BoundaryTracingStyle["NonViable"]
+    ],
+    {}
+  ]
+] // Ex["helmholtz-viable.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: generic traced boundaries (helmholtz-traced-boundaries)*)
+
+
+Module[
+  {
+    xMax, yMax, rMax,
+    more, xMaxMore, yMaxMore,
+    xyStartList, xyTracedList,
+    sStartPlotting,
+    sEndPlotting,
+    dummyForTrailingCommas
+  },
+  (* Plot range *)
+  xMax = 1;
+  yMax = xMax;
+  rMax = RPolar[xMax, yMax];
+  (* Plot range but more *)
+  more = 0.05;
+  xMaxMore = xMax + more;
+  yMaxMore = yMax + more;
+  (* Traced boundaries (upper branch) *)
+  xyStartList = Table[XYPolar[r, -alpha], {r, Subdivide[rMax, 12]}];
+  xyTracedList =
+    Table[
+      xyTraced[xyStart, {0, 2 rMax}, -1]
+      , {xyStart, xyStartList}
+    ];
+  (* Arc-length to start and end plotting at *)
+  sStartPlotting[xy_] := DomainStart[xy];
+  sEndPlotting[xy_] :=
+    Module[{sStart, sEnd},
+      sStart = DomainStart[xy];
+      sEnd = DomainEnd[xy];
+      If[sEnd < xMaxMore,
+        sEnd,
+        SeekRoot[
+          xy[[1]][#] - xMaxMore &,
+          {sStart, sEnd},
+          5
+        ]
+      ]
+    ];
+  (* Plot *)
+  Show[
+    EmptyFrame[{0, xMax}, {-yMax, yMax}
+      , ImageSize -> 240
+      , LabelStyle -> LatinModernLabelStyle[12]
+    ],
+    (* Wedge walls *)
+    Graphics @ {BoundaryTracingStyle["Wall"],
+      Line @ {{xMaxMore, yMaxMore}, {0, 0}, {xMaxMore, -yMaxMore}}
+    },
+    (* Non-viable domain *)
+    RegionPlot[
+      vi[x, y] < 0 && Abs[y] < x
+      , {x, 0, xMaxMore}
+      , {y, -yMaxMore, yMaxMore}
+      , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
+      , PlotPoints -> 5
+      , PlotStyle -> BoundaryTracingStyle["NonViable"]
+    ],
+    (* Traced boundaries *)
+    Table[
+      ParametricPlot[
+        xy[s]
+          // Through
+          // IncludeYReflection
+          // Evaluate
+        , {s, sStartPlotting[xy], sEndPlotting[xy]}
+        , PlotStyle -> BoundaryTracingStyle["Traced"]
+      ]
+      , {xy, xyTracedList}
+    ],
+    {}
+  ]
+] // Ex["helmholtz-traced-boundaries.pdf"]
