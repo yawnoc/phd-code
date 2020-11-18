@@ -251,7 +251,6 @@ Module[
   wedgeBaseVertices = {
     {yMax - wallHorizontalThickness / 2, -yMax - wallHorizontalThickness / 2},
     {yMax, -yMax},
-    {0, 0},
     {yMax, +yMax},
     {yMax - wallHorizontalThickness / 2, +yMax + wallHorizontalThickness / 2},
     Nothing
@@ -276,7 +275,7 @@ Module[
       , FillingStyle -> BoundaryTracingStyle["Solution3D"]
       , LabelStyle -> LatinModernLabelStyle[16]
       , Lighting -> GeneralStyle["AmbientLighting"]
-      , PlotPoints -> 50
+      , PlotPoints -> 20
       , PlotStyle -> BoundaryTracingStyle["Solution3D"]
       , RegionFunction -> Function[{x, y},
           And[
@@ -294,7 +293,7 @@ Module[
       , FillingStyle -> BoundaryTracingStyle["Wall3D"]
       , Lighting -> GeneralStyle["AmbientLighting"]
       , Mesh -> None
-      , PlotPoints -> 50
+      , PlotPoints -> 20
       , PlotStyle -> BoundaryTracingStyle["Wall3D"]
       , RegionFunction -> Function[{x, y},
           And[
@@ -307,6 +306,7 @@ Module[
     Graphics3D @ {
       verticalEdge /@ wedgeBaseVertices,
       Line[makeBaseVertex3D /@ wedgeBaseVertices],
+      Line @ {{0, 0, uKnown[0, 0]}, {0, 0, wallHeight}},
       {}
     },
     (* Manually drawn solution bounding box edges *)
