@@ -92,7 +92,7 @@ yDerivative[x_, y_, branchSign_: 1] :=
 
 (* Arc-length parametrisation x == x(s), y == y(s). *)
 xyTraced[
-  {xStart_, yStart_},
+  {xInitial_, yInitial_}, sInitial_,
   {sStart_, sEnd_},
   sSign_: 1,
   branchSign_: 1,
@@ -103,8 +103,8 @@ xyTraced[
       {
         x'[s] == sSign * xDerivative[x[s], y[s], branchSign],
         y'[s] == sSign * yDerivative[x[s], y[s], branchSign],
-        x[sStart] == xStart,
-        y[sStart] == yStart,
+        x[sInitial] == xInitial,
+        y[sInitial] == yInitial,
         WhenEvent[vi[x[s], y[s]] < terminationVi, "StopIntegration"]
       }
       , {x, y}
@@ -432,7 +432,7 @@ Module[
   xyStartList = Table[XYPolar[r, -alpha], {r, Subdivide[rMax, 12]}];
   xyTracedList =
     Table[
-      xyTraced[xyStart, {0, 2 rMax}, -1]
+      xyTraced[xyStart, 0, {0, 2 rMax}, -1]
       , {xyStart, xyStartList}
     ];
   (* Arc-length to start and end plotting at *)
