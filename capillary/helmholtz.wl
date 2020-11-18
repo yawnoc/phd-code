@@ -537,13 +537,16 @@ Module[
   {
     xMax, yMax, rMax,
     more, xMaxMore, yMaxMore,
+    normalVectorLength,
     commonPlot,
     cornerList, numPlots,
     sRange,
     xyTracedUpperList, xyTracedLowerList,
     numCorners,
     sIntersectionLower, sIntersectionUpper,
+    xTracedForNormal, yTracedForNormal, sNormal, xyNormal, normalVector,
     xyLower, xyUpper,
+    textStyle,
     dummyForTrailingCommas
   },
   (* Plot range *)
@@ -554,6 +557,7 @@ Module[
   more = 0.05;
   xMaxMore = xMax + more;
   yMaxMore = yMax + more;
+  normalVectorLength = 1/3 xMax;
   (* Location of corners (increasing in y-coordinate) *)
   cornerList = Association[
     1 -> {{0.45, -0.3}},
@@ -603,6 +607,17 @@ Module[
         ];
       , {k, numCorners}
     ];
+    (* Normal vector *)
+    (* xyTracedForNormal, sNormal, xyNormal, normal *)
+    {xTracedForNormal, yTracedForNormal} = xyTracedUpperList[n][[1]];
+    sNormal = Way[0, sIntersectionUpper[n][1], If[n == 1, 1/3, 1/2]];
+    xyNormal[n] = {xTracedForNormal, yTracedForNormal}[sNormal] // Through;
+    normalVector[n] = (
+      {xTracedForNormal', yTracedForNormal'}[sNormal]
+        // Through
+        // Normalize
+        // Cross
+    );
     , {n, numPlots}
   ];
   (* Common plot *)
@@ -618,6 +633,7 @@ Module[
     {}
   ];
   (* Plots *)
+  textStyle = Style[#, 24] & @* LaTeXStyle;
   Table[
     Show[
       (* Common plot *)
@@ -644,6 +660,20 @@ Module[
         ]
         , {xy, xyTracedLowerList[n]}
       ],
+      (* Normal vector *)
+      Graphics @ {Directive[GeneralStyle["Thick"], Arrowheads[Large]],
+        Arrow @ {
+          xyNormal[n],
+          xyNormal[n] + normalVectorLength * normalVector[n]
+        }
+      },
+      Graphics @ {
+        Text[
+          Embolden["n"] // textStyle
+          , xyNormal[n] + normalVectorLength * normalVector[n]
+          , {0, -0.8}
+        ]
+      },
       (* Traced boundaries (patched) *)
       numCorners = Length @ cornerList[n];
       Table[
