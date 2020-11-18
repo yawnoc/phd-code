@@ -223,3 +223,102 @@ Module[
     {}
   ]
 ] // Ex["helmholtz-wedge-domain.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: known solution (helmholtz-wedge-solution)*)
+
+
+Module[
+  {
+    wallHorizontalThickness, wallHeight,
+    xMinWall, xMax, yMax, yMaxWall,
+    verticalEdge, wedgeBaseVertices,
+    solutionBoundingBoxVertices,
+    makeBaseVertex3D,
+    dummyForTrailingCommas
+  },
+  (* Wall properties *)
+  wallHorizontalThickness = 0.25;
+  wallHeight = 1.21 uKnown[0, 0];
+  (* Plot range *)
+  xMinWall = -wallHorizontalThickness;
+  xMax = 4;
+  yMax = xMax/2;
+  yMaxWall = yMax + wallHorizontalThickness;
+  (* Manually drawn wedge wall wedges *)
+  verticalEdge @ {x_, y_} := Line @ {{x, y, 0}, {x, y, wallHeight}};
+  wedgeBaseVertices = {
+    {yMax - wallHorizontalThickness / 2, -yMax - wallHorizontalThickness / 2},
+    {yMax, -yMax},
+    {0, 0},
+    {yMax, +yMax},
+    {yMax - wallHorizontalThickness / 2, +yMax + wallHorizontalThickness / 2},
+    Nothing
+  };
+  solutionBoundingBoxVertices = {
+    {yMax, -yMax},
+    {xMax, 0},
+    {yMax, +yMax},
+    Nothing
+  };
+  makeBaseVertex3D @ {x_, y_} := {x, y, 0};
+  (* Plot *)
+  Show[
+    (* Known solution *)
+    Plot3D[
+      uKnown[x, y], {x, xMinWall, xMax}, {y, -yMaxWall, yMaxWall}
+      , AxesEdge -> {{-1, -1}, {+1, -1}, {-1, -1}}
+      , AxesLabel -> Italicise @ {"x", "y", "U"}
+      , Boxed -> {Back, Bottom, Left}
+      , BoxRatios -> Automatic
+      , Filling -> 0
+      , FillingStyle -> BoundaryTracingStyle["Solution3D"]
+      , LabelStyle -> LatinModernLabelStyle[16]
+      , Lighting -> GeneralStyle["AmbientLighting"]
+      , PlotPoints -> 50
+      , PlotStyle -> BoundaryTracingStyle["Solution3D"]
+      , RegionFunction -> Function[{x, y},
+          And[
+            Abs[y] < x,
+            Abs[y] < xMax - x
+          ]
+        ]
+      , TicksStyle -> ConstantArray[LatinModernLabelStyle[10], 3]
+      , ViewPoint -> {2.5, -1.1, 1.4}
+    ],
+    (* Wedge walls *)
+    Plot3D[
+      wallHeight, {x, xMinWall, xMax}, {y, -yMaxWall, yMaxWall}
+      , Filling -> 0
+      , FillingStyle -> BoundaryTracingStyle["Wall3D"]
+      , Lighting -> GeneralStyle["AmbientLighting"]
+      , Mesh -> None
+      , PlotPoints -> 50
+      , PlotStyle -> BoundaryTracingStyle["Wall3D"]
+      , RegionFunction -> Function[{x, y},
+          And[
+            Abs[y] - wallHorizontalThickness < x < Abs[y],
+            Abs[y] < xMax - x
+          ]
+        ]
+    ],
+    (* Manually drawn wedge wall edges *)
+    Graphics3D @ {
+      verticalEdge /@ wedgeBaseVertices,
+      Line[makeBaseVertex3D /@ wedgeBaseVertices],
+      {}
+    },
+    (* Manually drawn solution bounding box edges *)
+    Graphics3D @ {
+      Line[makeBaseVertex3D /@ solutionBoundingBoxVertices],
+      Line @ {{xMax, 0, 0}, {xMax, 0, uKnown[xMax, 0]}},
+      {}
+    },
+    {}
+    , ImageSize -> 8 ImageSizeCentimetre
+  ]
+] // Ex["helmholtz-wedge-solution.png"
+  , Background -> None
+  , ImageResolution -> 4 BasicImageResolution
+]
