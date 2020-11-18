@@ -483,3 +483,39 @@ Module[
     {}
   ]
 ] // Ex["helmholtz-traced-boundaries.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: legend (helmholtz-legend)*)
+
+
+Module[
+  {
+    legendLabelStyle,
+    row,
+    dummyForTrailingCommas
+  },
+  legendLabelStyle = LatinModernLabelStyle[14];
+  row = Join[
+    CurveLegend[
+      BoundaryTracingStyle /@ {"Wall", "Terminal"},
+      {"wedge wall", "terminal curve"}
+      , LabelStyle -> legendLabelStyle
+    ],
+    RegionLegend[
+      BoundaryTracingStyle /@ {"NonViable"},
+      {"non\[Hyphen]viable domain"}
+      , LabelStyle -> legendLabelStyle
+    ],
+    CurveLegend[
+      BoundaryTracingStyle /@ {"Traced"},
+      {"traced boundary"}
+      , LabelStyle -> legendLabelStyle
+    ],
+    {}
+  ];
+  Grid[{row}
+    , Alignment -> Left
+    , Spacings -> {1, 0}
+  ]
+] // Ex["helmholtz-legend.pdf"]
