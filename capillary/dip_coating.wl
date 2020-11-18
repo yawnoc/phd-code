@@ -13,6 +13,7 @@ SetDirectory @ ParentDirectory @ NotebookDirectory[];
 << Conway`
 << Curvilinear`
 << LaplaceYoung`
+<< FigureStyles`
 SetDirectory @ FileNameJoin @ {NotebookDirectory[], "dip_coating"}
 
 
@@ -198,7 +199,7 @@ Module[
     Lighting -> globalLighting,
     Mesh -> None,
     PlotPoints -> 50,
-    PlotStyle -> White,
+    PlotStyle -> BoundaryTracingStyle["Solution3D"],
     Nothing
   };
   (* Ideal vs actual *)
@@ -209,7 +210,7 @@ Module[
     Show[
       (* Prism *)
       Graphics3D @ {
-        Darker[Gray],
+        BoundaryTracingStyle["Wall3D"],
         Cuboid[
           {-prismXMax, -prismYMax, zMin},
           {+prismXMax, +prismYMax, zMax}
