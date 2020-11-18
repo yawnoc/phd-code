@@ -79,6 +79,7 @@ ClearAll["Conway`*`*"];
   ExportIfNotExists,
   FString,
   ImageSizeCentimetre,
+  IncludeYReflection,
   Italicise,
   LatinModernFont,
   LatinModernLabelStyle,
@@ -423,6 +424,19 @@ ImageSizeCentimetre =
     inchDividedByCentimetre = 254 / 100;
     inchDividedByPoint / inchDividedByCentimetre
   ];
+
+
+(* ::Subsubsection:: *)
+(*IncludeYReflection*)
+
+
+IncludeYReflection::usage = (
+  "IncludeYReflection[{x, y}]\n"
+  <> "Returns {{x, y}, {x, -y}}."
+);
+
+
+IncludeYReflection[{x_, y_}] := {{x, y}, {x, -y}};
 
 
 (* ::Subsubsection:: *)
