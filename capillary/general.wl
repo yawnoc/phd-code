@@ -122,7 +122,7 @@ Module[
       ]
     },
     (* Wall *)
-    Graphics @ {Directive[Black, EdgeForm[Black]],
+    Graphics @ {BoundaryTracingStyle["Wall"],
       Rectangle[{xMin - wallThickness, tMin}, {0, tMax}]
     },
     Graphics @ {
