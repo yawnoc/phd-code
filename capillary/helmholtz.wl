@@ -96,7 +96,7 @@ xyTraced[
   {sStart_, sEnd_},
   sSign_: 1,
   branchSign_: 1,
-  terminationVi_: 0
+  terminationVi_: 0, terminateAtWalls_: False
 ] :=
   With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
     NDSolveValue[
@@ -105,7 +105,14 @@ xyTraced[
         y'[s] == sSign * yDerivative[x[s], y[s], branchSign],
         x[sInitial] == xInitial,
         y[sInitial] == yInitial,
-        WhenEvent[vi[x[s], y[s]] < terminationVi, "StopIntegration"]
+        WhenEvent[
+          {
+            vi[x[s], y[s]] < terminationVi,
+            If[terminateAtWalls, Abs @ y[s] > x[s], False],
+            False
+          },
+          "StopIntegration"
+        ]
       }
       , {x, y}
       , {s, sStart, sEnd}
