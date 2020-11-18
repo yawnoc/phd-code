@@ -107,6 +107,7 @@ BoundaryTracingStyle[type : (_String | Automatic) : Automatic] := Association[
     GeneralStyle["VeryThick"],
     Gray
   ],
+  "Wall3D" -> Gray,
   Automatic -> Black
 ][type];
 
