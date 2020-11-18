@@ -90,6 +90,7 @@ BoundaryTracingStyle[type : (_String | Automatic) : Automatic] := Association[
     GeneralStyle["Translucent"],
     LightGray
   ],
+  "Solution" -> White,
   "Terminal" -> Directive[
     GeneralStyle["DefaultThick"],
     GeneralStyle["Dashed"],
