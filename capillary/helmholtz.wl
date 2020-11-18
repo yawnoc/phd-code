@@ -305,7 +305,8 @@ Module[
     (* Manually drawn wedge wall edges *)
     Graphics3D @ {
       verticalEdge /@ wedgeBaseVertices,
-      Line[makeBaseVertex3D /@ wedgeBaseVertices],
+      Line[makeBaseVertex3D /@ wedgeBaseVertices[[{1, 2}]]],
+      Line[makeBaseVertex3D /@ wedgeBaseVertices[[{-1, -2}]]],
       Line @ {{0, 0, uKnown[0, 0]}, {0, 0, wallHeight}},
       {}
     },
