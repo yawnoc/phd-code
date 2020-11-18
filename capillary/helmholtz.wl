@@ -12,6 +12,7 @@ SetDirectory @ ParentDirectory @ NotebookDirectory[];
 << NDSolve`FEM`
 << Conway`
 << Curvilinear`
+<< FigureStyles`
 SetDirectory @ FileNameJoin @ {NotebookDirectory[], "helmholtz"}
 
 
@@ -123,3 +124,102 @@ With[{x = \[FormalX], y = \[FormalY]},
   vi[x, y] == 0 /. {x -> xTerm[y]}
     // FullSimplify
 ]
+
+
+(* ::Section:: *)
+(*Figure: wedge domain (helmholtz-wedge-domain)*)
+
+
+Module[
+  {
+    wedgeXMax, wedgeYMax,
+    clearanceProportion, xMin, xMax, yMax,
+    alpha, angleMarkerRadius,
+    normalVectorPosition, normalVectorLength,
+    orthogonalityMarkerLength, orthogonalityMarkerStyle,
+    wallThicknessCorrection,
+    textStyle, testStyleOmega,
+    dummyForTrailingCommas
+  },
+  (* Wedge dimensions *)
+  wedgeXMax = 1;
+  wedgeYMax = 1;
+  (* Plot range *)
+  clearanceProportion = 1/10;
+  xMin = Way[0, wedgeXMax, -clearanceProportion];
+  xMax = Way[0, wedgeXMax, 1 + clearanceProportion];
+  yMax = Way[0, wedgeYMax, 1 + clearanceProportion];
+  (* Wedge half-angle *)
+  alpha = Pi/4;
+  angleMarkerRadius = 1/5 wedgeXMax;
+  (* Normal vector *)
+  normalVectorPosition = 1/2 {wedgeXMax, wedgeYMax};
+  normalVectorLength = Sqrt[2]/3 wedgeXMax;
+  orthogonalityMarkerLength = 1/18 wedgeXMax;
+  orthogonalityMarkerStyle = Directive[EdgeForm[Black], FaceForm[None]];
+  wallThicknessCorrection = 0.1;
+  (* Diagram *)
+  textStyle = Style[#, 24] & @* LaTeXStyle;
+  testStyleOmega = Style[#, 30] & @* LaTeXStyle;
+  Show[
+    EmptyAxes[{xMin, xMax}, {-yMax, yMax}
+      , AspectRatio -> Automatic
+      , AxesStyle -> Darker[Gray]
+      , ImageSize -> 240
+      , LabelStyle -> LatinModernLabelStyle[24]
+      , Method -> {"AxesInFront" -> False}
+      , Ticks -> None
+    ],
+    (* Wedge half-angle *)
+    Graphics @ {
+      Circle[{0, 0}, angleMarkerRadius, {0, alpha}]
+    },
+    Graphics @ {
+      Text[
+        "\[Alpha]" == SeparatedRow["/"]["\[Pi]", 4] // textStyle
+        , XYPolar[angleMarkerRadius, alpha / 2]
+        , {-1.2, -0.45}
+      ]
+    },
+    (* Normal vector *)
+    Graphics @ {Directive[GeneralStyle["Thick"], Arrowheads[Large]],
+      Arrow @ {
+        normalVectorPosition,
+        normalVectorPosition + XYPolar[normalVectorLength, alpha + Pi/2]
+      }
+    },
+    Graphics @ {
+      Text[
+        Embolden["n"] // textStyle
+        , normalVectorPosition + XYPolar[normalVectorLength, alpha + Pi/2]
+        , {0, -1}
+      ]
+    },
+    Graphics @ {orthogonalityMarkerStyle,
+      Rectangle[
+        normalVectorPosition,
+        normalVectorPosition + orthogonalityMarkerLength {1 - wallThicknessCorrection, 1}
+      ] // Rotate[#, alpha, normalVectorPosition] &
+    },
+    (* Wedge domain *)
+    Graphics @ {
+      Text[
+        "\[CapitalOmega]" // testStyleOmega
+        , {3/4 wedgeXMax, 1/3 wedgeYMax}
+        , {-1.2, -0.5}
+      ]
+    },
+    (* Wedge domain boundary *)
+    Graphics @ {BoundaryTracingStyle["Wall"],
+      Line @ {{wedgeXMax, wedgeYMax}, {0, 0}, {wedgeXMax, -wedgeYMax}}
+    },
+    Graphics @ {
+      Text[
+        "\[PartialD]\[CapitalOmega]" // testStyleOmega
+        , 4/5 {wedgeXMax, wedgeYMax}
+        , {1, -1}
+      ]
+    },
+    {}
+  ]
+] // Ex["helmholtz-wedge-domain.pdf"]
