@@ -78,14 +78,14 @@ xTerm[y_] := 1/Sqrt[2] * Log[2 Cosh[Sqrt[2] y]];
 (*Traced boundaries (arc-length parametrisation)*)
 
 
-xDerivative[x_, y_] :=
+xDerivative[x_, y_, branchSign_: 1] :=
   Divide[
-    -q[x, y] f + p[x, y] Re @ Sqrt @ vi[x, y],
+    -q[x, y] f + branchSign p[x, y] Re @ Sqrt @ vi[x, y],
     p[x, y]^2 + q[x, y]^2
   ];
-yDerivative[x_, y_] :=
+yDerivative[x_, y_, branchSign_: 1] :=
   Divide[
-    +p[x, y] f + q[x, y] Re @ Sqrt @ vi[x, y],
+    +p[x, y] f + branchSign q[x, y] Re @ Sqrt @ vi[x, y],
     p[x, y]^2 + q[x, y]^2
   ];
 
@@ -95,13 +95,14 @@ xyTraced[
   {xStart_, yStart_},
   {sStart_, sEnd_},
   sSign_: 1,
+  branchSign_: 1,
   terminationVi_: 0
 ] :=
   With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
     NDSolveValue[
       {
-        x'[s] == sSign * xDerivative[x[s], y[s]],
-        y'[s] == sSign * yDerivative[x[s], y[s]],
+        x'[s] == sSign * xDerivative[x[s], y[s], branchSign],
+        y'[s] == sSign * yDerivative[x[s], y[s], branchSign],
         x[sStart] == xStart,
         y[sStart] == yStart,
         WhenEvent[vi[x[s], y[s]] < terminationVi, "StopIntegration"]
