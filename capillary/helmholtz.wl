@@ -527,3 +527,148 @@ Module[
     , Spacings -> {1, 0}
   ]
 ] // Ex["helmholtz-legend.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: traced boundaries, patched (helmholtz-traced-boundaries-patched)*)
+
+
+Module[
+  {
+    xMax, yMax, rMax,
+    more, xMaxMore, yMaxMore,
+    commonPlot,
+    cornerList, numPlots,
+    sRange,
+    xyTracedUpperList, xyTracedLowerList,
+    numCorners,
+    sIntersectionLower, sIntersectionUpper,
+    xyLower, xyUpper,
+    dummyForTrailingCommas
+  },
+  (* Plot range *)
+  xMax = 1;
+  yMax = xMax;
+  rMax = RPolar[xMax, yMax];
+  (* Plot range but more *)
+  more = 0.05;
+  xMaxMore = xMax + more;
+  yMaxMore = yMax + more;
+  (* Location of corners (increasing in y-coordinate) *)
+  cornerList = Association[
+    1 -> {{0.45, -0.3}},
+    2 -> {{0.4, 0}, {0.45, 0.35}},
+    3 -> {{0.25, -0.12}, {0.4, 0.25}, {0.5, 0.45}},
+    4 -> {{0.35, -0.2}, {0.4, 0.1}, {0.5, 0.45}, {0.6, 0.6}},
+    Nothing
+  ];
+  numPlots = Length[cornerList];
+  (* Compute traced boundaries therethrough *)
+  sRange = 2 rMax {-1, 1};
+  Table[
+    (* Upper branch *)
+    xyTracedUpperList[n] = xyTraced[#, 0, sRange, -1, 1, 0, True] & /@ cornerList[n];
+    (* Lower branch *)
+    xyTracedLowerList[n] = xyTraced[#, 0, sRange, 1, -1, 0, True] & /@ cornerList[n];
+    (* Intersections *)
+    numCorners = Length @ cornerList[n];
+    Table[
+      (* Starting arc length for lower branch *)
+      sIntersectionLower[n][k] =
+        If[k == 1
+          ,
+          xyLower = xyTracedLowerList[n][[k]];
+          SeekRoot[
+            xyLower[[1]][#] - xMaxMore &,
+            {DomainStart[xyLower], DomainEnd[xyLower]}, 5
+          ]
+          ,
+          xyLower = xyTracedLowerList[n][[k]];
+          xyUpper = xyTracedUpperList[n][[k - 1]];
+          SeekParametricIntersection[xyLower, xyUpper] // First
+        ];
+      (* Ending arc length for upper branch *)
+      sIntersectionUpper[n][k] =
+        If[k == numCorners
+          ,
+          xyUpper = xyTracedUpperList[n][[k]];
+          SeekRoot[
+            xyUpper[[1]][#] - xMaxMore &,
+            {DomainStart[xyUpper], DomainEnd[xyUpper]}, 5
+          ]
+          ,
+          xyUpper = xyTracedUpperList[n][[k]];
+          xyLower = xyTracedLowerList[n][[k + 1]];
+          SeekParametricIntersection[xyUpper, xyLower] // First
+        ];
+      , {k, numCorners}
+    ];
+    , {n, numPlots}
+  ];
+  (* Common plot *)
+  commonPlot = Show[
+    EmptyFrame[{0, xMax}, {-yMax, yMax}
+      , Frame -> None
+      , ImageSize -> 180
+    ],
+    (* Wedge walls *)(*
+    Graphics @ {BoundaryTracingStyle["Wall"],
+      Line @ {{xMaxMore, yMaxMore}, {0, 0}, {xMaxMore, -yMaxMore}}
+    },*)
+    {}
+  ];
+  (* Plots *)
+  Table[
+    Show[
+      (* Common plot *)
+      commonPlot,
+      (* Traced boundaries (upper) *)
+      Table[
+        ParametricPlot[
+          xy[s]
+            // Through
+            // Evaluate
+          , {s, DomainStart[xy], DomainEnd[xy]}
+          , PlotStyle -> BoundaryTracingStyle["Background"]
+        ]
+        , {xy, xyTracedUpperList[n]}
+      ],
+      (* Traced boundaries (background) *)
+      Table[
+        ParametricPlot[
+          xy[s]
+            // Through
+            // Evaluate
+          , {s, DomainStart[xy], DomainEnd[xy]}
+          , PlotStyle -> BoundaryTracingStyle["Background"]
+        ]
+        , {xy, xyTracedLowerList[n]}
+      ],
+      (* Traced boundaries (patched) *)
+      numCorners = Length @ cornerList[n];
+      Table[
+        {
+          (* Lower branch portions *)
+          ParametricPlot[
+            xyTracedLowerList[n][[k]][s]
+              // Through
+              // Evaluate
+            , {s, sIntersectionLower[n][k], 0}
+            , PlotStyle -> BoundaryTracingStyle["Traced"]
+          ],
+          (* Upper branch portions *)
+          ParametricPlot[
+            xyTracedUpperList[n][[k]][s]
+              // Through
+              // Evaluate
+            , {s, 0, sIntersectionUpper[n][k]}
+            , PlotStyle -> BoundaryTracingStyle["Traced"]
+          ],
+          {}
+        }
+        , {k, numCorners}
+      ],
+      {}
+    ]
+  , {n, numPlots}]
+]
