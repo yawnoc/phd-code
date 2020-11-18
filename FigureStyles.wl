@@ -63,6 +63,7 @@ GeneralStyle[type_String : Automatic] := Association[
   "Point" -> PointSize[Large],
   "Thick" -> AbsoluteThickness[2.5],
   "Translucent" -> Opacity[0.7],
+  "VeryThick" -> AbsoluteThickness[5],
   Automatic -> Automatic
 ][type];
 
@@ -100,6 +101,10 @@ BoundaryTracingStyle[type : (_String | Automatic) : Automatic] := Association[
   ],
   "Unphysical" -> Black,
   "Viable" -> White,
+  "Wall" -> Directive[
+    GeneralStyle["VeryThick"],
+    Gray
+  ],
   Automatic -> Black
 ][type];
 
