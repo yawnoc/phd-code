@@ -547,6 +547,7 @@ Module[
     xTracedForNormal, yTracedForNormal, sNormal, xyNormal, normalVector,
     xyLower, xyUpper,
     textStyle,
+    plotList,
     dummyForTrailingCommas
   },
   (* Plot range *)
@@ -562,8 +563,8 @@ Module[
   cornerList = Association[
     1 -> {{0.45, -0.3}},
     2 -> {{0.4, 0}, {0.45, 0.35}},
-    3 -> {{0.25, -0.12}, {0.4, 0.25}, {0.5, 0.45}},
-    4 -> {{0.35, -0.2}, {0.4, 0.1}, {0.5, 0.45}, {0.6, 0.6}},
+    3 -> {{0.3, -0.12}, {0.4, 0.25}, {0.5, 0.45}},
+    4 -> {{0.45, -0.4}, {0.31, 0.1}, {0.5, 0.45}, {0.6, 0.6}},
     Nothing
   ];
   numPlots = Length[cornerList];
@@ -634,7 +635,7 @@ Module[
   ];
   (* Plots *)
   textStyle = Style[#, 24] & @* LaTeXStyle;
-  Table[
+  plotList = Table[
     Show[
       (* Common plot *)
       commonPlot,
@@ -671,7 +672,7 @@ Module[
         Text[
           Embolden["n"] // textStyle
           , xyNormal[n] + normalVectorLength * normalVector[n]
-          , {0, -0.8}
+          , {0.1, -0.85}
         ]
       },
       (* Traced boundaries (patched) *)
@@ -700,5 +701,6 @@ Module[
       ],
       {}
     ]
-  , {n, numPlots}]
-]
+  , {n, numPlots}];
+  Grid @ {plotList}
+] // Ex["helmholtz-traced-boundaries-patched.pdf"]
