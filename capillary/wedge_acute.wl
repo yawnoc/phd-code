@@ -144,8 +144,8 @@ Table[
 , {apd, apdValues}]
 
 
-(* ::Subsection:: *)
-(*System of ODEs for T-contour*)
+(* ::Subsection::Closed:: *)
+(*System of ODEs for T-contour (old)*)
 
 
 (* ::Text:: *)
@@ -178,8 +178,8 @@ tContourSystem[tSol_, sSign_: 1] :=
   ] // Evaluate;
 
 
-(* ::Subsection:: *)
-(*System of ODEs for terminal curve \[CapitalPhi] = 0*)
+(* ::Subsection::Closed:: *)
+(*System of ODEs for terminal curve \[CapitalPhi] = 0 (old)*)
 
 
 (* ::Text:: *)
@@ -222,8 +222,8 @@ viContourSystem[tSol_, sSign_: 1] :=
   ] // Evaluate;
 
 
-(* ::Subsection:: *)
-(*System of ODEs for tracing*)
+(* ::Subsection::Closed:: *)
+(*System of ODEs for tracing (old)*)
 
 
 (* ::Text:: *)
@@ -297,8 +297,8 @@ x0[tSol_, gammaTra_] :=
   ];
 
 
-(* ::Subsection:: *)
-(*Tracing*)
+(* ::Subsection::Closed:: *)
+(*Tracing (old)*)
 
 
 (* ::Subsubsection:: *)
@@ -489,8 +489,8 @@ ExportIfNotExists["same/wedge_acute_same-traced-general.txt",
 ]
 
 
-(* ::Subsection:: *)
-(*Both branches of a curve*)
+(* ::Subsection::Closed:: *)
+(*Both branches of a curve (old)*)
 
 
 (* Adds reflection about x == 0. *)
@@ -759,8 +759,8 @@ Module[
 ] // Ex["wedge_acute-borderline-asymptotic-comparison-test.pdf"]
 
 
-(* ::Section:: *)
-(*Traced boundary plots*)
+(* ::Section::Closed:: *)
+(*Traced boundary plots (old)*)
 
 
 (* ::Subsection:: *)
