@@ -1055,3 +1055,36 @@ Module[
     {}
   ]
 ] // Ex["helmholtz-traced-boundaries-hyperbolic-rounding.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: height-rise profiles (helmholtz-height-rise-profiles)*)
+
+
+Module[
+  {
+    sMax,
+    xySharp,
+    xyRoundUpperHalf, xyRound,
+    dummyForTrailingCommas
+  },
+  (* Plot range *)
+  sMax = 2.3;
+  (* Sharp corner (original walls) *)
+  xySharp[s_] := XYPolar[Abs[s], Sign[s] alpha];
+  (* Rounded corner (upper portion of upper branch) *)
+  xyRoundUpperHalf = xyTraced[{x0, 0}, 0, {0, sMax}, -1];
+  xyRound[s_] := xyRoundUpperHalf @ Abs[s] // Through;
+  (* Plot *)
+  Plot[
+    {uKnown @@ xySharp[s], uKnown @@ xyRound[s]} // Evaluate
+    , {s, -sMax, sMax}
+    , AspectRatio -> Automatic
+    , AxesLabel -> Italicise /@ {"s", "U"}
+    , ImageSize -> 620
+    , LabelStyle -> LatinModernLabelStyle[18]
+    , PlotRange -> {0, All}
+    , PlotStyle -> BoundaryTracingStyle /@ {"Wall", "Traced"}
+    , PlotOptions[Axes] // Evaluate
+  ]
+] // Ex["helmholtz-height-rise-profiles.pdf"]
