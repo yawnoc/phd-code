@@ -13,7 +13,7 @@ SetDirectory @ ParentDirectory @ NotebookDirectory[];
 << Curvilinear`
 << LaplaceYoung`
 << FigureStyles`
-SetDirectory @ NotebookDirectory[]
+SetDirectory @ FileNameJoin @ {NotebookDirectory[], "general"}
 
 
 (* ::Subsection:: *)
