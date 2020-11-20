@@ -151,6 +151,14 @@ xyContour[
   ];
 
 
+(* ::Subsection:: *)
+(*Critical terminal point x_0*)
+
+
+x0 = Log[2] / Sqrt[2];
+p @@ {x0, 0} == -1
+
+
 (* ::Section:: *)
 (*Algebra*)
 
@@ -734,3 +742,138 @@ Module[
   , {n, numPlots}];
   Grid @ {plotList}
 ] // Ex["helmholtz-traced-boundaries-patched.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: terminal-points (helmholtz-terminal-points)*)
+
+
+Module[
+  {
+    xMin, xMax, yMax, rMax,
+    more, xMaxMore, yMaxMore,
+    xyStartList, xyContourList,
+    xyContourOrdinary, sOrdinary, xyOrdinary,
+    textStyle, textStyleBracket, textVerticalShift,
+    plot,
+    legendLabelStyle,
+    legendCurves, legendRegions,
+    dummyForTrailingCommas
+  },
+  (* Plot range *)
+  xMin = x0 / 2;
+  xMax = 1;
+  yMax = 1;
+  rMax = RPolar[xMax, yMax];
+  (* Plot range but more *)
+  more = 0.05;
+  xMaxMore = xMax + more;
+  yMaxMore = yMax + more;
+  (* Contours *)
+  xyStartList = Table[{x, 0}, {x, x0 + 0.06 Range[0, 3]}];
+  xyContourList =
+    Table[
+      xyContour[xyStart, 0, 2 rMax {-1, 1}, 1, True]
+      , {xyStart, xyStartList}
+    ];
+  (* Orindary terminal point to be shown *)
+  xyContourOrdinary = xyContourList[[2]];
+  sOrdinary = SeekRoot[
+    xyContourOrdinary[[1]][#] - xTerm @ xyContourOrdinary[[2]][#] &,
+    {0, xMaxMore}, 5
+  ];
+  xyOrdinary = xyContourOrdinary[sOrdinary] // Through;
+  (* Text style *)
+  textStyle = Style[#, 18] & @* LaTeXStyle;
+  textStyleBracket = Style[#, Larger] &;
+  textVerticalShift = -0.25;
+  (* Plot *)
+  plot = Show[
+    EmptyFrame[{xMin, xMax}, {-yMax, yMax}
+      , Frame -> None
+      , ImageSize -> 180
+    ],
+    (* Contours *)
+    Table[
+      ParametricPlot[
+        xy[s]
+          // Through
+          // Evaluate
+        , {s, DomainStart[xy], DomainEnd[xy]}
+        , PlotPoints -> 2
+        , PlotStyle -> BoundaryTracingStyle["Background"]
+      ]
+      , {xy, xyContourList}
+    ],
+    (* Non-viable domain *)
+    RegionPlot[
+      vi[x, y] < 0 && Abs[y] < x
+      , {x, 0, xMaxMore}
+      , {y, -yMaxMore, yMaxMore}
+      , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
+      , PlotPoints -> 5
+      , PlotStyle -> BoundaryTracingStyle["NonViable"]
+    ],
+    (* Critical terminal point (x_0, 0) *)
+    Graphics @ {
+      GeneralStyle["Point"],
+      Point @ {x0, 0}
+    },
+    Graphics @ {
+      Text[
+        Row @ {
+          "(" // textStyleBracket,
+          "\[NegativeVeryThinSpace]",
+          Subscript[Italicise["x"], 0],
+          ",\[ThinSpace]",
+          0,
+          ")" // textStyleBracket
+        },
+        {x0, 0},
+        {1.5, textVerticalShift}
+      ] // textStyle,
+      Text[
+        "critical",
+        {x0, 0},
+        {-1.45, textVerticalShift}
+      ] // textStyle,
+      {}
+    },
+    (* Ordinary terminal point *)
+    Graphics @ {
+      GeneralStyle["Point"],
+      Point @ xyOrdinary
+    },
+    Graphics @ {
+      Text[
+        "ordinary",
+        xyOrdinary,
+        {-1.45, textVerticalShift}
+      ] // textStyle,
+      {}
+    },
+    {}
+  ];
+  (* Legend *)
+  legendLabelStyle = LatinModernLabelStyle[16];
+  legendCurves =
+    CurveLegend[
+      BoundaryTracingStyle /@ {"Background", "Terminal"},
+      {Row @ {Italicise["T"], "\[Hyphen]contour"}, "terminal curve"}
+      , LabelStyle -> legendLabelStyle
+    ];
+  legendRegions =
+    RegionLegend[
+      BoundaryTracingStyle /@ {"NonViable"},
+      {"non\[Hyphen]viable domain"}
+      , LabelStyle -> legendLabelStyle
+    ];
+  (* Combined *)
+  Grid[
+    {{
+      plot,
+      Column[Join[legendCurves, legendRegions], Spacings -> -0.5]
+    }}
+    , Spacings -> 3
+  ]
+] // Ex["helmholtz-terminal-points.pdf"]
