@@ -877,3 +877,181 @@ Module[
     , Spacings -> 3
   ]
 ] // Ex["helmholtz-terminal-points.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: traced boundaries through (x_0, 0) (helmholtz-traced-boundaries-hyperbolic-*)*)
+
+
+(* ::Subsection:: *)
+(*Both*)
+
+
+Module[
+  {
+    xMax, yMax, rMax,
+    more, xMaxMore, yMaxMore,
+    xy,
+    sStartPlotting, sEndPlotting,
+    textStyle, textStyleBracket, textVerticalShift,
+    dummyForTrailingCommas
+  },
+  (* Plot range *)
+  xMax = 1;
+  yMax = xMax;
+  rMax = RPolar[xMax, yMax];
+  (* Plot range but more *)
+  more = 0.05;
+  xMaxMore = xMax + more;
+  yMaxMore = yMax + more;
+  (* Traced boundary (upper branch) *)
+  xy = xyTraced[{x0, 0}, 0, 2 rMax {-1, 1}, -1, 1, 0, True];
+  (* Arc-length to start and end plotting at *)
+  sStartPlotting[xy_] := DomainStart[xy];
+  sEndPlotting[xy_] :=
+    Module[{sStart, sEnd},
+      sStart = DomainStart[xy];
+      sEnd = DomainEnd[xy];
+      If[sEnd < xMaxMore,
+        sEnd,
+        SeekRoot[
+          xy[[1]][#] - xMaxMore &,
+          {sStart, sEnd},
+          5
+        ]
+      ]
+    ];
+  (* Text style *)
+  textStyle = Style[#, 18] & @* LaTeXStyle;
+  textStyleBracket = Style[#, Larger] &;
+  textVerticalShift = -0.25;
+  (* Plot *)
+  Show[
+    EmptyFrame[{0, xMax}, {-yMax, yMax}
+      , Frame -> None
+      , ImageSize -> 240
+    ],
+    (* Wedge walls *)
+    Graphics @ {BoundaryTracingStyle["Wall"],
+      Line @ {{xMaxMore, yMaxMore}, {0, 0}, {xMaxMore, -yMaxMore}}
+    },
+    (* Traced boundaries *)
+    ParametricPlot[
+      xy[s]
+        // Through
+        // IncludeYReflection
+        // Evaluate
+      , {s, sStartPlotting[xy], sEndPlotting[xy]}
+      , PlotPoints -> 2
+      , PlotStyle -> BoundaryTracingStyle["Traced"]
+      ],
+    (* Critical terminal point (x_0, 0) *)
+    Graphics @ {
+      GeneralStyle["Point"],
+      Point @ {x0, 0}
+    },
+    Graphics @ {
+      Text[
+        Row @ {
+          "(" // textStyleBracket,
+          "\[NegativeVeryThinSpace]",
+          Subscript[Italicise["x"], 0],
+          ",\[ThinSpace]",
+          0,
+          ")" // textStyleBracket
+        },
+        {x0, 0},
+        {1.5, textVerticalShift}
+      ] // textStyle,
+      {}
+    },
+    {}
+  ]
+] // Ex["helmholtz-traced-boundaries-hyperbolic-both.pdf"]
+
+
+(* ::Subsection:: *)
+(*Rounding*)
+
+
+Module[
+  {
+    xMax, yMax, rMax,
+    more, xMaxMore, yMaxMore,
+    xy,
+    sStartPlotting, sEndPlotting,
+    textStyle, textStyleBracket, textVerticalShift,
+    dummyForTrailingCommas
+  },
+  (* Plot range *)
+  xMax = 1;
+  yMax = xMax;
+  rMax = RPolar[xMax, yMax];
+  (* Plot range but more *)
+  more = 0.05;
+  xMaxMore = xMax + more;
+  yMaxMore = yMax + more;
+  (* Traced boundary (upper branch) *)
+  xy = xyTraced[{x0, 0}, 0, 2 rMax {0, 1}, -1];
+  (* Arc-length to start and end plotting at *)
+  sStartPlotting[xy_] := DomainStart[xy];
+  sEndPlotting[xy_] :=
+    Module[{sStart, sEnd},
+      sStart = DomainStart[xy];
+      sEnd = DomainEnd[xy];
+      If[sEnd < xMaxMore,
+        sEnd,
+        SeekRoot[
+          xy[[1]][#] - xMaxMore &,
+          {sStart, sEnd},
+          5
+        ]
+      ]
+    ];
+  (* Text style *)
+  textStyle = Style[#, 18] & @* LaTeXStyle;
+  textStyleBracket = Style[#, Larger] &;
+  textVerticalShift = -0.25;
+  (* Plot *)
+  Show[
+    EmptyFrame[{0, xMax}, {-yMax, yMax}
+      , Frame -> None
+      , ImageSize -> 240
+    ],
+    (* Wedge walls *)
+    Graphics @ {BoundaryTracingStyle["Wall"],
+      Line @ {{xMaxMore, yMaxMore}, {0, 0}, {xMaxMore, -yMaxMore}}
+    },
+    (* Traced boundaries *)
+    ParametricPlot[
+      xy[s]
+        // Through
+        // IncludeYReflection
+        // Evaluate
+      , {s, sStartPlotting[xy], sEndPlotting[xy]}
+      , PlotPoints -> 2
+      , PlotStyle -> BoundaryTracingStyle["Traced"]
+      ],
+    (* Critical terminal point (x_0, 0) *)
+    Graphics @ {
+      GeneralStyle["Point"],
+      Point @ {x0, 0}
+    },
+    Graphics @ {
+      Text[
+        Row @ {
+          "(" // textStyleBracket,
+          "\[NegativeVeryThinSpace]",
+          Subscript[Italicise["x"], 0],
+          ",\[ThinSpace]",
+          0,
+          ")" // textStyleBracket
+        },
+        {x0, 0},
+        {1.5, textVerticalShift}
+      ] // textStyle,
+      {}
+    },
+    {}
+  ]
+] // Ex["helmholtz-traced-boundaries-hyperbolic-rounding.pdf"]
