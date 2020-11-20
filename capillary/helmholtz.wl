@@ -121,6 +121,36 @@ xyTraced[
   ];
 
 
+(* ::Subsection:: *)
+(*Contours (arc-length parametrisation)*)
+
+
+(* Arc-length parametrisation x == x(s), y == y(s). *)
+xyContour[
+  {xInitial_, yInitial_}, sInitial_,
+  {sStart_, sEnd_},
+  sSign_: 1,
+  terminateAtWalls_: False
+] :=
+  With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+    NDSolveValue[
+      {
+        x'[s] == sSign * +q[x[s], y[s]] / Sqrt[p[x[s], y[s]]^2 + q[x[s], y[s]]^2],
+        y'[s] == sSign * -p[x[s], y[s]] / Sqrt[p[x[s], y[s]]^2 + q[x[s], y[s]]^2],
+        x[sInitial] == xInitial,
+        y[sInitial] == yInitial,
+        WhenEvent[
+          If[terminateAtWalls, Abs @ y[s] > x[s], False],
+          "StopIntegration"
+        ]
+      }
+      , {x, y}
+      , {s, sStart, sEnd}
+      , NoExtrapolation
+    ]
+  ];
+
+
 (* ::Section:: *)
 (*Algebra*)
 
