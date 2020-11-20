@@ -11,7 +11,7 @@
 SetDirectory @ ParentDirectory @ NotebookDirectory[];
 << Conway`
 << FigureStyles`
-SetDirectory @ NotebookDirectory[]
+SetDirectory @ FileNameJoin @ {NotebookDirectory[], "general"}
 
 
 (* ::Subsection:: *)
