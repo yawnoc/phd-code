@@ -532,6 +532,8 @@ Module[
   {
     mesh, meshWireframe,
     xMin, xMax, yMin, yMax,
+    xSimplified, rectangleSimplified,
+    posSimplified, meshWireframeSimplified,
     xHalf, havlesOptions, plotLeftHalf, plotRightHalf,
     xFineDetail, yFineDetail, plotFineDetail,
     dummyForTrailingCommas
@@ -540,6 +542,14 @@ Module[
   mesh = Import["half_plane-mesh.txt"] // Uncompress // First;
   meshWireframe = mesh["Wireframe"];
   {{xMin, xMax}, {yMin, yMax}} = mesh["Bounds"];
+  (*
+    Simplify mesh to reduce file size
+    by replacing detailed portion with black rectangle
+  *)
+  xSimplified = 0.03;
+  rectangleSimplified = Graphics @ Rectangle[{xMin, yMin}, {xSimplified, yMax}];
+  posSimplified = MeshWireframePositions[mesh, {x_, y_} /; x > xSimplified];
+  meshWireframeSimplified = mesh["Wireframe"[posSimplified]];
   (* Plot halves *)
   xHalf = Way[xMin, xMax];
   havlesOptions = {
@@ -563,7 +573,8 @@ Module[
   };
   plotLeftHalf =
     Show[
-      meshWireframe,
+      meshWireframeSimplified,
+      rectangleSimplified,
       {}
       , PlotRange -> {{xMin, xHalf}, {yMin, yMax}}
       , havlesOptions
