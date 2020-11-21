@@ -607,3 +607,54 @@ Module[
       // Ex["half_plane-mesh-detail.pdf"]
   }
 ]
+
+
+(* ::Section:: *)
+(*Figure: numerical solution relative error (half-plane-relative-error)*)
+
+
+Module[
+  {
+    gpd, gamma,
+    tComputedAssoc, tComputed,
+    xFun, h,
+    xSamplingValues,
+    tExactValues, xExactValues,
+    tComputedValues, relErrorValues,
+    relErrorTable,
+    xFirst, relErrorFirst,
+    dummyForTrailingCommas
+  },
+  (* Contact angle *)
+  gpd = 1;
+  gamma = gpd * Degree;
+  (* Import numerical solution *)
+  tComputedAssoc = Import["half_plane-solution.txt"] // Uncompress;
+  tComputed = tComputedAssoc[gpd];
+  (* Implicit exact half-plane solution x == x(T) *)
+  xFun = XHalfPlane[gamma];
+  h = HHalfPlane[gamma];
+  (* Exact values *)
+  xSamplingValues = Subdivide[0, 3, 50];
+  tExactValues =
+    Table[
+      SeekRoot[xFun[#] - x &, {0, h}, 10] // Quiet
+      , {x, xSamplingValues}
+    ];
+  xExactValues = xFun /@ tExactValues;
+  (* Computed values and relative error *)
+  tComputedValues = Table[tComputed[x, 0], {x, xExactValues}];
+  relErrorValues = tComputedValues / tExactValues - 1 // Abs;
+  (* Plot *)
+  relErrorTable = {xExactValues, relErrorValues} // Transpose;
+  ListLogPlot[
+    relErrorTable
+    , AxesLabel -> {Italicise["x"], "Relative error"}
+    , ImageSize -> 360
+    , Joined -> True
+    , LabelStyle -> LatinModernLabelStyle[15]
+    , PlotMarkers -> Automatic
+    , PlotStyle -> Directive[GeneralStyle["Thick"], Black]
+    , PlotOptions[Axes] // Evaluate
+  ]
+] // Ex["half-plane-relative-error.pdf"]
