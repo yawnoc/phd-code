@@ -547,7 +547,7 @@ Module[
       Italicise["x"] // Margined @ {{0, 0}, {0, -0.7 ImageSizeCentimetre}},
       Italicise["y"]
     },
-    Frame -> {{True, False}, {True, False}},
+    Frame -> {{True, False}, {True, True}},
     FrameTicks -> {Automatic,
       Table[
         {y // N, y // NumberForm[#, {2, 1}] &}
