@@ -85,6 +85,7 @@ ClearAll["Conway`*`*"];
   LatinModernLabelStyle,
   LatinModernFontStyle,
   LaTeXStyle,
+  Margined,
   ModuleSymbol,
   NodeLegend,
   NoExtrapolation,
@@ -642,6 +643,25 @@ LaTeXStyle[expr_] := (
       )
     }
 );
+
+
+(* ::Subsubsection:: *)
+(*Margined*)
+
+
+Margined::usage = (
+  "Margined[margins, opts]\n"
+  <> "Operator form of Framed, equivalent to "
+  <> "Framed[#, opts, FrameMargins -> margins, FrameStyle -> None] &"
+);
+
+
+Margined[margins_, opts : OptionsPattern[Framed]] :=
+  Framed[#
+    , opts
+    , FrameMargins -> margins
+    , FrameStyle -> None
+  ] &;
 
 
 (* ::Subsubsection:: *)
