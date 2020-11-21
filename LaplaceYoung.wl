@@ -39,6 +39,7 @@ ClearAll["LaplaceYoung`*`*"];
   XHalfPlane,
   DHalfPlane,
   MeshRefinementUniform,
+  MeshWireframePositions,
   SolveLaplaceYoung,
   SolveLaplaceYoungFixedPoint
 };
@@ -129,6 +130,39 @@ MeshRefinementUniform::usage = (
 MeshRefinementUniform[len_] :=
   Function[{vertices, area},
     area > Sqrt[3] / 4 * len^2 // Evaluate
+  ];
+
+
+(* ::Subsubsection:: *)
+(*MeshWireframePositions*)
+
+
+MeshWireframePositions::usage = (
+  "MeshWireframePositions[mesh, pattern, containsType (def ContainsAny)]\n"
+  <> "Returns list of positions of elements of mesh "
+  <> "with at least one coordinate satisfying the pattern pattern. "
+  <> "To require all elements satisfying the pattern, "
+  <> "use containsType ContainsOnly.\n"
+  <> "To be used in mesh visualisation, e.g. mesh[\"Wireframe\"[output]]."
+);
+
+
+MeshWireframePositions[
+  mesh_ElementMesh,
+  pattern_,
+  containsType_: ContainsAny
+] :=
+  Module[{coordinatesPositions, elementPositions},
+    coordinatesPositions = Position[mesh["Coordinates"], pattern] // Flatten;
+    elementPositions = (
+      Position[
+        mesh["MeshElements"][[1, 1]],
+        list_List /; containsType[list, coordinatesPositions]
+      ]
+        // Flatten
+        // Map[{1, #} &]
+    );
+    elementPositions
   ];
 
 
