@@ -11,7 +11,9 @@
 SetDirectory @ ParentDirectory @ NotebookDirectory[];
 << NDSolve`FEM`
 << Conway`
+<< Curvilinear`
 << LaplaceYoung`
+<< FigureStyles`
 SetDirectory @ FileNameJoin @ {NotebookDirectory[], "half_plane"}
 
 
@@ -432,3 +434,64 @@ Module[
     PlotOptions[Axes] // Evaluate
   ] // Ex @ FString["half_plane-solution-rel_error-gpd-{gpd}.pdf"]
 ]
+
+
+(* ::Section:: *)
+(*Figure: exact half-plane solution (half-plane-solution)*)
+
+
+Module[
+  {
+    gamma,
+    xMin, xMax,
+    tStart, tEnd,
+    angleMarkerRadius, labelSize, textStyle,
+    dummyForTrailingCommas
+  },
+  (* Contact angle *)
+  gamma = 30 Degree;
+  (* Plot range *)
+  {xMin, xMax} = {0, 3};
+  tStart = HHalfPlane[gamma];
+  tEnd = SeekRoot[XHalfPlane[gamma][#] - xMax &, {0, tStart}, 10] // Quiet;
+  (* Plot *)
+  angleMarkerRadius = 0.2 tStart;
+  labelSize = 16;
+  textStyle = Style[#, 24] & @* LaTeXStyle;
+  Show[
+    EmptyAxes[{xMin, xMax}, {tStart, tEnd}
+      , AxesLabel -> Italicise /@ {"x", "T"}
+      , ImagePadding -> {{Automatic, 1.1 labelSize}, {Automatic, Automatic}}
+        (* Extra padding required so that x-axis label doesn't get chopped off *)
+      , ImageSize -> 420
+      , LabelStyle -> LatinModernLabelStyle[labelSize]
+      , PlotRange -> All
+    ],
+    (* Contact angle *)
+    Graphics @ {GeneralStyle["DefaultThick"],
+      Circle[
+        {xMin, tStart},
+        angleMarkerRadius,
+        {-Pi/2, -Pi/2 + gamma}
+      ]
+    },
+    Graphics @ {
+      Text[
+        "\[Gamma]" // textStyle
+        , {xMin, tStart} + XYPolar[angleMarkerRadius, -Pi/2 + gamma/2]
+        , {-0.55, 0.7}
+      ]
+    },
+    (* Liquid *)
+    ParametricPlot[
+      {XHalfPlane[gamma][t], t}
+      , {t, tStart, tEnd}
+      , AspectRatio -> Automatic
+      , ImageSize -> 480
+      , PlotPoints -> 2
+      , PlotRange -> {0, All}
+      , PlotStyle -> Directive[Black, GeneralStyle["Thick"]]
+    ],
+    {}
+  ]
+] // Ex["half_plane-solution.pdf"]
