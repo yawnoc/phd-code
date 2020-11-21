@@ -522,3 +522,77 @@ Module[
     {}
   ]
 ] // Ex["half_plane-solution.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: half-plane mesh (half-plane-mesh-*)*)
+
+
+Module[
+  {
+    mesh, meshWireframe,
+    xMin, xMax, yMin, yMax,
+    xHalf, havlesOptions, plotLeftHalf, plotRightHalf,
+    xFineDetail, yFineDetail, plotFineDetail,
+    dummyForTrailingCommas
+  },
+  (* Import mesh *)
+  mesh = Import["half_plane-mesh.txt"] // Uncompress // First;
+  meshWireframe = mesh["Wireframe"];
+  {{xMin, xMax}, {yMin, yMax}} = mesh["Bounds"];
+  (* Plot halves *)
+  xHalf = Way[xMin, xMax];
+  havlesOptions = {
+    FrameLabel -> {
+      Italicise["x"] // Margined @ {{0, 0}, {0, -0.7 ImageSizeCentimetre}},
+      Italicise["y"]
+    },
+    Frame -> {{True, False}, {True, False}},
+    FrameTicks -> {Automatic,
+      Table[
+        {y // N, y // NumberForm[#, {2, 1}] &}
+        , {y, Subdivide[yMin, yMax, 2]}
+      ]
+    },
+    ImagePadding -> {{Automatic, 0.3 ImageSizeCentimetre}, {Automatic, Automatic}},
+    ImageSize -> 360,
+    LabelStyle -> LatinModernLabelStyle[16],
+    PlotRangeClipping -> True,
+    PlotOptions[Frame],
+    Nothing
+  };
+  plotLeftHalf =
+    Show[
+      meshWireframe,
+      {}
+      , PlotRange -> {{xMin, xHalf}, {yMin, yMax}}
+      , havlesOptions
+    ];
+  plotRightHalf =
+    Show[
+      meshWireframe
+      , PlotRange -> {{xHalf, xMax}, {yMin, yMax}}
+      , havlesOptions
+    ];
+  (* Plot fine detail *)
+  xFineDetail = 0.2;
+  yFineDetail = 0.1;
+  plotFineDetail =
+    Show[
+      meshWireframe
+      , Frame -> True
+      , ImagePadding -> Automatic
+      , ImageSize -> {270}
+      , FrameTicks -> Automatic
+      , PlotRange -> {{xMin, xFineDetail}, {-yFineDetail, yFineDetail}}
+      , havlesOptions
+    ];
+  (* Export *)
+  {
+    Column[{plotLeftHalf, plotRightHalf}, Spacings -> 1]
+      // Ex["half_plane-mesh-halves.pdf"]
+    ,
+    plotFineDetail
+      // Ex["half_plane-mesh-detail.pdf"]
+  }
+]
