@@ -444,28 +444,32 @@ Module[
   {
     gamma,
     xMin, xMax,
-    tStart, tEnd,
+    tStart, h, tEnd,
+    plotRangePadding,
     angleMarkerRadius, labelSize, textStyle,
+    verticalTicksHorizontalOffset,
     dummyForTrailingCommas
   },
   (* Contact angle *)
   gamma = 30 Degree;
   (* Plot range *)
-  {xMin, xMax} = {0, 3};
-  tStart = HHalfPlane[gamma];
+  {xMin, xMax} = {0, 2};
+  tStart = h = HHalfPlane[gamma];
   tEnd = SeekRoot[XHalfPlane[gamma][#] - xMax &, {0, tStart}, 10] // Quiet;
   (* Plot *)
-  angleMarkerRadius = 0.2 tStart;
-  labelSize = 16;
-  textStyle = Style[#, 24] & @* LaTeXStyle;
+  plotRangePadding = 0.15 h;
+  angleMarkerRadius = 0.2 h;
+  labelSize = 24;
+  textStyle = Style[#, labelSize] & @* LaTeXStyle;
   Show[
     EmptyAxes[{xMin, xMax}, {tStart, tEnd}
       , AxesLabel -> Italicise /@ {"x", "T"}
-      , ImagePadding -> {{Automatic, 1.1 labelSize}, {Automatic, Automatic}}
-        (* Extra padding required so that x-axis label doesn't get chopped off *)
-      , ImageSize -> 420
+      , ImageSize -> 360
       , LabelStyle -> LatinModernLabelStyle[labelSize]
       , PlotRange -> All
+      , PlotRangeClipping -> False
+      , PlotRangePadding -> {{0, plotRangePadding}, {0, plotRangePadding}}
+      , Ticks -> None
     ],
     (* Contact angle *)
     Graphics @ {GeneralStyle["DefaultThick"],
@@ -492,6 +496,29 @@ Module[
       , PlotRange -> {0, All}
       , PlotStyle -> Directive[Black, GeneralStyle["Thick"]]
     ],
+    (* Manual ticks (for better spacing) *)
+    Graphics @ {
+      Text[
+        "0" // textStyle
+        , {0, 0}
+        , {-0.25, 0.9}
+      ],
+      {}
+    },
+    verticalTicksHorizontalOffset = 2.5;
+    Graphics @ {
+      Text[
+        "0" // textStyle
+        , {0, 0}
+        , {verticalTicksHorizontalOffset, -0.25}
+      ],
+      Text[
+        Italicise["h"] // textStyle
+        , {0, h}
+        , {verticalTicksHorizontalOffset, -0.25}
+      ],
+      {}
+    },
     {}
   ]
 ] // Ex["half_plane-solution.pdf"]
