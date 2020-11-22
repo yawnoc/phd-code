@@ -1034,7 +1034,7 @@ Module[
       Text[
         Italicise["r"] // textStyle
         , XYPolar[rMax / 2, -alpha]
-        , {1, 3}
+        , {3, 3}
       ],
       {}
     },
