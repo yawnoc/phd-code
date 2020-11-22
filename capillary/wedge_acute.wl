@@ -883,10 +883,17 @@ Module[
 (*Figure: finite element mesh (wedge_acute-mesh-*)*)
 
 
+(* ::Subsection:: *)
+(*Detail*)
+
+
+(* (This is slow (~6 sec).) *)
 Module[
   {
     apd, alpha,
     mesh, meshWireframe,
+    wallDistanceSimplified, polygonSimplified,
+    posSimplified, meshWireframeSimplified,
     xMin, xMax, yMin, yMax, rMax,
     textStyle,
     phiPattern,
@@ -901,6 +908,28 @@ Module[
   meshWireframe = mesh["Wireframe"];
   {{xMin, xMax}, {yMin, yMax}} = mesh["Bounds"];
   rMax = xMax;
+  (*
+    Simplify mesh to reduce file size
+    by replacing detailed portions with black polygons
+  *)
+  wallDistanceSimplified = 0.1;
+  polygonSimplified = Graphics @ Polygon @ {
+    {wallDistanceSimplified / Sin[alpha], 0},
+    XYPolar[rMax, alpha] + XYPolar[wallDistanceSimplified, alpha - Pi/2],
+    XYPolar[rMax, alpha],
+    {0, 0},
+    XYPolar[rMax, -alpha],
+    XYPolar[rMax, -alpha] + XYPolar[wallDistanceSimplified, -alpha + Pi/2],
+    Nothing
+  };
+  posSimplified =
+    MeshWireframePositions[mesh,
+      {x_, y_} /;
+        x Sin[alpha] - y Cos[alpha] > wallDistanceSimplified
+          &&
+        x Sin[alpha] + y Cos[alpha] > wallDistanceSimplified
+    ];
+  meshWireframeSimplified = mesh["Wireframe"[posSimplified]];
   (* Plot full mesh *)
   textStyle = Style[#, 15] & @* LaTeXStyle;
   phiPattern = _Integer Degree | 0;
@@ -933,7 +962,7 @@ Module[
       (* Font for labels *)
       /. {Text[str_, seq__] :> Text[str // textStyle, seq]}
     ,
-    meshWireframe,
+    meshWireframeSimplified, polygonSimplified,
     (* Manual coordinate labels *)
     Graphics @ {
       Text[
@@ -949,11 +978,9 @@ Module[
       {}
     },
     {}
+    , ImageSize -> 360
     , PlotRange -> All
     , PlotRangeClipping -> False
   ];
-  {
-    plotFull // Ex["wedge_acute-mesh-full.pdf"],
-    Nothing
-  }
+  plotFull // Ex["wedge_acute-mesh-full.pdf"]
 ]
