@@ -884,7 +884,7 @@ Module[
 
 
 (* ::Subsection:: *)
-(*Detail*)
+(*Full*)
 
 
 (* (This is slow (~6 sec).) *)
