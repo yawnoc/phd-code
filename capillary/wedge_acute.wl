@@ -949,11 +949,12 @@ Module[
       (* Tweak azimuthal labels *)
       /. {Text[Style[phi : phiPattern, {}], coords_, offset_, opts___] :>
         Text[
-          phi,
+          SeparatedRow["VeryThin"][phi / Degree, Magnify["\[Degree]", 1.2]],
           coords,
           offset + Which[
             phi == -alpha, {-0.2, -0.7},
             phi < 0, Abs[phi]/alpha {0, -0.7},
+            phi == 0, {-0.2, 0},
             True, {0, 0}
           ]
           , opts
@@ -968,7 +969,7 @@ Module[
       Text[
         Italicise["r"] // textStyle
         , XYPolar[rMax / 2, -alpha]
-        , 2.7 {2, 1}
+        , {5.5, 2.2}
       ],
       Text[
         "\[Phi]" // textStyle // Margined[{{0, 1}, {0, 0}}]
