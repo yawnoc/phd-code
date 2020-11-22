@@ -654,7 +654,7 @@ Module[
     , Joined -> True
     , LabelStyle -> LatinModernLabelStyle[15]
     , PlotMarkers -> Automatic
-    , PlotStyle -> Directive[GeneralStyle["Thick"], Black]
+    , PlotStyle -> Black
     , PlotOptions[Axes] // Evaluate
   ]
 ] // Ex["half-plane-relative-error.pdf"]
