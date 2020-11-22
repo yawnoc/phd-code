@@ -13,6 +13,7 @@ SetDirectory @ ParentDirectory @ NotebookDirectory[];
 << Conway`
 << Curvilinear`
 << LaplaceYoung`
+<< FigureStyles`
 SetDirectory @ FileNameJoin @ {NotebookDirectory[], "wedge_acute"}
 
 
@@ -1045,3 +1046,59 @@ Module[
   ];
   plotDetail
 ] // Ex["wedge_acute-mesh-detail.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: borderline case comparison with asymptotic  (wedge_acute-borderline-asymptotic-comparison-*)*)
+
+
+(* ::Subsubsection:: *)
+(*Borderline case comparison with asymptotic*)
+
+
+Module[
+  {
+    apd, gpd,
+    alpha, gamma,
+    tNumerical, t0,
+    tAsymptotic,
+    styleCommon, styleNumerical, styleAsymptotic,
+    phiValues, phiCases, case,
+    dummyForTrailingCommas
+  },
+  (* Borderline case *)
+  apd = 40;
+  gpd = 90 - apd;
+  (* Angles *)
+  alpha = apd * Degree;
+  gamma = gpd * Degree;
+  (* Import numerical solution *)
+  tNumerical =
+    Import @ FString["solution/wedge_acute-solution-apd-{apd}-gpd-{gpd}.txt"]
+      // Uncompress // First;
+  (* Corner height *)
+  t0 = tNumerical[0, 0];
+  (* Asymptotic solution *)
+  tAsymptotic[x_, y_] := t0 - 2 Sqrt[x / t0] + y^2/4 Sqrt[t0/x];
+  (* Plot styles *)
+  styleCommon = Directive[Black, GeneralStyle["DefaultThick"]];
+  styleNumerical = styleCommon;
+  styleAsymptotic = Directive[styleCommon, GeneralStyle["Dashed"]];
+  (* Plot discrepancy *)
+  phiValues = {0, alpha};
+  phiCases = {"symmetry", "wall"};
+  Table[
+    case = AssociationThread[phiValues -> phiCases][phi];
+    Plot[
+      {tNumerical[x, x Tan[phi]], tAsymptotic[x, x Tan[phi]]} // Evaluate
+      , {x, 0, 3}
+      , AxesLabel -> Italicise /@ {"x", "T"}
+      , ImageSize -> 270
+      , LabelStyle -> LatinModernLabelStyle[14]
+      , PlotRange -> {0, All}
+      , PlotStyle -> {styleNumerical, styleAsymptotic}
+      , PlotOptions[Axes] // Evaluate
+    ] // Ex @ FString["wedge_acute-borderline-asymptotic-comparison-{case}.pdf"]
+    , {phi, phiValues}
+  ]
+]
