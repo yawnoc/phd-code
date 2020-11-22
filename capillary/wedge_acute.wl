@@ -984,3 +984,63 @@ Module[
   ];
   plotFull // Ex["wedge_acute-mesh-full.pdf"]
 ]
+
+
+(* ::Subsection:: *)
+(*Detail*)
+
+
+Module[
+  {
+    apd, alpha,
+    mesh, meshWireframe,
+    rMax, xMax, yMax,
+    textStyle,
+    plotDetail,
+    dummyForTrailingCommas
+  },
+  (* Contact angle *)
+  apd = 40;
+  alpha = apd * Degree;
+  (* Import mesh *)
+  mesh = Import @ FString["mesh/wedge_acute-mesh-apd-{apd}.txt"] // Uncompress // First;
+  meshWireframe = mesh["Wireframe"];
+  rMax = 0.25;
+  {xMax, yMax} = XYPolar[rMax, alpha];
+  (* Plot mesh detail *)
+  textStyle = Style[#, 15] & @* LaTeXStyle;
+  plotDetail = Show[
+    PolarPlot[rMax, {phi, -alpha, alpha}
+      , PlotStyle -> None
+      , PolarAxes -> {False, True}
+      , PolarAxesOrigin -> {-alpha, rMax}
+      , PolarTicks -> List @
+          Table[
+            {r, N[r], {0, 0.04 rMax}}
+            , {r, FindDivisions[{0, rMax}, 4]}
+          ]
+    ]
+      (* Tweak radial labels *)
+      /. {Text[Style[r_, {}], coords_, offset_, opts__] :>
+        Text[r, coords, offset + {If[r == 0, 0.8, 1.4], 0.1}, opts]
+      }
+      (* Font for labels *)
+      /. {Text[str_, seq__] :> Text[str // textStyle, seq]}
+    ,
+    meshWireframe,
+    (* Manual coordinate labels *)
+    Graphics @ {
+      Text[
+        Italicise["r"] // textStyle
+        , XYPolar[rMax / 2, -alpha]
+        , {1, 3}
+      ],
+      {}
+    },
+    {}
+    , ImageSize -> 180
+    , PlotRange -> {{0, xMax}, {-yMax, yMax}}
+    , PlotRangePadding -> {0.2, {0.3, 0.2}} rMax
+  ];
+  plotDetail
+] // Ex["wedge_acute-mesh-detail.pdf"]
