@@ -877,3 +877,83 @@ Module[
   "same/wedge_acute_same-traced-general",
   "-apd-{apdRep}-gpd-{gpdRep}-gpdt-{gpdRep}.pdf"
 ]
+
+
+(* ::Section:: *)
+(*Figure: finite element mesh (wedge_acute-mesh-*)*)
+
+
+Module[
+  {
+    apd, alpha,
+    mesh, meshWireframe,
+    xMin, xMax, yMin, yMax, rMax,
+    textStyle,
+    phiPattern,
+    plotFull,
+    dummyForTrailingCommas
+  },
+  (* Contact angle *)
+  apd = 40;
+  alpha = apd * Degree;
+  (* Import mesh *)
+  mesh = Import @ FString["mesh/wedge_acute-mesh-apd-{apd}.txt"] // Uncompress // First;
+  meshWireframe = mesh["Wireframe"];
+  {{xMin, xMax}, {yMin, yMax}} = mesh["Bounds"];
+  rMax = xMax;
+  (* Plot full mesh *)
+  textStyle = Style[#, 15] & @* LaTeXStyle;
+  phiPattern = _Integer Degree | 0;
+  plotFull = Show[
+    PolarPlot[rMax, {phi, -alpha, alpha}
+      , PlotStyle -> None
+      , PolarAxes -> {True, True}
+      , PolarAxesOrigin -> {-alpha, rMax}
+      , PolarTicks -> {Range[-alpha, alpha, 10 Degree], Automatic}
+    ]
+      (* Angular PlotRange *)
+      /. {Circle[seq__, {0, 2 Pi}] :> Circle[seq, {-alpha, alpha}]}
+      (* Tweak radial labels *)
+      /. {Text[Style[r : Except[phiPattern], {}], coords_, offset_] :>
+        Text[r, coords, offset + If[r == 10, {1.5, 0}, {0.75, 0}]]
+      }
+      (* Tweak azimuthal labels *)
+      /. {Text[Style[phi : phiPattern, {}], coords_, offset_, opts___] :>
+        Text[
+          phi,
+          coords,
+          offset + Which[
+            phi == -alpha, {-0.2, -0.7},
+            phi < 0, Abs[phi]/alpha {0, -0.7},
+            True, {0, 0}
+          ]
+          , opts
+        ]
+      }
+      (* Font for labels *)
+      /. {Text[str_, seq__] :> Text[str // textStyle, seq]}
+    ,
+    meshWireframe,
+    (* Manual coordinate labels *)
+    Graphics @ {
+      Text[
+        Italicise["r"] // textStyle
+        , XYPolar[rMax / 2, -alpha]
+        , 2.7 {2, 1}
+      ],
+      Text[
+        "\[Phi]" // textStyle // Margined[{{0, 1}, {0, 0}}]
+        , {rMax, 0}
+        , {-8, 0}
+      ],
+      {}
+    },
+    {}
+    , PlotRange -> All
+    , PlotRangeClipping -> False
+  ];
+  {
+    plotFull // Ex["wedge_acute-mesh-full.pdf"],
+    Nothing
+  }
+]
