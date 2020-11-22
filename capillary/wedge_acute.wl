@@ -931,7 +931,7 @@ Module[
     ];
   meshWireframeSimplified = mesh["Wireframe"[posSimplified]];
   (* Plot full mesh *)
-  textStyle = Style[#, 15] & @* LaTeXStyle;
+  textStyle = Style[#, 13] & @* LaTeXStyle;
   phiPattern = _Integer Degree | 0;
   plotFull = Show[
     PolarPlot[rMax, {phi, -alpha, alpha}
