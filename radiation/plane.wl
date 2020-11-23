@@ -661,8 +661,13 @@ Module[
   Show[
     EmptyFrame[{xMin, xMax}, {-yMax, yMax},
       AspectRatio -> Automatic,
+      FrameLabel -> {
+        Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
+        Italicise["y"]
+      },
+      FrameTicksStyle -> 12,
       ImageSize -> 240,
-      LabelStyle -> LatinModernLabelStyle[12]
+      LabelStyle -> LatinModernLabelStyle[15]
     ],
     (* Traced boundaries *)
     Table[
