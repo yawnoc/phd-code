@@ -66,6 +66,7 @@ ClearAll["Conway`*`*"];
 {
   BasicImageResolution,
   BoxedLabel,
+  ContourByArcLength,
   CurveLegend,
   DecimalPlacesForm,
   DefaultColours,
@@ -146,6 +147,63 @@ BoxedLabel::usage = (
 
 BoxedLabel[expr_, opts : OptionsPattern[Framed]] :=
   Framed[expr, ImageMargins -> {{0, 0}, {10, 0}}, opts];
+
+
+(* ::Subsubsection:: *)
+(*ContourByArcLength*)
+
+
+ContourByArcLength::usage = (
+  "ContourByArcLength[fun][{x0, y0}, s0, {sStart, sEnd}\n"
+  <> "  , sSign (def 1)\n"
+  <> "  , terminationFunction (def False &)\n"
+  <> "]\n"
+  <> "Returns contour x == x(s), y == y(s) "
+  <> "(arc-length parametrisation) for:\n"
+  <> "- Function fun == fun(x, y)\n"
+  <> "- Initial condition x(s0) == x0, y(s0) == y0\n"
+  <> "- Arc-length interval sStart < s < sEnd.\n"
+  <> "To traverse the contour backwards, use sSign == -1.\n"
+);
+
+
+ContourByArcLength[fun_][{x0_, y0_}, s0_, {sStart_, sEnd_}
+  , sSign_: 1
+  , terminationFunction_: (False &)
+] :=
+  Module[
+    {
+      p, q, grad,
+      xDerivative, yDerivative,
+      dummyForTrailingCommas
+    },
+    (* Components of gradient *)
+    p = Derivative[1, 0][fun];
+    q = Derivative[0, 1][fun];
+    (* Magnitude of gradient *)
+    grad = Function[{x, y}, Sqrt[p[x, y]^2 + q[x, y]^2] // Evaluate];
+    (* Right hand sides of contour system of ODEs *)
+    xDerivative[x_, y_] := +q[x, y] / grad[x, y];
+    yDerivative[x_, y_] := -p[x, y] / grad[x, y];
+    (* Solve system of ODEs *)
+    With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+      NDSolveValue[
+        {
+          x'[s] == sSign xDerivative[x[s], y[s]],
+          y'[s] == sSign yDerivative[x[s], y[s]],
+          x[s0] == x0,
+          y[s0] == y0,
+          WhenEvent[
+            terminationFunction[x[s], y[s]],
+            "StopIntegration"
+          ]
+        }
+        , {x, y}
+        , {s, sStart, sEnd}
+        , NoExtrapolation
+      ]
+    ]
+  ];
 
 
 (* ::Subsubsection:: *)
