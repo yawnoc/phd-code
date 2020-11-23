@@ -431,8 +431,13 @@ Module[
   (* Plot *)
   Show[
     EmptyFrame[{0, xMax}, {-yMax, yMax}
-      , ImageSize -> 240
-      , LabelStyle -> LatinModernLabelStyle[12]
+      , FrameLabel -> {
+          Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
+          Italicise["y"]
+        }
+      , FrameTicksStyle -> 12
+      , ImageSize -> 210
+      , LabelStyle -> LatinModernLabelStyle[15]
     ],
     (* Wedge walls *)
     Graphics @ {BoundaryTracingStyle["Wall"],
@@ -498,8 +503,13 @@ Module[
   (* Plot *)
   Show[
     EmptyFrame[{0, xMax}, {-yMax, yMax}
-      , ImageSize -> 240
-      , LabelStyle -> LatinModernLabelStyle[12]
+      , FrameLabel -> {
+          Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
+          Italicise["y"]
+        }
+      , FrameTicksStyle -> 12
+      , ImageSize -> 210
+      , LabelStyle -> LatinModernLabelStyle[15]
     ],
     (* Wedge walls *)
     Graphics @ {BoundaryTracingStyle["Wall"],
