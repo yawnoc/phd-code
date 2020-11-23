@@ -1291,7 +1291,6 @@ Module[
     {}
   ];
   (* Legend *)
-  (* Legend *)
   legendLabelStyle = LatinModernLabelStyle[14];
   legendCurves =
     CurveLegend[
@@ -1508,3 +1507,158 @@ Module[
   , {n, numPlots}];
   Grid @ {plotList}
 ] // Ex["wedge_acute-traced-boundaries-patched.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: terminal-points (wedge_acute-terminal-points)*)
+
+
+Module[
+  {
+    apd, gpd,
+    alpha, gamma,
+    tNumerical, xCritical,
+    p, q, grad2, f, vi,
+    xMin, xMax, yMax, rMax,
+    more, xMaxMore, yMaxMore,
+    xyStartList, xyContourList,
+    xyTerminal,
+    xyContourOrdinary, sOrdinary, xyOrdinary,
+    textStyle, textStyleBracket, textVerticalShift,
+    plot,
+    legendLabelStyle,
+    legendCurves, legendRegions,
+    dummyForTrailingCommas
+  },
+  (* Angular parameters *)
+  {apd, gpd} = {40, 60};
+  {alpha, gamma} = {apd, gpd} Degree;
+  (* Import numerical solution *)
+  tNumerical =
+    Import @ FString["solution/wedge_acute-solution-apd-{apd}-gpd-{gpd}.txt"]
+      // Uncompress // First;
+  (* Derivative list for boundary tracing *)
+  {p, q, grad2, f, vi} = ContactDerivativeList[tNumerical, gamma];
+  (* Critical terminal point x_0 *)
+  xCritical = x0[tNumerical, gamma];
+  (* Plot range *)
+  xMin = xCritical / 2;
+  xMax = 2 xCritical;
+  yMax = xMax Tan[alpha];
+  rMax = RPolar[xMax, yMax];
+  (* Plot range but more *)
+  more = 0.05;
+  xMaxMore = xMax + more;
+  yMaxMore = yMax + more;
+  (* T-contours *)
+  xyStartList = Table[{x, 0}, {x, xCritical + 0.07 Range[0, 3]}];
+  xyContourList =
+    Table[
+      ContourByArcLength[tNumerical][xyStart, 0, 2 rMax {-1, 1}, 1, #1 > xMaxMore &]
+      , {xyStart, xyStartList}
+    ];
+  (* Terminal curve *)
+  xyTerminal =
+    ContourByArcLength[vi][{xCritical, 0}, 0, 2 rMax {-1, 1}, 1, #1 > xMaxMore &];
+  (* Orindary terminal point to be shown *)
+  xyContourOrdinary = xyContourList[[2]];
+  sOrdinary =
+    First @ SeekParametricIntersection[
+      xyContourOrdinary, xyTerminal,
+      {0, DomainEnd[xyContourOrdinary]}, {0, DomainEnd[xyTerminal]}
+    ];
+  xyOrdinary = xyContourOrdinary[sOrdinary] // Through;
+  (* Text style *)
+  textStyle = Style[#, 18] & @* LaTeXStyle;
+  textStyleBracket = Style[#, Larger] &;
+  textVerticalShift = -0.25;
+  (* Plot *)
+  plot = Show[
+    EmptyFrame[{xMin, xMax}, {-yMax, yMax}
+      , Frame -> None
+      , ImageSize -> 210
+    ],
+    (* Contours *)
+    Table[
+      ParametricPlot[
+        xy[s]
+          // Through
+          // Evaluate
+        , {s, DomainStart[xy], DomainEnd[xy]}
+        , PlotPoints -> 2
+        , PlotStyle -> BoundaryTracingStyle["Background"]
+      ]
+      , {xy, xyContourList}
+    ],
+    (* Non-viable domain *)
+    RegionPlot[
+      vi[x, y] < 0
+      , {x, 0, xMaxMore}
+      , {y, -yMaxMore, yMaxMore}
+      , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
+      , PlotPoints -> 7
+      , PlotStyle -> BoundaryTracingStyle["NonViable"]
+    ],
+    (* Critical terminal point (x_0, 0) *)
+    Graphics @ {
+      GeneralStyle["Point"],
+      Point @ {xCritical, 0}
+    },
+    Graphics @ {
+      Text[
+        Row @ {
+          "(" // textStyleBracket,
+          "\[NegativeVeryThinSpace]",
+          Subscript[Italicise["x"], 0],
+          ",\[ThinSpace]",
+          0,
+          ")" // textStyleBracket
+        },
+        {xCritical, 0},
+        {1.5, textVerticalShift}
+      ] // textStyle,
+      Text[
+        "critical",
+        {xCritical, 0},
+        {-1.4, textVerticalShift}
+      ] // textStyle,
+      {}
+    },
+    (* Ordinary terminal point *)
+    Graphics @ {
+      GeneralStyle["Point"],
+      Point @ xyOrdinary
+    },
+    Graphics @ {
+      Text[
+        "ordinary",
+        xyOrdinary,
+        {-1.4, textVerticalShift}
+      ] // textStyle,
+      {}
+    },
+    {}
+  ];
+  (* Legend *)
+  legendLabelStyle = LatinModernLabelStyle[16];
+  legendCurves =
+    CurveLegend[
+      BoundaryTracingStyle /@ {"Background", "Terminal"},
+      {Row @ {Italicise["T"], "\[Hyphen]contour"}, "terminal curve"}
+      , LabelStyle -> legendLabelStyle
+    ];
+  legendRegions =
+    RegionLegend[
+      BoundaryTracingStyle /@ {"NonViable"},
+      {"non\[Hyphen]viable domain"}
+      , LabelStyle -> legendLabelStyle
+    ];
+  (* Combined *)
+  Grid[
+    {{
+      plot,
+      Column[Join[legendCurves, legendRegions], Spacings -> -0.5]
+    }}
+    , Spacings -> 3
+  ]
+] // Ex["wedge_acute-terminal-points.pdf"]
