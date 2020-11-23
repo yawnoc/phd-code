@@ -34,6 +34,7 @@ ClearAll["LaplaceYoung`*`*"];
 
 
 {
+  ContactDerivativeList,
   ContactTracedBoundary,
   HHalfPlane,
   XHalfPlaneUniversal,
@@ -55,6 +56,38 @@ ClearAll["LaplaceYoung`*`*"];
 
 
 Begin["`Private`"];
+
+
+(* ::Subsubsection:: *)
+(*ContactDerivativeList*)
+
+
+ContactDerivativeList::usage = (
+  "ContactDerivativeList[sol, gamma]\n"
+  <> "Returns list of pure-function derivatives {p, q, grad2, f, phi} "
+  <> "for the known solution sol == sol(x, y) "
+  <> "and the tracing contact angle gamma:\n"
+  <> "p: x-component of gradient\n"
+  <> "q: y-component of gradient\n"
+  <> "grad2: square of gradient\n"
+  <> "f: flux function\n"
+  <> "phi: viability function\n"
+);
+
+
+ContactDerivativeList[sol_, gamma_?NumericQ] :=
+  Module[{p, q, grad2, f, phi},
+    (* Derivatives of known solution *)
+    p = Derivative[1, 0][sol];
+    q = Derivative[0, 1][sol];
+    grad2 = Function[{x, y}, p[x, y]^2 + q[x, y]^2 // Evaluate];
+    (* Flux function *)
+    f = Function[{x, y}, Cos[gamma] Sqrt[1 + grad2[x, y]] // Evaluate];
+    (* Viability function *)
+    phi = Function[{x, y}, Sin[gamma]^2 grad2[x, y] - Cos[gamma]^2 // Evaluate];
+    (* Return *)
+    {p, q, grad2, f, phi}
+  ];
 
 
 (* ::Subsubsection:: *)
