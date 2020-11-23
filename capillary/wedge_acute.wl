@@ -1255,8 +1255,13 @@ Module[
   (* Plot *)
   plot = Show[
     EmptyFrame[{0, xMax}, {-yMax, yMax}
-      , ImageSize -> 270
-      , LabelStyle -> LatinModernLabelStyle[14]
+      , FrameLabel -> {
+          Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
+          Italicise["y"]
+        }
+      , FrameTicksStyle -> 13
+      , ImageSize -> 240
+      , LabelStyle -> LatinModernLabelStyle[16]
     ],
     (* Wedge walls *)
     Graphics @ {BoundaryTracingStyle["Wall"],
@@ -1314,7 +1319,7 @@ Module[
   Grid[
     {{
       plot,
-      Column[Join[legendCurves, legendRegions], Spacings -> -0.5]
+      Column[Join[legendCurves, legendRegions], Spacings -> -0.75]
     }}
     , Spacings -> 2
   ]
