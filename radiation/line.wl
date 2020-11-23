@@ -1434,14 +1434,15 @@ Module[{textStyle},
   textStyle = Style[#, 18] & @* LaTeXStyle;
   Show[
     Plot[psi[r], {r, 0, 1}
-      , AxesLabel -> {rIt, LaTeXStyle["\[Psi]"]}
+      , AxesLabel -> {rIt // Margined @ {{3, 0}, {5, 0}}, LaTeXStyle["\[Psi]"]}
       , ImageSize -> 360
-      , LabelStyle -> LatinModernLabelStyle[15]
+      , LabelStyle -> LatinModernLabelStyle[18]
       , PlotRange -> All
       , PlotRangeClipping -> False
       , PlotRangePadding -> {Automatic, {0.05, Automatic}}
       , PlotStyle -> Directive[Black, GeneralStyle["Thick"]]
       , PlotOptions[Axes] // Evaluate
+      , TicksStyle -> 15
     ],
     Graphics @ {
       (* Guiding lines for critical values *)
@@ -1665,6 +1666,12 @@ Module[
     regimeName = Which[a < aNat, "hot", a == aNat, "cold_hot", a > aNat, "cold"];
     Show[
       EmptyFrame[{-rMaxShow, rMaxShow}, {-rMaxShow, rMaxShow}
+        , FrameLabel -> {
+            Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
+            Italicise["y"]
+          }
+        , FrameStyle -> 17
+        , FrameTicksStyle -> 14
         , LabelStyle -> LatinModernLabelStyle[14]
         , ImageSize -> imageSize
         , PlotLabel -> inequality[aIt, Subscript[aIt, "\[Natural]"]]
@@ -1808,7 +1815,7 @@ Module[
     dummyForTrailingCommas
   },
   aMax = Ceiling[aNat] - 0.1;
-  textStyle = Style[#, 18] & @* LaTeXStyle;
+  textStyle = Style[#, 17] & @* LaTeXStyle;
   (* Plot *)
   plotStyles = {
     Directive[Black, GeneralStyle["Thick"]],
@@ -1823,11 +1830,12 @@ Module[
       , Filling -> {1 -> {2}}
       , FillingStyle -> BoundaryTracingStyle["NonViable"]
       , ImageSize -> 320
-      , LabelStyle -> LatinModernLabelStyle[16]
+      , LabelStyle -> LatinModernLabelStyle[17]
       , PlotRange -> {{0, aMax}, Full}
       , PlotRangeClipping -> False
       , PlotRangePadding -> {{0.02, Automatic}, {0, Automatic}}
       , PlotStyle -> plotStyles
+      , TicksStyle -> 14
     ],
     (* Patch missing piece near r == 1 *)
     rPatch = 0.9877;
@@ -1858,8 +1866,8 @@ Module[
     {}
   ];
   (* Legend *)
-  legendLabelStyleCurves = LatinModernLabelStyle[18];
-  legendLabelStyleRegions = LatinModernLabelStyle[15];
+  legendLabelStyleCurves = LatinModernLabelStyle[17];
+  legendLabelStyleRegions = LatinModernLabelStyle[14];
   legendCurves =
     CurveLegend[
       plotStyles,
@@ -1878,7 +1886,7 @@ Module[
     plot,
     Grid[
       Transpose @ {Join[legendCurves, legendRegions]}
-      , Spacings -> {Automatic, {{-1.2}, -0.7, Automatic}}
+      , Spacings -> {Automatic, {{-1.2}, -0.8, Automatic}}
     ]
   }} // PrettyString[
     "Sharp" -> "\[Sharp]",
