@@ -358,7 +358,7 @@ Module[
       , BoxRatios -> Automatic
       , Filling -> 0
       , FillingStyle -> BoundaryTracingStyle["Solution3D"]
-      , LabelStyle -> LatinModernLabelStyle[12]
+      , LabelStyle -> LatinModernLabelStyle[11]
       , Lighting -> GeneralStyle["AmbientLighting"]
       , PlotPoints -> 20
       , PlotStyle -> BoundaryTracingStyle["Solution3D"]
@@ -368,7 +368,7 @@ Module[
             Abs[y] < xMax - x
           ]
         ]
-      , TicksStyle -> ConstantArray[LatinModernLabelStyle[8], 3]
+      , TicksStyle -> 8
       , ViewPoint -> {2.5, -1.1, 1.4}
     ],
     (* Wedge walls *)
