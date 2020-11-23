@@ -1189,3 +1189,128 @@ Module[
     , {gpd, gpdValues}
   ]
 ]
+
+
+(* ::Section:: *)
+(*Figure: generic traced boundaries  (wedge_acute-traced-boundaries)*)
+
+
+Module[
+  {
+    apd, gpd,
+    alpha, gamma,
+    tNumerical, xCritical,
+    xMax, yMax, rMax,
+    more, xMaxMore, yMaxMore,
+    derList, p, q, grad2, f, vi,
+    rStartList,
+    xyStartList, xyTracedList,
+    plot, legend,
+    legendLabelStyle,
+    legendCurves, legendRegions,
+    dummyForTrailingCommas
+  },
+  (* Angular parameters *)
+  {apd, gpd} = {40, 60};
+  {alpha, gamma} = {apd, gpd} Degree;
+  (* Import numerical solution *)
+  tNumerical =
+    Import @ FString["solution/wedge_acute-solution-apd-{apd}-gpd-{gpd}.txt"]
+      // Uncompress // First;
+  (* Derivative list for boundary tracing *)
+  {p, q, grad2, f, vi} = derList = ContactDerivativeList[tNumerical, gamma];
+  (* Critical terminal point x_0 *)
+  xCritical = x0[tNumerical, gamma];
+  (* Plot range *)
+  xMax = Ceiling[1.5 xCritical, 0.2];
+  yMax = xMax Tan[alpha];
+  rMax = RPolar[xMax, yMax];
+  (* Plot range but more *)
+  more = 0.05;
+  xMaxMore = xMax + more;
+  yMaxMore = yMax + more;
+  (* Traced boundaries (upper branch) *)
+  (*
+    NOTE: wall integration doesn't work
+    because the traced boundary ventures slightly outside the wedge domain
+    and Mathematica complains about Indeterminate values.
+    So the wall boundaries are drawn manually at the end.
+  *)
+  rStartList = Subdivide[rMax, 12] // Rest;
+  xyStartList = Table[XYPolar[r, -alpha], {r, rStartList}];
+  xyTracedList =
+    Table[
+      ContactTracedBoundary[derList][xyStart, 0, {0, 2 rMax}
+        , -1, 1
+        , 0, Function[{x, y}, x > xMaxMore]
+      ]
+      , {xyStart, xyStartList}
+    ];
+  (* Plot *)
+  plot = Show[
+    EmptyFrame[{0, xMax}, {-yMax, yMax}
+      , ImageSize -> 270
+      , LabelStyle -> LatinModernLabelStyle[14]
+    ],
+    (* Wedge walls *)
+    Graphics @ {BoundaryTracingStyle["Wall"],
+      HalfLine[{0, 0}, XYPolar[1, alpha]],
+      HalfLine[{0, 0}, XYPolar[1, -alpha]],
+      {}
+    },
+    (* Non-viable domain *)
+    RegionPlot[
+      vi[x, y] < 0
+      , {x, xCritical, xMaxMore}
+      , {y, -yMaxMore, yMaxMore}
+      , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
+      , PlotPoints -> 7
+      , PlotStyle -> BoundaryTracingStyle["NonViable"]
+    ],
+    (* Traced boundaries *)
+    Table[
+      ParametricPlot[
+        xy[s]
+          // Through
+          // IncludeYReflection
+          // Evaluate
+        , {s, DomainStart[xy], DomainEnd[xy]}
+        , PlotStyle -> BoundaryTracingStyle["Traced"]
+      ]
+      , {xy, xyTracedList}
+    ],
+    (* Traced boundary walls *)
+    ParametricPlot[
+      {x, x Tan[alpha]}
+        // IncludeYReflection
+        // Evaluate
+      , {x, 0, xMaxMore}
+      , PlotPoints -> 2
+      , PlotStyle -> BoundaryTracingStyle["Traced"]
+    ],
+    {}
+  ];
+  (* Legend *)
+  (* Legend *)
+  legendLabelStyle = LatinModernLabelStyle[14];
+  legendCurves =
+    CurveLegend[
+      BoundaryTracingStyle /@ {"Traced", "Terminal"},
+      {"traced boundary", "terminal curve"}
+      , LabelStyle -> legendLabelStyle
+    ];
+  legendRegions =
+    RegionLegend[
+      BoundaryTracingStyle /@ {"NonViable"},
+      {"non\[Hyphen]viable domain"}
+      , LabelStyle -> legendLabelStyle
+    ];
+  (* Combined *)
+  Grid[
+    {{
+      plot,
+      Column[Join[legendCurves, legendRegions], Spacings -> -0.5]
+    }}
+    , Spacings -> 2
+  ]
+] // Ex["wedge_acute-traced-boundaries.pdf"]
