@@ -1090,12 +1090,16 @@ Module[
     Plot[
       {tNumerical[x, x Tan[phi]], tAsymptotic[x, x Tan[phi]]} // Evaluate
       , {x, 0, 3}
-      , AxesLabel -> Italicise /@ {"x", "T"}
+      , AxesLabel -> {
+          Italicise["x"] // Margined @ {{0, 1}, {5, 0}},
+          Italicise["T"]
+        }
       , ImageSize -> 270
-      , LabelStyle -> LatinModernLabelStyle[14]
+      , LabelStyle -> LatinModernLabelStyle[17]
       , PlotRange -> {0, All}
       , PlotStyle -> {styleNumerical, styleAsymptotic}
       , PlotOptions[Axes] // Evaluate
+      , TicksStyle -> 14
     ] // Ex @ FString["wedge_acute-borderline-asymptotic-comparison-{case}.pdf"]
     , {phi, phiValues}
   ]
