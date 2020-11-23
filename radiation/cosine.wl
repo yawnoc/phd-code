@@ -6631,8 +6631,14 @@ Module[
     simpleDomain =
       Show[
         EmptyFrame[{xMin, xMax}, {-yMax, yMax}
+          , FrameLabel -> {
+              Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
+              Italicise["y"]
+            }
+          , FrameStyle -> 14
+          , FrameTicksStyle -> 11
           , ImageSize -> imageSizeDomains
-          , LabelStyle -> LatinModernLabelStyle[12]
+          , LabelStyle -> LatinModernLabelStyle[10]
           , PlotLabel -> Column[
               {
                 "Lens\[Hyphen]shaped",
@@ -6698,8 +6704,14 @@ Module[
     generalDomain =
       Show[
         EmptyFrame[{xMin, xMax}, {-yMax, yMax}
+          , FrameLabel -> {
+              Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
+              Italicise["y"]
+            }
+          , FrameStyle -> 14
+          , FrameTicksStyle -> 11
           , ImageSize -> imageSizeDomains
-          , LabelStyle -> LatinModernLabelStyle[12]
+          , LabelStyle -> LatinModernLabelStyle[10]
           , PlotLabel -> Column[
               {
                 "Asymmetric",
@@ -6746,6 +6758,7 @@ Module[
       legend
     }
     , Alignment -> Center
+    , Spacings -> -0.25
   ]
 ] // Ex["cosine-verification-domain-meshes.pdf"]
 
