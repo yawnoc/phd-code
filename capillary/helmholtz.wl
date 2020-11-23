@@ -934,12 +934,12 @@ Module[
   (* Text style *)
   textStyle = Style[#, 18] & @* LaTeXStyle;
   textStyleBracket = Style[#, Larger] &;
-  textVerticalShift = -0.25;
+  textVerticalShift = -0.1;
   (* Plot *)
   Show[
     EmptyFrame[{0, xMax}, {-yMax, yMax}
       , Frame -> None
-      , ImageSize -> 240
+      , ImageSize -> 180
     ],
     (* Wedge walls *)
     Graphics @ {BoundaryTracingStyle["Wall"],
@@ -971,7 +971,7 @@ Module[
           ")" // textStyleBracket
         },
         {x0, 0},
-        {1.5, textVerticalShift}
+        {1.3, textVerticalShift}
       ] // textStyle,
       {}
     },
@@ -1021,12 +1021,12 @@ Module[
   (* Text style *)
   textStyle = Style[#, 18] & @* LaTeXStyle;
   textStyleBracket = Style[#, Larger] &;
-  textVerticalShift = -0.25;
+  textVerticalShift = -0.1;
   (* Plot *)
   Show[
     EmptyFrame[{0, xMax}, {-yMax, yMax}
       , Frame -> None
-      , ImageSize -> 240
+      , ImageSize -> 180
     ],
     (* Wedge walls *)
     Graphics @ {BoundaryTracingStyle["Wall"],
@@ -1058,7 +1058,7 @@ Module[
           ")" // textStyleBracket
         },
         {x0, 0},
-        {1.5, textVerticalShift}
+        {1.3, textVerticalShift}
       ] // textStyle,
       {}
     },
