@@ -1314,3 +1314,197 @@ Module[
     , Spacings -> 2
   ]
 ] // Ex["wedge_acute-traced-boundaries.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: traced boundaries, patched (wedge_acute-traced-boundaries-patched)*)
+
+
+Module[
+  {
+    apd, gpd,
+    alpha, gamma,
+    tNumerical, xCritical,
+    derList, p, q, grad2, f, vi,
+    xMax, yMax, rMax,
+    more, xMaxMore, yMaxMore,
+    normalVectorLength,
+    commonPlot,
+    cornerList, numPlots,
+    sRange,
+    xyTracedUpperList, xyTracedLowerList,
+    numCorners,
+    sIntersectionLower, sIntersectionUpper,
+    xTracedForNormal, yTracedForNormal, sNormal, xyNormal, normalVector,
+    xyLower, xyUpper,
+    textStyle,
+    plotList,
+    dummyForTrailingCommas
+  },
+  (* Angular parameters *)
+  {apd, gpd} = {40, 60};
+  {alpha, gamma} = {apd, gpd} Degree;
+  (* Import numerical solution *)
+  tNumerical =
+    Import @ FString["solution/wedge_acute-solution-apd-{apd}-gpd-{gpd}.txt"]
+      // Uncompress // First;
+  (* Derivative list for boundary tracing *)
+  {p, q, grad2, f, vi} = derList = ContactDerivativeList[tNumerical, gamma];
+  (* Critical terminal point x_0 *)
+  xCritical = x0[tNumerical, gamma];
+  (* Plot range *)
+  xMax = Ceiling[1.5 xCritical, 0.2];
+  yMax = xMax Tan[alpha];
+  rMax = RPolar[xMax, yMax];
+  (* Plot range but more *)
+  more = 0.05;
+  xMaxMore = xMax + more;
+  yMaxMore = yMax + more;
+  normalVectorLength = 1/3 xMax;
+  (* Location of corners (increasing in y-coordinate) *)
+  cornerList = Association[
+    1 -> {{0.45, 0.2}},
+    2 -> {{0.4, 0}, {0.45, 0.2}},
+    3 -> {{0.6, -0.5}, {0.4, 0.25}, {0.5, 0.4}},
+    4 -> {{0.5, -0.38}, {0.35, 0}, {0.4, 0.25}, {0.5, 0.4}},
+    Nothing
+  ];
+  numPlots = Length[cornerList];
+  (* Compute traced boundaries therethrough *)
+  sRange = 2 rMax {-1, 1};
+  Table[
+    (* Upper branch *)
+    xyTracedUpperList[n] =
+      Table[
+        ContactTracedBoundary[derList][corner, 0, sRange
+          , -1, 1
+          , 0, Function[{x, y}, x > xMaxMore]
+        ]
+        , {corner, cornerList[n]}
+      ];
+    xyTracedLowerList[n] =
+      Table[
+        ContactTracedBoundary[derList][corner, 0, sRange
+          , 1, -1
+          , 0, Function[{x, y}, x > xMaxMore]
+        ]
+        , {corner, cornerList[n]}
+      ];
+    (* Intersections *)
+    numCorners = Length @ cornerList[n];
+    Table[
+      (* Starting arc length for lower branch *)
+      sIntersectionLower[n][k] =
+        If[k == 1
+          ,
+          xyLower = xyTracedLowerList[n][[k]];
+          DomainEnd[xyLower]
+          ,
+          xyLower = xyTracedLowerList[n][[k]];
+          xyUpper = xyTracedUpperList[n][[k - 1]];
+          SeekParametricIntersection[xyLower, xyUpper] // First
+        ];
+      (* Ending arc length for upper branch *)
+      sIntersectionUpper[n][k] =
+        If[k == numCorners
+          ,
+          xyUpper = xyTracedUpperList[n][[k]];
+          DomainEnd[xyUpper]
+          ,
+          xyUpper = xyTracedUpperList[n][[k]];
+          xyLower = xyTracedLowerList[n][[k + 1]];
+          SeekParametricIntersection[xyUpper, xyLower] // First
+        ];
+      , {k, numCorners}
+    ];
+    (* Normal vector *)
+    {xTracedForNormal, yTracedForNormal} = xyTracedUpperList[n][[1]];
+    sNormal = Way[0, sIntersectionUpper[n][1], If[n == 1, 1/4, 1/2]];
+    xyNormal[n] = {xTracedForNormal, yTracedForNormal}[sNormal] // Through;
+    normalVector[n] = (
+      {xTracedForNormal', yTracedForNormal'}[sNormal]
+        // Through
+        // Normalize
+        // Cross
+    );
+    , {n, numPlots}
+  ];
+  (* Common plot *)
+  commonPlot = Show[
+    EmptyFrame[{0, xMax}, {-yMax, yMax}
+      , Frame -> None
+      , ImageSize -> 180
+    ],
+    {}
+  ];
+  (* Plots *)
+  textStyle = Style[#, 24] & @* LaTeXStyle;
+  plotList = Table[
+    Show[
+      (* Common plot *)
+      commonPlot,
+      (* Traced boundaries (upper) *)
+      Table[
+        ParametricPlot[
+          xy[s]
+            // Through
+            // Evaluate
+          , {s, DomainStart[xy], DomainEnd[xy]}
+          , PlotStyle -> BoundaryTracingStyle["Background"]
+        ]
+        , {xy, xyTracedUpperList[n]}
+      ],
+      (* Traced boundaries (background) *)
+      Table[
+        ParametricPlot[
+          xy[s]
+            // Through
+            // Evaluate
+          , {s, DomainStart[xy], DomainEnd[xy]}
+          , PlotStyle -> BoundaryTracingStyle["Background"]
+        ]
+        , {xy, xyTracedLowerList[n]}
+      ],
+      (* Normal vector *)
+      Graphics @ {Directive[GeneralStyle["Thick"], Arrowheads[Large]],
+        Arrow @ {
+          xyNormal[n],
+          xyNormal[n] + normalVectorLength * normalVector[n]
+        }
+      },
+      Graphics @ {
+        Text[
+          Embolden["n"] // textStyle
+          , xyNormal[n] + normalVectorLength * normalVector[n]
+          , {1., -0.7}
+        ]
+      },
+      (* Traced boundaries (patched) *)
+      numCorners = Length @ cornerList[n];
+      Table[
+        {
+          (* Lower branch portions *)
+          ParametricPlot[
+            xyTracedLowerList[n][[k]][s]
+              // Through
+              // Evaluate
+            , {s, sIntersectionLower[n][k], 0}
+            , PlotStyle -> BoundaryTracingStyle["Traced"]
+          ],
+          (* Upper branch portions *)
+          ParametricPlot[
+            xyTracedUpperList[n][[k]][s]
+              // Through
+              // Evaluate
+            , {s, 0, sIntersectionUpper[n][k]}
+            , PlotStyle -> BoundaryTracingStyle["Traced"]
+          ],
+          {}
+        }
+        , {k, numCorners}
+      ],
+      {}
+    ]
+  , {n, numPlots}];
+  Grid @ {plotList}
+] // Ex["wedge_acute-traced-boundaries-patched.pdf"]
