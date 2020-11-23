@@ -17,7 +17,7 @@
 (*Start of package*)
 
 
-BeginPackage["LaplaceYoung`", {"NDSolve`FEM`"}];
+BeginPackage["LaplaceYoung`", {"NDSolve`FEM`", "Conway`"}];
 
 
 (* ::Subsection:: *)
@@ -34,6 +34,7 @@ ClearAll["LaplaceYoung`*`*"];
 
 
 {
+  ContactTracedBoundary,
   HHalfPlane,
   XHalfPlaneUniversal,
   XHalfPlane,
@@ -54,6 +55,84 @@ ClearAll["LaplaceYoung`*`*"];
 
 
 Begin["`Private`"];
+
+
+(* ::Subsubsection:: *)
+(*ContactTracedBoundary*)
+
+
+ContactTracedBoundary::usage = (
+  "ContactTracedBoundary[sol, g][{x0, y0}, s0, {sStart, sEnd}\n"
+  <> "  , sSign (def 1)\n"
+  <> "  , branchSign (def 1)\n"
+  <> "  , terminationPhi (def 0)\n"
+  <> "  , terminationFunction (def False &)\n"
+  <> "]\n"
+  <> "Returns traced boundary x == x(s), y == y(s) "
+  <> "(arc-length parametrisation) for:\n"
+  <> "- Known solution sol == sol(x, y)\n"
+  <> "- Tracing contact angle g\n"
+  <> "- Initial condition x(s0) == x0, y(s0) == y0\n"
+  <> "- Arc-length interval sStart < s < sEnd.\n"
+  <> "To traverse the traced boundary backwards, use sSign == -1.\n"
+  <> "To traverse the lower branch, use branchSign == -1.\n"
+  <> "To avoid terminating at Phi == 0, use terminationPhi == -Infinity.\n"
+);
+
+
+ContactTracedBoundary[sol_, g_?NumericQ][{x0_, y0_}, s0_, {sStart_, sEnd_}
+  , sSign_: 1
+  , branchSign_: 1
+  , terminationPhi_: 0
+  , terminationFunction_: (False &)
+] :=
+  Module[
+    {
+      p, q, grad2, f, phi,
+      xDerivative, yDerivative,
+      dummyForTrailingCommas
+    },
+    (* Derivatives of known solution *)
+    p = Derivative[1, 0][sol];
+    q = Derivative[0, 1][sol];
+    grad2[x_, y_] := p[x, y]^2 + q[x, y]^2;
+    (* Flux function *)
+    f[x_, y_] := Cos[g] Sqrt[1 + grad2[x, y]];
+    (* Viability function *)
+    phi[x_, y_] := Sin[g]^2 grad2[x, y] - Cos[g]^2;
+    (* Right hand sides of boundary tracing system of ODEs *)
+    xDerivative[x_, y_] :=
+      Divide[
+        -q[x, y] f[x, y] + branchSign p[x, y] Re @ Sqrt @ phi[x, y],
+        grad2[x, y]
+      ];
+    yDerivative[x_, y_] :=
+      Divide[
+        +p[x, y] f[x, y] + branchSign q[x, y] Re @ Sqrt @ phi[x, y],
+        grad2[x, y]
+      ];
+    (* Solve boundary tracing system of ODEs *)
+    With[{x = \[FormalX], y = \[FormalY], s = \[FormalS]},
+      NDSolveValue[
+        {
+          x'[s] == sSign xDerivative[x[s], y[s]],
+          y'[s] == sSign yDerivative[x[s], y[s]],
+          x[s0] == x0,
+          y[s0] == y0,
+          WhenEvent[
+            {
+              phi[x[s], y[s]] < terminationPhi,
+              terminationFunction[x[s], y[s]]
+            },
+            "StopIntegration"
+          ]
+        }
+        , {x, y}
+        , {s, sStart, sEnd}
+        , Conway`NoExtrapolation
+      ]
+    ]
+  ];
 
 
 (* ::Subsubsection:: *)
