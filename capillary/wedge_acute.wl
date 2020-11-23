@@ -1052,10 +1052,6 @@ Module[
 (*Figure: borderline case comparison with asymptotic  (wedge_acute-borderline-asymptotic-comparison-*)*)
 
 
-(* ::Subsubsection:: *)
-(*Borderline case comparison with asymptotic*)
-
-
 Module[
   {
     apd, gpd,
