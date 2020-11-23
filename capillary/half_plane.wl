@@ -446,7 +446,7 @@ Module[
     xMin, xMax,
     tStart, h, tEnd,
     plotRangePadding,
-    angleMarkerRadius, labelSize, textStyle,
+    angleMarkerRadius, labelSize, textStyle, textStyleZero,
     verticalTicksHorizontalOffset,
     dummyForTrailingCommas
   },
@@ -461,6 +461,7 @@ Module[
   angleMarkerRadius = 0.2 h;
   labelSize = 24;
   textStyle = Style[#, labelSize] & @* LaTeXStyle;
+  textStyleZero = Style[#, 0.9 labelSize // Floor] & @* LaTeXStyle;
   Show[
     EmptyAxes[{xMin, xMax}, {tStart, tEnd}
       , AxesLabel -> Italicise /@ {"x", "T"}
@@ -499,7 +500,7 @@ Module[
     (* Manual ticks (for better spacing) *)
     Graphics @ {
       Text[
-        "0" // textStyle
+        "0" // textStyleZero
         , {0, 0}
         , {-0.25, 0.9}
       ],
@@ -508,7 +509,7 @@ Module[
     verticalTicksHorizontalOffset = 2.5;
     Graphics @ {
       Text[
-        "0" // textStyle
+        "0" // textStyleZero
         , {0, 0}
         , {verticalTicksHorizontalOffset, -0.25}
       ],
