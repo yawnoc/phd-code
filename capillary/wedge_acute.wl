@@ -1098,3 +1098,94 @@ Module[
     , {phi, phiValues}
   ]
 ]
+
+
+(* ::Section:: *)
+(*Figure: known solution  (wedge_acute-solution-*)*)
+
+
+Module[
+  {
+    apd, alpha,
+    gpdValues, gpdCases,
+    rMax, xArcCorner, yArcCorner,
+    case,
+    tNumerical,
+    x, y, mesh,
+    dummyForTrailingCommas
+  },
+  (* Wedge half-angle *)
+  apd = 40;
+  alpha = apd * Degree;
+  (* Contact angles *)
+  gpdValues = {50, 55};
+  gpdCases = {"borderline", "moderate"};
+  (* Plot range *)
+  rMax = 4;
+  {xArcCorner, yArcCorner} = XYPolar[rMax, alpha];
+  (* Make plots *)
+  Table[
+    case = AssociationThread[gpdValues -> gpdCases][gpd];
+    (* Import numerical solution *)
+    tNumerical =
+      Import @ FString["solution/wedge_acute-solution-apd-{apd}-gpd-{gpd}.txt"]
+        // Uncompress // First;
+    (* Plot *)
+    mesh = tNumerical["ElementMesh"];
+    Show[
+      (* Numerical solution *)
+      Plot3D[
+        tNumerical[x, y], Element[{x, y}, mesh]
+        , AxesEdge -> {{-1, -1}, {+1, -1}, {-1, -1}}
+        , AxesLabel -> {
+            Italicise["x"],
+            Italicise["y"],
+            Italicise["T"] // Margined[{{0, 0.2}, {0, 1}} ImageSizeCentimetre]
+          }
+        , Boxed -> {Back, Bottom, Left}
+        , BoxRatios -> Automatic
+        , Filling -> 0
+        , FillingStyle -> BoundaryTracingStyle["Solution3D"]
+        , LabelStyle -> LatinModernLabelStyle[11]
+        , Lighting -> GeneralStyle["AmbientLighting"]
+        , PlotPoints -> 20
+        , PlotRange -> {0, 2.2}
+        , PlotStyle -> BoundaryTracingStyle["Solution3D"]
+        , TicksStyle -> ConstantArray[LatinModernLabelStyle[8], 3]
+        , RegionFunction -> Function[{x, y},
+            RPolar[x, y] < rMax
+          ]
+        , ViewPoint -> {1.5, -2.5, 1.4}
+      ],
+      (* Manually drawn solution base edges *)
+      Graphics3D @ {
+        Line @ {{0, 0, 0}, {xArcCorner, -yArcCorner, 0}},
+        {}
+      },
+      ParametricPlot3D[
+        rMax {Cos[phi], Sin[phi], 0}
+        , {phi, -alpha, alpha}
+        , PlotStyle -> Directive[Black, Thickness[0]]
+      ],
+      (* Manually drawn solution vertical edges *)
+      Graphics3D @ {
+        Line @ {
+          {0, 0, tNumerical[0, 0]},
+          {0, 0, 0}
+        },
+        Line @ {
+          {xArcCorner, -yArcCorner, tNumerical[xArcCorner, -yArcCorner]},
+          {xArcCorner, -yArcCorner, 0}
+        },
+        {}
+      },
+      {}
+      , ImageSize -> 6.5 ImageSizeCentimetre
+    ]
+      // Ex[FString["wedge_acute-solution-{case}.png"]
+        , Background -> None
+        , ImageResolution -> 4 BasicImageResolution
+      ]
+    , {gpd, gpdValues}
+  ]
+]
