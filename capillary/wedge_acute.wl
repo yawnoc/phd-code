@@ -896,7 +896,7 @@ Module[
     wallDistanceSimplified, polygonSimplified,
     posSimplified, meshWireframeSimplified,
     xMin, xMax, yMin, yMax, rMax,
-    textStyle,
+    tickTextStyle, axesTextStyle,
     phiPattern,
     plotFull,
     dummyForTrailingCommas
@@ -932,7 +932,8 @@ Module[
     ];
   meshWireframeSimplified = mesh["Wireframe"[posSimplified]];
   (* Plot full mesh *)
-  textStyle = Style[#, 13] & @* LaTeXStyle;
+  tickTextStyle = Style[#, 13] & @* LaTeXStyle;
+  axesTextStyle = Style[#, 16] & @* LaTeXStyle;
   phiPattern = _Integer Degree | 0;
   plotFull = Show[
     PolarPlot[rMax, {phi, -alpha, alpha}
@@ -962,20 +963,20 @@ Module[
         ]
       }
       (* Font for labels *)
-      /. {Text[str_, seq__] :> Text[str // textStyle, seq]}
+      /. {Text[str_, seq__] :> Text[str // tickTextStyle, seq]}
     ,
     meshWireframeSimplified, polygonSimplified,
     (* Manual coordinate labels *)
     Graphics @ {
       Text[
-        Italicise["r"] // textStyle
+        Italicise["r"] // axesTextStyle
         , XYPolar[rMax / 2, -alpha]
         , {5.5, 2.2}
       ],
       Text[
-        "\[Phi]" // textStyle // Margined[{{0, 1}, {0, 0}}]
+        "\[Phi]" // axesTextStyle // Margined[{{0, 1}, {0, 0}}]
         , {rMax, 0}
-        , {-8, 0}
+        , {-8, 0.1}
       ],
       {}
     },
@@ -997,7 +998,7 @@ Module[
     apd, alpha,
     mesh, meshWireframe,
     rMax, xMax, yMax,
-    textStyle,
+    tickTextStyle, axesTextStyle,
     plotDetail,
     dummyForTrailingCommas
   },
@@ -1010,7 +1011,8 @@ Module[
   rMax = 0.25;
   {xMax, yMax} = XYPolar[rMax, alpha];
   (* Plot mesh detail *)
-  textStyle = Style[#, 15] & @* LaTeXStyle;
+  tickTextStyle = Style[#, 15] & @* LaTeXStyle;
+  axesTextStyle = Style[#, 18] & @* LaTeXStyle;
   plotDetail = Show[
     PolarPlot[rMax, {phi, -alpha, alpha}
       , PlotStyle -> None
@@ -1027,15 +1029,15 @@ Module[
         Text[r, coords, offset + {If[r == 0, 0.8, 1.4], 0.1}, opts]
       }
       (* Font for labels *)
-      /. {Text[str_, seq__] :> Text[str // textStyle, seq]}
+      /. {Text[str_, seq__] :> Text[str // tickTextStyle, seq]}
     ,
     meshWireframe,
     (* Manual coordinate labels *)
     Graphics @ {
       Text[
-        Italicise["r"] // textStyle
+        Italicise["r"] // axesTextStyle
         , XYPolar[rMax / 2, -alpha]
-        , {3, 3}
+        , {3, 2.5}
       ],
       {}
     },
