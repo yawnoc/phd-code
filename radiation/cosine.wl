@@ -5218,7 +5218,7 @@ Module[
   xMin = 0;
   xMax = Pi/2 * 3/2;
   yMax = 2;
-  imageSize = 240;
+  imageSize = 210;
   (* Margin *)
   eps = 0.05;
   (* Plot range for unphysical domain *)
@@ -5233,8 +5233,13 @@ Module[
   yMaxContStraight = yMax + eps;
   Show[
     EmptyFrame[{xMin, xMax}, {-yMax, yMax},
+      FrameLabel -> {
+        Italicise["x"] // Margined @ {{0, 0}, {0, -17}},
+        Italicise["y"]
+      },
+      FrameTicksStyle -> 12,
       ImageSize -> imageSize,
-      LabelStyle -> LatinModernLabelStyle[12],
+      LabelStyle -> LatinModernLabelStyle[15],
       PlotRangePadding -> None
     ],
     (* Unphysical domain *)
