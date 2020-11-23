@@ -6269,7 +6269,7 @@ Module[
   includeYReflection = {#, yReflection[#]} &;
   (* Text style *)
   textStyle = Style[#, 12] & @* LaTeXStyle;
-  textStylePoint = Style[#, 16] & @* LaTeXStyle;
+  textStylePoint = Style[#, 14] & @* LaTeXStyle;
   (* Plot range *)
   xMin = Floor[0.9 xFlat[a, b], 0.2];
   xMax = Ceiling[1.1 xSharp[a, b], 0.2];
@@ -6291,8 +6291,13 @@ Module[
   (* Plot *)
   Show[
     EmptyFrame[{xMin, xMax}, {-yMax, yMax}
+      , FrameLabel -> {
+          Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
+          Italicise["y"]
+        }
       , ImageSize -> 240
-      , LabelStyle -> LatinModernLabelStyle[12]
+      , FrameTicksStyle -> 12
+      , LabelStyle -> LatinModernLabelStyle[15]
     ],
     (* Inflection frontiers *)
     Table[
@@ -6427,7 +6432,7 @@ Module[
       Text[
         Subscript[Italicise["x"], "\[Flat]"] // textStylePoint
         , {N @ xFlatAsymm, 0}
-        , {-1.8, -0.55}
+        , {-1.8, -0.25}
       ]
     },
     (* Critical terminal point (x_\[Sharp], 0) *)
@@ -6438,7 +6443,7 @@ Module[
       Text[
         Subscript[Italicise["x"], "\[Sharp]"] // textStylePoint
         , {N @ xSharpAsymm, 0}
-        , {1.8, -0.55}
+        , {1.75, -0.25}
       ]
     },
     {}
@@ -6480,8 +6485,13 @@ Module[
   (* Plot *)
   Show[
     EmptyFrame[{xMin, xMax}, {-yMax, yMax}
+      , FrameLabel -> {
+          Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
+          Italicise["y"]
+        }
       , ImageSize -> 240
-      , LabelStyle -> LatinModernLabelStyle[12]
+      , FrameTicksStyle -> 12
+      , LabelStyle -> LatinModernLabelStyle[15]
     ],
     (* Inflection frontiers *)
     Table[
