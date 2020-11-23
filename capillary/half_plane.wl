@@ -555,7 +555,7 @@ Module[
   xHalf = Way[xMin, xMax];
   havlesOptions = {
     FrameLabel -> {
-      Italicise["x"] // Margined @ {{0, 0}, {0, -0.7 ImageSizeCentimetre}},
+      Italicise["x"] // Margined @ {{0, 0}, {0, -0.8 ImageSizeCentimetre}},
       Italicise["y"]
     },
     Frame -> {{True, False}, {True, True}},
@@ -565,9 +565,10 @@ Module[
         , {y, Subdivide[yMin, yMax, 2]}
       ]
     },
+    FrameTicksStyle -> 16,
     ImagePadding -> {{Automatic, 0.3 ImageSizeCentimetre}, {Automatic, Automatic}},
     ImageSize -> 360,
-    LabelStyle -> LatinModernLabelStyle[16],
+    LabelStyle -> LatinModernLabelStyle[19],
     PlotRangeClipping -> True,
     PlotOptions[Frame],
     Nothing
@@ -601,7 +602,7 @@ Module[
     ];
   (* Export *)
   {
-    Column[{plotLeftHalf, plotRightHalf}, Spacings -> 1]
+    Column[{plotLeftHalf, plotRightHalf}, Spacings -> 0.5]
       // Ex["half_plane-mesh-halves.pdf"]
     ,
     plotFineDetail
