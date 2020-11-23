@@ -95,7 +95,7 @@ ContactDerivativeList[sol_, gamma_?NumericQ] :=
 
 
 ContactTracedBoundary::usage = (
-  "ContactTracedBoundary[sol, g][{x0, y0}, s0, {sStart, sEnd}\n"
+  "ContactTracedBoundary[derList][{x0, y0}, s0, {sStart, sEnd}\n"
   <> "  , sSign (def 1)\n"
   <> "  , branchSign (def 1)\n"
   <> "  , terminationPhi (def 0)\n"
@@ -103,8 +103,7 @@ ContactTracedBoundary::usage = (
   <> "]\n"
   <> "Returns traced boundary x == x(s), y == y(s) "
   <> "(arc-length parametrisation) for:\n"
-  <> "- Known solution sol == sol(x, y)\n"
-  <> "- Tracing contact angle g\n"
+  <> "- Derivative list derList returned by ContactDerivativeList\n"
   <> "- Initial condition x(s0) == x0, y(s0) == y0\n"
   <> "- Arc-length interval sStart < s < sEnd.\n"
   <> "To traverse the traced boundary backwards, use sSign == -1.\n"
@@ -113,7 +112,7 @@ ContactTracedBoundary::usage = (
 );
 
 
-ContactTracedBoundary[sol_, g_?NumericQ][{x0_, y0_}, s0_, {sStart_, sEnd_}
+ContactTracedBoundary[derList_List][{x0_, y0_}, s0_, {sStart_, sEnd_}
   , sSign_: 1
   , branchSign_: 1
   , terminationPhi_: 0
@@ -125,14 +124,8 @@ ContactTracedBoundary[sol_, g_?NumericQ][{x0_, y0_}, s0_, {sStart_, sEnd_}
       xDerivative, yDerivative,
       dummyForTrailingCommas
     },
-    (* Derivatives of known solution *)
-    p = Derivative[1, 0][sol];
-    q = Derivative[0, 1][sol];
-    grad2[x_, y_] := p[x, y]^2 + q[x, y]^2;
-    (* Flux function *)
-    f[x_, y_] := Cos[g] Sqrt[1 + grad2[x, y]];
-    (* Viability function *)
-    phi[x_, y_] := Sin[g]^2 grad2[x, y] - Cos[g]^2;
+    (* Derivative list *)
+    {p, q, grad2, f, phi} = derList;
     (* Right hand sides of boundary tracing system of ODEs *)
     xDerivative[x_, y_] :=
       Divide[
