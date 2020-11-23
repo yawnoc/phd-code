@@ -1091,10 +1091,11 @@ Module[
     , {s, -sMax, sMax}
     , AspectRatio -> Automatic
     , AxesLabel -> Italicise /@ {"s", "U"}
-    , ImageSize -> 620
+    , ImageSize -> 420
     , LabelStyle -> LatinModernLabelStyle[18]
     , PlotRange -> {0, All}
     , PlotStyle -> BoundaryTracingStyle /@ {"Wall", "Traced"}
     , PlotOptions[Axes] // Evaluate
+    , TicksStyle -> 15
   ]
 ] // Ex["helmholtz-height-rise-profiles.pdf"]
