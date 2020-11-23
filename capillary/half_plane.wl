@@ -651,12 +651,16 @@ Module[
   relErrorTable = {xExactValues, relErrorValues} // Transpose;
   ListLogPlot[
     relErrorTable
-    , AxesLabel -> {Italicise["x"], "Relative error"}
+    , AxesLabel -> {
+        Italicise["x"] // Margined @ {{0, 1}, {5, 0}},
+        Style["Relative error", Smaller]
+      }
     , ImageSize -> 360
     , Joined -> True
-    , LabelStyle -> LatinModernLabelStyle[15]
+    , LabelStyle -> LatinModernLabelStyle[18]
     , PlotMarkers -> Automatic
     , PlotStyle -> Black
     , PlotOptions[Axes] // Evaluate
+    , TicksStyle -> 15
   ]
 ] // Ex["half-plane-relative-error.pdf"]
