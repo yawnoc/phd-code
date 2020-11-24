@@ -137,11 +137,11 @@ ImageSizeTextWidth =
 
 
 LabelSize[type_String : Automatic] := Association[
-  "Axis" -> 11,
+  "Axis" -> 12,
   "Label" -> 12,
   "LabelOmega" -> 15,
   "Legend" -> 10,
-  "Tick" -> 8,
+  "Tick" -> 9,
   Automatic -> Automatic
 ][type];
 
