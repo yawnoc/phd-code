@@ -198,7 +198,7 @@ Module[
     , Alignment -> Left
     , ImageSize -> ImageSizeTextWidth
     , ItemAspectRatio -> 0.11
-    , Spacings -> {{{0, 0.1, 0} ImageSizeTextWidth}, 0}
+    , Spacings -> {Automatic, 0}
   ]
 ] // Ex["terminal-legend.pdf"]
 
