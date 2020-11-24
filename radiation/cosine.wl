@@ -6285,8 +6285,8 @@ Module[
   yReflection = # * {1, -1} &;
   includeYReflection = {#, yReflection[#]} &;
   (* Text style *)
-  textStyle = Style[#, 12] & @* LaTeXStyle;
-  textStylePoint = Style[#, 14] & @* LaTeXStyle;
+  textStyle = Style[#, LabelSize["Straight"]] & @* LaTeXStyle;
+  textStylePoint = Style[#, LabelSize["Point"]] & @* LaTeXStyle;
   (* Plot range *)
   xMin = Floor[0.9 xFlat[a, b], 0.2];
   xMax = Ceiling[1.1 xSharp[a, b], 0.2];
@@ -6312,9 +6312,9 @@ Module[
           Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
           Italicise["y"]
         }
-      , ImageSize -> 240
-      , FrameTicksStyle -> 12
-      , LabelStyle -> LatinModernLabelStyle[15]
+      , ImageSize -> 0.45 ImageSizeTextWidth
+      , FrameTicksStyle -> LabelSize["Tick"]
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
     ],
     (* Inflection frontiers *)
     Table[
@@ -6489,7 +6489,7 @@ Module[
   yReflection = # * {1, -1} &;
   includeYReflection = {#, yReflection[#]} &;
   (* Text style *)
-  textStyle = Style[#, 12] & @* LaTeXStyle;
+  textStyle = Style[#, LabelSize["Straight"]] & @* LaTeXStyle;
   (* Plot range *)
   xMin = Floor[0.9 xFlat[a, b], 0.2];
   xMax = Ceiling[1.1 xSharp[a, b], 0.2];
@@ -6506,9 +6506,9 @@ Module[
           Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
           Italicise["y"]
         }
-      , ImageSize -> 240
-      , FrameTicksStyle -> 12
-      , LabelStyle -> LatinModernLabelStyle[15]
+      , ImageSize -> 0.45 ImageSizeTextWidth
+      , FrameTicksStyle -> LabelSize["Tick"]
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
     ],
     (* Inflection frontiers *)
     Table[
@@ -6572,11 +6572,11 @@ Module[
     topRow, bottomRow,
     dummyForTrailingCommas
   },
-  legendLabelStyle = LatinModernLabelStyle[16];
+  legendLabelStyle = LatinModernLabelStyle @ LabelSize["Legend"];
   topRow =
     CurveLegend[
       BoundaryTracingStyle /@ {"Background", "Traced", "Contour"},
-      {"inflection frontier", "traced boundary (radiation)", "constant temperature"}
+      {"inflection frontier", "traced boundary", "constant temperature"}
       , LabelStyle -> legendLabelStyle
     ];
   bottomRow = Join[
@@ -6593,9 +6593,11 @@ Module[
     {}
   ];
   (* Combine *)
-  Grid[{topRow, bottomRow}
+  GraphicsGrid[{topRow, bottomRow}
     , Alignment -> Left
-    , Spacings -> {1.4, -1}
+    , ImageSize -> ImageSizeTextWidth
+    , ItemAspectRatio -> 0.11
+    , Spacings -> {Automatic, 0}
   ]
 ] // Ex["cosine_general-asymmetric-construction-legend.pdf"]
 
