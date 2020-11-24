@@ -4986,7 +4986,7 @@ Module[
         ]
       },
       (* B == 1 *)
-      xGraphicsBTick = 0.5;
+      xGraphicsBTick = 0.48;
       Graphics @ {arrowStyle,
         Line @ {
           {xGraphicsBTick, 0},
