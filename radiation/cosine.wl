@@ -5832,8 +5832,9 @@ Module[
 Module[
   {
     a, bN, bValues,
-    xMin, xMax, yMax, imageSize,
+    xMin, xMax, yMax,
     eps,
+    textStylePoint,
     plotList,
     xMinUnphys, xMaxUnphys, yMaxUnphys,
     plotPointsUnphys,
@@ -5862,10 +5863,10 @@ Module[
   xMin = 0;
   xMax = 2;
   yMax = 3;
-  imageSize = 240;
   (* Margin *)
   eps = 0.1;
   (* List of plots *)
+  textStylePoint = Style[#, LabelSize["Label"] + 1] & @* LaTeXStyle;
   plotList =
     Table[
       (* Plot range for unphysical domain *)
@@ -5882,7 +5883,7 @@ Module[
       Show[
         EmptyFrame[{xMin, xMax}, {-yMax, yMax}
           , Frame -> None
-          , ImageSize -> imageSize
+          , ImageSize -> Automatic
           , PlotRangePadding -> None
         ],
         (* Unphysical domain *)
@@ -5912,7 +5913,7 @@ Module[
             },
             Graphics @ {
               Text[
-                Subscript[Italicise["y"], 0] // textStyle
+                Subscript[Italicise["y"], 0] // textStylePoint
                 , {0, N @ y0[a, b]}
                 , {-1.2, -1.2}
              ]
@@ -5926,7 +5927,7 @@ Module[
             },
             Graphics @ {
               Text[
-                Subscript[Italicise["y"], 0] // textStyle
+                Subscript[Italicise["y"], 0] // textStylePoint
                 , {0, N @ y0[a, b]}
                 , {-1, -1.3}
              ]
@@ -5936,7 +5937,7 @@ Module[
             },
             Graphics @ {
               Text[
-                Subscript[Italicise["x"], "\[Natural]"] // textStyle
+                Subscript[Italicise["x"], "\[Natural]"] // textStylePoint
                 , {N @ xNat[a], 0}
                 , {0.3, -1.35}
              ]
@@ -5950,7 +5951,7 @@ Module[
             },
             Graphics @ {
               Text[
-                Subscript[Italicise["y"], 0] // textStyle
+                Subscript[Italicise["y"], 0] // textStylePoint
                 , {0, N @ y0[a, b]}
                 , {-0.9, -1.3}
              ]
@@ -5960,7 +5961,7 @@ Module[
             },
             Graphics @ {
               Text[
-                Subscript[Italicise["x"], "\[Flat]"] // textStyle
+                Subscript[Italicise["x"], "\[Flat]"] // textStylePoint
                 , {N @ xFlat[a, b], 0}
                 , {-0.15, -1.25}
              ]
@@ -5970,7 +5971,7 @@ Module[
             },
             Graphics @ {
               Text[
-                Subscript[Italicise["x"], "\[Sharp]"] // textStyle
+                Subscript[Italicise["x"], "\[Sharp]"] // textStylePoint
                 , {N @ xSharp[a, b], 0}
                 , {0.9, -1.25}
              ]
@@ -5984,14 +5985,14 @@ Module[
             },
             Graphics @ {White,
               Text[
-                Subscript[Italicise["y"], 0] // textStyle
+                Subscript[Italicise["y"], 0] // textStylePoint
                 , {N @ xFlat[a, b], 0}
-                , {-1, -1.8}
+                , {-1, -1.9}
              ]
             },
             Graphics @ {
               Text[
-                Subscript[Italicise["x"], "\[Flat]"] // textStyle
+                Subscript[Italicise["x"], "\[Flat]"] // textStylePoint
                 , {N @ xFlat[a, b], 0}
                 , {-2.1, -0.2}
              ]
@@ -6001,9 +6002,9 @@ Module[
             },
             Graphics @ {
               Text[
-                Subscript[Italicise["x"], "\[Sharp]"] // textStyle
+                Subscript[Italicise["x"], "\[Sharp]"] // textStylePoint
                 , {N @ xSharp[a, b], 0}
-                , {1.8, -0.2}
+                , {1.9, -0.2}
              ]
             },
             {}
@@ -6015,7 +6016,7 @@ Module[
             },
             Graphics @ {White,
               Text[
-                Subscript[Italicise["x"], "\[Flat]"] // textStyle
+                Subscript[Italicise["x"], "\[Flat]"] // textStylePoint
                 , {N @ xFlat[a, b], 0}
                 , {-2, -0.2}
              ]
@@ -6025,9 +6026,9 @@ Module[
             },
             Graphics @ {
               Text[
-                Subscript[Italicise["x"], "\[Sharp]"] // textStyle
+                Subscript[Italicise["x"], "\[Sharp]"] // textStylePoint
                 , {N @ xSharp[a, b], 0}
-                , {1.8, -0.2}
+                , {1.9, -0.2}
              ]
             },
             {}
@@ -6039,7 +6040,7 @@ Module[
       , {b, bValues}
     ];
   (* Parameter (B) increase indicator arrow *)
-  textStyle = Style[#, 16] & @* LaTeXStyle;
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   arrowStyle = Directive[Thickness[0.005], Arrowheads[0.04]];
   parameterArrow =
     Show[
@@ -6105,47 +6106,46 @@ Module[
         {}
       },
       {}
-      , ImageSize -> 2.07 imageSize
       , PlotRange -> All
     ];
   (* Legend *)
-  legendLabelStyle = LatinModernLabelStyle[12];
+  legendLabelStyle = LatinModernLabelStyle @ LabelSize["Legend"];
   (* Final figure *)
-  Column[
-    {
-      Column[
-        {
-          GraphicsRow[plotList, Spacings -> {0.3 imageSize, 0}],
-          parameterArrow
-        }
-        , Spacings -> 0
-      ],
-      Grid[
-        Transpose @ {
-          RegionLegend[
-            {BoundaryTracingStyle["NonViable"]},
-            {"non\[Hyphen]viable domain"}
-            , LabelStyle -> legendLabelStyle
-          ],
-          CurveLegend[
-            {BoundaryTracingStyle["Terminal"]},
-            {"terminal curve"}
-            , LabelStyle -> legendLabelStyle
-          ],
-          RegionLegend[
-            {BoundaryTracingStyle["Unphysical"]},
-            {"unphysical region"}
-            , LabelStyle -> legendLabelStyle
-          ],
-          Nothing
-        }
-        , Alignment -> Left
-        , Spacings -> {1, 0}
-      ]
-    }
-    , Alignment -> Center
-  ]
-] // Ex["cosine_general-physical-viable.pdf"]
+  {
+    GraphicsRow[plotList
+      , ImageSize -> ImageSizeTextWidth
+      , Spacings -> {0.3 ImageSizeTextWidth, 0}
+    ] // Ex["cosine_general-physical-viable.pdf"]
+    ,
+    Show[parameterArrow
+      , ImageSize -> ImageSizeTextWidth
+    ] // Ex["cosine_general-physical-viable-arrow.pdf"]
+    ,
+    GraphicsGrid[
+      Transpose @ {
+        RegionLegend[
+          {BoundaryTracingStyle["NonViable"]},
+          {"non\[Hyphen]viable domain"}
+          , LabelStyle -> legendLabelStyle
+        ],
+        CurveLegend[
+          {BoundaryTracingStyle["Terminal"]},
+          {"terminal curve"}
+          , LabelStyle -> legendLabelStyle
+        ],
+        RegionLegend[
+          {BoundaryTracingStyle["Unphysical"]},
+          {"unphysical region"}
+          , LabelStyle -> legendLabelStyle
+        ],
+        Nothing
+      }
+      , Alignment -> Left
+      , ImageSize -> ImageSizeTextWidth
+      , ItemAspectRatio -> 0.11
+    ] // Ex["cosine_general-physical-viable-legend.pdf"]
+  }
+]
 
 
 (* ::Section:: *)
