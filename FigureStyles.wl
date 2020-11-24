@@ -37,6 +37,7 @@ ClearAll["FigureStyles`*`*"];
   GeneralStyle,
   BoundaryTracingStyle,
   ImageSizeTextWidth,
+  LabelSize,
   SquigglyArrow,
   {}
 };
@@ -129,6 +130,19 @@ ImageSizeTextWidth =
     outer = 2.5 Conway`ImageSizeCentimetre;
     a4width - (bindingoffset + inner + outer)
   ];
+
+
+(* ::Subsubsection:: *)
+(*LabelSize*)
+
+
+LabelSize[type_String : Automatic] := Association[
+  "Axis" -> 11,
+  "Label" -> 12,
+  "Legend" -> 10,
+  "Tick" -> 8,
+  Automatic -> Automatic
+][type];
 
 
 (* ::Subsubsection:: *)
