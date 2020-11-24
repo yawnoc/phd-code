@@ -711,7 +711,7 @@ Module[
   plotPointsGeneral = 3;
   plotPointsPatched = 2;
   (* Styles *)
-  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  textStyle = Style[#, LabelSize["Straight"]] & @* LaTeXStyle;
   (* Build a plot for each list of corners *)
   plotList = Table[
     (* *)
