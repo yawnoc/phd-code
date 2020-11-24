@@ -60,9 +60,9 @@ Begin["`Private`"];
 
 GeneralStyle[type_String : Automatic] := Association[
   "AmbientLighting" -> {{"Ambient"}, White},
-  "Dashed" -> AbsoluteDashing @ {12, 6},
+  "Dashed" -> AbsoluteDashing @ {5, 4},
   "DefaultThick" -> AbsoluteThickness[1.5],
-  "Dotted" -> AbsoluteDashing @ {1, 4},
+  "Dotted" -> AbsoluteDashing @ {0.3, 4},
   "Point" -> PointSize[Large],
   "Thick" -> AbsoluteThickness[2.5],
   "Translucent" -> Opacity[0.7],

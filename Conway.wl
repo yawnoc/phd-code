@@ -228,7 +228,7 @@ CurveLegend[
       label = labelList[[n]];
       LineLegend[{style}, {label}
         , opts
-        , LegendMarkerSize -> {48, 16}
+        , LegendMarkerSize -> {25, 16}
       ]
     , {n, nMax}
     ]
