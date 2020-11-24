@@ -6204,28 +6204,27 @@ Module[
       }
     , Filling -> {1 -> xMaxFilling, 2 -> xMin, 3 -> xMaxFilling}
     , FillingStyle -> BoundaryTracingStyle["NonViable"]
-    , ImageSize -> 240
-    , LabelStyle -> LatinModernLabelStyle[15]
+    , LabelStyle -> LatinModernLabelStyle @ LabelSize["Label"]
     , PlotRange -> {xMin, xMax}
     , PlotRangeClipping -> False
     , PlotStyle -> Append[visiblePlotStyles, None]
     , Ticks -> {
         {
           {0, 0 // Margined @ {{0, 0}, {0, -13}}},
-          {bN, Subscript[bIt, "\[Natural]"] // Margined @ {{0, 0}, {0, -11}}},
+          {bN, Subscript[bIt, "\[Natural]"] // Margined @ {{0, 0}, {0, -12}}},
           {1, 1 // Margined @ {{0, 0}, {0, -11}}}
         },
         {0, {xN, Subscript[xIt, "\[Natural]"] // Margined @ {{0, 2}, {4, 0}}}}
       }
-    , TicksStyle -> 14
+    , TicksStyle -> LabelSize["Label"]
   ];
   (* Legend *)
-  legendLabelStyleCurves = LatinModernLabelStyle[15];
-  legendLabelStyleRegions = LatinModernLabelStyle[12];
+  legendLabelStyleCurves = LatinModernLabelStyle @ LabelSize["Label"];
+  legendLabelStyleRegions = LatinModernLabelStyle @ LabelSize["Legend"];
   legendCurves =
     CurveLegend[
       visiblePlotStyles,
-      TraditionalForm[Row @ {xIt, Spacer[2.2]} == Subscript[xIt, #]] &
+      xIt == Subscript[xIt, #] &
         /@ {"\[Sharp]", "\[Flat]"}
       , LabelStyle -> legendLabelStyleCurves
     ];
@@ -6235,15 +6234,23 @@ Module[
       {"non\[Hyphen]viable"}
       , LabelStyle -> legendLabelStyleRegions
     ];
-  (* Combined *)
-  Grid @ {{
-    plot,
-    Grid[
-      Transpose @ {Join[legendCurves, legendRegions]}
-      , Spacings -> {Automatic, {{-1.2}, -0.8, Automatic}}
+  (* Export *)
+  {
+    Show[
+      plot
+      , ImageSize -> 0.45 ImageSizeTextWidth
     ]
-  }}
-] // Ex["cosine_general-critical.pdf"]
+      // Ex["cosine_general-critical.pdf"]
+    ,
+    GraphicsColumn[
+      Join[legendCurves, legendRegions]
+      , Alignment -> Left
+      , ImageSize -> 0.2 ImageSizeTextWidth
+      , ItemAspectRatio -> 0.2
+    ]
+      // Ex["cosine_general-critical-legend.pdf"]
+  }
+]
 
 
 (* ::Section:: *)
