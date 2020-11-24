@@ -141,6 +141,8 @@ LabelSize[type_String : Automatic] := Association[
   "Label" -> 12,
   "LabelOmega" -> 15,
   "Legend" -> 10,
+  "Point" -> 11,
+  "PointBracket" -> 15,
   "Straight" -> 10,
   "Tick" -> 9,
   Automatic -> Automatic

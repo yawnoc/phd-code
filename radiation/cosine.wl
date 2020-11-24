@@ -5294,7 +5294,7 @@ Module[
   xMin = 0;
   xMax = Pi/2 * 3/2;
   yMax = 2;
-  imageSize = 240;
+  imageSize = 0.36 ImageSizeTextWidth;
   (* Margin *)
   eps = 0.05;
   (* Plot range for unphysical domain *)
@@ -5389,7 +5389,7 @@ Module[
   xMin = 0;
   xMax = Pi/2 * 3/2;
   yMax = 2;
-  imageSize = 240;
+  imageSize = 0.36 ImageSizeTextWidth;
   (* Margin *)
   eps = 0.05;
   (* Plot range for unphysical domain *)
@@ -5403,8 +5403,8 @@ Module[
   (* Plot range for straight contour *)
   yMaxContStraight = yMax + eps;
   (* Text style *)
-  textStyle = Style[#, 18] & @* LaTeXStyle;
-  textStyleBracket = Style[#, Larger] &;
+  textStyle = Style[#, LabelSize["Point"]] & @* LaTeXStyle;
+  textStyleBracket = Style[#, LabelSize["PointBracket"]] &;
   (* Plot *)
   Show[
     EmptyFrame[{xMin, xMax}, {-yMax, yMax},
@@ -5460,17 +5460,15 @@ Module[
       Text[
         Row @ {
           "(" // textStyleBracket,
-          "\[NegativeVeryThinSpace]",
           Subscript[Italicise["x"], 0],
           ",\[ThinSpace]",
           0,
           ")" // textStyleBracket
         },
         {x0, 0},
-        {1.5, -0.25}
+        {1.5, -0.2}
       ]
-        // LaTeXStyle
-        // Style[#, 18] &
+        // textStyle
     },
     {}
   ]
