@@ -5044,7 +5044,7 @@ Module[
 Module[
  {b,
   aStep, aValues,
-  xMin, xMax, yMax, imageSize,
+  xMin, xMax, yMax,
   eps,
   xMinUnphys, xMaxUnphys, yMaxUnphys,
   xMinCont, xMaxCont, yMaxCont,
@@ -5068,7 +5068,6 @@ Module[
   xMin = 0;
   xMax = Pi/2 * 3/2;
   yMax = 2;
-  imageSize = 240;
   (* Margin *)
   eps = 0.05;
   (* Plot range for unphysical domain *)
@@ -5095,7 +5094,7 @@ Module[
       Show[
         EmptyFrame[{xMin, xMax}, {-yMax, yMax},
           Frame -> None,
-          ImageSize -> imageSize,
+          ImageSize -> Automatic,
           PlotRangePadding -> None
         ],
         (* Unphysical domain *)
@@ -5133,7 +5132,7 @@ Module[
       ]
     , {a, aValues}];
   (* Parameter (A) increase indicator arrow *)
-  textStyle = Style[#, 16] & @* LaTeXStyle;
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   arrowStyle = Directive[Thickness[0.005], Arrowheads[0.04]];
   parameterArrow =
     Show[
@@ -5149,7 +5148,7 @@ Module[
         ]
       },
       (* A == 1 *)
-      xGraphicsATick = 0.54;
+      xGraphicsATick = 0.51;
       Graphics @ {arrowStyle,
         Line @ {
           {xGraphicsATick, 0},
@@ -5160,14 +5159,13 @@ Module[
         Text[
           1 // textStyle
           , {xGraphicsATick, 0}
-          , {0, 1.3}
+          , {0, 1.5}
         ]
       },
-      ImageSize -> 1.85 imageSize,
       PlotRange -> All
     ];
   (* Legend *)
-  legendLabelStyle = LatinModernLabelStyle[11];
+  legendLabelStyle = LatinModernLabelStyle @ LabelSize["Legend"];
   legendRegions =
     RegionLegend[
       BoundaryTracingStyle /@ {"NonViable", "Unphysical"},
@@ -5181,23 +5179,26 @@ Module[
       , LabelStyle -> legendLabelStyle
     ];
   (* Final figure *)
-  Column[
-    {
-      Column[
-        {
-          GraphicsRow[plotList, Spacings -> {0.2 imageSize, 0}],
-          parameterArrow
-        }
-        , Spacings -> 0
-      ],
-      Grid[{legendRegions, legendCurves}
-        , Alignment -> Left
-        , Spacings -> {6, -1}
-      ]
-    }
-    , Alignment -> Center
-  ]
-] // Ex["cosine_simple-physical-viable.pdf"]
+  {
+    GraphicsRow[plotList
+      , ImageSize -> ImageSizeTextWidth
+      , Spacings -> {0.2 ImageSizeTextWidth, 0}
+    ] // Ex["cosine_simple-physical-viable.pdf"]
+    ,
+    Show[parameterArrow
+      , ImageSize -> ImageSizeTextWidth
+    ] // Ex["cosine_simple-physical-viable-arrow.pdf"]
+    ,
+    GraphicsGrid[{legendRegions, legendCurves}
+      , Alignment -> Left
+      , ImageSize -> ImageSizeTextWidth
+      , ItemAspectRatio -> 0.11
+      , Spacings -> {Automatic, -0.02 ImageSizeTextWidth}
+    ] // Ex["cosine_simple-physical-viable-legend.pdf"]
+    ,
+    Nothing
+  }
+]
 
 
 (* ::Section:: *)
