@@ -694,7 +694,6 @@ Module[
 Module[
  {xTerm,
   xMin, xMax, yMin, yMax,
-  imageSize,
   plotList,
   plotPointsGeneral, plotPointsPatched,
   textStyle,
@@ -708,12 +707,11 @@ Module[
   xMin = 0.2;
   xMax = 1.1 xTerm;
   yMax = 0.7;
-  imageSize = 240;
   (* Plot points *)
   plotPointsGeneral = 3;
   plotPointsPatched = 2;
   (* Styles *)
-  textStyle = Style[#, 14] & @* LaTeXStyle;
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   (* Build a plot for each list of corners *)
   plotList = Table[
     (* *)
@@ -724,10 +722,10 @@ Module[
     xIntList = patchedIntXList[id];
     (* Plot *)
     Show[
-      EmptyAxes[{xMin, xMax}, {-yMax, yMax},
+      EmptyFrame[{xMin, xMax}, {-yMax, yMax},
         AspectRatio -> Automatic,
-        Axes -> None,
-        ImageSize -> 480
+        Frame -> None,
+        ImageSize -> Automatic
       ],
       (* General boundaries: upper-branch(i) *)
       Table[
@@ -802,10 +800,11 @@ Module[
   , {id, patchedIdList}]
   // GraphicsRow[#,
     Spacings -> {
-      0.5 imageSize,
+      0.3 ImageSizeTextWidth,
       Automatic
     }
   ] &
+  // Show[#, ImageSize -> ImageSizeTextWidth] &
 ] // Ex["plane-traced-boundaries-patched.pdf"]
 
 
