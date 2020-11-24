@@ -17,7 +17,7 @@
 (*Start of package*)
 
 
-BeginPackage["FigureStyles`"];
+BeginPackage["FigureStyles`", {"Conway`"}];
 
 
 (* ::Subsection:: *)
@@ -36,6 +36,7 @@ ClearAll["FigureStyles`*`*"];
 {
   GeneralStyle,
   BoundaryTracingStyle,
+  ImageSizeTextWidth,
   SquigglyArrow,
   {}
 };
@@ -114,6 +115,20 @@ BoundaryTracingStyle[type : (_String | Automatic) : Automatic] := Association[
 
 BoundaryTracingStyle[typeSeq__String] :=
   Directive @@ BoundaryTracingStyle /@ {typeSeq};
+
+
+(* ::Subsubsection:: *)
+(*ImageSizeTextWidth*)
+
+
+ImageSizeTextWidth =
+  Module[{a4width, bindingoffset, inner, outer},
+    a4width = 21 Conway`ImageSizeCentimetre;
+    bindingoffset = 2 Conway`ImageSizeCentimetre;
+    inner = 2 Conway`ImageSizeCentimetre;
+    outer = 2.5 Conway`ImageSizeCentimetre;
+    a4width - (bindingoffset + inner + outer)
+  ];
 
 
 (* ::Subsubsection:: *)
