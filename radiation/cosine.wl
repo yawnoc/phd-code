@@ -5220,7 +5220,7 @@ Module[
   xMin = 0;
   xMax = Pi/2 * 3/2;
   yMax = 2;
-  imageSize = 210;
+  imageSize = 0.45 ImageSizeTextWidth;
   (* Margin *)
   eps = 0.05;
   (* Plot range for unphysical domain *)
@@ -5239,9 +5239,9 @@ Module[
         Italicise["x"] // Margined @ {{0, 0}, {0, -17}},
         Italicise["y"]
       },
-      FrameTicksStyle -> 12,
+      FrameTicksStyle -> LabelSize["Tick"],
       ImageSize -> imageSize,
-      LabelStyle -> LatinModernLabelStyle[15],
+      LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"],
       PlotRangePadding -> None
     ],
     (* Unphysical domain *)
