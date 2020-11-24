@@ -920,7 +920,7 @@ RegionLegend[
       label = labelList[[n]];
       SwatchLegend[{style}, {label}
         , opts
-        , LegendMarkerSize -> 16
+        , LegendMarkerSize -> 12
       ]
     , {n, nMax}
     ]
