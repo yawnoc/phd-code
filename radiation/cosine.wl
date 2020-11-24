@@ -5220,7 +5220,7 @@ Module[
   xMin = 0;
   xMax = Pi/2 * 3/2;
   yMax = 2;
-  imageSize = 0.45 ImageSizeTextWidth;
+  imageSize = 0.42 ImageSizeTextWidth;
   (* Margin *)
   eps = 0.05;
   (* Plot range for unphysical domain *)
