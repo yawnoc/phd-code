@@ -4896,7 +4896,7 @@ Module[{a, b, source, tSol, mesh, dest},
 
 Module[
  {bStep, bValues, bMax,
-  xMin, xMax, yMax, imageSize,
+  xMin, xMax, yMax,
   eps,
   xMinUnphys, xMaxUnphys, yMaxUnphys,
   xMinCont, xMaxCont, yMaxCont,
@@ -4918,7 +4918,6 @@ Module[
   xMin = 0;
   xMax = Pi/2 * 3/2;
   yMax = 2;
-  imageSize = 240;
   (* Margin *)
   eps = 0.05;
   (* Plot range for unphysical domain *)
@@ -4940,7 +4939,7 @@ Module[
       Show[
         EmptyFrame[{xMin, xMax}, {-yMax, yMax},
           Frame -> None,
-          ImageSize -> imageSize,
+          ImageSize -> Automatic,
           PlotRangePadding -> None
         ],
         (* Unphysical domain *)
@@ -4971,7 +4970,7 @@ Module[
       ]
     , {b, bValues}];
   (* Parameter (B) increase indicator arrow *)
-  textStyle = Style[#, 16] & @* LaTeXStyle;
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   arrowStyle = Directive[Thickness[0.005], Arrowheads[0.04]];
   parameterArrow =
     Show[
@@ -4998,20 +4997,18 @@ Module[
         Text[
           1 // textStyle
           , {xGraphicsBTick, 0}
-          , {0, 1.3}
+          , {0, 1.5}
         ]
       },
-      ImageSize -> 1.85 imageSize,
       PlotRange -> All
     ];
   (* Legend *)
-  legendLabelStyle = LatinModernLabelStyle[11];
+  legendLabelStyle = LatinModernLabelStyle @ LabelSize["Legend"];
   legendRegions =
     RegionLegend[
       {BoundaryTracingStyle["Unphysical"]},
       {"unphysical region"}
       , LabelStyle -> legendLabelStyle
-      , LegendMarkerSize -> 14
     ];
   legendCurves =
     CurveLegend[
@@ -5020,20 +5017,24 @@ Module[
       , LabelStyle -> legendLabelStyle
     ];
   (* Final figure *)
-  Column[
-    {
-      Column[
-        {
-          GraphicsRow[plotList, Spacings -> {0.2 imageSize, 0}],
-          parameterArrow
-        }
-        , Spacings -> 0
-      ],
-      Grid[List @ Join[legendRegions, legendCurves], Spacings -> {4, 0}]
-    }
-    , Alignment -> Center
-  ]
-] // Ex["cosine-physical.pdf"]
+  {
+    GraphicsRow[plotList
+      , ImageSize -> ImageSizeTextWidth
+      , Spacings -> {0.2 ImageSizeTextWidth, 0}
+    ] // Ex["cosine-physical.pdf"]
+    ,
+    Show[parameterArrow
+      , ImageSize -> ImageSizeTextWidth
+    ] // Ex["cosine-physical-arrow.pdf"]
+    ,
+    GraphicsGrid[List @ Join[legendRegions, legendCurves]
+      , AspectRatio -> 0.1
+      , ImageSize -> ImageSizeTextWidth
+    ] // Ex["cosine-physical-legend.pdf"]
+    ,
+    Nothing
+  }
+]
 
 
 (* ::Section:: *)
