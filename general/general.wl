@@ -271,7 +271,7 @@ Module[
   ];
   basisVectorLength = 0.13;
   basisVectorStyle = Directive[Thickness[0.012], Arrowheads[0.07]];
-  textStyle = Style[#, 18] & @* LaTeXStyle;
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   (* Coordinates of tips of vectors *)
   auTipXY = {x0, y0} + basisVectorLength au[u0, v0];
   avTipXY = {x0, y0} + basisVectorLength av[u0, v0];
@@ -310,7 +310,7 @@ Module[
       ContourLabels -> None,
       ContourStyle -> {originalStyle, displacedStyle},
       Frame -> None,
-      ImageSize -> 240,
+      ImageSize -> 0.4 ImageSizeTextWidth,
       PlotPoints -> 10
     ],
     Graphics @ {
