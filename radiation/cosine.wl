@@ -5636,7 +5636,7 @@ Module[
     aMin, xRadAMin, yEndAMin,
     eps,
     yMaxFrame, xMinFrame, xMaxFrame,
-    imageSize,
+    numCandidates, imageSize,
     plotList,
     xRad, yEnd,
     xRadEvenExtension,
@@ -5662,9 +5662,13 @@ Module[
   eps = 0.02;
   yMaxFrame = yEndAMin;
   xMinFrame = (1 - eps) x0Simp[aMin];
-  xMaxFrame = (1 + eps) xStraight;
+  xMaxFrame = 1.1 xStraight;
+  (* Image width arithmetic *)
+  numCandidates = Length[aValues];
+  imageSize["Main"] = 0.6 ImageSizeTextWidth;
+  imageSize["Legend"] = ImageSizeTextWidth - imageSize["Main"];
+  imageSize["Candidate"] = imageSize["Main"] / (numCandidates + 1);
   (* List of plots *)
-  imageSize = 96;
   plotList =
     Table[
       (* Radiation boundary x == x(y) for convex domain *)
@@ -5689,8 +5693,7 @@ Module[
         EmptyFrame[
           {xMinFrame, xMaxFrame}, {-yMaxFrame, yMaxFrame}
           , Frame -> None
-          , ImageSize -> 4 imageSize
-            (* NOTE: GraphicsRow makes the plot smaller *)
+          , ImageSize -> imageSize["Candidate"]
           , PlotRangePadding -> None
         ],
         (* Convex domain *)
@@ -5715,7 +5718,7 @@ Module[
       , {a, aValues}
     ];
   (* Parameter (A) increase indicator arrow *)
-  textStyle = Style[#, 20] & @* LaTeXStyle;
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   arrowStyle = Directive[Thickness[0.005], Arrowheads[0.04]];
   parameterArrow =
     Show[
@@ -5731,7 +5734,7 @@ Module[
         ]
       },
       (* A == A_infl *)
-      xGraphicsAInfl = 0.41;
+      xGraphicsAInfl = 0.38;
       Graphics @ {arrowStyle,
         Line @ {
           {xGraphicsAInfl, 0},
@@ -5747,7 +5750,7 @@ Module[
         ]
       },
       (* A == 1 *)
-      xGraphicsA1 = 0.863;
+      xGraphicsA1 = 0.85;
       Graphics @ {arrowStyle,
         Line @ {
           {xGraphicsA1, 0},
@@ -5777,11 +5780,12 @@ Module[
         {}
       },
       {}
-      , ImageSize -> 4.2 imageSize
+      , ImageSize -> imageSize["Main"]
       , PlotRange -> All
+      , PlotRangePadding -> None
     ];
   (* Legend *)
-  legendLabelStyle = LatinModernLabelStyle[15];
+  legendLabelStyle = LatinModernLabelStyle @ LabelSize["Legend"];
   legendCurves =
     CurveLegend[
       BoundaryTracingStyle /@ {"Traced", "Contour"},
@@ -5793,27 +5797,32 @@ Module[
       {Automatic},
       {"inflection"}
       , LabelStyle -> legendLabelStyle
-      , LegendMarkerSize -> 13
+      , LegendMarkerSize -> Automatic
     ];
-  (* Final figure *)
-  Grid @ {{
-    Column[
-      {
-        Row @ {
-          GraphicsRow[plotList, Spacings -> {3.2 imageSize, 0}],
-          Row @ {Graphics[ImageSize -> 0.5 imageSize]}
-        },
-        parameterArrow
-      }
-    , Center
-    , Spacings -> 0
-    ],
-    Column[
-      Join[legendCurves, legendNodes, {Spacer @ {0, 73}}]
-      , Spacings -> -0.5
+  (* Export *)
+  {
+    (* Main *)
+    Column @ {
+      Grid[
+        List @ Append[
+          plotList,
+          Graphics[ImageSize -> imageSize["Candidate"]]
+        ]
+        , Spacings -> 0
+      ],
+      parameterArrow
+    } // Ex["cosine_simple-candidate-domains.pdf"]
+    ,
+    (* Legend *)
+    GraphicsColumn[
+      Join[legendCurves, legendNodes]
+      , Alignment -> Left
+      , ImageSize -> imageSize["Legend"]
+      , ItemAspectRatio -> 0.11
     ]
-  }}
-] // Ex["cosine_simple-candidate-domains.pdf"]
+      // Ex["cosine_simple-candidate-domains-legend.pdf"]
+  }
+]
 
 
 (* ::Section:: *)
