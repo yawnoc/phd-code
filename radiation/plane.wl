@@ -665,9 +665,9 @@ Module[
         Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
         Italicise["y"]
       },
-      FrameTicksStyle -> 12,
-      ImageSize -> 240,
-      LabelStyle -> LatinModernLabelStyle[15]
+      FrameTicksStyle -> LabelSize["Tick"],
+      ImageSize -> 0.45 ImageSizeTextWidth,
+      LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
     ],
     (* Traced boundaries *)
     Table[
