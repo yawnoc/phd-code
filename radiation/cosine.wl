@@ -6609,7 +6609,6 @@ Module[
 Module[
   {
     xHalfWidth, yMax,
-    imageSizeDomains,
     simpleDomain, simpleMeshList, simpleMesh,
     generalDomain, generalMesh,
     legendCurves, legend,
@@ -6618,8 +6617,6 @@ Module[
   (* Plot range *)
   xHalfWidth = 0.45;
   yMax = 0.8;
-  (* Image size for domains (fixed height) *)
-  imageSizeDomains = {Automatic, 270};
   (* Simple case: lens-shaped domain *)
   Module[
     {
@@ -6654,10 +6651,9 @@ Module[
               Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
               Italicise["y"]
             }
-          , FrameStyle -> 14
-          , FrameTicksStyle -> 11
-          , ImageSize -> imageSizeDomains
-          , LabelStyle -> LatinModernLabelStyle[10]
+          , FrameStyle -> LabelSize["Axis"]
+          , FrameTicksStyle -> LabelSize["Tick"]
+          , LabelStyle -> LatinModernLabelStyle[LabelSize["Tick"] - 1]
           , PlotLabel -> Column[
               {
                 "Lens\[Hyphen]shaped",
@@ -6687,9 +6683,9 @@ Module[
         , {n, nMeshPortions}
       ];
     simpleMesh =
-      Grid[
+      GraphicsGrid[
         {simpleMeshList}
-        , Spacings -> {{2 -> 0.8, 3 -> 0.2}, 0}
+        , Spacings -> {{2 -> 0.25 ImageSizeTextWidth, 3 -> 0}, 0}
         (* non-uniform spacing looks better (an optical illusion) *)
       ];
   ];
@@ -6727,10 +6723,9 @@ Module[
               Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
               Italicise["y"]
             }
-          , FrameStyle -> 14
-          , FrameTicksStyle -> 11
-          , ImageSize -> imageSizeDomains
-          , LabelStyle -> LatinModernLabelStyle[10]
+          , FrameStyle -> LabelSize["Axis"]
+          , FrameTicksStyle -> LabelSize["Tick"]
+          , LabelStyle -> LatinModernLabelStyle[LabelSize["Tick"] - 1]
           , PlotLabel -> Column[
               {
                 "Asymmetric",
@@ -6765,21 +6760,37 @@ Module[
     CurveLegend[
       BoundaryTracingStyle /@ {"Traced", "Contour"},
       {"radiation", "constant temperature"}
-      , LabelStyle -> LatinModernLabelStyle[13]
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Legend"]
     ];
   legend = Grid[{legendCurves}, Spacings -> {2.5, 0}];
-  (* Combined plot *)
-  Column[
-    {
-      Grid[{{simpleDomain, simpleMesh, generalDomain, generalMesh}}
-        , Spacings -> {3 -> 3, Automatic}
-      ],
-      legend
-    }
-    , Alignment -> Center
-    , Spacings -> -0.25
-  ]
-] // Ex["cosine-verification-domain-meshes.pdf"]
+  (* Export *)
+  {
+    Show[simpleDomain
+      , ImageSize -> {Automatic, 0.6 ImageSizeTextWidth}
+    ] // Ex["cosine-verification-lens-domain.pdf"]
+    ,
+    Show[simpleMesh
+      , ImageSize -> 0.16 ImageSizeTextWidth
+    ] // Ex["cosine-verification-lens-mesh.pdf"]
+    ,
+    Show[generalDomain
+      , ImageSize -> {Automatic, 0.6 ImageSizeTextWidth}
+    ] // Ex["cosine-verification-asymmetric-domain.pdf"]
+    ,
+    Show[generalMesh
+      , ImageSize -> 0.11 ImageSizeTextWidth
+    ] // Ex["cosine-verification-asymmetric-mesh.pdf"]
+    ,
+    GraphicsGrid[
+      List @ Join[legendCurves]
+      , Alignment -> Left
+      , ImageSize -> ImageSizeTextWidth
+      , ItemAspectRatio -> 0.11
+    ] // Ex["cosine-verification-legend.pdf"]
+    ,
+    Nothing
+  }
+] (*// Ex["cosine-verification-domain-meshes.pdf"]*)
 
 
 (* ::Subsection:: *)
