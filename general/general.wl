@@ -79,7 +79,7 @@ Module[
     }
   ];
   (* Plotting constants *)
-  imageSize = 180;
+  imageSize = 0.325 ImageSizeTextWidth;
   xMax = 0.65;
   yMax = 0.35;
   xMaxLess = 0.95 xMax;
@@ -177,28 +177,28 @@ Module[
 
 Module[
   {
-    latinModernStyle,
     curves, regions,
     dummyForTrailingCommas
   },
-  latinModernStyle = LatinModernLabelStyle[14];
   curves =
     CurveLegend[
       BoundaryTracingStyle /@ {"Terminal", "Contour", "Traced"},
       {"terminal curve", Row @ {Italicise["T"], "\[Hyphen]contour"}, "traced boundary"}
-      , LabelStyle -> LatinModernLabelStyle[14]
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Legend"]
     ];
   regions = (
     RegionLegend[
       BoundaryTracingStyle /@ {"NonViable", "Viable"},
       {"non\[Hyphen]viable domain", "viable domain"}
-      , LabelStyle -> LatinModernLabelStyle[14]
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Legend"]
     ]
   );
   (* Combine *)
-  Grid[{curves, regions // Insert[Null, 2]}
+  GraphicsGrid[{curves, regions // Insert[Null, 2]}
     , Alignment -> Left
-    , Spacings -> {4, -1}
+    , ImageSize -> ImageSizeTextWidth
+    , ItemAspectRatio -> 0.11
+    , Spacings -> {{{0, 0.1, 0} ImageSizeTextWidth}, 0}
   ]
 ] // Ex["terminal-legend.pdf"]
 
