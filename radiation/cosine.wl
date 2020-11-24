@@ -5483,7 +5483,7 @@ Module[
  {a, b,
   x0,
   eps,
-  xMin, xMax, yMax, imageSize,
+  xMin, xMax, yMax,
   xMinCont, xMaxCont, yMaxCont,
   xMinViable, xMaxViable, yMaxViable,
   contNum, tContMin, tContStep, tContValues,
@@ -5505,7 +5505,6 @@ Module[
   xMin = x0 - 0.5 (xStraight - x0);
   xMax = xStraight;
   yMax = 1;
-  imageSize = 210;
   (* Plot range for contours *)
   xMinCont = x0 - eps;
   xMaxCont = xMax + eps;
@@ -5530,15 +5529,14 @@ Module[
     {{xOrdGuess}, {yOrdGuess}}
   ];
   (* Text style *)
-  textStyle = Style[#, 18] & @* LaTeXStyle;
-  textStyleBracket = Style[#, Larger] &;
+  textStyle = Style[#, LabelSize["Point"]] & @* LaTeXStyle;
+  textStyleBracket = Style[#, LabelSize["PointBracket"]] &;
   textVerticalShift = -0.25;
   (* Plot *)
   plot = Show[
     EmptyFrame[{xMin, xMax}, {-yMax, yMax},
       AspectRatio -> 2,
       Frame -> None,
-      ImageSize -> imageSize,
       PlotRangePadding -> None
     ],
     (* Known solution contours *)
@@ -5580,14 +5578,13 @@ Module[
       Text[
         Row @ {
           "(" // textStyleBracket,
-          "\[NegativeVeryThinSpace]",
           Subscript[Italicise["x"], 0],
           ",\[ThinSpace]",
           0,
           ")" // textStyleBracket
         },
         {x0, 0},
-        {1.5, textVerticalShift}
+        {1.5, -0.2}
       ] // textStyle,
       Text[
         "critical",
@@ -5599,7 +5596,7 @@ Module[
     {}
   ];
   (* Legend *)
-  legendLabelStyle = LatinModernLabelStyle[16];
+  legendLabelStyle = LatinModernLabelStyle @ LabelSize["Legend"];
   legendCurves =
     CurveLegend[
       BoundaryTracingStyle /@ {"Background", "Terminal"},
@@ -5613,12 +5610,16 @@ Module[
       , LabelStyle -> legendLabelStyle
     ];
   (* Combined *)
-  Grid[
-    {{
+  GraphicsRow[
+    {
       plot,
-      Column[Join[legendCurves, legendRegions], Spacings -> -0.5]
-    }}
-    , Spacings -> 3
+      Column[Join[legendCurves, legendRegions]
+        , Spacings -> {0, {-1.5, -1.5, -1.3}}
+      ]
+    }
+    , ItemAspectRatio -> 2 (* took a while to figure this out *)
+    , ImageSize -> 0.63 ImageSizeTextWidth
+    , Spacings -> {0.1 ImageSizeTextWidth, 0}
   ]
 ] // Ex["cosine_simple-terminal-points.pdf"]
 
