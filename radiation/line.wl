@@ -1660,7 +1660,7 @@ Module[
   aValues = aNat + aStep * Range[-1, 1];
   aMin = Min[aValues];
   (* Plot range *)
-  imageSize = 210;
+  imageSize = 0.325 ImageSizeTextWidth;
   rMaxShow = 1.7 rSharp[aMin];
   (* Plots *)
   Table[
@@ -1673,9 +1673,9 @@ Module[
             Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
             Italicise["y"]
           }
-        , FrameStyle -> 17
-        , FrameTicksStyle -> 14
-        , LabelStyle -> LatinModernLabelStyle[14]
+        , FrameStyle -> LabelSize["Axis"]
+        , FrameTicksStyle -> LabelSize["Tick"]
+        , LabelStyle -> LatinModernLabelStyle[LabelSize["Label"] - 1]
         , ImageSize -> imageSize
         , PlotLabel -> inequality[aIt, Subscript[aIt, "\[Natural]"]]
       ],
