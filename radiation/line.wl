@@ -2267,7 +2267,7 @@ Module[
     a, rSh,
     caseList,
     mod2Pi, phi,
-    xMax, yMax, imageSize,
+    xMax, yMax,
     numSpikes, modNumSpikes,
     rSpike, phiSpike, phiCentre, phiHalfWidth,
     plotList, caseIsRegular,
@@ -2285,7 +2285,6 @@ Module[
   (* List of plots *)
   xMax = rInfl;
   yMax = 0.9 rInfl;
-  imageSize = 240;
   plotList = Table[
     (* Define spikes *)
     ClearAll[numSpikes, rSpike, phiSpike, phiHalfWidth, phiCentre];
@@ -2326,7 +2325,6 @@ Module[
     Show[
       EmptyFrame[{-xMax, xMax}, {-yMax, yMax}
         , Frame -> None
-        , ImageSize -> imageSize
       ],
       (* Outer terminal curve (effective incircle) *)
       Graphics @ {
@@ -2370,8 +2368,9 @@ Module[
   ];
   (* Final figure *)
   GraphicsRow[plotList
+    , ImageSize -> ImageSizeTextWidth
     , PlotRangePadding -> 0
-    , Spacings -> -0.1 imageSize
+    , Spacings -> -0.1 ImageSizeTextWidth
   ]
 ] // Ex["line-domains.pdf"]
 
