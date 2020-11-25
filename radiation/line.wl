@@ -2097,7 +2097,7 @@ Module[
   angleMarkerLength = 0.25 rSharp;
   orthogonalityMarkerLength = 0.1 rSharp;
   orthogonalityMarkerStyle = Directive[EdgeForm[Black], FaceForm[None]];
-  textStyle = Style[#, 20] & @* LaTeXStyle;
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   (* Plot *)
   Show[
     Graphics @ {
@@ -2127,7 +2127,7 @@ Module[
       Text[
         "\[Phi]" // textStyle
         , XYPolar[angleMarkerLength, phi/2]
-        , XYPolar[2, 0.7 phi/2 + Pi]
+        , XYPolar[2, 0.62 phi/2 + Pi]
       ],
       (* Tangent line *)
       Line @ {{rSharp, -yMax}, {rSharp, yMax}},
@@ -2139,7 +2139,7 @@ Module[
       ],
       {}
     }
-    , ImageSize -> 180
+    , ImageSize -> 0.3 ImageSizeTextWidth
   ]
 ] // Ex["line-hot-outer-tangent-line.pdf"]
 
