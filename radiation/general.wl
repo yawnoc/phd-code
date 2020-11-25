@@ -45,8 +45,8 @@ Module[
   {bathX, bathY} = {-3, -2};
   {bathA, bathB} = {2.5, 1.5};
   (* Diagram *)
-  textStyle = Style[#, 24] & @* LaTeXStyle;
-  textStyleGreek = Style[#, 30] & @* LaTeXStyle;
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  textStyleGreek = Style[#, LabelSize["LabelOmega"]] & @* LaTeXStyle;
   Show[
     (* Conduction ellipse *)
     Graphics @ {BoundaryTracingStyle["Traced"],
@@ -55,7 +55,7 @@ Module[
     },
     Graphics @ {
       Text[
-        SeparatedRow[Invisible["i" // textStyle]] @@ {
+        SeparatedRow["\[ThinSpace]" // textStyle] @@ {
           "conduction" // textStyle,
           "\[CapitalOmega]" // textStyleGreek
         }
@@ -83,7 +83,7 @@ Module[
             "\[PartialD]\[CapitalOmega]" // textStyleGreek
           }
           , Alignment -> Right
-          , Spacings -> 0.8
+          , Spacings -> 0.3
         ]
         , conductionXY[5/8 Pi] // RotationTransform[conductionPhi]
         , {1.1, -1.15}
@@ -101,6 +101,6 @@ Module[
       ]
     },
     {}
-    , ImageSize -> 360
+    , ImageSize -> 0.45 ImageSizeTextWidth
   ]
 ] // Ex["radiation-conduction-bvp.pdf"]

@@ -665,9 +665,9 @@ Module[
         Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
         Italicise["y"]
       },
-      FrameTicksStyle -> 12,
-      ImageSize -> 240,
-      LabelStyle -> LatinModernLabelStyle[15]
+      FrameTicksStyle -> LabelSize["Tick"],
+      ImageSize -> 0.45 ImageSizeTextWidth,
+      LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
     ],
     (* Traced boundaries *)
     Table[
@@ -694,7 +694,6 @@ Module[
 Module[
  {xTerm,
   xMin, xMax, yMin, yMax,
-  imageSize,
   plotList,
   plotPointsGeneral, plotPointsPatched,
   textStyle,
@@ -708,12 +707,11 @@ Module[
   xMin = 0.2;
   xMax = 1.1 xTerm;
   yMax = 0.7;
-  imageSize = 240;
   (* Plot points *)
   plotPointsGeneral = 3;
   plotPointsPatched = 2;
   (* Styles *)
-  textStyle = Style[#, 14] & @* LaTeXStyle;
+  textStyle = Style[#, LabelSize["Straight"]] & @* LaTeXStyle;
   (* Build a plot for each list of corners *)
   plotList = Table[
     (* *)
@@ -724,10 +722,10 @@ Module[
     xIntList = patchedIntXList[id];
     (* Plot *)
     Show[
-      EmptyAxes[{xMin, xMax}, {-yMax, yMax},
+      EmptyFrame[{xMin, xMax}, {-yMax, yMax},
         AspectRatio -> Automatic,
-        Axes -> None,
-        ImageSize -> 480
+        Frame -> None,
+        ImageSize -> Automatic
       ],
       (* General boundaries: upper-branch(i) *)
       Table[
@@ -802,10 +800,11 @@ Module[
   , {id, patchedIdList}]
   // GraphicsRow[#,
     Spacings -> {
-      0.5 imageSize,
+      0.3 ImageSizeTextWidth,
       Automatic
     }
   ] &
+  // Show[#, ImageSize -> ImageSizeTextWidth] &
 ] // Ex["plane-traced-boundaries-patched.pdf"]
 
 
@@ -813,10 +812,13 @@ Module[
 (*Figure: Domains (plane-domains.pdf)*)
 
 
+(* ::Subsection:: *)
+(*Domains*)
+
+
 Module[
  {xTerm,
   xMin, xMax, yMin, yMax,
-  imageSize,
   plotPointsPatched,
   textStyle,
   plotList,
@@ -825,8 +827,6 @@ Module[
   iMin, iMax, xBath, yBathBottom, yBathTop,
   cUpper, cLower,
   xLeft, xRight,
-  legendLabelStyle,
-  legendCurves,
   dummyForTrailingCommas
  },
   (* Critical terminal curve *)
@@ -835,11 +835,10 @@ Module[
   xMin = 0.2;
   xMax = 1.1 xTerm;
   yMax = 0.7;
-  imageSize = 240;
   (* Plot points *)
   plotPointsPatched = 2;
   (* Styles *)
-  textStyle = Style[#, 14] & @* LaTeXStyle;
+  textStyle = Style[#, LabelSize["Straight"]] & @* LaTeXStyle;
   (* Build a plot for each list of corners *)
   plotList = Table[
     (* *)
@@ -855,7 +854,7 @@ Module[
       EmptyAxes[{xMin, xMax}, {-yMax, yMax},
         AspectRatio -> Automatic,
         Axes -> None,
-        ImageSize -> 480
+        ImageSize -> Automatic
       ],
       (* Critical terminal curve *)
       ParametricPlot[
@@ -914,21 +913,30 @@ Module[
       , {j, Length[iRangeList]}]
     ]
   , {id, patchedIdList}];
-  (* Legend *)
-  legendLabelStyle = LatinModernLabelStyle[15];
+  (* Combine *)
+  GraphicsRow[plotList
+    , ImageSize -> ImageSizeTextWidth
+    , Spacings -> {0.3 ImageSizeTextWidth, Automatic}
+  ]
+] // Ex["plane-domains.pdf"]
+
+
+(* ::Subsection:: *)
+(*Legend*)
+
+
+Module[{legendCurves},
   legendCurves =
     CurveLegend[
       BoundaryTracingStyle @* ReleaseHold /@
         {"Traced", "Contour", Hold @ Sequence["Terminal", "Background"]},
       {"radiation", "constant temperature", "critical terminal curve"}
-      , LabelStyle -> legendLabelStyle
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Legend"]
     ];
-  (* Combine *)
-  Column[
-    {
-      GraphicsRow[plotList, Spacings -> {0.5 imageSize, Automatic}],
-      Grid[{legendCurves}, Spacings -> {1, 0}]
-    }
-    , Alignment -> Center
+  GraphicsGrid[{legendCurves}
+    , Alignment -> Left
+    , ImageSize -> ImageSizeTextWidth
+    , ItemAspectRatio -> 0.11
+    , Spacings -> {{0, -0.3, 0.1} ImageSizeTextWidth, 0}
   ]
-] // Ex["plane-domains.pdf"]
+] // Ex["plane-domains-legend.pdf"]

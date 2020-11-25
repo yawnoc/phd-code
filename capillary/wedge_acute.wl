@@ -932,8 +932,8 @@ Module[
     ];
   meshWireframeSimplified = mesh["Wireframe"[posSimplified]];
   (* Plot full mesh *)
-  tickTextStyle = Style[#, 13] & @* LaTeXStyle;
-  axesTextStyle = Style[#, 16] & @* LaTeXStyle;
+  tickTextStyle = Style[#, LabelSize["Tick"]] & @* LaTeXStyle;
+  axesTextStyle = Style[#, LabelSize["Axis"]] & @* LaTeXStyle;
   phiPattern = _Integer Degree | 0;
   plotFull = Show[
     PolarPlot[rMax, {phi, -alpha, alpha}
@@ -946,7 +946,7 @@ Module[
       /. {Circle[seq__, {0, 2 Pi}] :> Circle[seq, {-alpha, alpha}]}
       (* Tweak radial labels *)
       /. {Text[Style[r : Except[phiPattern], {}], coords_, offset_] :>
-        Text[r, coords, offset + If[r == 10, {1.5, 0}, {0.75, 0}]]
+        Text[r, coords, offset + If[r == 10, {1.2, -0.4}, {0, -0.2}]]
       }
       (* Tweak azimuthal labels *)
       /. {Text[Style[phi : phiPattern, {}], coords_, offset_, opts___] :>
@@ -954,10 +954,10 @@ Module[
           SeparatedRow["VeryThin"][phi / Degree, Magnify["\[Degree]", 1.2]],
           coords,
           offset + Which[
-            phi == -alpha, {-0.2, -0.7},
-            phi < 0, Abs[phi]/alpha {0, -0.7},
-            phi == 0, {-0.2, 0},
-            True, {0, 0}
+            phi == -alpha, {0, -0.9},
+            phi < 0, {0.3, -0.6},
+            phi == 0, {-0.1, -0.2},
+            True, {0.2, 0.1}
           ]
           , opts
         ]
@@ -971,17 +971,17 @@ Module[
       Text[
         Italicise["r"] // axesTextStyle
         , XYPolar[rMax / 2, -alpha]
-        , {5.5, 2.2}
+        , {4, 1.5}
       ],
       Text[
         "\[Phi]" // axesTextStyle // Margined[{{0, 1}, {0, 0}}]
         , {rMax, 0}
-        , {-8, 0.1}
+        , {-6.5, -0.1}
       ],
       {}
     },
     {}
-    , ImageSize -> 360
+    , ImageSize -> 0.67 ImageSizeTextWidth
     , PlotRange -> All
     , PlotRangeClipping -> False
   ];
@@ -1011,8 +1011,8 @@ Module[
   rMax = 0.25;
   {xMax, yMax} = XYPolar[rMax, alpha];
   (* Plot mesh detail *)
-  tickTextStyle = Style[#, 15] & @* LaTeXStyle;
-  axesTextStyle = Style[#, 18] & @* LaTeXStyle;
+  tickTextStyle = Style[#, LabelSize["Tick"]] & @* LaTeXStyle;
+  axesTextStyle = Style[#, LabelSize["Axis"]] & @* LaTeXStyle;
   plotDetail = Show[
     PolarPlot[rMax, {phi, -alpha, alpha}
       , PlotStyle -> None
@@ -1026,7 +1026,7 @@ Module[
     ]
       (* Tweak radial labels *)
       /. {Text[Style[r_, {}], coords_, offset_, opts__] :>
-        Text[r, coords, offset + {If[r == 0, 0.8, 1.4], 0.1}, opts]
+        Text[r, coords, offset + {If[r == 0, 0.5, 1.2], -0.2}, opts]
       }
       (* Font for labels *)
       /. {Text[str_, seq__] :> Text[str // tickTextStyle, seq]}
@@ -1037,12 +1037,12 @@ Module[
       Text[
         Italicise["r"] // axesTextStyle
         , XYPolar[rMax / 2, -alpha]
-        , {3, 2.5}
+        , {2.7, 2.5}
       ],
       {}
     },
     {}
-    , ImageSize -> 180
+    , ImageSize -> 0.27 ImageSizeTextWidth
     , PlotRange -> {{0, xMax}, {-yMax, yMax}}
     , PlotRangePadding -> {0.2, {0.3, 0.2}} rMax
   ];
@@ -1094,12 +1094,12 @@ Module[
           Italicise["x"] // Margined @ {{0, 1}, {5, 0}},
           Italicise["T"]
         }
-      , ImageSize -> 270
-      , LabelStyle -> LatinModernLabelStyle[17]
+      , ImageSize -> 0.45 ImageSizeTextWidth
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
       , PlotRange -> {0, All}
       , PlotStyle -> {styleNumerical, styleAsymptotic}
       , PlotOptions[Axes] // Evaluate
-      , TicksStyle -> 14
+      , TicksStyle -> LabelSize["Tick"]
     ] // Ex @ FString["wedge_acute-borderline-asymptotic-comparison-{case}.pdf"]
     , {phi, phiValues}
   ]
@@ -1152,12 +1152,12 @@ Module[
         , BoxRatios -> Automatic
         , Filling -> 0
         , FillingStyle -> BoundaryTracingStyle["Solution3D"]
-        , LabelStyle -> LatinModernLabelStyle[11]
+        , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
         , Lighting -> GeneralStyle["AmbientLighting"]
         , PlotPoints -> 20
         , PlotRange -> {0, 2.2}
         , PlotStyle -> BoundaryTracingStyle["Solution3D"]
-        , TicksStyle -> ConstantArray[LatinModernLabelStyle[8], 3]
+        , TicksStyle -> LabelSize["Tick"]
         , RegionFunction -> Function[{x, y},
             RPolar[x, y] < rMax
           ]
@@ -1186,7 +1186,7 @@ Module[
         {}
       },
       {}
-      , ImageSize -> 6.5 ImageSizeCentimetre
+      , ImageSize -> 0.45 ImageSizeTextWidth
     ]
       // Ex[FString["wedge_acute-solution-{case}.png"]
         , Background -> None
@@ -1259,9 +1259,8 @@ Module[
           Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
           Italicise["y"]
         }
-      , FrameTicksStyle -> 13
-      , ImageSize -> 240
-      , LabelStyle -> LatinModernLabelStyle[16]
+      , FrameTicksStyle -> LabelSize["Tick"]
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
     ],
     (* Wedge walls *)
     Graphics @ {BoundaryTracingStyle["Wall"],
@@ -1302,7 +1301,7 @@ Module[
     {}
   ];
   (* Legend *)
-  legendLabelStyle = LatinModernLabelStyle[14];
+  legendLabelStyle = LatinModernLabelStyle @ LabelSize["Legend"];
   legendCurves =
     CurveLegend[
       BoundaryTracingStyle /@ {"Traced", "Terminal"},
@@ -1315,15 +1314,20 @@ Module[
       {"non\[Hyphen]viable domain"}
       , LabelStyle -> legendLabelStyle
     ];
-  (* Combined *)
-  Grid[
-    {{
-      plot,
-      Column[Join[legendCurves, legendRegions], Spacings -> -0.75]
-    }}
-    , Spacings -> 2
-  ]
-] // Ex["wedge_acute-traced-boundaries.pdf"]
+  (* Export *)
+  {
+    Show[plot
+      , ImageSize -> 0.45 ImageSizeTextWidth
+    ] // Ex["wedge_acute-traced-boundaries.pdf"]
+    ,
+    GraphicsColumn[Join[legendCurves, legendRegions]
+      , Alignment -> Left
+      , ImageSize -> 0.3 ImageSizeTextWidth
+      , ItemAspectRatio -> 0.15
+      , Spacings -> {0, 0}
+    ] // Ex["wedge_acute-traced-boundaries-legend.pdf"]
+  }
+]
 
 
 (* ::Section:: *)
@@ -1443,12 +1447,11 @@ Module[
   commonPlot = Show[
     EmptyFrame[{0, xMax}, {-yMax, yMax}
       , Frame -> None
-      , ImageSize -> 180
     ],
     {}
   ];
   (* Plots *)
-  textStyle = Style[#, 24] & @* LaTeXStyle;
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   plotList = Table[
     Show[
       (* Common plot *)
@@ -1476,7 +1479,7 @@ Module[
         , {xy, xyTracedLowerList[n]}
       ],
       (* Normal vector *)
-      Graphics @ {Directive[GeneralStyle["Thick"], Arrowheads[Large]],
+      Graphics @ {Directive[GeneralStyle["Thick"], Arrowheads[Medium]],
         Arrow @ {
           xyNormal[n],
           xyNormal[n] + normalVectorLength * normalVector[n]
@@ -1486,7 +1489,7 @@ Module[
         Text[
           Embolden["n"] // textStyle
           , xyNormal[n] + normalVectorLength * normalVector[n]
-          , {1., -0.7}
+          , {1., -0.8}
         ]
       },
       (* Traced boundaries (patched) *)
@@ -1516,7 +1519,10 @@ Module[
       {}
     ]
   , {n, numPlots}];
-  Grid @ {plotList}
+  GraphicsGrid[{plotList}
+    , ImageSize -> ImageSizeTextWidth
+    , Spacings -> 0
+  ]
 ] // Ex["wedge_acute-traced-boundaries-patched.pdf"]
 
 
@@ -1580,14 +1586,13 @@ Module[
     ];
   xyOrdinary = xyContourOrdinary[sOrdinary] // Through;
   (* Text style *)
-  textStyle = Style[#, 18] & @* LaTeXStyle;
-  textStyleBracket = Style[#, Larger] &;
+  textStyle = Style[#, LabelSize["Point"]] & @* LaTeXStyle;
+  textStyleBracket = Style[#, LabelSize["PointBracket"]] &;
   textVerticalShift = -0.25;
   (* Plot *)
   plot = Show[
     EmptyFrame[{xMin, xMax}, {-yMax, yMax}
       , Frame -> None
-      , ImageSize -> 210
     ],
     (* Contours *)
     Table[
@@ -1651,7 +1656,7 @@ Module[
     {}
   ];
   (* Legend *)
-  legendLabelStyle = LatinModernLabelStyle[16];
+  legendLabelStyle = LatinModernLabelStyle @ LabelSize["Legend"];
   legendCurves =
     CurveLegend[
       BoundaryTracingStyle /@ {"Background", "Terminal"},
@@ -1665,11 +1670,15 @@ Module[
       , LabelStyle -> legendLabelStyle
     ];
   (* Combined *)
-  Grid[
-    {{
+  GraphicsRow[
+    {
       plot,
-      Column[Join[legendCurves, legendRegions], Spacings -> -0.5]
-    }}
-    , Spacings -> 3
+      Column[Join[legendCurves, legendRegions]
+        , Spacings -> {0, {-1.5, -1.5, -1.4}}
+      ]
+    }
+    , ItemAspectRatio -> 2.2
+    , ImageSize -> 0.65 ImageSizeTextWidth
+    , Spacings -> {0, 0}
   ]
 ] // Ex["wedge_acute-terminal-points.pdf"]

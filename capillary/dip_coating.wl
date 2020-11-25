@@ -240,7 +240,7 @@ Module[
       , Lighting -> globalLighting
       , Boxed -> False
       , BoxRatios -> {Automatic, Automatic, 1.6}
-      , ImageSize -> 5 ImageSizeCentimetre
+      , ImageSize -> 0.35 ImageSizeTextWidth
       , ViewPoint -> {2.4, -3.5, 1.6}
     ]
       //

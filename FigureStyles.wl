@@ -17,7 +17,7 @@
 (*Start of package*)
 
 
-BeginPackage["FigureStyles`"];
+BeginPackage["FigureStyles`", {"Conway`"}];
 
 
 (* ::Subsection:: *)
@@ -36,6 +36,8 @@ ClearAll["FigureStyles`*`*"];
 {
   GeneralStyle,
   BoundaryTracingStyle,
+  ImageSizeTextWidth,
+  LabelSize,
   SquigglyArrow,
   {}
 };
@@ -58,9 +60,9 @@ Begin["`Private`"];
 
 GeneralStyle[type_String : Automatic] := Association[
   "AmbientLighting" -> {{"Ambient"}, White},
-  "Dashed" -> AbsoluteDashing @ {12, 6},
+  "Dashed" -> AbsoluteDashing @ {5, 4},
   "DefaultThick" -> AbsoluteThickness[1.5],
-  "Dotted" -> AbsoluteDashing @ {1, 4},
+  "Dotted" -> AbsoluteDashing @ {0.3, 4},
   "Point" -> PointSize[Large],
   "Thick" -> AbsoluteThickness[2.5],
   "Translucent" -> Opacity[0.7],
@@ -114,6 +116,37 @@ BoundaryTracingStyle[type : (_String | Automatic) : Automatic] := Association[
 
 BoundaryTracingStyle[typeSeq__String] :=
   Directive @@ BoundaryTracingStyle /@ {typeSeq};
+
+
+(* ::Subsubsection:: *)
+(*ImageSizeTextWidth*)
+
+
+ImageSizeTextWidth =
+  Module[{a4width, bindingoffset, inner, outer},
+    a4width = 21 Conway`ImageSizeCentimetre;
+    bindingoffset = 2 Conway`ImageSizeCentimetre;
+    inner = 2 Conway`ImageSizeCentimetre;
+    outer = 2.5 Conway`ImageSizeCentimetre;
+    a4width - (bindingoffset + inner + outer)
+  ];
+
+
+(* ::Subsubsection:: *)
+(*LabelSize*)
+
+
+LabelSize[type_String : Automatic] := Association[
+  "Axis" -> 12,
+  "Label" -> 12,
+  "LabelOmega" -> 15,
+  "Legend" -> 10,
+  "Point" -> 11,
+  "PointBracket" -> 15,
+  "Straight" -> 10,
+  "Tick" -> 9,
+  Automatic -> Automatic
+][type];
 
 
 (* ::Subsubsection:: *)

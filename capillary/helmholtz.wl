@@ -240,18 +240,18 @@ Module[
   (* Normal vector *)
   normalVectorPosition = 1/2 {wedgeXMax, wedgeYMax};
   normalVectorLength = Sqrt[2]/3 wedgeXMax;
-  orthogonalityMarkerLength = 1/18 wedgeXMax;
+  orthogonalityMarkerLength = 1/14 wedgeXMax;
   orthogonalityMarkerStyle = Directive[EdgeForm[Black], FaceForm[None]];
-  wallThicknessCorrection = 0.1;
+  wallThicknessCorrection = 0.16;
   (* Diagram *)
-  textStyle = Style[#, 24] & @* LaTeXStyle;
-  testStyleOmega = Style[#, 30] & @* LaTeXStyle;
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  testStyleOmega = Style[#, LabelSize["LabelOmega"]] & @* LaTeXStyle;
   Show[
     EmptyAxes[{xMin, xMax}, {-yMax, yMax}
       , AspectRatio -> Automatic
       , AxesStyle -> Darker[Gray]
-      , ImageSize -> 240
-      , LabelStyle -> LatinModernLabelStyle[24]
+      , ImageSize -> 0.4 * 0.8 ImageSizeTextWidth
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
       , Method -> {"AxesInFront" -> False}
       , Ticks -> None
     ],
@@ -267,7 +267,7 @@ Module[
       ]
     },
     (* Normal vector *)
-    Graphics @ {Directive[GeneralStyle["Thick"], Arrowheads[Large]],
+    Graphics @ {Directive[GeneralStyle["Thick"], Arrowheads[Medium]],
       Arrow @ {
         normalVectorPosition,
         normalVectorPosition + XYPolar[normalVectorLength, alpha + Pi/2]
@@ -358,7 +358,7 @@ Module[
       , BoxRatios -> Automatic
       , Filling -> 0
       , FillingStyle -> BoundaryTracingStyle["Solution3D"]
-      , LabelStyle -> LatinModernLabelStyle[11]
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Label"]
       , Lighting -> GeneralStyle["AmbientLighting"]
       , PlotPoints -> 20
       , PlotStyle -> BoundaryTracingStyle["Solution3D"]
@@ -368,7 +368,7 @@ Module[
             Abs[y] < xMax - x
           ]
         ]
-      , TicksStyle -> 8
+      , TicksStyle -> LabelSize["Tick"]
       , ViewPoint -> {2.5, -1.1, 1.4}
     ],
     (* Wedge walls *)
@@ -402,7 +402,7 @@ Module[
       {}
     },
     {}
-    , ImageSize -> 8 ImageSizeCentimetre
+    , ImageSize -> 0.55 ImageSizeTextWidth
   ]
 ] // Ex["helmholtz-wedge-solution.png"
   , Background -> None
@@ -435,9 +435,9 @@ Module[
           Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
           Italicise["y"]
         }
-      , FrameTicksStyle -> 12
-      , ImageSize -> 210
-      , LabelStyle -> LatinModernLabelStyle[15]
+      , FrameTicksStyle -> LabelSize["Tick"]
+      , ImageSize -> 0.5 * 0.8 ImageSizeTextWidth
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
     ],
     (* Wedge walls *)
     Graphics @ {BoundaryTracingStyle["Wall"],
@@ -507,9 +507,9 @@ Module[
           Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
           Italicise["y"]
         }
-      , FrameTicksStyle -> 12
-      , ImageSize -> 210
-      , LabelStyle -> LatinModernLabelStyle[15]
+      , FrameTicksStyle -> LabelSize["Tick"]
+      , ImageSize -> 0.5 * 0.8 ImageSizeTextWidth
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
     ],
     (* Wedge walls *)
     Graphics @ {BoundaryTracingStyle["Wall"],
@@ -551,7 +551,7 @@ Module[
     row,
     dummyForTrailingCommas
   },
-  legendLabelStyle = LatinModernLabelStyle[14];
+  legendLabelStyle = LatinModernLabelStyle[LabelSize["Legend"]];
   row = Join[
     CurveLegend[
       BoundaryTracingStyle /@ {"Wall", "Terminal"},
@@ -562,7 +562,7 @@ Module[
       BoundaryTracingStyle /@ {"NonViable"},
       {"non\[Hyphen]viable domain"}
       , LabelStyle -> legendLabelStyle
-    ],
+    ] // Margined @ {{0, 0}, {0, -3}} /@ # &,
     CurveLegend[
       BoundaryTracingStyle /@ {"Traced"},
       {"traced boundary"}
@@ -570,9 +570,11 @@ Module[
     ],
     {}
   ];
-  Grid[{row}
+  GraphicsGrid[{row}
     , Alignment -> Left
-    , Spacings -> {1, 0}
+    , ImageSize -> ImageSizeTextWidth
+    , ItemAspectRatio -> 0.15
+    , Spacings -> {{0, -0.1, 0.03, 0.06} ImageSizeTextWidth, 0}
   ]
 ] // Ex["helmholtz-legend.pdf"]
 
@@ -673,7 +675,6 @@ Module[
   commonPlot = Show[
     EmptyFrame[{0, xMax}, {-yMax, yMax}
       , Frame -> None
-      , ImageSize -> 180
     ],
     (* Wedge walls *)(*
     Graphics @ {BoundaryTracingStyle["Wall"],
@@ -682,7 +683,7 @@ Module[
     {}
   ];
   (* Plots *)
-  textStyle = Style[#, 24] & @* LaTeXStyle;
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   plotList = Table[
     Show[
       (* Common plot *)
@@ -710,7 +711,7 @@ Module[
         , {xy, xyTracedLowerList[n]}
       ],
       (* Normal vector *)
-      Graphics @ {Directive[GeneralStyle["Thick"], Arrowheads[Large]],
+      Graphics @ {Directive[GeneralStyle["Thick"], Arrowheads[Medium]],
         Arrow @ {
           xyNormal[n],
           xyNormal[n] + normalVectorLength * normalVector[n]
@@ -720,7 +721,7 @@ Module[
         Text[
           Embolden["n"] // textStyle
           , xyNormal[n] + normalVectorLength * normalVector[n]
-          , {0.1, -0.85}
+          , {0.25, -0.9}
         ]
       },
       (* Traced boundaries (patched) *)
@@ -750,7 +751,9 @@ Module[
       {}
     ]
   , {n, numPlots}];
-  Grid @ {plotList}
+  GraphicsGrid[{plotList}
+    , ImageSize -> ImageSizeTextWidth
+  ]
 ] // Ex["helmholtz-traced-boundaries-patched.pdf"]
 
 
@@ -794,14 +797,13 @@ Module[
   ];
   xyOrdinary = xyContourOrdinary[sOrdinary] // Through;
   (* Text style *)
-  textStyle = Style[#, 18] & @* LaTeXStyle;
-  textStyleBracket = Style[#, Larger] &;
+  textStyle = Style[#, LabelSize["Point"]] & @* LaTeXStyle;
+  textStyleBracket = Style[#, LabelSize["PointBracket"]] &;
   textVerticalShift = -0.25;
   (* Plot *)
   plot = Show[
     EmptyFrame[{xMin, xMax}, {-yMax, yMax}
       , Frame -> None
-      , ImageSize -> 180
     ],
     (* Contours *)
     Table[
@@ -865,7 +867,7 @@ Module[
     {}
   ];
   (* Legend *)
-  legendLabelStyle = LatinModernLabelStyle[16];
+  legendLabelStyle = LatinModernLabelStyle @ LabelSize["Legend"];
   legendCurves =
     CurveLegend[
       BoundaryTracingStyle /@ {"Background", "Terminal"},
@@ -879,12 +881,16 @@ Module[
       , LabelStyle -> legendLabelStyle
     ];
   (* Combined *)
-  Grid[
-    {{
+  GraphicsRow[
+    {
       plot,
-      Column[Join[legendCurves, legendRegions], Spacings -> -0.5]
-    }}
-    , Spacings -> 3
+      Column[Join[legendCurves, legendRegions]
+        , Spacings -> {0, {-1.5, -1.5, -1.4}}
+      ]
+    }
+    , ItemAspectRatio -> 2.6
+    , ImageSize -> 0.63 ImageSizeTextWidth
+    , Spacings -> {0.08 ImageSizeTextWidth, 0}
   ]
 ] // Ex["helmholtz-terminal-points.pdf"]
 
@@ -932,14 +938,15 @@ Module[
       ]
     ];
   (* Text style *)
-  textStyle = Style[#, 18] & @* LaTeXStyle;
-  textStyleBracket = Style[#, Larger] &;
+  textStyle = Style[#, LabelSize["Point"]] & @* LaTeXStyle;
+  textStyleBracket = Style[#, LabelSize["PointBracket"]] &;
   textVerticalShift = -0.1;
   (* Plot *)
   Show[
     EmptyFrame[{0, xMax}, {-yMax, yMax}
       , Frame -> None
-      , ImageSize -> 180
+      , ImageSize -> 0.45 * 0.6 ImageSizeTextWidth
+      , PlotRangePadding -> {{0.04, Automatic}, Automatic}
     ],
     (* Wedge walls *)
     Graphics @ {BoundaryTracingStyle["Wall"],
@@ -971,7 +978,7 @@ Module[
           ")" // textStyleBracket
         },
         {x0, 0},
-        {1.3, textVerticalShift}
+        {1.45, textVerticalShift}
       ] // textStyle,
       {}
     },
@@ -1019,14 +1026,15 @@ Module[
       ]
     ];
   (* Text style *)
-  textStyle = Style[#, 18] & @* LaTeXStyle;
-  textStyleBracket = Style[#, Larger] &;
+  textStyle = Style[#, LabelSize["Point"]] & @* LaTeXStyle;
+  textStyleBracket = Style[#, LabelSize["PointBracket"]] &;
   textVerticalShift = -0.1;
   (* Plot *)
   Show[
     EmptyFrame[{0, xMax}, {-yMax, yMax}
       , Frame -> None
-      , ImageSize -> 180
+      , ImageSize -> 0.45 * 0.6 ImageSizeTextWidth
+      , PlotRangePadding -> {{0.04, Automatic}, Automatic}
     ],
     (* Wedge walls *)
     Graphics @ {BoundaryTracingStyle["Wall"],
@@ -1058,7 +1066,7 @@ Module[
           ")" // textStyleBracket
         },
         {x0, 0},
-        {1.3, textVerticalShift}
+        {1.45, textVerticalShift}
       ] // textStyle,
       {}
     },
@@ -1091,11 +1099,11 @@ Module[
     , {s, -sMax, sMax}
     , AspectRatio -> Automatic
     , AxesLabel -> Italicise /@ {"s", "U"}
-    , ImageSize -> 420
-    , LabelStyle -> LatinModernLabelStyle[18]
+    , ImageSize -> 0.67 ImageSizeTextWidth
+    , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
     , PlotRange -> {0, All}
     , PlotStyle -> BoundaryTracingStyle /@ {"Wall", "Traced"}
     , PlotOptions[Axes] // Evaluate
-    , TicksStyle -> 15
+    , TicksStyle -> LabelSize["Tick"]
   ]
 ] // Ex["helmholtz-height-rise-profiles.pdf"]

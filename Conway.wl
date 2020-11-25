@@ -228,7 +228,7 @@ CurveLegend[
       label = labelList[[n]];
       LineLegend[{style}, {label}
         , opts
-        , LegendMarkerSize -> {48, 16}
+        , LegendMarkerSize -> {25, 16}
       ]
     , {n, nMax}
     ]
@@ -920,7 +920,7 @@ RegionLegend[
       label = labelList[[n]];
       SwatchLegend[{style}, {label}
         , opts
-        , LegendMarkerSize -> 16
+        , LegendMarkerSize -> 12
       ]
     , {n, nMax}
     ]

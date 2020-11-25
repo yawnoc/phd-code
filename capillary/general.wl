@@ -55,12 +55,12 @@ Module[
   normalVectorVerticalPosition = Way[tMin, tMax, 0.45];
   normalVectorLength = 0.4 (tMax - tMin);
   (* Diagram *)
-  textStyle = Style[#, 24] & @* LaTeXStyle;
-  textStyleGreek = Style[#, 30] & @* LaTeXStyle;
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  textStyleGreek = Style[#, LabelSize["LabelOmega"]] & @* LaTeXStyle;
   Show[
     EmptyFrame[{xMin, xMax}, {tStart, tEnd}
       , Frame -> None
-      , ImageSize -> 480
+      , ImageSize -> 0.6 ImageSizeTextWidth
       , PlotRange -> All
       , PlotRangeClipping -> False
     ],
@@ -108,7 +108,7 @@ Module[
       ]
     },
     (* Outward normal *)
-    Graphics @ {Directive[GeneralStyle["Thick"], Arrowheads[Large]],
+    Graphics @ {Directive[GeneralStyle["Thick"], Arrowheads[Medium]],
       Arrow @ {
         {xMin - wallThickness, normalVectorVerticalPosition},
         {xMin - wallThickness - normalVectorLength, normalVectorVerticalPosition}

@@ -459,13 +459,13 @@ Module[
   (* Plot *)
   plotRangePadding = 0.15 h;
   angleMarkerRadius = 0.2 h;
-  labelSize = 24;
+  labelSize = LabelSize["Label"];
   textStyle = Style[#, labelSize] & @* LaTeXStyle;
-  textStyleZero = Style[#, 0.9 labelSize // Floor] & @* LaTeXStyle;
+  textStyleZero = Style[#, labelSize - 1] & @* LaTeXStyle;
   Show[
     EmptyAxes[{xMin, xMax}, {tStart, tEnd}
       , AxesLabel -> Italicise /@ {"x", "T"}
-      , ImageSize -> 360
+      , ImageSize -> 0.48 ImageSizeTextWidth
       , LabelStyle -> LatinModernLabelStyle[labelSize]
       , PlotRange -> All
       , PlotRangeClipping -> False
@@ -555,7 +555,7 @@ Module[
   xHalf = Way[xMin, xMax];
   havlesOptions = {
     FrameLabel -> {
-      Italicise["x"] // Margined @ {{0, 0}, {0, -0.8 ImageSizeCentimetre}},
+      Italicise["x"] // Margined @ {{0, 0}, {0, -0.06 ImageSizeTextWidth}},
       Italicise["y"]
     },
     Frame -> {{True, False}, {True, True}},
@@ -565,10 +565,9 @@ Module[
         , {y, Subdivide[yMin, yMax, 2]}
       ]
     },
-    FrameTicksStyle -> 16,
-    ImagePadding -> {{Automatic, 0.3 ImageSizeCentimetre}, {Automatic, Automatic}},
-    ImageSize -> 360,
-    LabelStyle -> LatinModernLabelStyle[19],
+    FrameTicksStyle -> LabelSize["Tick"],
+    ImagePadding -> {{Automatic, 0.02 ImageSizeTextWidth}, {Automatic, Automatic}},
+    LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"],
     PlotRangeClipping -> True,
     PlotOptions[Frame],
     Nothing
@@ -594,18 +593,28 @@ Module[
     Show[
       meshWireframe
       , Frame -> True
+      , FrameLabel -> {
+          Italicise["x"] // Margined @ {{0, 0}, {0, -0.05 ImageSizeTextWidth}},
+          Italicise["y"]
+        }
       , ImagePadding -> Automatic
-      , ImageSize -> {270}
+      , ImageSize -> 0.4 ImageSizeTextWidth
       , FrameTicks -> Automatic
       , PlotRange -> {{xMin, xFineDetail}, {-yFineDetail, yFineDetail}}
       , havlesOptions
     ];
   (* Export *)
   {
-    Column[{plotLeftHalf, plotRightHalf}, Spacings -> 0.5]
+    GraphicsColumn[{plotLeftHalf, plotRightHalf}
+      , ImageSize -> 0.58 ImageSizeTextWidth
+      , ItemAspectRatio -> 0.4
+      , Spacings -> -0.04 ImageSizeTextWidth
+    ]
       // Ex["half_plane-mesh-halves.pdf"]
     ,
-    plotFineDetail
+    Show[plotFineDetail
+      , ImageSize -> 0.38 ImageSizeTextWidth
+    ]
       // Ex["half_plane-mesh-detail.pdf"]
   }
 ]
@@ -655,12 +664,12 @@ Module[
         Italicise["x"] // Margined @ {{0, 1}, {5, 0}},
         Style["Relative error", Smaller]
       }
-    , ImageSize -> 360
+    , ImageSize -> 0.6 ImageSizeTextWidth
     , Joined -> True
-    , LabelStyle -> LatinModernLabelStyle[18]
-    , PlotMarkers -> Automatic
+    , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+    , PlotMarkers -> {Automatic, Tiny}
     , PlotStyle -> Black
     , PlotOptions[Axes] // Evaluate
-    , TicksStyle -> 15
+    , TicksStyle -> LabelSize["Tick"]
   ]
 ] // Ex["half-plane-relative-error.pdf"]

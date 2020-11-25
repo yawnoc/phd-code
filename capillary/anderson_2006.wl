@@ -471,7 +471,7 @@ Module[
       ]
     ];
   plot[All] =
-    Column[
+    GraphicsColumn[
       {
         plot[1],
         GraphicsRow[plot /@ {2, 3}, Spacings -> plotSpacing],
@@ -479,7 +479,8 @@ Module[
         Nothing
       }
       , Alignment -> Center
-      , Spacings -> 2
+      , ImageSize -> 0.85 ImageSizeTextWidth
+      , Spacings -> 0.05 ImageSizeTextWidth
     ];
   plot[All]
 ] // Ex["half_plane-traced-boundaries.pdf"]

@@ -79,7 +79,7 @@ Module[
     }
   ];
   (* Plotting constants *)
-  imageSize = 180;
+  imageSize = 0.325 ImageSizeTextWidth;
   xMax = 0.65;
   yMax = 0.35;
   xMaxLess = 0.95 xMax;
@@ -177,28 +177,28 @@ Module[
 
 Module[
   {
-    latinModernStyle,
     curves, regions,
     dummyForTrailingCommas
   },
-  latinModernStyle = LatinModernLabelStyle[14];
   curves =
     CurveLegend[
       BoundaryTracingStyle /@ {"Terminal", "Contour", "Traced"},
       {"terminal curve", Row @ {Italicise["T"], "\[Hyphen]contour"}, "traced boundary"}
-      , LabelStyle -> LatinModernLabelStyle[14]
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Legend"]
     ];
   regions = (
     RegionLegend[
       BoundaryTracingStyle /@ {"NonViable", "Viable"},
       {"non\[Hyphen]viable domain", "viable domain"}
-      , LabelStyle -> LatinModernLabelStyle[14]
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Legend"]
     ]
   );
   (* Combine *)
-  Grid[{curves, regions // Insert[Null, 2]}
+  GraphicsGrid[{curves, regions // Insert[Null, 2]}
     , Alignment -> Left
-    , Spacings -> {4, -1}
+    , ImageSize -> ImageSizeTextWidth
+    , ItemAspectRatio -> 0.11
+    , Spacings -> {Automatic, 0}
   ]
 ] // Ex["terminal-legend.pdf"]
 
@@ -271,7 +271,7 @@ Module[
   ];
   basisVectorLength = 0.13;
   basisVectorStyle = Directive[Thickness[0.012], Arrowheads[0.07]];
-  textStyle = Style[#, 18] & @* LaTeXStyle;
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   (* Coordinates of tips of vectors *)
   auTipXY = {x0, y0} + basisVectorLength au[u0, v0];
   avTipXY = {x0, y0} + basisVectorLength av[u0, v0];
@@ -310,7 +310,7 @@ Module[
       ContourLabels -> None,
       ContourStyle -> {originalStyle, displacedStyle},
       Frame -> None,
-      ImageSize -> 240,
+      ImageSize -> 0.4 ImageSizeTextWidth,
       PlotPoints -> 10
     ],
     Graphics @ {

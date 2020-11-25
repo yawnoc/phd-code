@@ -4896,7 +4896,7 @@ Module[{a, b, source, tSol, mesh, dest},
 
 Module[
  {bStep, bValues, bMax,
-  xMin, xMax, yMax, imageSize,
+  xMin, xMax, yMax,
   eps,
   xMinUnphys, xMaxUnphys, yMaxUnphys,
   xMinCont, xMaxCont, yMaxCont,
@@ -4918,7 +4918,6 @@ Module[
   xMin = 0;
   xMax = Pi/2 * 3/2;
   yMax = 2;
-  imageSize = 240;
   (* Margin *)
   eps = 0.05;
   (* Plot range for unphysical domain *)
@@ -4940,7 +4939,7 @@ Module[
       Show[
         EmptyFrame[{xMin, xMax}, {-yMax, yMax},
           Frame -> None,
-          ImageSize -> imageSize,
+          ImageSize -> Automatic,
           PlotRangePadding -> None
         ],
         (* Unphysical domain *)
@@ -4971,7 +4970,7 @@ Module[
       ]
     , {b, bValues}];
   (* Parameter (B) increase indicator arrow *)
-  textStyle = Style[#, 16] & @* LaTeXStyle;
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   arrowStyle = Directive[Thickness[0.005], Arrowheads[0.04]];
   parameterArrow =
     Show[
@@ -4987,7 +4986,7 @@ Module[
         ]
       },
       (* B == 1 *)
-      xGraphicsBTick = 0.5;
+      xGraphicsBTick = 0.48;
       Graphics @ {arrowStyle,
         Line @ {
           {xGraphicsBTick, 0},
@@ -4998,20 +4997,18 @@ Module[
         Text[
           1 // textStyle
           , {xGraphicsBTick, 0}
-          , {0, 1.3}
+          , {0, 1.5}
         ]
       },
-      ImageSize -> 1.85 imageSize,
       PlotRange -> All
     ];
   (* Legend *)
-  legendLabelStyle = LatinModernLabelStyle[11];
+  legendLabelStyle = LatinModernLabelStyle @ LabelSize["Legend"];
   legendRegions =
     RegionLegend[
       {BoundaryTracingStyle["Unphysical"]},
       {"unphysical region"}
       , LabelStyle -> legendLabelStyle
-      , LegendMarkerSize -> 14
     ];
   legendCurves =
     CurveLegend[
@@ -5020,20 +5017,24 @@ Module[
       , LabelStyle -> legendLabelStyle
     ];
   (* Final figure *)
-  Column[
-    {
-      Column[
-        {
-          GraphicsRow[plotList, Spacings -> {0.2 imageSize, 0}],
-          parameterArrow
-        }
-        , Spacings -> 0
-      ],
-      Grid[List @ Join[legendRegions, legendCurves], Spacings -> {4, 0}]
-    }
-    , Alignment -> Center
-  ]
-] // Ex["cosine-physical.pdf"]
+  {
+    GraphicsRow[plotList
+      , ImageSize -> ImageSizeTextWidth
+      , Spacings -> {0.2 ImageSizeTextWidth, 0}
+    ] // Ex["cosine-physical.pdf"]
+    ,
+    Show[parameterArrow
+      , ImageSize -> ImageSizeTextWidth
+    ] // Ex["cosine-physical-arrow.pdf"]
+    ,
+    GraphicsGrid[List @ Join[legendRegions, legendCurves]
+      , AspectRatio -> 0.1
+      , ImageSize -> ImageSizeTextWidth
+    ] // Ex["cosine-physical-legend.pdf"]
+    ,
+    Nothing
+  }
+]
 
 
 (* ::Section:: *)
@@ -5043,7 +5044,7 @@ Module[
 Module[
  {b,
   aStep, aValues,
-  xMin, xMax, yMax, imageSize,
+  xMin, xMax, yMax,
   eps,
   xMinUnphys, xMaxUnphys, yMaxUnphys,
   xMinCont, xMaxCont, yMaxCont,
@@ -5067,7 +5068,6 @@ Module[
   xMin = 0;
   xMax = Pi/2 * 3/2;
   yMax = 2;
-  imageSize = 240;
   (* Margin *)
   eps = 0.05;
   (* Plot range for unphysical domain *)
@@ -5094,7 +5094,7 @@ Module[
       Show[
         EmptyFrame[{xMin, xMax}, {-yMax, yMax},
           Frame -> None,
-          ImageSize -> imageSize,
+          ImageSize -> Automatic,
           PlotRangePadding -> None
         ],
         (* Unphysical domain *)
@@ -5132,7 +5132,7 @@ Module[
       ]
     , {a, aValues}];
   (* Parameter (A) increase indicator arrow *)
-  textStyle = Style[#, 16] & @* LaTeXStyle;
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   arrowStyle = Directive[Thickness[0.005], Arrowheads[0.04]];
   parameterArrow =
     Show[
@@ -5148,7 +5148,7 @@ Module[
         ]
       },
       (* A == 1 *)
-      xGraphicsATick = 0.54;
+      xGraphicsATick = 0.51;
       Graphics @ {arrowStyle,
         Line @ {
           {xGraphicsATick, 0},
@@ -5159,14 +5159,13 @@ Module[
         Text[
           1 // textStyle
           , {xGraphicsATick, 0}
-          , {0, 1.3}
+          , {0, 1.5}
         ]
       },
-      ImageSize -> 1.85 imageSize,
       PlotRange -> All
     ];
   (* Legend *)
-  legendLabelStyle = LatinModernLabelStyle[11];
+  legendLabelStyle = LatinModernLabelStyle @ LabelSize["Legend"];
   legendRegions =
     RegionLegend[
       BoundaryTracingStyle /@ {"NonViable", "Unphysical"},
@@ -5180,23 +5179,26 @@ Module[
       , LabelStyle -> legendLabelStyle
     ];
   (* Final figure *)
-  Column[
-    {
-      Column[
-        {
-          GraphicsRow[plotList, Spacings -> {0.2 imageSize, 0}],
-          parameterArrow
-        }
-        , Spacings -> 0
-      ],
-      Grid[{legendRegions, legendCurves}
-        , Alignment -> Left
-        , Spacings -> {6, -1}
-      ]
-    }
-    , Alignment -> Center
-  ]
-] // Ex["cosine_simple-physical-viable.pdf"]
+  {
+    GraphicsRow[plotList
+      , ImageSize -> ImageSizeTextWidth
+      , Spacings -> {0.2 ImageSizeTextWidth, 0}
+    ] // Ex["cosine_simple-physical-viable.pdf"]
+    ,
+    Show[parameterArrow
+      , ImageSize -> ImageSizeTextWidth
+    ] // Ex["cosine_simple-physical-viable-arrow.pdf"]
+    ,
+    GraphicsGrid[{legendRegions, legendCurves}
+      , Alignment -> Left
+      , ImageSize -> ImageSizeTextWidth
+      , ItemAspectRatio -> 0.11
+      , Spacings -> {Automatic, -0.02 ImageSizeTextWidth}
+    ] // Ex["cosine_simple-physical-viable-legend.pdf"]
+    ,
+    Nothing
+  }
+]
 
 
 (* ::Section:: *)
@@ -5218,7 +5220,7 @@ Module[
   xMin = 0;
   xMax = Pi/2 * 3/2;
   yMax = 2;
-  imageSize = 210;
+  imageSize = 0.42 ImageSizeTextWidth;
   (* Margin *)
   eps = 0.05;
   (* Plot range for unphysical domain *)
@@ -5237,9 +5239,9 @@ Module[
         Italicise["x"] // Margined @ {{0, 0}, {0, -17}},
         Italicise["y"]
       },
-      FrameTicksStyle -> 12,
+      FrameTicksStyle -> LabelSize["Tick"],
       ImageSize -> imageSize,
-      LabelStyle -> LatinModernLabelStyle[15],
+      LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"],
       PlotRangePadding -> None
     ],
     (* Unphysical domain *)
@@ -5292,7 +5294,7 @@ Module[
   xMin = 0;
   xMax = Pi/2 * 3/2;
   yMax = 2;
-  imageSize = 240;
+  imageSize = 0.36 ImageSizeTextWidth;
   (* Margin *)
   eps = 0.05;
   (* Plot range for unphysical domain *)
@@ -5387,7 +5389,7 @@ Module[
   xMin = 0;
   xMax = Pi/2 * 3/2;
   yMax = 2;
-  imageSize = 240;
+  imageSize = 0.36 ImageSizeTextWidth;
   (* Margin *)
   eps = 0.05;
   (* Plot range for unphysical domain *)
@@ -5401,8 +5403,8 @@ Module[
   (* Plot range for straight contour *)
   yMaxContStraight = yMax + eps;
   (* Text style *)
-  textStyle = Style[#, 18] & @* LaTeXStyle;
-  textStyleBracket = Style[#, Larger] &;
+  textStyle = Style[#, LabelSize["Point"]] & @* LaTeXStyle;
+  textStyleBracket = Style[#, LabelSize["PointBracket"]] &;
   (* Plot *)
   Show[
     EmptyFrame[{xMin, xMax}, {-yMax, yMax},
@@ -5458,17 +5460,15 @@ Module[
       Text[
         Row @ {
           "(" // textStyleBracket,
-          "\[NegativeVeryThinSpace]",
           Subscript[Italicise["x"], 0],
           ",\[ThinSpace]",
           0,
           ")" // textStyleBracket
         },
         {x0, 0},
-        {1.5, -0.25}
+        {1.5, -0.2}
       ]
-        // LaTeXStyle
-        // Style[#, 18] &
+        // textStyle
     },
     {}
   ]
@@ -5483,7 +5483,7 @@ Module[
  {a, b,
   x0,
   eps,
-  xMin, xMax, yMax, imageSize,
+  xMin, xMax, yMax,
   xMinCont, xMaxCont, yMaxCont,
   xMinViable, xMaxViable, yMaxViable,
   contNum, tContMin, tContStep, tContValues,
@@ -5505,7 +5505,6 @@ Module[
   xMin = x0 - 0.5 (xStraight - x0);
   xMax = xStraight;
   yMax = 1;
-  imageSize = 210;
   (* Plot range for contours *)
   xMinCont = x0 - eps;
   xMaxCont = xMax + eps;
@@ -5530,15 +5529,14 @@ Module[
     {{xOrdGuess}, {yOrdGuess}}
   ];
   (* Text style *)
-  textStyle = Style[#, 18] & @* LaTeXStyle;
-  textStyleBracket = Style[#, Larger] &;
+  textStyle = Style[#, LabelSize["Point"]] & @* LaTeXStyle;
+  textStyleBracket = Style[#, LabelSize["PointBracket"]] &;
   textVerticalShift = -0.25;
   (* Plot *)
   plot = Show[
     EmptyFrame[{xMin, xMax}, {-yMax, yMax},
       AspectRatio -> 2,
       Frame -> None,
-      ImageSize -> imageSize,
       PlotRangePadding -> None
     ],
     (* Known solution contours *)
@@ -5580,14 +5578,13 @@ Module[
       Text[
         Row @ {
           "(" // textStyleBracket,
-          "\[NegativeVeryThinSpace]",
           Subscript[Italicise["x"], 0],
           ",\[ThinSpace]",
           0,
           ")" // textStyleBracket
         },
         {x0, 0},
-        {1.5, textVerticalShift}
+        {1.5, -0.2}
       ] // textStyle,
       Text[
         "critical",
@@ -5599,7 +5596,7 @@ Module[
     {}
   ];
   (* Legend *)
-  legendLabelStyle = LatinModernLabelStyle[16];
+  legendLabelStyle = LatinModernLabelStyle @ LabelSize["Legend"];
   legendCurves =
     CurveLegend[
       BoundaryTracingStyle /@ {"Background", "Terminal"},
@@ -5613,12 +5610,16 @@ Module[
       , LabelStyle -> legendLabelStyle
     ];
   (* Combined *)
-  Grid[
-    {{
+  GraphicsRow[
+    {
       plot,
-      Column[Join[legendCurves, legendRegions], Spacings -> -0.5]
-    }}
-    , Spacings -> 3
+      Column[Join[legendCurves, legendRegions]
+        , Spacings -> {0, {-1.5, -1.5, -1.3}}
+      ]
+    }
+    , ItemAspectRatio -> 2 (* took a while to figure this out *)
+    , ImageSize -> 0.63 ImageSizeTextWidth
+    , Spacings -> {0.1 ImageSizeTextWidth, 0}
   ]
 ] // Ex["cosine_simple-terminal-points.pdf"]
 
@@ -5635,7 +5636,7 @@ Module[
     aMin, xRadAMin, yEndAMin,
     eps,
     yMaxFrame, xMinFrame, xMaxFrame,
-    imageSize,
+    numCandidates, imageSize,
     plotList,
     xRad, yEnd,
     xRadEvenExtension,
@@ -5661,9 +5662,13 @@ Module[
   eps = 0.02;
   yMaxFrame = yEndAMin;
   xMinFrame = (1 - eps) x0Simp[aMin];
-  xMaxFrame = (1 + eps) xStraight;
+  xMaxFrame = 1.1 xStraight;
+  (* Image width arithmetic *)
+  numCandidates = Length[aValues];
+  imageSize["Main"] = 0.6 ImageSizeTextWidth;
+  imageSize["Legend"] = ImageSizeTextWidth - imageSize["Main"];
+  imageSize["Candidate"] = imageSize["Main"] / (numCandidates + 1);
   (* List of plots *)
-  imageSize = 96;
   plotList =
     Table[
       (* Radiation boundary x == x(y) for convex domain *)
@@ -5688,8 +5693,7 @@ Module[
         EmptyFrame[
           {xMinFrame, xMaxFrame}, {-yMaxFrame, yMaxFrame}
           , Frame -> None
-          , ImageSize -> 4 imageSize
-            (* NOTE: GraphicsRow makes the plot smaller *)
+          , ImageSize -> imageSize["Candidate"]
           , PlotRangePadding -> None
         ],
         (* Convex domain *)
@@ -5714,7 +5718,7 @@ Module[
       , {a, aValues}
     ];
   (* Parameter (A) increase indicator arrow *)
-  textStyle = Style[#, 20] & @* LaTeXStyle;
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   arrowStyle = Directive[Thickness[0.005], Arrowheads[0.04]];
   parameterArrow =
     Show[
@@ -5730,7 +5734,7 @@ Module[
         ]
       },
       (* A == A_infl *)
-      xGraphicsAInfl = 0.41;
+      xGraphicsAInfl = 0.38;
       Graphics @ {arrowStyle,
         Line @ {
           {xGraphicsAInfl, 0},
@@ -5746,7 +5750,7 @@ Module[
         ]
       },
       (* A == 1 *)
-      xGraphicsA1 = 0.863;
+      xGraphicsA1 = 0.85;
       Graphics @ {arrowStyle,
         Line @ {
           {xGraphicsA1, 0},
@@ -5776,11 +5780,12 @@ Module[
         {}
       },
       {}
-      , ImageSize -> 4.2 imageSize
+      , ImageSize -> imageSize["Main"]
       , PlotRange -> All
+      , PlotRangePadding -> None
     ];
   (* Legend *)
-  legendLabelStyle = LatinModernLabelStyle[15];
+  legendLabelStyle = LatinModernLabelStyle @ LabelSize["Legend"];
   legendCurves =
     CurveLegend[
       BoundaryTracingStyle /@ {"Traced", "Contour"},
@@ -5792,27 +5797,32 @@ Module[
       {Automatic},
       {"inflection"}
       , LabelStyle -> legendLabelStyle
-      , LegendMarkerSize -> 13
+      , LegendMarkerSize -> Automatic
     ];
-  (* Final figure *)
-  Grid @ {{
-    Column[
-      {
-        Row @ {
-          GraphicsRow[plotList, Spacings -> {3.2 imageSize, 0}],
-          Row @ {Graphics[ImageSize -> 0.5 imageSize]}
-        },
-        parameterArrow
-      }
-    , Center
-    , Spacings -> 0
-    ],
-    Column[
-      Join[legendCurves, legendNodes, {Spacer @ {0, 73}}]
-      , Spacings -> -0.5
+  (* Export *)
+  {
+    (* Main *)
+    Column @ {
+      Grid[
+        List @ Append[
+          plotList,
+          Graphics[ImageSize -> imageSize["Candidate"]]
+        ]
+        , Spacings -> 0
+      ],
+      parameterArrow
+    } // Ex["cosine_simple-candidate-domains.pdf"]
+    ,
+    (* Legend *)
+    GraphicsColumn[
+      Join[legendCurves, legendNodes]
+      , Alignment -> Left
+      , ImageSize -> imageSize["Legend"]
+      , ItemAspectRatio -> 0.11
     ]
-  }}
-] // Ex["cosine_simple-candidate-domains.pdf"]
+      // Ex["cosine_simple-candidate-domains-legend.pdf"]
+  }
+]
 
 
 (* ::Section:: *)
@@ -5822,8 +5832,9 @@ Module[
 Module[
   {
     a, bN, bValues,
-    xMin, xMax, yMax, imageSize,
+    xMin, xMax, yMax,
     eps,
+    textStylePoint,
     plotList,
     xMinUnphys, xMaxUnphys, yMaxUnphys,
     plotPointsUnphys,
@@ -5852,10 +5863,10 @@ Module[
   xMin = 0;
   xMax = 2;
   yMax = 3;
-  imageSize = 240;
   (* Margin *)
   eps = 0.1;
   (* List of plots *)
+  textStylePoint = Style[#, LabelSize["Label"] + 1] & @* LaTeXStyle;
   plotList =
     Table[
       (* Plot range for unphysical domain *)
@@ -5872,7 +5883,7 @@ Module[
       Show[
         EmptyFrame[{xMin, xMax}, {-yMax, yMax}
           , Frame -> None
-          , ImageSize -> imageSize
+          , ImageSize -> Automatic
           , PlotRangePadding -> None
         ],
         (* Unphysical domain *)
@@ -5902,7 +5913,7 @@ Module[
             },
             Graphics @ {
               Text[
-                Subscript[Italicise["y"], 0] // textStyle
+                Subscript[Italicise["y"], 0] // textStylePoint
                 , {0, N @ y0[a, b]}
                 , {-1.2, -1.2}
              ]
@@ -5916,7 +5927,7 @@ Module[
             },
             Graphics @ {
               Text[
-                Subscript[Italicise["y"], 0] // textStyle
+                Subscript[Italicise["y"], 0] // textStylePoint
                 , {0, N @ y0[a, b]}
                 , {-1, -1.3}
              ]
@@ -5926,7 +5937,7 @@ Module[
             },
             Graphics @ {
               Text[
-                Subscript[Italicise["x"], "\[Natural]"] // textStyle
+                Subscript[Italicise["x"], "\[Natural]"] // textStylePoint
                 , {N @ xNat[a], 0}
                 , {0.3, -1.35}
              ]
@@ -5940,7 +5951,7 @@ Module[
             },
             Graphics @ {
               Text[
-                Subscript[Italicise["y"], 0] // textStyle
+                Subscript[Italicise["y"], 0] // textStylePoint
                 , {0, N @ y0[a, b]}
                 , {-0.9, -1.3}
              ]
@@ -5950,7 +5961,7 @@ Module[
             },
             Graphics @ {
               Text[
-                Subscript[Italicise["x"], "\[Flat]"] // textStyle
+                Subscript[Italicise["x"], "\[Flat]"] // textStylePoint
                 , {N @ xFlat[a, b], 0}
                 , {-0.15, -1.25}
              ]
@@ -5960,7 +5971,7 @@ Module[
             },
             Graphics @ {
               Text[
-                Subscript[Italicise["x"], "\[Sharp]"] // textStyle
+                Subscript[Italicise["x"], "\[Sharp]"] // textStylePoint
                 , {N @ xSharp[a, b], 0}
                 , {0.9, -1.25}
              ]
@@ -5974,14 +5985,14 @@ Module[
             },
             Graphics @ {White,
               Text[
-                Subscript[Italicise["y"], 0] // textStyle
+                Subscript[Italicise["y"], 0] // textStylePoint
                 , {N @ xFlat[a, b], 0}
-                , {-1, -1.8}
+                , {-1, -1.9}
              ]
             },
             Graphics @ {
               Text[
-                Subscript[Italicise["x"], "\[Flat]"] // textStyle
+                Subscript[Italicise["x"], "\[Flat]"] // textStylePoint
                 , {N @ xFlat[a, b], 0}
                 , {-2.1, -0.2}
              ]
@@ -5991,9 +6002,9 @@ Module[
             },
             Graphics @ {
               Text[
-                Subscript[Italicise["x"], "\[Sharp]"] // textStyle
+                Subscript[Italicise["x"], "\[Sharp]"] // textStylePoint
                 , {N @ xSharp[a, b], 0}
-                , {1.8, -0.2}
+                , {1.9, -0.2}
              ]
             },
             {}
@@ -6005,7 +6016,7 @@ Module[
             },
             Graphics @ {White,
               Text[
-                Subscript[Italicise["x"], "\[Flat]"] // textStyle
+                Subscript[Italicise["x"], "\[Flat]"] // textStylePoint
                 , {N @ xFlat[a, b], 0}
                 , {-2, -0.2}
              ]
@@ -6015,9 +6026,9 @@ Module[
             },
             Graphics @ {
               Text[
-                Subscript[Italicise["x"], "\[Sharp]"] // textStyle
+                Subscript[Italicise["x"], "\[Sharp]"] // textStylePoint
                 , {N @ xSharp[a, b], 0}
-                , {1.8, -0.2}
+                , {1.9, -0.2}
              ]
             },
             {}
@@ -6029,7 +6040,7 @@ Module[
       , {b, bValues}
     ];
   (* Parameter (B) increase indicator arrow *)
-  textStyle = Style[#, 16] & @* LaTeXStyle;
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   arrowStyle = Directive[Thickness[0.005], Arrowheads[0.04]];
   parameterArrow =
     Show[
@@ -6095,47 +6106,46 @@ Module[
         {}
       },
       {}
-      , ImageSize -> 2.07 imageSize
       , PlotRange -> All
     ];
   (* Legend *)
-  legendLabelStyle = LatinModernLabelStyle[12];
+  legendLabelStyle = LatinModernLabelStyle @ LabelSize["Legend"];
   (* Final figure *)
-  Column[
-    {
-      Column[
-        {
-          GraphicsRow[plotList, Spacings -> {0.3 imageSize, 0}],
-          parameterArrow
-        }
-        , Spacings -> 0
-      ],
-      Grid[
-        Transpose @ {
-          RegionLegend[
-            {BoundaryTracingStyle["NonViable"]},
-            {"non\[Hyphen]viable domain"}
-            , LabelStyle -> legendLabelStyle
-          ],
-          CurveLegend[
-            {BoundaryTracingStyle["Terminal"]},
-            {"terminal curve"}
-            , LabelStyle -> legendLabelStyle
-          ],
-          RegionLegend[
-            {BoundaryTracingStyle["Unphysical"]},
-            {"unphysical region"}
-            , LabelStyle -> legendLabelStyle
-          ],
-          Nothing
-        }
-        , Alignment -> Left
-        , Spacings -> {1, 0}
-      ]
-    }
-    , Alignment -> Center
-  ]
-] // Ex["cosine_general-physical-viable.pdf"]
+  {
+    GraphicsRow[plotList
+      , ImageSize -> ImageSizeTextWidth
+      , Spacings -> {0.3 ImageSizeTextWidth, 0}
+    ] // Ex["cosine_general-physical-viable.pdf"]
+    ,
+    Show[parameterArrow
+      , ImageSize -> ImageSizeTextWidth
+    ] // Ex["cosine_general-physical-viable-arrow.pdf"]
+    ,
+    GraphicsGrid[
+      Transpose @ {
+        RegionLegend[
+          {BoundaryTracingStyle["NonViable"]},
+          {"non\[Hyphen]viable domain"}
+          , LabelStyle -> legendLabelStyle
+        ],
+        CurveLegend[
+          {BoundaryTracingStyle["Terminal"]},
+          {"terminal curve"}
+          , LabelStyle -> legendLabelStyle
+        ],
+        RegionLegend[
+          {BoundaryTracingStyle["Unphysical"]},
+          {"unphysical region"}
+          , LabelStyle -> legendLabelStyle
+        ],
+        Nothing
+      }
+      , Alignment -> Left
+      , ImageSize -> ImageSizeTextWidth
+      , ItemAspectRatio -> 0.11
+    ] // Ex["cosine_general-physical-viable-legend.pdf"]
+  }
+]
 
 
 (* ::Section:: *)
@@ -6194,28 +6204,27 @@ Module[
       }
     , Filling -> {1 -> xMaxFilling, 2 -> xMin, 3 -> xMaxFilling}
     , FillingStyle -> BoundaryTracingStyle["NonViable"]
-    , ImageSize -> 240
-    , LabelStyle -> LatinModernLabelStyle[15]
+    , LabelStyle -> LatinModernLabelStyle @ LabelSize["Label"]
     , PlotRange -> {xMin, xMax}
     , PlotRangeClipping -> False
     , PlotStyle -> Append[visiblePlotStyles, None]
     , Ticks -> {
         {
           {0, 0 // Margined @ {{0, 0}, {0, -13}}},
-          {bN, Subscript[bIt, "\[Natural]"] // Margined @ {{0, 0}, {0, -11}}},
+          {bN, Subscript[bIt, "\[Natural]"] // Margined @ {{0, 0}, {0, -12}}},
           {1, 1 // Margined @ {{0, 0}, {0, -11}}}
         },
         {0, {xN, Subscript[xIt, "\[Natural]"] // Margined @ {{0, 2}, {4, 0}}}}
       }
-    , TicksStyle -> 14
+    , TicksStyle -> LabelSize["Label"]
   ];
   (* Legend *)
-  legendLabelStyleCurves = LatinModernLabelStyle[15];
-  legendLabelStyleRegions = LatinModernLabelStyle[12];
+  legendLabelStyleCurves = LatinModernLabelStyle @ LabelSize["Label"];
+  legendLabelStyleRegions = LatinModernLabelStyle @ LabelSize["Legend"];
   legendCurves =
     CurveLegend[
       visiblePlotStyles,
-      TraditionalForm[Row @ {xIt, Spacer[2.2]} == Subscript[xIt, #]] &
+      xIt == Subscript[xIt, #] &
         /@ {"\[Sharp]", "\[Flat]"}
       , LabelStyle -> legendLabelStyleCurves
     ];
@@ -6225,15 +6234,23 @@ Module[
       {"non\[Hyphen]viable"}
       , LabelStyle -> legendLabelStyleRegions
     ];
-  (* Combined *)
-  Grid @ {{
-    plot,
-    Grid[
-      Transpose @ {Join[legendCurves, legendRegions]}
-      , Spacings -> {Automatic, {{-1.2}, -0.8, Automatic}}
+  (* Export *)
+  {
+    Show[
+      plot
+      , ImageSize -> 0.45 ImageSizeTextWidth
     ]
-  }}
-] // Ex["cosine_general-critical.pdf"]
+      // Ex["cosine_general-critical.pdf"]
+    ,
+    GraphicsColumn[
+      Join[legendCurves, legendRegions]
+      , Alignment -> Left
+      , ImageSize -> 0.2 ImageSizeTextWidth
+      , ItemAspectRatio -> 0.2
+    ]
+      // Ex["cosine_general-critical-legend.pdf"]
+  }
+]
 
 
 (* ::Section:: *)
@@ -6268,8 +6285,8 @@ Module[
   yReflection = # * {1, -1} &;
   includeYReflection = {#, yReflection[#]} &;
   (* Text style *)
-  textStyle = Style[#, 12] & @* LaTeXStyle;
-  textStylePoint = Style[#, 14] & @* LaTeXStyle;
+  textStyle = Style[#, LabelSize["Straight"]] & @* LaTeXStyle;
+  textStylePoint = Style[#, LabelSize["Point"]] & @* LaTeXStyle;
   (* Plot range *)
   xMin = Floor[0.9 xFlat[a, b], 0.2];
   xMax = Ceiling[1.1 xSharp[a, b], 0.2];
@@ -6295,9 +6312,9 @@ Module[
           Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
           Italicise["y"]
         }
-      , ImageSize -> 240
-      , FrameTicksStyle -> 12
-      , LabelStyle -> LatinModernLabelStyle[15]
+      , ImageSize -> 0.45 ImageSizeTextWidth
+      , FrameTicksStyle -> LabelSize["Tick"]
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
     ],
     (* Inflection frontiers *)
     Table[
@@ -6472,7 +6489,7 @@ Module[
   yReflection = # * {1, -1} &;
   includeYReflection = {#, yReflection[#]} &;
   (* Text style *)
-  textStyle = Style[#, 12] & @* LaTeXStyle;
+  textStyle = Style[#, LabelSize["Straight"]] & @* LaTeXStyle;
   (* Plot range *)
   xMin = Floor[0.9 xFlat[a, b], 0.2];
   xMax = Ceiling[1.1 xSharp[a, b], 0.2];
@@ -6489,9 +6506,9 @@ Module[
           Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
           Italicise["y"]
         }
-      , ImageSize -> 240
-      , FrameTicksStyle -> 12
-      , LabelStyle -> LatinModernLabelStyle[15]
+      , ImageSize -> 0.45 ImageSizeTextWidth
+      , FrameTicksStyle -> LabelSize["Tick"]
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
     ],
     (* Inflection frontiers *)
     Table[
@@ -6555,11 +6572,11 @@ Module[
     topRow, bottomRow,
     dummyForTrailingCommas
   },
-  legendLabelStyle = LatinModernLabelStyle[16];
+  legendLabelStyle = LatinModernLabelStyle @ LabelSize["Legend"];
   topRow =
     CurveLegend[
       BoundaryTracingStyle /@ {"Background", "Traced", "Contour"},
-      {"inflection frontier", "traced boundary (radiation)", "constant temperature"}
+      {"inflection frontier", "traced boundary", "constant temperature"}
       , LabelStyle -> legendLabelStyle
     ];
   bottomRow = Join[
@@ -6576,9 +6593,11 @@ Module[
     {}
   ];
   (* Combine *)
-  Grid[{topRow, bottomRow}
+  GraphicsGrid[{topRow, bottomRow}
     , Alignment -> Left
-    , Spacings -> {1.4, -1}
+    , ImageSize -> ImageSizeTextWidth
+    , ItemAspectRatio -> 0.11
+    , Spacings -> {Automatic, 0}
   ]
 ] // Ex["cosine_general-asymmetric-construction-legend.pdf"]
 
@@ -6590,7 +6609,6 @@ Module[
 Module[
   {
     xHalfWidth, yMax,
-    imageSizeDomains,
     simpleDomain, simpleMeshList, simpleMesh,
     generalDomain, generalMesh,
     legendCurves, legend,
@@ -6599,8 +6617,6 @@ Module[
   (* Plot range *)
   xHalfWidth = 0.45;
   yMax = 0.8;
-  (* Image size for domains (fixed height) *)
-  imageSizeDomains = {Automatic, 270};
   (* Simple case: lens-shaped domain *)
   Module[
     {
@@ -6635,10 +6651,9 @@ Module[
               Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
               Italicise["y"]
             }
-          , FrameStyle -> 14
-          , FrameTicksStyle -> 11
-          , ImageSize -> imageSizeDomains
-          , LabelStyle -> LatinModernLabelStyle[10]
+          , FrameStyle -> LabelSize["Axis"]
+          , FrameTicksStyle -> LabelSize["Tick"]
+          , LabelStyle -> LatinModernLabelStyle[LabelSize["Tick"] - 1]
           , PlotLabel -> Column[
               {
                 "Lens\[Hyphen]shaped",
@@ -6668,9 +6683,9 @@ Module[
         , {n, nMeshPortions}
       ];
     simpleMesh =
-      Grid[
+      GraphicsGrid[
         {simpleMeshList}
-        , Spacings -> {{2 -> 0.8, 3 -> 0.2}, 0}
+        , Spacings -> {{2 -> 0.25 ImageSizeTextWidth, 3 -> 0}, 0}
         (* non-uniform spacing looks better (an optical illusion) *)
       ];
   ];
@@ -6708,16 +6723,16 @@ Module[
               Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
               Italicise["y"]
             }
-          , FrameStyle -> 14
-          , FrameTicksStyle -> 11
-          , ImageSize -> imageSizeDomains
-          , LabelStyle -> LatinModernLabelStyle[10]
+          , FrameStyle -> LabelSize["Axis"]
+          , FrameTicksStyle -> LabelSize["Tick"]
+          , LabelStyle -> LatinModernLabelStyle[LabelSize["Tick"] - 1]
           , PlotLabel -> Column[
               {
                 "Asymmetric",
                 SeparatedRow[","][aIt == a, bIt == SignificantFiguresForm[5][b]]
               }
               , Alignment -> Center
+              , Spacings -> 0.27
             ]
         ],
         (* Constant-temperature boundary *)
@@ -6746,21 +6761,37 @@ Module[
     CurveLegend[
       BoundaryTracingStyle /@ {"Traced", "Contour"},
       {"radiation", "constant temperature"}
-      , LabelStyle -> LatinModernLabelStyle[13]
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Legend"]
     ];
   legend = Grid[{legendCurves}, Spacings -> {2.5, 0}];
-  (* Combined plot *)
-  Column[
-    {
-      Grid[{{simpleDomain, simpleMesh, generalDomain, generalMesh}}
-        , Spacings -> {3 -> 3, Automatic}
-      ],
-      legend
-    }
-    , Alignment -> Center
-    , Spacings -> -0.25
-  ]
-] // Ex["cosine-verification-domain-meshes.pdf"]
+  (* Export *)
+  {
+    Show[simpleDomain
+      , ImageSize -> {Automatic, 0.6 ImageSizeTextWidth}
+    ] // Ex["cosine-verification-lens-domain.pdf"]
+    ,
+    Show[simpleMesh
+      , ImageSize -> 0.16 ImageSizeTextWidth
+    ] // Ex["cosine-verification-lens-mesh.pdf"]
+    ,
+    Show[generalDomain
+      , ImageSize -> {Automatic, 0.6 ImageSizeTextWidth}
+    ] // Ex["cosine-verification-asymmetric-domain.pdf"]
+    ,
+    Show[generalMesh
+      , ImageSize -> 0.11 ImageSizeTextWidth
+    ] // Ex["cosine-verification-asymmetric-mesh.pdf"]
+    ,
+    GraphicsGrid[
+      List @ Join[legendCurves]
+      , Alignment -> Left
+      , ImageSize -> ImageSizeTextWidth
+      , ItemAspectRatio -> 0.11
+    ] // Ex["cosine-verification-legend.pdf"]
+    ,
+    Nothing
+  }
+]
 
 
 (* ::Subsection:: *)
