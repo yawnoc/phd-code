@@ -1094,12 +1094,12 @@ Module[
           Italicise["x"] // Margined @ {{0, 1}, {5, 0}},
           Italicise["T"]
         }
-      , ImageSize -> 270
-      , LabelStyle -> LatinModernLabelStyle[17]
+      , ImageSize -> 0.45 ImageSizeTextWidth
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
       , PlotRange -> {0, All}
       , PlotStyle -> {styleNumerical, styleAsymptotic}
       , PlotOptions[Axes] // Evaluate
-      , TicksStyle -> 14
+      , TicksStyle -> LabelSize["Tick"]
     ] // Ex @ FString["wedge_acute-borderline-asymptotic-comparison-{case}.pdf"]
     , {phi, phiValues}
   ]
