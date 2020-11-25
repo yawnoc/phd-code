@@ -2163,7 +2163,7 @@ Module[
   (* Value of A *)
   a = 0.75 aNat;
   (* Plot range *)
-  imageSize = 240;
+  imageSize = 0.4 ImageSizeTextWidth;
   rMaxShow = rInfl;
   rSh = rSharp[a];
   (* Location of (convex) protrusion corner *)
@@ -2182,8 +2182,8 @@ Module[
   xyUpper[p_] := XYPolar[#, phiTraced[#] + phiCorner] & @ Way[rMin, rCorner, 1 - p];
   xyLower[p_] := XYPolar[#, -phiTraced[#] + phiCorner] & @ Way[rMin, rCorner, p];
   (* Text style *)
-  textStyle = Style[#, 16] & @* LaTeXStyle;
-  textStyleBigger = Style[#, 18] & @* LaTeXStyle;
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  textStyleBigger = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   (* Branch label proportions of traced boundary *)
   pUpperLabel = 0.6;
   pLowerLabel = 0.4;
@@ -2235,7 +2235,7 @@ Module[
       Text[
         rIt == Subscript[rIt, "\[Sharp]"] // textStyleBigger
         , {0, -rSh}
-        , {0, -1.45}
+        , {0, -1.5}
      ]
     },
     Graphics @ {
