@@ -1936,7 +1936,7 @@ Module[
   xyUpper[p_] := XYPolar[rTraced[#], # + phiCorner] & @ Way[phiMin, phiMax, p];
   xyLower[p_] := XYPolar[rTraced[#], -# + phiCorner] & @ Way[phiMin, phiMax, 1 - p];
   (* Text style *)
-  textStyle = Style[#, 18] & @* LaTeXStyle;
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   (* Branch label proportions of traced boundary *)
   pUpperLabel = 0.05;
   pLowerLabel = 0.59;
@@ -1948,15 +1948,15 @@ Module[
       , {p, 0, 1}
       , AxesLabel -> Italicise @ {"x", "y"}
       , AxesStyle -> Darker[Gray]
-      , ImageSize -> 270
-      , LabelStyle -> LatinModernLabelStyle[18]
+      , ImageSize -> 0.4 ImageSizeTextWidth
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
         (* NOTE: LatinModernLabelStyle[16] results in cut-off x-label *)
       , Method -> {"AxesInFront" -> False}
         (* https://mathematica.stackexchange.com/a/26918 *)
       , PlotStyle -> BoundaryTracingStyle["Traced"]
       , Ticks -> None
     ]
-      /. line_Line :> {Arrowheads[{0, 0.06, 0}], Arrow[line]}
+      /. line_Line :> {Arrowheads[{0, 0.08, 0}], Arrow[line]}
       (* https://mathematica.stackexchange.com/a/102182 *)
     ,
     (* Branch labels *)
