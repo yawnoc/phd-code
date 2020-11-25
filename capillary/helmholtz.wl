@@ -435,9 +435,9 @@ Module[
           Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
           Italicise["y"]
         }
-      , FrameTicksStyle -> 12
-      , ImageSize -> 210
-      , LabelStyle -> LatinModernLabelStyle[15]
+      , FrameTicksStyle -> LabelSize["Tick"]
+      , ImageSize -> 0.5 * 0.8 ImageSizeTextWidth
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
     ],
     (* Wedge walls *)
     Graphics @ {BoundaryTracingStyle["Wall"],
@@ -507,9 +507,9 @@ Module[
           Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
           Italicise["y"]
         }
-      , FrameTicksStyle -> 12
-      , ImageSize -> 210
-      , LabelStyle -> LatinModernLabelStyle[15]
+      , FrameTicksStyle -> LabelSize["Tick"]
+      , ImageSize -> 0.5 * 0.8 ImageSizeTextWidth
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
     ],
     (* Wedge walls *)
     Graphics @ {BoundaryTracingStyle["Wall"],
