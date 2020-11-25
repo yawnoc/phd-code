@@ -1259,9 +1259,8 @@ Module[
           Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
           Italicise["y"]
         }
-      , FrameTicksStyle -> 13
-      , ImageSize -> 240
-      , LabelStyle -> LatinModernLabelStyle[16]
+      , FrameTicksStyle -> LabelSize["Tick"]
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
     ],
     (* Wedge walls *)
     Graphics @ {BoundaryTracingStyle["Wall"],
@@ -1302,7 +1301,7 @@ Module[
     {}
   ];
   (* Legend *)
-  legendLabelStyle = LatinModernLabelStyle[14];
+  legendLabelStyle = LatinModernLabelStyle @ LabelSize["Legend"];
   legendCurves =
     CurveLegend[
       BoundaryTracingStyle /@ {"Traced", "Terminal"},
@@ -1315,15 +1314,20 @@ Module[
       {"non\[Hyphen]viable domain"}
       , LabelStyle -> legendLabelStyle
     ];
-  (* Combined *)
-  Grid[
-    {{
-      plot,
-      Column[Join[legendCurves, legendRegions], Spacings -> -0.75]
-    }}
-    , Spacings -> 2
-  ]
-] // Ex["wedge_acute-traced-boundaries.pdf"]
+  (* Export *)
+  {
+    Show[plot
+      , ImageSize -> 0.45 ImageSizeTextWidth
+    ] // Ex["wedge_acute-traced-boundaries.pdf"]
+    ,
+    GraphicsColumn[Join[legendCurves, legendRegions]
+      , Alignment -> Left
+      , ImageSize -> 0.3 ImageSizeTextWidth
+      , ItemAspectRatio -> 0.15
+      , Spacings -> {0, 0}
+    ] // Ex["wedge_acute-traced-boundaries-legend.pdf"]
+  }
+]
 
 
 (* ::Section:: *)
