@@ -1876,3 +1876,95 @@ Module[
     {}
   ]
 ] // Ex["wedge_acute-traced-boundaries-hyperbolic-rounding.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: wall coordinates (wedge_acute-wall-coordinates)*)
+
+
+Module[
+  {
+    alpha,
+    wedgeRMax, wedgeXMax, wedgeYMax,
+    clearanceProportion, xMin, xMax, yMax,
+    xArrowBase, yArrowBase, arrowLength,
+    orthogonalityMarkerLength, orthogonalityMarkerStyle,
+    angleMarkerRadius, textSize, textStyle,
+    dummyForTrailingCommas
+  },
+  (* Wedge *)
+  alpha = 40 Degree;
+  wedgeRMax = 1;
+  {wedgeXMax, wedgeYMax} = XYPolar[wedgeRMax, alpha];
+  (* Plot range *)
+  clearanceProportion = 1/10;
+  xMin = Way[0, wedgeXMax, -clearanceProportion];
+  xMax = Way[0, wedgeXMax, 1 + clearanceProportion];
+  yMax = Way[0, wedgeYMax, 1 + clearanceProportion];
+  (* Reference point (base) of wall coordinate arrows *)
+  {xArrowBase, yArrowBase} = XYPolar[0.6 wedgeRMax, alpha];
+  arrowLength = 0.3 wedgeRMax;
+  (* Orthogonality marker *)
+  orthogonalityMarkerLength = 1/14 wedgeXMax;
+  orthogonalityMarkerStyle = Directive[EdgeForm[Black], FaceForm[None]];
+  (* Etc. *)
+  angleMarkerRadius = 0.15 wedgeRMax;
+  textSize = LabelSize["Label"];
+  textStyle = Style[#, textSize] & @* LaTeXStyle;
+  (* Diagram *)
+  Show[
+    EmptyAxes[{xMin, xMax}, {-yMax, yMax}
+      , AspectRatio -> Automatic
+      , ImageSize -> 0.3 ImageSizeTextWidth
+      , LabelStyle -> LatinModernLabelStyle @ textSize
+      , Method -> {"AxesInFront" -> False}
+      , Ticks -> None
+    ],
+    (* Wedge walls *)
+    Graphics @ {
+      BoundaryTracingStyle["Background"],
+      Line @ {{wedgeXMax, wedgeYMax}, {0, 0}, {wedgeXMax, -wedgeYMax}}
+    },
+    (* Wedge half-angle *)
+    Graphics @ {
+      Circle[{0, 0}, angleMarkerRadius, {0, alpha}]
+    },
+    Graphics @ {
+      Text[
+        "\[Alpha]" // textStyle
+        , XYPolar[angleMarkerRadius, alpha / 2]
+        , {-2.5, -0.3}
+      ]
+    },
+    (* Coordinate arrows *)
+    Graphics @ {
+      Directive[GeneralStyle["Thick"], Arrowheads[0.1]],
+      Arrow @ {
+        {xArrowBase, yArrowBase},
+        {xArrowBase, yArrowBase} + XYPolar[arrowLength, alpha - Pi/2]
+      },
+      Text[
+        "\[Xi]" // textStyle
+        , {xArrowBase, yArrowBase} + XYPolar[arrowLength, alpha - Pi/2]
+        , {-2.25, -1}
+      ],
+      Arrow @ {
+        {xArrowBase, yArrowBase},
+        {xArrowBase, yArrowBase} + XYPolar[arrowLength, alpha]
+      },
+      Text[
+        "\[Eta]" // textStyle
+        , {xArrowBase, yArrowBase} + XYPolar[arrowLength, alpha]
+        , {-1.25, 0.75}
+      ],
+      {}
+    },
+    Graphics @ {orthogonalityMarkerStyle,
+      Rectangle[
+        {xArrowBase, yArrowBase},
+        {xArrowBase, yArrowBase} + orthogonalityMarkerLength {1, 1}
+      ] // Rotate[#, -(Pi/2 - alpha), {xArrowBase, yArrowBase}] &
+    },
+    {}
+  ]
+] // Ex["wedge_acute-wall-coordinates.pdf"]
