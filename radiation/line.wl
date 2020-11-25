@@ -1996,7 +1996,7 @@ Module[
   (* Value of A *)
   a = (1 - 4/1000) aNat;
   (* Plot range *)
-  imageSize = 170;
+  imageSize = 0.4 ImageSizeTextWidth;
   rMaxShow = 1 rSharp[a];
   rMaxNon = rSharp[a];
   (* Location of concave corner *)
@@ -2015,8 +2015,8 @@ Module[
   xyUpper[p_] := XYPolar[rTraced[#], # + phiCorner] & @ Way[phiMin, phiMax, p];
   xyLower[p_] := XYPolar[rTraced[#], -# + phiCorner] & @ Way[phiMin, phiMax, 1 - p];
   (* Text style *)
-  textStyle = Style[#, 12] & @* LaTeXStyle;
-  textStyleBigger = Style[#, 14] & @* LaTeXStyle;
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  textStyleBigger = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   (* Branch label proportions of traced boundary *)
   pUpperLabel = 0.3;
   pLowerLabel = 0.48;
@@ -2066,7 +2066,7 @@ Module[
       Text[
         rIt == Subscript[rIt, "\[Sharp]"] // textStyleBigger
         , {0, -rSharp[a]}
-        , {0, 0.5}
+        , {0, 0.65}
      ]
     },
     {}
