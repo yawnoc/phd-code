@@ -2383,7 +2383,6 @@ Module[
   {
     a, rSh,
     rBath, tBath,
-    caseList,
     mod2Pi, phi,
     xMax, yMax, imageSize,
     textStyle,
@@ -2402,8 +2401,6 @@ Module[
   (* Heat bath (Dirichlet condition) *)
   rBath = rSh / 2;
   tBath = Log[1 / rBath];
-  (* Cases to be plotted *)
-  caseList = {"pentagon", "square", "generic"};
   (* Abbreviations *)
   mod2Pi = Mod[#, 2 Pi] &;
   phi[r_] := phiTraHot["outer"][r];
@@ -2411,7 +2408,7 @@ Module[
   xMax = rInfl;
   yMax = 0.9 rInfl;
   imageSize = 240;
-  textStyle = Style[#, 16] & @* LaTeXStyle;
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   (* Define spikes *)
   numSpikes = 2;
   modNumSpikes = Mod[#, numSpikes, 1] &;
@@ -2473,7 +2470,7 @@ Module[
     (* Heat bath (Dirichlet condition) labels *)
     Graphics @ {
       Text[
-        tIt == Subscript[tIt, "\[NegativeThickSpace]d"] // textStyle
+        tIt == Subscript[tIt, "\[NegativeVeryThinSpace]d"] // textStyle
         (* NOTE: negative thick space for better kerning *)
         , {0, rBath}
         , {0, 1.6}
@@ -2481,7 +2478,7 @@ Module[
     },
     Graphics @ {
       Text[
-        rIt == Subscript[rIt, "d"] // textStyle
+        rIt == Subscript[rIt, "\[VeryThinSpace]d"] // textStyle
         , {0, -rBath}
         , {0, -1.6}
      ]
@@ -2501,20 +2498,21 @@ Module[
     CurveLegend[
       BoundaryTracingStyle /@ {"Traced", "Contour"},
       {"radiation", "constant temperature"}
-      , LabelStyle -> LatinModernLabelStyle[15]
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Legend"]
     ];
-  legend = Grid[{legendCurves}, Spacings -> {2.5, 0}];
-  (* Combined plot *)
-  Column[
-    {
-      Grid[{{domainPlot, meshGraphic}}
-        , Spacings -> {3 -> 3, Automatic}
-      ],
-      legend
-    }
-    , Alignment -> Center
-  ]
-] // Ex["line-verification-domain-mesh.pdf"]
+  {
+    GraphicsRow[{domainPlot, meshGraphic}
+      , ImageSize -> 0.8 ImageSizeTextWidth
+    ] // Ex["line-verification-domain-mesh.pdf"]
+    ,
+    GraphicsRow[legendCurves
+      , Alignment -> Left
+      , ImageSize -> ImageSizeTextWidth
+      , ItemAspectRatio -> 0.05
+      , Spacings -> -0.5 ImageSizeTextWidth
+    ] // Ex["line-verification-domain-mesh-legend.pdf"]
+  }
+]
 
 
 (* ::Subsection:: *)
