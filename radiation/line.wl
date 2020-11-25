@@ -1474,7 +1474,7 @@ Module[{textStyle},
 Module[
   {
     aStep, aValues, aMin,
-    imageSize, rMax,
+    rMax,
     plotList,
     rMaxNon,
     textStyle, arrowStyle,
@@ -1488,7 +1488,6 @@ Module[
   aValues = aNat + aStep * Range[-1, 1];
   aMin = Min[aValues];
   (* Plot range *)
-  imageSize = 180;
   rMax = 1.05 rSharp[aMin];
   (* List of plots *)
   plotList =
@@ -1496,7 +1495,6 @@ Module[
       rMaxNon = If[a < aNat, rSharp[a], rNat];
       Show[
         EmptyFrame[{-rMax, rMax}, {-rMax, 1.3 rMax}
-          , ImageSize -> imageSize
           , Frame -> None
           , FrameLabel -> None
           , FrameTicks -> None
@@ -1550,7 +1548,7 @@ Module[
       , {a, aValues}
     ];
   (* Parameter (B) increase indicator arrow *)
-  textStyle = Style[#, 18] & @* LaTeXStyle;
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   arrowStyle = Directive[Thickness[0.005], Arrowheads[0.04]];
   parameterArrow =
     Show[
@@ -1566,7 +1564,7 @@ Module[
         ]
       },
       (* A == A_nat *)
-      xGraphicsANat = 0.5;
+      xGraphicsANat = 0.51;
       Graphics @ {arrowStyle,
         Line @ {
           {xGraphicsANat, 0},
@@ -1596,47 +1594,52 @@ Module[
         {}
       },
       {}
-      , ImageSize -> 2.45 imageSize
       , PlotRange -> All
     ];
   (* Legend *)
-  legendLabelStyle = LatinModernLabelStyle[14];
-  (* Final figure *)
-  Column[
-    {
-      Column[
-        {
-          GraphicsRow[plotList, Spacings -> 0],
-          parameterArrow
-        }
-        , Spacings -> 0
-      ],
-      Grid[
-        Transpose @ {
-          RegionLegend[
-            {BoundaryTracingStyle["Viable"]},
-            {"viable domain"}
-            , LabelStyle -> legendLabelStyle
-          ],
-          RegionLegend[
-            {BoundaryTracingStyle["NonViable"]},
-            {"non\[Hyphen]viable domain"}
-            , LabelStyle -> legendLabelStyle
-          ],
-          CurveLegend[
-            {BoundaryTracingStyle["Terminal"]},
-            {"terminal curve"}
-            , LabelStyle -> legendLabelStyle
-          ],
-          Nothing
-        }
-        , Alignment -> Left
-        , Spacings -> {1, 0}
+  legendLabelStyle = LatinModernLabelStyle @ LabelSize["Legend"];
+  (* Export *)
+  {
+    GraphicsRow[plotList
+      , ImageSize -> 0.8 ImageSizeTextWidth
+      , Spacings -> 0
+    ]
+      // Ex["line-viable.pdf"]
+    ,
+    Show[parameterArrow
+      , ImageSize -> 0.8 ImageSizeTextWidth
+    ]
+      // Ex["line-viable-arrow.pdf"]
+    ,
+    GraphicsGrid[
+      List @ Join[
+        RegionLegend[
+          {BoundaryTracingStyle["Viable"]},
+          {"viable domain"}
+          , LabelStyle -> legendLabelStyle
+        ],
+        RegionLegend[
+          {BoundaryTracingStyle["NonViable"]},
+          {"non\[Hyphen]viable domain"}
+          , LabelStyle -> legendLabelStyle
+        ],
+        CurveLegend[
+          {BoundaryTracingStyle["Terminal"]},
+          {"terminal curve"}
+          , LabelStyle -> legendLabelStyle
+        ],
+        {}
       ]
-    }
-    , Alignment -> Center
-  ]
-] // Ex["line-viable.pdf"]
+      , Alignment -> Left
+      , ImageSize -> ImageSizeTextWidth
+      , ItemAspectRatio -> 0.15
+      , Spacings -> {{0, -0.05} ImageSizeTextWidth, 0}
+    ]
+      // Ex["line-viable-legend.pdf"]
+    ,
+    Nothing
+  } 
+]
 
 
 (* ::Section:: *)
