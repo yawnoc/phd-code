@@ -551,7 +551,7 @@ Module[
     row,
     dummyForTrailingCommas
   },
-  legendLabelStyle = LatinModernLabelStyle[14];
+  legendLabelStyle = LatinModernLabelStyle[LabelSize["Legend"]];
   row = Join[
     CurveLegend[
       BoundaryTracingStyle /@ {"Wall", "Terminal"},
@@ -562,7 +562,7 @@ Module[
       BoundaryTracingStyle /@ {"NonViable"},
       {"non\[Hyphen]viable domain"}
       , LabelStyle -> legendLabelStyle
-    ],
+    ] // Margined @ {{0, 0}, {0, -3}} /@ # &,
     CurveLegend[
       BoundaryTracingStyle /@ {"Traced"},
       {"traced boundary"}
@@ -570,9 +570,11 @@ Module[
     ],
     {}
   ];
-  Grid[{row}
+  GraphicsGrid[{row}
     , Alignment -> Left
-    , Spacings -> {1, 0}
+    , ImageSize -> ImageSizeTextWidth
+    , ItemAspectRatio -> 0.15
+    , Spacings -> {{0, -0.1, 0.03, 0.06} ImageSizeTextWidth, 0}
   ]
 ] // Ex["helmholtz-legend.pdf"]
 
