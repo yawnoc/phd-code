@@ -240,18 +240,18 @@ Module[
   (* Normal vector *)
   normalVectorPosition = 1/2 {wedgeXMax, wedgeYMax};
   normalVectorLength = Sqrt[2]/3 wedgeXMax;
-  orthogonalityMarkerLength = 1/18 wedgeXMax;
+  orthogonalityMarkerLength = 1/14 wedgeXMax;
   orthogonalityMarkerStyle = Directive[EdgeForm[Black], FaceForm[None]];
-  wallThicknessCorrection = 0.1;
+  wallThicknessCorrection = 0.16;
   (* Diagram *)
-  textStyle = Style[#, 24] & @* LaTeXStyle;
-  testStyleOmega = Style[#, 30] & @* LaTeXStyle;
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  testStyleOmega = Style[#, LabelSize["LabelOmega"]] & @* LaTeXStyle;
   Show[
     EmptyAxes[{xMin, xMax}, {-yMax, yMax}
       , AspectRatio -> Automatic
       , AxesStyle -> Darker[Gray]
-      , ImageSize -> 240
-      , LabelStyle -> LatinModernLabelStyle[24]
+      , ImageSize -> 0.4 * 0.8 ImageSizeTextWidth
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
       , Method -> {"AxesInFront" -> False}
       , Ticks -> None
     ],
@@ -267,7 +267,7 @@ Module[
       ]
     },
     (* Normal vector *)
-    Graphics @ {Directive[GeneralStyle["Thick"], Arrowheads[Large]],
+    Graphics @ {Directive[GeneralStyle["Thick"], Arrowheads[Medium]],
       Arrow @ {
         normalVectorPosition,
         normalVectorPosition + XYPolar[normalVectorLength, alpha + Pi/2]
@@ -358,7 +358,7 @@ Module[
       , BoxRatios -> Automatic
       , Filling -> 0
       , FillingStyle -> BoundaryTracingStyle["Solution3D"]
-      , LabelStyle -> LatinModernLabelStyle[11]
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Label"]
       , Lighting -> GeneralStyle["AmbientLighting"]
       , PlotPoints -> 20
       , PlotStyle -> BoundaryTracingStyle["Solution3D"]
@@ -368,7 +368,7 @@ Module[
             Abs[y] < xMax - x
           ]
         ]
-      , TicksStyle -> 8
+      , TicksStyle -> LabelSize["Tick"]
       , ViewPoint -> {2.5, -1.1, 1.4}
     ],
     (* Wedge walls *)
@@ -402,7 +402,7 @@ Module[
       {}
     },
     {}
-    , ImageSize -> 8 ImageSizeCentimetre
+    , ImageSize -> 0.55 ImageSizeTextWidth
   ]
 ] // Ex["helmholtz-wedge-solution.png"
   , Background -> None
