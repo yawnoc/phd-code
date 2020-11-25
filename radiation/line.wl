@@ -1818,7 +1818,7 @@ Module[
     dummyForTrailingCommas
   },
   aMax = Ceiling[aNat] - 0.1;
-  textStyle = Style[#, 17] & @* LaTeXStyle;
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   (* Plot *)
   plotStyles = {
     Directive[Black, GeneralStyle["Thick"]],
@@ -1832,13 +1832,13 @@ Module[
       , AxesLabel -> {aIt, rIt}
       , Filling -> {1 -> {2}}
       , FillingStyle -> BoundaryTracingStyle["NonViable"]
-      , ImageSize -> 320
-      , LabelStyle -> LatinModernLabelStyle[17]
+      , ImageSize -> 0.7 ImageSizeTextWidth
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
       , PlotRange -> {{0, aMax}, Full}
       , PlotRangeClipping -> False
-      , PlotRangePadding -> {{0.02, Automatic}, {0, Automatic}}
+      , PlotRangePadding -> {{0.05, Automatic}, {0, Automatic}}
       , PlotStyle -> plotStyles
-      , TicksStyle -> 14
+      , TicksStyle -> LabelSize["Tick"]
     ],
     (* Patch missing piece near r == 1 *)
     rPatch = 0.9877;
@@ -1854,28 +1854,28 @@ Module[
       Line @ {{0, rNat}, {aNat, rNat}, {aNat, 0}},
       (* rNat *)
       Text[
-        Subscript[rIt, "Nat"] // textStyle,
+        Subscript[rIt, "\[Natural]"] // textStyle,
         {0, rNat},
         {2, -0.1}
       ],
       (* rNat *)
       Text[
-        Subscript[aIt, "Nat"] // textStyle,
+        Subscript[aIt, "\[Natural]"] // textStyle,
         {aNat, 0},
-        {0, 1.2}
+        {0, 1.1}
       ],
       {}
     },
     {}
   ];
   (* Legend *)
-  legendLabelStyleCurves = LatinModernLabelStyle[17];
-  legendLabelStyleRegions = LatinModernLabelStyle[14];
+  legendLabelStyleCurves = LatinModernLabelStyle @ LabelSize["Legend"];
+  legendLabelStyleRegions = LatinModernLabelStyle @ LabelSize["Legend"];
   legendCurves =
     CurveLegend[
       plotStyles,
-      TraditionalForm[Row @ {rIt, Spacer[2.4]} == Subscript[rIt, #]] &
-        /@ {"Sharp", "Flat"}
+      Row @ {rIt} == Subscript[rIt, #] &
+        /@ {"\[Sharp]", "\[Flat]"}
       , LabelStyle -> legendLabelStyleCurves
     ];
   legendRegions =
@@ -1884,19 +1884,20 @@ Module[
       {"non\[Hyphen]viable"}
       , LabelStyle -> legendLabelStyleRegions
     ];
-  (* Combined *)
-  Grid @ {{
-    plot,
-    Grid[
-      Transpose @ {Join[legendCurves, legendRegions]}
-      , Spacings -> {Automatic, {{-1.2}, -0.8, Automatic}}
-    ]
-  }} // PrettyString[
-    "Sharp" -> "\[Sharp]",
-    "Flat" -> "\[Flat]",
-    "Nat" -> "\[Natural]"
-  ]
-] // Ex["line-critical.pdf"]
+  (* Export *)
+  {
+    Show[plot
+      , ImageSize -> 0.5 ImageSizeTextWidth
+    ] // Ex["line-critical.pdf"]
+    ,
+    GraphicsColumn[
+      Join[legendCurves, legendRegions]
+      , Alignment -> Left
+      , ImageSize -> 0.2 ImageSizeTextWidth
+      , ItemAspectRatio -> 0.2
+    ] // Ex["line-critical-legend.pdf"]
+  }
+]
 
 
 (* ::Section:: *)
