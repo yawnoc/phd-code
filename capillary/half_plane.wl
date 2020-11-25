@@ -459,13 +459,13 @@ Module[
   (* Plot *)
   plotRangePadding = 0.15 h;
   angleMarkerRadius = 0.2 h;
-  labelSize = 24;
+  labelSize = LabelSize["Label"];
   textStyle = Style[#, labelSize] & @* LaTeXStyle;
-  textStyleZero = Style[#, 0.9 labelSize // Floor] & @* LaTeXStyle;
+  textStyleZero = Style[#, labelSize - 1] & @* LaTeXStyle;
   Show[
     EmptyAxes[{xMin, xMax}, {tStart, tEnd}
       , AxesLabel -> Italicise /@ {"x", "T"}
-      , ImageSize -> 360
+      , ImageSize -> 0.48 ImageSizeTextWidth
       , LabelStyle -> LatinModernLabelStyle[labelSize]
       , PlotRange -> All
       , PlotRangeClipping -> False
