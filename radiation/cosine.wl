@@ -6732,6 +6732,7 @@ Module[
                 SeparatedRow[","][aIt == a, bIt == SignificantFiguresForm[5][b]]
               }
               , Alignment -> Center
+              , Spacings -> 0.27
             ]
         ],
         (* Constant-temperature boundary *)
@@ -6790,7 +6791,7 @@ Module[
     ,
     Nothing
   }
-] (*// Ex["cosine-verification-domain-meshes.pdf"]*)
+]
 
 
 (* ::Subsection:: *)
