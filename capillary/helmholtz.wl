@@ -797,14 +797,13 @@ Module[
   ];
   xyOrdinary = xyContourOrdinary[sOrdinary] // Through;
   (* Text style *)
-  textStyle = Style[#, 18] & @* LaTeXStyle;
-  textStyleBracket = Style[#, Larger] &;
+  textStyle = Style[#, LabelSize["Point"]] & @* LaTeXStyle;
+  textStyleBracket = Style[#, LabelSize["PointBracket"]] &;
   textVerticalShift = -0.25;
   (* Plot *)
   plot = Show[
     EmptyFrame[{xMin, xMax}, {-yMax, yMax}
       , Frame -> None
-      , ImageSize -> 180
     ],
     (* Contours *)
     Table[
@@ -868,7 +867,7 @@ Module[
     {}
   ];
   (* Legend *)
-  legendLabelStyle = LatinModernLabelStyle[16];
+  legendLabelStyle = LatinModernLabelStyle @ LabelSize["Legend"];
   legendCurves =
     CurveLegend[
       BoundaryTracingStyle /@ {"Background", "Terminal"},
@@ -882,12 +881,16 @@ Module[
       , LabelStyle -> legendLabelStyle
     ];
   (* Combined *)
-  Grid[
-    {{
+  GraphicsRow[
+    {
       plot,
-      Column[Join[legendCurves, legendRegions], Spacings -> -0.5]
-    }}
-    , Spacings -> 3
+      Column[Join[legendCurves, legendRegions]
+        , Spacings -> {0, {-1.5, -1.5, -1.4}}
+      ]
+    }
+    , ItemAspectRatio -> 2.6
+    , ImageSize -> 0.63 ImageSizeTextWidth
+    , Spacings -> {0.08 ImageSizeTextWidth, 0}
   ]
 ] // Ex["helmholtz-terminal-points.pdf"]
 
