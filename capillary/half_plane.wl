@@ -664,12 +664,12 @@ Module[
         Italicise["x"] // Margined @ {{0, 1}, {5, 0}},
         Style["Relative error", Smaller]
       }
-    , ImageSize -> 360
+    , ImageSize -> 0.6 ImageSizeTextWidth
     , Joined -> True
-    , LabelStyle -> LatinModernLabelStyle[18]
-    , PlotMarkers -> Automatic
+    , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+    , PlotMarkers -> {Automatic, Tiny}
     , PlotStyle -> Black
     , PlotOptions[Axes] // Evaluate
-    , TicksStyle -> 15
+    , TicksStyle -> LabelSize["Tick"]
   ]
 ] // Ex["half-plane-relative-error.pdf"]
