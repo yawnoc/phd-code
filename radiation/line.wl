@@ -1431,18 +1431,18 @@ Module[{source, tSol, mesh, tExact},
 
 
 Module[{textStyle},
-  textStyle = Style[#, 18] & @* LaTeXStyle;
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   Show[
     Plot[psi[r], {r, 0, 1}
       , AxesLabel -> {rIt // Margined @ {{3, 0}, {5, 0}}, LaTeXStyle["\[Psi]"]}
-      , ImageSize -> 360
-      , LabelStyle -> LatinModernLabelStyle[18]
+      , ImageSize -> 0.6 ImageSizeTextWidth
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
       , PlotRange -> All
       , PlotRangeClipping -> False
       , PlotRangePadding -> {Automatic, {0.05, Automatic}}
       , PlotStyle -> Directive[Black, GeneralStyle["Thick"]]
       , PlotOptions[Axes] // Evaluate
-      , TicksStyle -> 15
+      , TicksStyle -> LabelSize["Tick"]
     ],
     Graphics @ {
       (* Guiding lines for critical values *)
