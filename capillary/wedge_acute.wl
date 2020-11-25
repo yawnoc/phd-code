@@ -932,8 +932,8 @@ Module[
     ];
   meshWireframeSimplified = mesh["Wireframe"[posSimplified]];
   (* Plot full mesh *)
-  tickTextStyle = Style[#, 13] & @* LaTeXStyle;
-  axesTextStyle = Style[#, 16] & @* LaTeXStyle;
+  tickTextStyle = Style[#, LabelSize["Tick"]] & @* LaTeXStyle;
+  axesTextStyle = Style[#, LabelSize["Axis"]] & @* LaTeXStyle;
   phiPattern = _Integer Degree | 0;
   plotFull = Show[
     PolarPlot[rMax, {phi, -alpha, alpha}
@@ -946,7 +946,7 @@ Module[
       /. {Circle[seq__, {0, 2 Pi}] :> Circle[seq, {-alpha, alpha}]}
       (* Tweak radial labels *)
       /. {Text[Style[r : Except[phiPattern], {}], coords_, offset_] :>
-        Text[r, coords, offset + If[r == 10, {1.5, 0}, {0.75, 0}]]
+        Text[r, coords, offset + If[r == 10, {1.2, -0.4}, {0, -0.2}]]
       }
       (* Tweak azimuthal labels *)
       /. {Text[Style[phi : phiPattern, {}], coords_, offset_, opts___] :>
@@ -954,10 +954,10 @@ Module[
           SeparatedRow["VeryThin"][phi / Degree, Magnify["\[Degree]", 1.2]],
           coords,
           offset + Which[
-            phi == -alpha, {-0.2, -0.7},
-            phi < 0, Abs[phi]/alpha {0, -0.7},
-            phi == 0, {-0.2, 0},
-            True, {0, 0}
+            phi == -alpha, {0, -0.9},
+            phi < 0, {0.3, -0.6},
+            phi == 0, {-0.1, -0.2},
+            True, {0.2, 0.1}
           ]
           , opts
         ]
@@ -971,17 +971,17 @@ Module[
       Text[
         Italicise["r"] // axesTextStyle
         , XYPolar[rMax / 2, -alpha]
-        , {5.5, 2.2}
+        , {4, 1.5}
       ],
       Text[
         "\[Phi]" // axesTextStyle // Margined[{{0, 1}, {0, 0}}]
         , {rMax, 0}
-        , {-8, 0.1}
+        , {-6.5, -0.1}
       ],
       {}
     },
     {}
-    , ImageSize -> 360
+    , ImageSize -> 0.67 ImageSizeTextWidth
     , PlotRange -> All
     , PlotRangeClipping -> False
   ];
@@ -1011,8 +1011,8 @@ Module[
   rMax = 0.25;
   {xMax, yMax} = XYPolar[rMax, alpha];
   (* Plot mesh detail *)
-  tickTextStyle = Style[#, 15] & @* LaTeXStyle;
-  axesTextStyle = Style[#, 18] & @* LaTeXStyle;
+  tickTextStyle = Style[#, LabelSize["Tick"]] & @* LaTeXStyle;
+  axesTextStyle = Style[#, LabelSize["Axis"]] & @* LaTeXStyle;
   plotDetail = Show[
     PolarPlot[rMax, {phi, -alpha, alpha}
       , PlotStyle -> None
@@ -1026,7 +1026,7 @@ Module[
     ]
       (* Tweak radial labels *)
       /. {Text[Style[r_, {}], coords_, offset_, opts__] :>
-        Text[r, coords, offset + {If[r == 0, 0.8, 1.4], 0.1}, opts]
+        Text[r, coords, offset + {If[r == 0, 0.5, 1.2], -0.2}, opts]
       }
       (* Font for labels *)
       /. {Text[str_, seq__] :> Text[str // tickTextStyle, seq]}
@@ -1037,12 +1037,12 @@ Module[
       Text[
         Italicise["r"] // axesTextStyle
         , XYPolar[rMax / 2, -alpha]
-        , {3, 2.5}
+        , {2.7, 2.5}
       ],
       {}
     },
     {}
-    , ImageSize -> 180
+    , ImageSize -> 0.27 ImageSizeTextWidth
     , PlotRange -> {{0, xMax}, {-yMax, yMax}}
     , PlotRangePadding -> {0.2, {0.3, 0.2}} rMax
   ];
