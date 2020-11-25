@@ -1152,12 +1152,12 @@ Module[
         , BoxRatios -> Automatic
         , Filling -> 0
         , FillingStyle -> BoundaryTracingStyle["Solution3D"]
-        , LabelStyle -> LatinModernLabelStyle[11]
+        , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
         , Lighting -> GeneralStyle["AmbientLighting"]
         , PlotPoints -> 20
         , PlotRange -> {0, 2.2}
         , PlotStyle -> BoundaryTracingStyle["Solution3D"]
-        , TicksStyle -> ConstantArray[LatinModernLabelStyle[8], 3]
+        , TicksStyle -> LabelSize["Tick"]
         , RegionFunction -> Function[{x, y},
             RPolar[x, y] < rMax
           ]
@@ -1186,7 +1186,7 @@ Module[
         {}
       },
       {}
-      , ImageSize -> 6.5 ImageSizeCentimetre
+      , ImageSize -> 0.45 ImageSizeTextWidth
     ]
       // Ex[FString["wedge_acute-solution-{case}.png"]
         , Background -> None
