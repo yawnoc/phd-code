@@ -938,14 +938,15 @@ Module[
       ]
     ];
   (* Text style *)
-  textStyle = Style[#, 18] & @* LaTeXStyle;
-  textStyleBracket = Style[#, Larger] &;
+  textStyle = Style[#, LabelSize["Point"]] & @* LaTeXStyle;
+  textStyleBracket = Style[#, LabelSize["PointBracket"]] &;
   textVerticalShift = -0.1;
   (* Plot *)
   Show[
     EmptyFrame[{0, xMax}, {-yMax, yMax}
       , Frame -> None
-      , ImageSize -> 180
+      , ImageSize -> 0.45 * 0.6 ImageSizeTextWidth
+      , PlotRangePadding -> {{0.04, Automatic}, Automatic}
     ],
     (* Wedge walls *)
     Graphics @ {BoundaryTracingStyle["Wall"],
@@ -977,7 +978,7 @@ Module[
           ")" // textStyleBracket
         },
         {x0, 0},
-        {1.3, textVerticalShift}
+        {1.45, textVerticalShift}
       ] // textStyle,
       {}
     },
@@ -1025,14 +1026,15 @@ Module[
       ]
     ];
   (* Text style *)
-  textStyle = Style[#, 18] & @* LaTeXStyle;
-  textStyleBracket = Style[#, Larger] &;
+  textStyle = Style[#, LabelSize["Point"]] & @* LaTeXStyle;
+  textStyleBracket = Style[#, LabelSize["PointBracket"]] &;
   textVerticalShift = -0.1;
   (* Plot *)
   Show[
     EmptyFrame[{0, xMax}, {-yMax, yMax}
       , Frame -> None
-      , ImageSize -> 180
+      , ImageSize -> 0.45 * 0.6 ImageSizeTextWidth
+      , PlotRangePadding -> {{0.04, Automatic}, Automatic}
     ],
     (* Wedge walls *)
     Graphics @ {BoundaryTracingStyle["Wall"],
@@ -1064,7 +1066,7 @@ Module[
           ")" // textStyleBracket
         },
         {x0, 0},
-        {1.3, textVerticalShift}
+        {1.45, textVerticalShift}
       ] // textStyle,
       {}
     },
