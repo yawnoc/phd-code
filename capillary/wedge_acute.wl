@@ -1447,12 +1447,11 @@ Module[
   commonPlot = Show[
     EmptyFrame[{0, xMax}, {-yMax, yMax}
       , Frame -> None
-      , ImageSize -> 180
     ],
     {}
   ];
   (* Plots *)
-  textStyle = Style[#, 24] & @* LaTeXStyle;
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   plotList = Table[
     Show[
       (* Common plot *)
@@ -1480,7 +1479,7 @@ Module[
         , {xy, xyTracedLowerList[n]}
       ],
       (* Normal vector *)
-      Graphics @ {Directive[GeneralStyle["Thick"], Arrowheads[Large]],
+      Graphics @ {Directive[GeneralStyle["Thick"], Arrowheads[Medium]],
         Arrow @ {
           xyNormal[n],
           xyNormal[n] + normalVectorLength * normalVector[n]
@@ -1490,7 +1489,7 @@ Module[
         Text[
           Embolden["n"] // textStyle
           , xyNormal[n] + normalVectorLength * normalVector[n]
-          , {1., -0.7}
+          , {1., -0.8}
         ]
       },
       (* Traced boundaries (patched) *)
@@ -1520,7 +1519,10 @@ Module[
       {}
     ]
   , {n, numPlots}];
-  Grid @ {plotList}
+  GraphicsGrid[{plotList}
+    , ImageSize -> ImageSizeTextWidth
+    , Spacings -> 0
+  ]
 ] // Ex["wedge_acute-traced-boundaries-patched.pdf"]
 
 
