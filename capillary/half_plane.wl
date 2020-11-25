@@ -555,7 +555,7 @@ Module[
   xHalf = Way[xMin, xMax];
   havlesOptions = {
     FrameLabel -> {
-      Italicise["x"] // Margined @ {{0, 0}, {0, -0.8 ImageSizeCentimetre}},
+      Italicise["x"] // Margined @ {{0, 0}, {0, -0.06 ImageSizeTextWidth}},
       Italicise["y"]
     },
     Frame -> {{True, False}, {True, True}},
@@ -565,10 +565,9 @@ Module[
         , {y, Subdivide[yMin, yMax, 2]}
       ]
     },
-    FrameTicksStyle -> 16,
-    ImagePadding -> {{Automatic, 0.3 ImageSizeCentimetre}, {Automatic, Automatic}},
-    ImageSize -> 360,
-    LabelStyle -> LatinModernLabelStyle[19],
+    FrameTicksStyle -> LabelSize["Tick"],
+    ImagePadding -> {{Automatic, 0.02 ImageSizeTextWidth}, {Automatic, Automatic}},
+    LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"],
     PlotRangeClipping -> True,
     PlotOptions[Frame],
     Nothing
@@ -594,18 +593,28 @@ Module[
     Show[
       meshWireframe
       , Frame -> True
+      , FrameLabel -> {
+          Italicise["x"] // Margined @ {{0, 0}, {0, -0.05 ImageSizeTextWidth}},
+          Italicise["y"]
+        }
       , ImagePadding -> Automatic
-      , ImageSize -> {270}
+      , ImageSize -> 0.4 ImageSizeTextWidth
       , FrameTicks -> Automatic
       , PlotRange -> {{xMin, xFineDetail}, {-yFineDetail, yFineDetail}}
       , havlesOptions
     ];
   (* Export *)
   {
-    Column[{plotLeftHalf, plotRightHalf}, Spacings -> 0.5]
+    GraphicsColumn[{plotLeftHalf, plotRightHalf}
+      , ImageSize -> 0.58 ImageSizeTextWidth
+      , ItemAspectRatio -> 0.4
+      , Spacings -> -0.04 ImageSizeTextWidth
+    ]
       // Ex["half_plane-mesh-halves.pdf"]
     ,
-    plotFineDetail
+    Show[plotFineDetail
+      , ImageSize -> 0.38 ImageSizeTextWidth
+    ]
       // Ex["half_plane-mesh-detail.pdf"]
   }
 ]
