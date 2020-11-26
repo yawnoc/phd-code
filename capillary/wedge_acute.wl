@@ -1968,3 +1968,126 @@ Module[
     {}
   ]
 ] // Ex["wedge_acute-wall-coordinates.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: traced boundaries, different contact angle   (wedge_acute-traced-boundaries-different-angle-*)*)
+
+
+Module[
+  {
+    apd, gpd,
+    alpha, gamma,
+    tNumerical,
+    gpdTracingValues, caseNameList,
+    gammaTracing,
+    xCritical,
+    xMax, yMax, rMax,
+    more, xMaxMore, yMaxMore,
+    derList, p, q, grad2, f, vi,
+    rMaxViable,
+    rStartList, xyStartList,
+    xyTracedList,
+    plot,
+    caseName,
+    dummyForTrailingCommas
+  },
+  (* Known solution angles *)
+  apd = 40;
+  gpd = 60;
+  alpha = apd * Degree;
+  gamma = gpd * Degree;
+  (* Import numerical solution *)
+  tNumerical =
+    Import @ FString["solution/wedge_acute-solution-apd-{apd}-gpd-{gpd}.txt"]
+      // Uncompress // First;
+  (* Different tracing contact angle *)
+  gpdTracingValues = {50, 70};
+  caseNameList = {"less", "more"};
+  Table[
+    gammaTracing = gpdTracing * Degree;
+    (* Critical terminal point x_0 *)
+    xCritical = x0[tNumerical, gammaTracing];
+    (* Plot range *)
+    xMax = 2 xCritical;
+    yMax = xMax Tan[alpha];
+    rMax = RPolar[xMax, yMax];
+    (* Plot range but more *)
+    more = 0.05;
+    xMaxMore = xMax + more;
+    yMaxMore = yMax + more;
+    (* Derivative list for boundary tracing *)
+    {p, q, grad2, f, vi} = derList = ContactDerivativeList[tNumerical, gammaTracing];
+    (* Starting points *)
+    If[
+      gammaTracing < gamma,
+        rStartList = Subdivide[xCritical, 4] // Rest;
+        xyStartList = Table[XYPolar[r, -alpha], {r, rStartList}];
+      ,
+        rStartList = Subdivide[rMax, 9] // Rest;
+        xyStartList = Join[
+          Table[XYPolar[r, +alpha], {r, rStartList}],
+          Table[XYPolar[r, -alpha], {r, rStartList}],
+          {{10^-6, 0}},
+          {}
+        ];
+    ];
+    (* Traced boundaries (upper branch) *)
+    xyTracedList =
+      Table[
+        ContactTracedBoundary[derList][xyStart, 0, {0, 2 rMax}
+          , -1, 1
+          , 0, Function[{x, y}, x > xMaxMore]
+        ]
+        , {xyStart, xyStartList}
+      ];
+    (* Plot *)
+    plot =
+      Show[
+        EmptyFrame[{0, xMax}, {-yMax, yMax}
+          , FrameLabel -> {
+              Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
+              Italicise["y"]
+            }
+          , FrameTicksStyle -> LabelSize["Tick"]
+          , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+        ],
+        (* Non-viable domain *)
+        RegionPlot[
+          vi[x, y] < 0
+          , {x, xCritical, xMaxMore}
+          , {y, -yMaxMore, yMaxMore}
+          , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
+          , PlotPoints -> 7
+          , PlotStyle -> BoundaryTracingStyle["NonViable"]
+        ],
+        (* Wedge walls *)
+        Graphics @ {BoundaryTracingStyle["Wall"],
+          Line @ {
+            xMaxMore {1, Tan[alpha]},
+            {0, 0},
+            xMaxMore {1, -Tan[alpha]}
+          }
+        },
+        (* Traced boundaries *)
+        Table[
+          ParametricPlot[
+            xy[s]
+              // Through
+              // IncludeYReflection
+              // Evaluate
+            , {s, DomainStart[xy], DomainEnd[xy]}
+            , PlotStyle -> BoundaryTracingStyle["Traced"]
+          ]
+          , {xy, xyTracedList}
+        ],
+        {}
+      ];
+    (* Export *)
+    caseName = AssociationThread[gpdTracingValues, caseNameList][gpdTracing];
+    Show[plot
+      , ImageSize -> 0.45 ImageSizeTextWidth
+    ] // Ex @ FString["wedge_acute-traced-boundaries-different-angle-{caseName}.pdf"]
+    , {gpdTracing, gpdTracingValues}
+  ]
+]
