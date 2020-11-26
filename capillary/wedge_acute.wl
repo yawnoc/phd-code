@@ -2376,8 +2376,12 @@ Module[
 
 
 (* ::Section:: *)
-(*Figure: different contact angle offset, top view*)
-(*(wedge_acute-different-angle-offset-top)*)
+(*Figure: different contact angle offset*)
+(*(wedge_acute-different-angle-offset-*)*)
+
+
+(* ::Subsection:: *)
+(*Top view*)
 
 
 Module[
@@ -2554,3 +2558,157 @@ Module[
     , ImageSize -> 0.5 * 0.8 ImageSizeTextWidth
   ] // Ex["wedge_acute-different-angle-offset-top.pdf"]
 ]
+
+
+(* ::Subsection:: *)
+(*Side view*)
+
+
+Module[
+  {
+    gamma, gammaTracing,
+    d, h, hTracing,
+    xiEnd, tStart, tEnd,
+    xiMax, tMin, tMaxWall, tMaxAxis,
+    wallThickness, angleMarkerRadius,
+    textStyleLabel, textStylePointBracket,
+    dummyForTrailingCommas
+  },
+  (* Constants *)
+  gamma = 60 Degree;
+  gammaTracing = 70 Degree;
+  (* Half-plane offset distance & wall-height *)
+  d = DHalfPlane[gamma, gammaTracing];
+  h = HHalfPlane[gamma];
+  hTracing = HHalfPlane[gammaTracing];
+  (* Endpoints for parameter T *)
+  xiEnd = 1.8 d;
+  tStart = h;
+  tEnd = SeekRoot[XHalfPlane[gamma][#] - xiEnd &, {0, tStart}, 10] // Quiet;
+  (* Plot range *)
+  xiMax = 1.1 xiEnd;
+  tMin = 0;
+  tMaxWall = 1.2 tStart;
+  tMaxAxis = 1.08 tMaxWall;
+  (* Plotting constants *)
+  wallThickness = 0.08 d;
+  angleMarkerRadius = 0.13 h;
+  (* Text style *)
+  textStyleLabel = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  textStylePointBracket = Style[#, LabelSize["PointBracket"]] &;
+  (* Diagram *)
+  Show[
+    (* Liquid surface *)
+    ParametricPlot[
+      {XHalfPlane[gamma][t], t}
+      , {t, tStart, tEnd}
+      , Axes -> None
+      , ImageSize -> 0.5 ImageSizeTextWidth
+      , PlotRange -> All
+      , PlotRangeClipping -> False
+      , PlotStyle -> Directive[Black, GeneralStyle["Thick"]]
+    ],
+    (* Original contact angle *)
+    Graphics @ {
+      Circle[
+        {0, h},
+        angleMarkerRadius,
+        {-Pi/2, -Pi/2 + gamma}
+      ],
+      Text[
+        "\[Gamma]" // textStyleLabel
+        , {0, h} + XYPolar[angleMarkerRadius, -Pi/2 + gamma/2]
+        , {-0.8, 0.7}
+      ],
+      {}
+    },
+    (* Tracing contact angle *)
+    Graphics @ {
+      Circle[
+        {d, hTracing},
+        angleMarkerRadius,
+        {-Pi/2, -Pi/2 + gammaTracing}
+      ],
+      Text[
+        Subscript["\[Gamma]", Style["\[NegativeVeryThinSpace]\[Bullet]", Magnification -> 1.8]]
+          // textStyleLabel
+        , {d, hTracing} + XYPolar[angleMarkerRadius, -Pi/2 + gammaTracing/2]
+        , {-1, 0.7}
+      ],
+      {}
+    },
+    (* Guiding lines for tracing contact angle *)
+    Graphics @ {BoundaryTracingStyle["Contour"],
+      Line @ {
+        {-wallThickness/2, hTracing},
+        {d, hTracing},
+        {d, 0}
+      },
+      {}
+    },
+    (* Wall *)
+    Graphics @ {
+      Line @ {{-wallThickness/2, tMin}, {-wallThickness/2, tMaxAxis}},
+      Text[
+        Italicise["T"] // textStyleLabel
+        , {-wallThickness/2, tMaxAxis}
+        , {0, -1.2}
+      ],
+      {}
+    },
+    Graphics @ {BoundaryTracingStyle["Wall"],
+      Rectangle[{-wallThickness, tMin}, {0, tMaxWall}]
+    },
+    Graphics @ {
+      Text[
+        Italicise["h"] // textStyleLabel
+        , {-wallThickness, h}
+        , {2.25, -0.25}
+      ],
+      Text[
+        Subscript[Italicise["h"], Style["\[NegativeVeryThinSpace]\[Bullet]", Magnification -> 1.8]]
+          // textStyleLabel
+        , {-wallThickness, hTracing}
+        , {1.5, 0}
+      ],
+      Text[
+        0 // textStyleLabel
+        , {-wallThickness, 0}
+        , {2.5, 0}
+      ],
+      {}
+    },
+    (* Base *)
+    Graphics @ {
+      Line @ {{-wallThickness, tMin}, {xiMax, tMin}},
+      Text[
+        "\[Xi]" // textStyleLabel
+        , {xiMax, tMin}
+        , {-3.5, 0}
+      ],
+      {}
+    },
+    Graphics @ {
+      Text[
+        0 // textStyleLabel
+        , {-wallThickness/2, 0}
+        , {0, 1}
+      ],
+      Text[
+        Row @ {
+          Italicise["d"],
+          "(" // textStylePointBracket,
+          "\[NegativeVeryThinSpace]",
+          "\[Gamma]",
+          ",\[ThinSpace]",
+          Subscript["\[Gamma]", Style["\[NegativeVeryThinSpace]\[Bullet]", Magnification -> 1.8]],
+          ")" // textStylePointBracket
+        } // textStyleLabel
+        , {d, 0}
+        , {0, 1}
+      ],
+      {}
+    },
+    {}
+  ]
+] // Ex["wedge_acute-different-angle-offset-side.pdf"]
