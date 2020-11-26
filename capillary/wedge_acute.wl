@@ -1974,6 +1974,10 @@ Module[
 (*Figure: traced boundaries, different contact angle   (wedge_acute-traced-boundaries-different-angle-*)*)
 
 
+(* ::Subsection:: *)
+(*Main plots*)
+
+
 Module[
   {
     apd, gpd,
@@ -2091,3 +2095,36 @@ Module[
     , {gpdTracing, gpdTracingValues}
   ]
 ]
+
+
+(* ::Subsection:: *)
+(*Legend*)
+
+
+Module[
+  {
+    legendLabelStyle,
+    row,
+    dummyForTrailingCommas
+  },
+  legendLabelStyle = LatinModernLabelStyle[LabelSize["Legend"]];
+  row = Join[
+    CurveLegend[
+      BoundaryTracingStyle /@ {"Wall", "Traced", "Terminal"},
+      {"wedge wall", "traced boundary", "terminal curve"}
+      , LabelStyle -> legendLabelStyle
+    ],
+    RegionLegend[
+      BoundaryTracingStyle /@ {"NonViable"},
+      {"non\[Hyphen]viable domain"}
+      , LabelStyle -> legendLabelStyle
+    ] // Margined @ {{0, 0}, {0, -3}} /@ # &,
+    {}
+  ];
+  GraphicsGrid[{row}
+    , Alignment -> Left
+    , ImageSize -> ImageSizeTextWidth
+    , ItemAspectRatio -> 0.15
+    , Spacings -> {{0, -0.125, 0.1, 0.} ImageSizeTextWidth, 0}
+  ]
+] // Ex["wedge_acute-traced-boundaries-different-angle-legend.pdf"]
