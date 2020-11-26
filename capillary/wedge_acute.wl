@@ -2128,3 +2128,248 @@ Module[
     , Spacings -> {{0, -0.125, 0.1, 0.} ImageSizeTextWidth, 0}
   ]
 ] // Ex["wedge_acute-traced-boundaries-different-angle-legend.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: terminal , hyperbolic, etc., different contact angle*)
+(*(wedge_acute-terminal-points-different-angle)*)
+(*(wedge_acute-traced-boundaries-hyperbolic-different-angle)*)
+
+
+Module[
+  {
+    apd, gpd,
+    alpha, gamma,
+    tNumerical,
+    gpdTracing, gammaTracing,
+    xCritical,
+    xMax, yMax, rMax,
+    more, xMaxMore, yMaxMore,
+    derList, p, q, grad2, f, vi,
+    xOrdinary, yOrdinary,
+    xyContourList,
+    textStyle, textStyleBracket, textVerticalShift,
+    plot,
+    dummyForTrailingCommas
+  },
+  (* Known solution angles *)
+  apd = 40;
+  gpd = 60;
+  alpha = apd * Degree;
+  gamma = gpd * Degree;
+  (* Import numerical solution *)
+  tNumerical =
+    Import @ FString["solution/wedge_acute-solution-apd-{apd}-gpd-{gpd}.txt"]
+      // Uncompress // First;
+  (* Different tracing contact angle *)
+  gpdTracing = 70;
+  gammaTracing = gpdTracing * Degree;
+  (* Critical terminal point x_0 *)
+  xCritical = x0[tNumerical, gammaTracing];
+  (* Plot range *)
+  xMax = 2 xCritical;
+  yMax = xMax Tan[alpha];
+  rMax = RPolar[xMax, yMax];
+  (* Plot range but more *)
+  more = 0.1;
+  xMaxMore = xMax + more;
+  yMaxMore = yMax + more;
+  (* Derivative list for boundary tracing *)
+  {p, q, grad2, f, vi} = derList = ContactDerivativeList[tNumerical, gammaTracing];
+  (* Ordinary terminal point *)
+  yOrdinary = Way[0, yMax, 0.36];
+  xOrdinary = SeekRoot[vi[#, yOrdinary] &, {xCritical, xMax}, 5];
+  (* T-contours *)
+  xyContourList =
+    Table[
+      ContourByArcLength[tNumerical][
+        xyInitial, 0, 2 rMax {-1, 1}
+        , 1, Function[{x, y}, x > xMaxMore]
+      ]
+      , {xyInitial, {{xCritical, 0}, {xOrdinary, yOrdinary}}}
+    ];
+  (* Text style *)
+  textStyle = Style[#, LabelSize["Point"]] & @* LaTeXStyle;
+  textStyleBracket = Style[#, LabelSize["PointBracket"]] &;
+  textVerticalShift = -0.2;
+  (* Plot *)
+  plot =
+    Show[
+      EmptyFrame[{0, xMax}, {-yMax, yMax}
+        , Frame -> None
+        , PlotRangePadding -> {{0.1, Automatic}, Automatic}
+      ],
+      (* Non-viable domain *)
+      RegionPlot[
+        vi[x, y] < 0
+        , {x, xCritical, xMaxMore}
+        , {y, -yMaxMore, yMaxMore}
+        , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
+        , PlotPoints -> 17
+        , PlotStyle -> BoundaryTracingStyle["NonViable"]
+      ],
+      (* Wedge walls *)
+      Graphics @ {BoundaryTracingStyle["Wall"],
+        Line @ {
+          xMaxMore {1, Tan[alpha]},
+          {0, 0},
+          xMaxMore {1, -Tan[alpha]}
+        }
+      },
+      (* Local T-contours *)
+      Table[
+        ParametricPlot[
+          xy[s] // Through
+          , {s, DomainStart[xy], DomainEnd[xy]}
+          , PlotPoints -> 2
+          , PlotStyle -> BoundaryTracingStyle["Background"]
+        ]
+        , {xy, xyContourList}
+      ],
+      (* Critical terminal point (x_0, 0) *)
+      Graphics @ {
+        GeneralStyle["Point"],
+        Point @ {xCritical, 0}
+      },
+      Graphics @ {
+        Text[
+          Row @ {
+            "(" // textStyleBracket,
+            "\[NegativeVeryThinSpace]",
+            Subscript[Italicise["x"], 0],
+            ",\[ThinSpace]",
+            0,
+            ")" // textStyleBracket
+          },
+          {xCritical, 0},
+          {1.5, textVerticalShift}
+        ] // textStyle,
+        Text[
+          "critical",
+          {xCritical, 0},
+          {-1.4, textVerticalShift}
+        ] // textStyle,
+        {}
+      },
+      (* Ordinary terminal point *)
+      Graphics @ {
+        GeneralStyle["Point"],
+        Point @ {xOrdinary, yOrdinary}
+      },
+      Graphics @ {
+        Text[
+          "ordinary",
+          {xOrdinary, yOrdinary},
+          {-1.15, 0.6}
+        ] // textStyle,
+        {}
+      },
+      {}
+    ];
+  Show[plot
+    , ImageSize -> 0.5 * 0.63 ImageSizeTextWidth
+  ] // Ex["wedge_acute-terminal-points-different-angle.pdf"]
+]
+
+
+Module[
+  {
+    apd, gpd,
+    alpha, gamma,
+    tNumerical,
+    gpdTracing, gammaTracing,
+    xCritical,
+    xMax, yMax, rMax,
+    more, xMaxMore, yMaxMore,
+    derList, p, q, grad2, f, vi,
+    xy,
+    textStyle, textStyleBracket, textVerticalShift,
+    plot,
+    dummyForTrailingCommas
+  },
+  (* Known solution angles *)
+  apd = 40;
+  gpd = 60;
+  alpha = apd * Degree;
+  gamma = gpd * Degree;
+  (* Import numerical solution *)
+  tNumerical =
+    Import @ FString["solution/wedge_acute-solution-apd-{apd}-gpd-{gpd}.txt"]
+      // Uncompress // First;
+  (* Different tracing contact angle *)
+  gpdTracing = 70;
+  gammaTracing = gpdTracing * Degree;
+  (* Critical terminal point x_0 *)
+  xCritical = x0[tNumerical, gammaTracing];
+  (* Plot range *)
+  xMax = 2 xCritical;
+  yMax = xMax Tan[alpha];
+  rMax = RPolar[xMax, yMax];
+  (* Plot range but more *)
+  more = 0.1;
+  xMaxMore = xMax + more;
+  yMaxMore = yMax + more;
+  (* Derivative list for boundary tracing *)
+  {p, q, grad2, f, vi} = derList = ContactDerivativeList[tNumerical, gammaTracing];
+  (* Traced boundary (upper branch) *)
+  xy =
+    ContactTracedBoundary[derList][
+      {xCritical, 0}, 0, 2 rMax {-1, 1}
+      , -1, 1
+      , -Infinity, Function[{x, y}, x > xMaxMore]
+    ];
+  (* Text style *)
+  textStyle = Style[#, LabelSize["Point"]] & @* LaTeXStyle;
+  textStyleBracket = Style[#, LabelSize["PointBracket"]] &;
+  textVerticalShift = -0.2;
+  (* Plot *)
+  plot =
+    Show[
+      EmptyFrame[{0, xMax}, {-yMax, yMax}
+        , Frame -> None
+        , PlotRangePadding -> {{0.1, Automatic}, Automatic}
+      ],
+      (* Wedge walls *)
+      Graphics @ {BoundaryTracingStyle["Wall"],
+        Line @ {
+          xMaxMore {1, Tan[alpha]},
+          {0, 0},
+          xMaxMore {1, -Tan[alpha]}
+        }
+      },
+      (* Traced boundaries *)
+      ParametricPlot[
+        xy[s]
+          // Through
+          // IncludeYReflection
+          // Evaluate
+        , {s, DomainStart[xy], DomainEnd[xy]}
+        , PlotPoints -> 2
+        , PlotStyle -> BoundaryTracingStyle["Traced"]
+      ],
+      (* Critical terminal point (x_0, 0) *)
+      Graphics @ {
+        GeneralStyle["Point"],
+        Point @ {xCritical, 0}
+      },
+      Graphics @ {
+        Text[
+          Row @ {
+            "(" // textStyleBracket,
+            "\[NegativeVeryThinSpace]",
+            Subscript[Italicise["x"], 0],
+            ",\[ThinSpace]",
+            0,
+            ")" // textStyleBracket
+          },
+          {xCritical, 0},
+          {1.5, textVerticalShift}
+        ] // textStyle,
+        {}
+      },
+      {}
+    ];
+  Show[plot
+    , ImageSize -> 0.5 * 0.63 ImageSizeTextWidth
+  ] // Ex["wedge_acute-traced-boundaries-hyperbolic-different-angle.pdf"]
+]
