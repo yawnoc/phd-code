@@ -2591,7 +2591,7 @@ Module[
   tMaxWall = 1.2 tStart;
   tMaxAxis = 1.08 tMaxWall;
   (* Plotting constants *)
-  wallThickness = 0.08 d;
+  wallThickness = 0.06 d;
   angleMarkerRadius = 0.13 h;
   (* Text style *)
   textStyleLabel = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
