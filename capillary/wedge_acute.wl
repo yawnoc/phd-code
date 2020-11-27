@@ -2838,3 +2838,137 @@ Module[
     , ImageSize -> 0.4 ImageSizeTextWidth
   ]
 ] // Ex["wedge_acute-candidate-family.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: candidate boundaries grouped by tracing contact angle*)
+(*(wedge_acute-candidate-by-tracing-angle)*)
+
+
+Module[
+  {
+    apd, gpdTracing,
+    alpha, gammaTracing,
+    gpdValues,
+    tNumericalAss,
+    xCriticalMin, xCriticalMax,
+    xMax, yMax, rMax,
+    more, xMaxMore,
+    xyTracedAss,
+    gamma, tNumerical, xCritical,
+    derList, p, q, grad2, f, vi,
+    sMax,
+    xArrowMin, xArrowMax,
+    dummyForTrailingCommas
+  },
+  (* Prescribed angles *)
+  apd = 40;
+  gpdTracing = 70;
+  alpha = apd * Degree;
+  gammaTracing = gpdTracing * Degree;
+  (* Known solution angles *)
+  gpdValues = Range[90 - apd, gpdTracing, 5];
+  (* Import numerical solutions *)
+  (* (association from gpd to numerical solution *)
+  tNumericalAss =
+    Association @ Table[
+      gpd -> (
+        Import @ FString["solution/wedge_acute-solution-apd-{apd}-gpd-{gpd}.txt"]
+          // Uncompress // First
+      )
+      , {gpd, gpdValues}
+    ];
+  (* Plot range *)
+  xCriticalMin = x0[tNumericalAss @ Max[gpdValues], gammaTracing];
+  xCriticalMax = x0[tNumericalAss @ Min[gpdValues], gammaTracing];
+  xMax = Ceiling[1.5 xCriticalMax, 0.5];
+  yMax = xMax Tan[alpha];
+  rMax = RPolar[xMax, yMax];
+  (* Plot range but more *)
+  more = 0.1;
+  xMaxMore = xMax + more;
+  (* Compute traced boundary candidates *)
+  (* (association from gpd to traced boundary *)
+  xyTracedAss =
+    Association @ Table[
+      (* Solution *)
+      gamma = gpd * Degree;
+      tNumerical = tNumericalAss[gpd];
+      (* Critical terminal point x_0 *)
+      xCritical = x0[tNumerical, gammaTracing];
+      (* Derivative list for boundary tracing *)
+      {p, q, grad2, f, vi} = derList = ContactDerivativeList[tNumerical, gammaTracing];
+      (* Traced boundary (upper branch) *)
+      sMax = 20;
+      gpd ->
+        ContactTracedBoundary[derList][
+          {xCritical, 0}, 0, {0, sMax}
+          , -1, 1
+          , -Infinity, Function[{x, y}, x > xMaxMore]
+        ]
+      , {gpd, gpdValues}
+    ];
+  (* Plot *)
+  Show[
+    EmptyFrame[{0, xMax}, {-yMax, yMax}
+      , FrameLabel -> {
+          Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
+          Italicise["y"]
+        }
+      , FrameTicksStyle -> LabelSize["Tick"]
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+    ],
+    (* Wedge walls *)
+    Graphics @ {BoundaryTracingStyle["Wall"],
+      Line @ {
+        xMaxMore {1, Tan[alpha]},
+        {0, 0},
+        xMaxMore {1, -Tan[alpha]}
+      }
+    },
+    (* Traced boundaries *)
+    Table[
+      ParametricPlot[
+        EvaluatePair[xy, Abs[s], Sign[s]]
+          // Evaluate
+        , {s, -DomainEnd[xy], DomainEnd[xy]}
+        , PlotStyle -> BoundaryTracingStyle["Traced"]
+      ]
+      , {xy, xyTracedAss}
+    ],
+    (* Manually extend gammaTracing == gamma case *)
+    Table[
+      ParametricPlot[
+        Way[
+          EvaluatePair[xy, DomainEnd[xy]],
+          xMaxMore {1, Tan[alpha]}
+          , prop
+        ]
+          // IncludeYReflection
+          // Evaluate
+        , {prop, 0, 1}
+        , PlotStyle -> BoundaryTracingStyle["Traced"]
+      ]
+      , {xy, xyTracedAss[gpdTracing] // List}
+    ],
+    (* Tracing gamma arrow *)
+    xArrowMin = Way[xCriticalMin, xCriticalMax, -0.45];
+    xArrowMax = Way[xCriticalMin, xCriticalMax, +1.25];
+    Graphics @ {
+      GeneralStyle["Translucent"], GeneralStyle["Thick"],
+      Arrowheads[Medium],
+      Arrow @ {{xArrowMax, 0}, {xArrowMin, 0}}
+    },
+    Graphics @ {
+      Text[
+        "\[Gamma]"
+          // LaTeXStyle
+          // Style[#, LabelSize["Label"]] &
+        , {xArrowMax, 0}
+        , {-2.5, -0.2}
+      ]
+    },
+    {}
+    , ImageSize -> 0.4 ImageSizeTextWidth
+  ]
+] // Ex["wedge_acute-candidate-by-tracing-angle.pdf"]
