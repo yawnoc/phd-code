@@ -222,7 +222,7 @@ Module[
     alpha, angleMarkerRadius,
     normalVectorPosition, normalVectorLength,
     orthogonalityMarkerLength, orthogonalityMarkerStyle,
-    wallThicknessCorrection,
+    normalThicknessCorrection,
     textStyle, testStyleOmega,
     dummyForTrailingCommas
   },
@@ -242,7 +242,7 @@ Module[
   normalVectorLength = Sqrt[2]/3 wedgeXMax;
   orthogonalityMarkerLength = 1/14 wedgeXMax;
   orthogonalityMarkerStyle = Directive[EdgeForm[Black], FaceForm[None]];
-  wallThicknessCorrection = 0.16;
+  normalThicknessCorrection = -0.06;
   (* Diagram *)
   textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   testStyleOmega = Style[#, LabelSize["LabelOmega"]] & @* LaTeXStyle;
@@ -283,7 +283,8 @@ Module[
     Graphics @ {orthogonalityMarkerStyle,
       Rectangle[
         normalVectorPosition,
-        normalVectorPosition + orthogonalityMarkerLength {1 - wallThicknessCorrection, 1}
+        normalVectorPosition
+          + orthogonalityMarkerLength {1 - normalThicknessCorrection, 1}
       ] // Rotate[#, alpha, normalVectorPosition] &
     },
     (* Wedge domain *)

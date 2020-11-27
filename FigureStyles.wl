@@ -106,7 +106,7 @@ BoundaryTracingStyle[type : (_String | Automatic) : Automatic] := Association[
   "Unphysical" -> Black,
   "Viable" -> White,
   "Wall" -> Directive[
-    GeneralStyle["VeryThick"],
+    GeneralStyle["DefaultThick"],
     Gray
   ],
   "Wall3D" -> Gray,

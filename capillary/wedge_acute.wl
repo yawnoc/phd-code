@@ -1922,7 +1922,7 @@ Module[
     ],
     (* Wedge walls *)
     Graphics @ {
-      BoundaryTracingStyle["Background"],
+      BoundaryTracingStyle["Wall"],
       Line @ {{wedgeXMax, wedgeYMax}, {0, 0}, {wedgeXMax, -wedgeYMax}}
     },
     (* Wedge half-angle *)
@@ -2591,7 +2591,7 @@ Module[
   tMaxWall = 1.2 tStart;
   tMaxAxis = 1.08 tMaxWall;
   (* Plotting constants *)
-  wallThickness = 0.06 d;
+  wallThickness = 0.015 d;
   angleMarkerRadius = 0.13 h;
   (* Text style *)
   textStyleLabel = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
@@ -2785,7 +2785,7 @@ Module[
       , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
     ],
     (* Wedge walls *)
-    Graphics @ {BoundaryTracingStyle["Background"],
+    Graphics @ {BoundaryTracingStyle["Wall"],
       Line @ {
         xMaxMore {1, Tan[alpha]},
         {0, 0},
