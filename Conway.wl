@@ -76,6 +76,7 @@ ClearAll["Conway`*`*"];
   Embolden,
   EmptyAxes,
   EmptyFrame,
+  EvaluatePair,
   Ex,
   ExportIfNotExists,
   FString,
@@ -371,6 +372,20 @@ EmptyFrame[
     opts,
     PlotOptions[Frame] // Evaluate
   ];
+
+
+(* ::Subsubsection:: *)
+(*EvaluatePair*)
+
+
+EvaluatePair::usage = (
+  "EvaluatePair[{xFun, yFun}, s, ySign (def 1)]\n"
+  <> "Returns {xFun[s], yFun[s] * ySign}."
+);
+
+
+EvaluatePair[{xFun_, yFun_}, s_, ySign_: 1] :=
+  {xFun[s], yFun[s] * ySign};
 
 
 (* ::Subsubsection:: *)
