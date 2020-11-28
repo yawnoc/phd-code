@@ -2972,3 +2972,129 @@ Module[
     , ImageSize -> 0.4 ImageSizeTextWidth
   ]
 ] // Ex["wedge_acute-candidates-by-tracing-angle.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: candidate boundaries (grouped by tracing contact angle) with offset applied*)
+(*(wedge_acute-candidates-offset-alpha-*_degree)*)
+
+
+(* (This is slow (~10 sec).) *)
+(*
+  NOTE: a different approach is taken here compared to the above.
+  Here we use symbols with assigned values rather than associations.
+*)
+Module[
+  {
+    apdValues, gpdTracing, gammaTracing,
+    alpha, gpdValues,
+    tNumerical,
+    sMax,
+    xyTraced,
+    gamma, xCritical,
+    derList, p, q, grad2, f, vi,
+    d, xCriticalOffset,
+    plotRangeFactor,
+    xMax, yMax, xMaxMore,
+    xy,
+    dummyForTrailingCommas
+  },
+  (* Prescribed angles *)
+  apdValues = {30, 45, 60};
+  gpdTracing = 75;
+  gammaTracing = gpdTracing * Degree;
+  (* For various wedge half-angles: *)
+  Table[
+    alpha = apd * Degree;
+    (* Known solution angles *)
+    gpdValues = Range[90 - apd, gpdTracing, 5];
+    Which[
+      apd == apdValues[[1]],
+        gpdValues = Part[gpdValues, All];
+      ,
+      apd == apdValues[[2]],
+        gpdValues = Part[gpdValues, {1, -1}];
+      ,
+      apd == apdValues[[3]],
+        gpdValues = Part[gpdValues, {1, -4, -2, -1}];
+    ];
+    (* Import numerical solutions *)
+    Table[
+      tNumerical[gpd] =
+        Import @ FString["solution/wedge_acute-solution-apd-{apd}-gpd-{gpd}.txt"]
+          // Uncompress // First;
+      , {gpd, gpdValues}
+    ];
+    (* Maximum arc-length for boundary tracing *)
+    (* (NOT a proven upper bound, but probably enough) *)
+    sMax = 4 x0[tNumerical @ Min[gpdValues], gammaTracing];
+    (* Compute traced boundary candidates *)
+    (* (association from gpd to traced boundary *)
+    Table[
+      gamma = gpd * Degree;
+      (* Critical terminal point x_0 *)
+      xCritical[gpd] = x0[tNumerical[gpd], gammaTracing];
+      (* Offset critical terminal point x'_0  *)
+      d[gpd] = DHalfPlane[gamma, gammaTracing];
+      xCriticalOffset[gpd] = xCritical[gpd] - d[gpd] / Sin[alpha];
+      (* Derivative list for boundary tracing *)
+      {p, q, grad2, f, vi} = derList =
+        ContactDerivativeList[tNumerical[gpd], gammaTracing];
+      (* Traced boundary (upper branch) *)
+      xyTraced[gpd] =
+        ContactTracedBoundary[derList][
+          {xCritical[gpd], 0}, 0, {0, sMax}
+          , -1, 1
+          , -Infinity
+        ];
+      , {gpd, gpdValues}
+    ];
+    (* Plot range *)
+    plotRangeFactor =
+      Which[
+        apd == apdValues[[1]], 1.8,
+        apd == apdValues[[2]], 2,
+        apd == apdValues[[3]], 2.2
+      ];
+    xMax = plotRangeFactor * Max[xCriticalOffset /@ gpdValues];
+    yMax = xMax;
+    xMaxMore = 1.1 xMax;
+    Show[
+      EmptyFrame[{0, xMax}, {-yMax, yMax}
+        , FrameLabel -> {
+            Italicise["x"]' // Margined @ {{0, 0}, {0, -20}},
+            Italicise["y"]
+          }
+        , FrameTicksStyle -> LabelSize["Tick"]
+        , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+      ],
+      (* Wedge walls *)
+      Graphics @ {BoundaryTracingStyle["Background"],
+        Line @ {
+          xMaxMore {1, Tan[alpha]},
+          {0, 0},
+          xMaxMore {1, -Tan[alpha]}
+        }
+      },
+      (* Traced boundaries *)
+      Table[
+        xy = xyTraced[gpd];
+        ParametricPlot[
+          Evaluate @ Subtract[
+            EvaluatePair[xy, Abs[s], Sign[s]],
+            {d[gpd] / Sin[alpha], 0}
+          ]
+          , {s, -DomainEnd[xy], DomainEnd[xy]}
+          , PlotStyle -> Directive[
+              BoundaryTracingStyle["Traced"],
+              GeneralStyle["DefaultThick"]
+            ]
+        ]
+        , {gpd, gpdValues}
+      ],
+      {}
+      , ImageSize -> {Automatic, 0.58 ImageSizeTextWidth}
+    ]
+    , {apd, apdValues}
+  ]
+]
