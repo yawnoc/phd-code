@@ -677,6 +677,10 @@ Module[
 (*Finite element mesh*)
 
 
+(* ::Subsection:: *)
+(*Sharp-cornered wedges*)
+
+
 (* For each value of alpha: *)
 Table[
   Module[{mesh, prWet, nElem},
@@ -694,6 +698,55 @@ Table[
     ]
   ] // Ex @ FString @ "mesh/wedge_acute-mesh-apd-{apd}.png"
 , {apd, apdValues}]
+
+
+(* ::Subsection:: *)
+(*Rounded wedges*)
+
+
+(* (This is slow (~10 sec).) *)
+Table[
+  Module[
+    {
+      mesh, predicateWet, tipTheory, tipMesh,
+      numElements,
+      boundaryCoordinates, wetBoundaryCoordinates,
+      dummyForTrailingCommas
+    },
+    (* Import mesh *)
+    {mesh, predicateWet, tipTheory, tipMesh} =
+      FString @ "mesh/wedge_acute-mesh-apd-{apd}-rad-{rad}.txt"
+        // Import // Uncompress;
+    numElements = Length @ mesh[[2, 1, 1]];
+    (* Determine predicate-satisfying boundary coordinates *)
+    boundaryCoordinates =
+      Part[
+        mesh["Coordinates"],
+        mesh["BoundaryElements"][[1, 1]] // Flatten // Union
+      ];
+    wetBoundaryCoordinates =
+      Select[
+        boundaryCoordinates,
+        predicateWet @@ # &
+      ];
+    (* Plot *)
+    Show[
+      mesh["Wireframe"],
+      ListPlot[boundaryCoordinates, PlotStyle -> Directive[Red, PointSize[Medium]]],
+      ListPlot[wetBoundaryCoordinates, PlotStyle -> Directive[Blue, PointSize[Medium]]],
+      {}
+      , PlotLabel -> Column @ {
+          FString @ "{numElements} mesh elements",
+          {"Theoretical tip location", tipTheory},
+          {"Actual (mesh) tip location", tipMesh},
+          {"Equal?", tipTheory == tipMesh},
+          Nothing
+        }
+    ]
+  ] // Ex @ FString @ "mesh/wedge_acute-mesh-apd-{apd}-rad-{rad}.png"
+  , {apd, {60}}
+  , {rad, Range[0, 3, 0.2] // Rest}
+]
 
 
 (* ::Section:: *)
