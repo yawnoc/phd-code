@@ -3000,6 +3000,7 @@ Module[
     xCriticalOffsetMinGamma, xCriticalOffsetMaxGamma,
     arrowDirection,
     xArrowBase, xArrowTip,
+    xGammaLabel, gammaLabelXShift,
     dummyForTrailingCommas
   },
   (* Prescribed angles *)
@@ -3095,7 +3096,7 @@ Module[
         ]
         , {gpd, gpdValues}
       ],
-      (* Tracing gamma arrow *)
+      (* Solution gamma arrow *)
       xCriticalOffsetMinGamma = xCriticalOffset[Min @ gpdValues];
       xCriticalOffsetMaxGamma = xCriticalOffset[Max @ gpdValues];
       arrowDirection = Sign[xCriticalOffsetMaxGamma - xCriticalOffsetMinGamma];
@@ -3106,8 +3107,20 @@ Module[
         Arrowheads[Medium],
         Arrow @ {{xArrowBase, 0}, {xArrowTip, 0}}
       },
+      (* Solution gamma label *)
+      xGammaLabel = Max[xArrowBase, xArrowTip];
+      gammaLabelXShift = If[xArrowBase < xArrowTip, -1.6, -2.5];
+      Graphics @ {
+        Text[
+          "\[Gamma]"
+            // LaTeXStyle
+            // Style[#, LabelSize["Label"]] &
+          , {xGammaLabel, 0}
+          , {-2.5, -0.2}
+        ]
+      },
       {}
-      , ImageSize -> {Automatic, 0.58 ImageSizeTextWidth}
+      , ImageSize -> 0.33 ImageSizeTextWidth
     ]
     , {apd, apdValues}
   ]
