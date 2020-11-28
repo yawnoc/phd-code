@@ -3306,3 +3306,56 @@ Module[
     , ImageSize -> 0.45 ImageSizeTextWidth
   ]
 ] // Ex["wedge_acute-well-approximating-arc.pdf"]
+
+
+(* ::Section:: *)
+(*Table: well-approximating radius versus height rise*)
+
+
+(* (This is slow (~6 sec).) *)
+Module[
+  {
+    apd, gpdTracing,
+    alpha, gammaTracing,
+    gpdValues,
+    tNumerical,
+    gamma, xCritical,
+    d, xCriticalOffset,
+    rad, height,
+    dummyForTrailingCommas
+  },
+  (* Prescribed angles *)
+  apd = 60;
+  gpdTracing = 75;
+  alpha = apd * Degree;
+  gammaTracing = gpdTracing * Degree;
+  (* For various known solution angles: *)
+  gpdValues = Range[90 - apd, gpdTracing, 5];
+  Table[
+    gamma = gpd * Degree;
+    (* Import numerical solutions *)
+    tNumerical[gpd] =
+      Import @ FString["solution/wedge_acute-solution-apd-{apd}-gpd-{gpd}.txt"]
+        // Uncompress // First;
+    (* Compute critical terminal point x_0 *)
+    xCritical[gpd] = x0[tNumerical[gpd], gammaTracing];
+    (* Offset critical terminal point x'_0  *)
+    d[gpd] = DHalfPlane[gamma, gammaTracing];
+    xCriticalOffset[gpd] = xCritical[gpd] - d[gpd] / Sin[alpha];
+    (* Well-approximating rounding radius *)
+    rad[gpd] = xCriticalOffset[gpd] * Sin[alpha] / (1 - Sin[alpha]);
+    (* Height rise *)
+    height[gpd] = tNumerical[gpd][xCritical[gpd], 0];
+    , {gpd, gpdValues}
+  ];
+  (* Export table *)
+  Table[
+    {gpd, rad[gpd], height[gpd]}
+    , {gpd, gpdValues}
+  ] // TableForm[#,
+    TableHeadings -> {
+      None,
+      {"gpd", "radius", "height"}
+    }
+  ] &
+] // Ex["wedge_acute-well-approximating-table.pdf"]
