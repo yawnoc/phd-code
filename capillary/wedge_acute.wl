@@ -606,15 +606,17 @@ Table[
 ExportIfNotExists["wedge_acute-radius-height-rise-conventional.csv",
   Module[
     {
-      apd, radValues, gamma,
+      apd, gpd, radValues, gamma,
       mesh, predicateWet, tipTheory, tipMesh,
       tNumerical, height,
+      table, tSharp, heightSharp,
       dummyForTrailingCommas
     },
     (* Chosen parameters *)
     apd = 60;
+    gpd = 75;
     radValues = Range[0, 3, 0.2] // Rest;
-    gamma = 75 Degree;
+    gamma = gpd * Degree;
     (* For each chosen rounding radius: *)
     Table[
       (* Import mesh *)
@@ -627,8 +629,16 @@ ExportIfNotExists["wedge_acute-radius-height-rise-conventional.csv",
       height[rad] = tNumerical @@ tipMesh
       , {rad, radValues}
     ];
+    (* Build radius vs height table *)
+    table = Table[{rad, height[rad]}, {rad, radValues}];
+    (* Prepend zero-radius data point (using sharp-cornered solution) *)
+    tSharp =
+      Import @ FString["solution/wedge_acute-solution-apd-{apd}-gpd-{gpd}.txt"]
+        // Uncompress // First;
+    heightSharp = tSharp[0, 0];
+    table = Prepend[table, {0, heightSharp}];
     (* Return radius vs height table for export *)
-    Table[{rad, height[rad]}, {rad, radValues}]
+    table
   ]
 ]
 
