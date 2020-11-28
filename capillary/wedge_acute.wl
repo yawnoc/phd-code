@@ -499,6 +499,101 @@ bothBranches[{x_, y_}] := {{x, y}, {x, -y}};
 
 
 (* ::Subsection:: *)
+(*Finite element mesh, rounded wedges (circular arc)*)
+
+
+(* (These are not slow, nevertheless compute once and store.) *)
+(* (Delete the files manually to compute from scratch.) *)
+Table[
+  ExportIfNotExists[FString @ "mesh/wedge_acute-mesh-apd-{apd}-rad-{rad}.txt",
+    Module[
+      {
+        rMax, alpha,
+        xCentre, yCentre,
+        rJoin,
+        angMin, angMax,
+        fineLengthScale, coarseLengthScale,
+        boundaryPoints, numBoundaryPoints, boundaryElements,
+        boundaryMesh, mesh,
+        predicateWet,
+        tipTheory, tipMesh,
+        dummyForTrailingCommas
+      },
+      (* Geometry *)
+      rMax = 10;
+      alpha = apd * Degree;
+      (* Centre of circular arc *)
+      xCentre = rad / Sin[alpha];
+      yCentre = 0;
+      (* Radius (distance from origin) of arc--wall join *)
+      (* (where the arc is tangential to the wall) *)
+      rJoin = rad / Tan[alpha];
+      (* Angular range of circular arc *)
+      angMin = Pi/2 + alpha;
+      angMax = 2 Pi - angMin;
+      (* Refinement length scales along boundaries *)
+      (* (refinement not needed in interior, since not boundary tracing afterward) *)
+      fineLengthScale = 0.01;
+      coarseLengthScale = 0.5;
+      (* Boundary points and elements *)
+      boundaryPoints =
+        Join[
+          (* Circular rounding arc *)
+          (* (split into halves to ensure a point along y == 0) *)
+          Table[
+            {xCentre, yCentre} + XYPolar[rad, ang]
+            , {ang, UniformRange[angMin, Pi, fineLengthScale / rad]}
+          ] // Rest,
+          Table[
+            {xCentre, yCentre} + XYPolar[rad, ang]
+            , {ang, UniformRange[Pi, angMax, fineLengthScale / rad]}
+          ] // Rest,
+          (* Lower straight wall *)
+          Table[
+            XYPolar[r, -alpha]
+            , {r, UniformRange[rJoin, rMax, fineLengthScale]}
+          ] // Rest,
+          (* Far arc (numerical infinity) *)
+          Table[
+            XYPolar[rMax, phi]
+            , {phi, UniformRange[-alpha, alpha, coarseLengthScale / rMax]}
+          ] // Rest,
+          (* Upper straight wall *)
+          Table[
+            XYPolar[r, +alpha]
+            , {r, UniformRange[rMax, rJoin, -fineLengthScale]}
+          ] // Rest,
+          {}
+        ];
+      numBoundaryPoints = Length[boundaryPoints];
+      boundaryElements =
+        LineElement /@ {
+          Table[{n, n + 1}, {n, numBoundaryPoints}]
+            // Mod[#, numBoundaryPoints, 1] &
+        };
+      (* Build mesh *)
+      boundaryMesh =
+        ToBoundaryMesh[
+          "Coordinates" -> boundaryPoints,
+          "BoundaryElements" -> boundaryElements,
+          {}
+        ];
+      mesh = ToElementMesh[boundaryMesh, "ImproveBoundaryPosition" -> True];
+      (* Predicate function for wetting boundaries *)
+      predicateWet = Function[{x, y}, x <= rMax Cos[alpha] // Evaluate];
+      (* Rounding tip location *)
+      tipTheory = {xCentre, yCentre} - {rad, 0};
+      tipMesh = MinimalBy[mesh["Coordinates"], First] // First;
+      (* Return *)
+      {mesh, predicateWet, tipTheory, tipMesh} // Compress
+    ]
+  ]
+  , {apd, {60}}
+  , {rad, Range[0, 3, 0.2] // Rest}
+]
+
+
+(* ::Subsection:: *)
 (*Geometric regions*)
 
 
