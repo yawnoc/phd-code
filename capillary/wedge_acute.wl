@@ -2715,7 +2715,7 @@ Module[
 
 
 (* ::Section:: *)
-(*Figure: family of candidate boundaries (wedge_acute-candidate-family)*)
+(*Figure: family of candidate boundaries (wedge_acute-candidates)*)
 
 
 Module[
@@ -2837,12 +2837,12 @@ Module[
     {}
     , ImageSize -> 0.4 ImageSizeTextWidth
   ]
-] // Ex["wedge_acute-candidate-family.pdf"]
+] // Ex["wedge_acute-candidates.pdf"]
 
 
 (* ::Section:: *)
 (*Figure: candidate boundaries grouped by tracing contact angle*)
-(*(wedge_acute-candidate-by-tracing-angle)*)
+(*(wedge_acute-candidates-by-tracing-angle)*)
 
 
 Module[
@@ -2971,4 +2971,4 @@ Module[
     {}
     , ImageSize -> 0.4 ImageSizeTextWidth
   ]
-] // Ex["wedge_acute-candidate-by-tracing-angle.pdf"]
+] // Ex["wedge_acute-candidates-by-tracing-angle.pdf"]
