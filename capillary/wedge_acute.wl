@@ -3359,3 +3359,85 @@ Module[
     }
   ] &
 ] // Ex["wedge_acute-well-approximating-table.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: height-rise profiles (wedge_acute-height-rise-profiles)*)
+
+
+(* (This is slow (~5 sec).) *)
+Module[
+  {
+    apd, gpdTracing,
+    alpha, gammaTracing, h,
+    gpdValues,
+    sMax,
+    xySharp,
+    tNumerical, xCritical,
+    derList, p, q, grad2, f, vi,
+    xyTraced,
+    dummyForTrailingCommas
+  },
+  (* Prescribed angles *)
+  apd = 60;
+  gpdTracing = 75;
+  alpha = apd * Degree;
+  gammaTracing = gpdTracing * Degree;
+  h = HHalfPlane[gammaTracing];
+  (* Known solution gamma *)
+  gpdValues = {90 - apd, gpdTracing};
+  (* Plot range *)
+  sMax = 4;
+  (* Sharp corner (original walls) *)
+  xySharp[s_] := XYPolar[Abs[s], Sign[s] alpha];
+  (* For the chosen known solution gamma: *)
+  Table[
+    (* Import numerical solution *)
+    tNumerical[gpd] =
+      Import @ FString["solution/wedge_acute-solution-apd-{apd}-gpd-{gpd}.txt"]
+        // Uncompress // First;
+    (* Critical terminal point x_0 *)
+    xCritical[gpd] = x0[tNumerical[gpd], gammaTracing];
+    (* Derivative list for boundary tracing *)
+    {p, q, grad2, f, vi} = derList =
+      ContactDerivativeList[tNumerical[gpd], gammaTracing];
+    (* Traced boundary (upper branch) *)
+    xyTraced[gpd] =
+      ContactTracedBoundary[derList][
+        {xCritical[gpd], 0}, 0, {0, sMax}
+        , -1, 1
+        , -Infinity
+      ];
+    , {gpd, gpdValues}
+  ];
+  (* Plot *)
+  Plot[
+    Join[
+      (* Sharp corner *)
+      tNumerical[gpdTracing] @@ xySharp[s] // List,
+      (* Rounded corners *)
+      Table[
+        tNumerical[gpd] @@ EvaluatePair[xyTraced[gpd], Abs[s], Sign[s]]
+        , {gpd, gpdValues}
+      ],
+      {}
+    ] // Evaluate
+    , {s, -sMax, sMax}
+    , AspectRatio -> 0.5
+    , AxesLabel -> Italicise /@ {"s", "T"}
+    , ImageSize -> 0.6 ImageSizeTextWidth
+    , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+    , PlotRange -> {0, All}
+    , PlotStyle ->
+        Join[
+          BoundaryTracingStyle["Wall"] // List,
+          ConstantArray[
+            Directive[BoundaryTracingStyle["Traced"], GeneralStyle["DefaultThick"]],
+            Length[gpdValues]
+          ],
+          {}
+        ]
+    , TicksStyle -> LabelSize["Tick"]
+    , PlotOptions[Axes] // Evaluate
+  ]
+] // Ex["wedge_acute-height-rise-profiles.pdf"]
