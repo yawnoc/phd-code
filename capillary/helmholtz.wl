@@ -1088,7 +1088,7 @@ Module[
     dummyForTrailingCommas
   },
   (* Plot range *)
-  sMax = 2.3;
+  sMax = 3;
   (* Sharp corner (original walls) *)
   xySharp[s_] := XYPolar[Abs[s], Sign[s] alpha];
   (* Rounded corner (upper portion of upper branch) *)
@@ -1100,10 +1100,13 @@ Module[
     , {s, -sMax, sMax}
     , AspectRatio -> Automatic
     , AxesLabel -> Italicise /@ {"s", "U"}
-    , ImageSize -> 0.67 ImageSizeTextWidth
+    , ImageSize -> 0.8 ImageSizeTextWidth
     , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
     , PlotRange -> {0, All}
-    , PlotStyle -> BoundaryTracingStyle /@ {"Wall", "Traced"}
+    , PlotStyle -> {
+        BoundaryTracingStyle["Wall"],
+        Directive[BoundaryTracingStyle["Traced"], GeneralStyle["DefaultThick"]]
+      }
     , PlotOptions[Axes] // Evaluate
     , TicksStyle -> LabelSize["Tick"]
   ]
