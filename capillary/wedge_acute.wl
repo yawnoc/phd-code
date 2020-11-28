@@ -2997,6 +2997,9 @@ Module[
     plotRangeFactor,
     xMax, yMax, xMaxMore,
     xy,
+    xCriticalOffsetMinGamma, xCriticalOffsetMaxGamma,
+    arrowDirection,
+    xArrowBase, xArrowTip,
     dummyForTrailingCommas
   },
   (* Prescribed angles *)
@@ -3092,6 +3095,17 @@ Module[
         ]
         , {gpd, gpdValues}
       ],
+      (* Tracing gamma arrow *)
+      xCriticalOffsetMinGamma = xCriticalOffset[Min @ gpdValues];
+      xCriticalOffsetMaxGamma = xCriticalOffset[Max @ gpdValues];
+      arrowDirection = Sign[xCriticalOffsetMaxGamma - xCriticalOffsetMinGamma];
+      xArrowBase = xCriticalOffsetMinGamma - 0.1 xMax * arrowDirection;
+      xArrowTip = xCriticalOffsetMaxGamma + 0.2 xMax * arrowDirection;
+      Graphics @ {
+        GeneralStyle["Translucent"], GeneralStyle["Thick"],
+        Arrowheads[Medium],
+        Arrow @ {{xArrowBase, 0}, {xArrowTip, 0}}
+      },
       {}
       , ImageSize -> {Automatic, 0.58 ImageSizeTextWidth}
     ]
