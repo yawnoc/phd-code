@@ -499,7 +499,11 @@ bothBranches[{x_, y_}] := {{x, y}, {x, -y}};
 
 
 (* ::Subsection:: *)
-(*Finite element mesh, rounded wedges (circular arc)*)
+(*Rounded wedges (circular arc)*)
+
+
+(* ::Subsubsection:: *)
+(*Finite element mesh*)
 
 
 (* (These are not slow, nevertheless compute once and store.) *)
@@ -590,6 +594,42 @@ Table[
   ]
   , {apd, {60}}
   , {rad, Range[0, 3, 0.2] // Rest}
+]
+
+
+(* ::Subsubsection:: *)
+(*Solve for numerical corner heights (conventional approach)*)
+
+
+(* (This is slow (~30 sec), so compute once and store.) *)
+(* (Delete the files manually to compute from scratch.) *)
+ExportIfNotExists["wedge_acute-radius-height-rise-conventional.csv",
+  Module[
+    {
+      apd, radValues, gamma,
+      mesh, predicateWet, tipTheory, tipMesh,
+      tNumerical, height,
+      dummyForTrailingCommas
+    },
+    (* Chosen parameters *)
+    apd = 60;
+    radValues = Range[0, 3, 0.2] // Rest;
+    gamma = 75 Degree;
+    (* For each chosen rounding radius: *)
+    Table[
+      (* Import mesh *)
+      {mesh, predicateWet, tipTheory, tipMesh} =
+        FString @ "mesh/wedge_acute-mesh-apd-{apd}-rad-{rad}.txt"
+          // Import // Uncompress;
+      (* Compute numerical solution to capillary BVP *)
+      tNumerical = SolveLaplaceYoung[gamma, mesh, predicateWet];
+      (* Obtain height at rounding tip *)
+      height[rad] = tNumerical @@ tipMesh
+      , {rad, radValues}
+    ];
+    (* Return radius vs height table for export *)
+    Table[{rad, height[rad]}, {rad, radValues}]
+  ]
 ]
 
 
