@@ -598,11 +598,11 @@ Table[
 
 
 (* ::Subsubsection:: *)
-(*Solve for numerical corner heights (conventional approach)*)
+(*Solve for numerical rounding heights (conventional approach)*)
 
 
 (* (This is slow (~30 sec), so compute once and store.) *)
-(* (Delete the files manually to compute from scratch.) *)
+(* (Delete the file manually to compute from scratch.) *)
 ExportIfNotExists["wedge_acute-radius-height-rise-conventional.csv",
   Module[
     {
@@ -629,6 +629,58 @@ ExportIfNotExists["wedge_acute-radius-height-rise-conventional.csv",
     ];
     (* Return radius vs height table for export *)
     Table[{rad, height[rad]}, {rad, radValues}]
+  ]
+]
+
+
+(* ::Subsubsection:: *)
+(*Well-approximating radius vs rounding height (boundary tracing approach)*)
+
+
+(* (This is slow (~6 sec).) *)
+(* (Delete the file manually to compute from scratch.) *)
+ExportIfNotExists["wedge_acute-radius-height-rise-tracing.csv",
+  Module[
+    {
+      apd, gpdTracing,
+      alpha, gammaTracing,
+      gpdValues,
+      tNumerical,
+      gamma, xCritical,
+      d, xCriticalOffset,
+      rad, height,
+      dummyForTrailingCommas
+    },
+    (* Prescribed angles *)
+    apd = 60;
+    gpdTracing = 75;
+    alpha = apd * Degree;
+    gammaTracing = gpdTracing * Degree;
+    (* For various known solution angles: *)
+    gpdValues = Range[90 - apd, gpdTracing, 5];
+    Table[
+      gamma = gpd * Degree;
+      (* Import numerical solutions *)
+      tNumerical[gpd] =
+        Import @ FString["solution/wedge_acute-solution-apd-{apd}-gpd-{gpd}.txt"]
+          // Uncompress // First;
+      (* Compute critical terminal point x_0 *)
+      xCritical[gpd] =
+        Quiet[
+          x0[tNumerical[gpd], gammaTracing]
+          , {InterpolatingFunction::femdmval}
+        ];
+      (* Offset critical terminal point x'_0  *)
+      d[gpd] = DHalfPlane[gamma, gammaTracing];
+      xCriticalOffset[gpd] = xCritical[gpd] - d[gpd] / Sin[alpha];
+      (* Well-approximating rounding radius *)
+      rad[gpd] = xCriticalOffset[gpd] * Sin[alpha] / (1 - Sin[alpha]);
+      (* Height rise *)
+      height[gpd] = tNumerical[gpd][xCritical[gpd], 0];
+      , {gpd, gpdValues}
+    ];
+    (* Return radius vs height table for export *)
+    Table[{rad[gpd], height[gpd]}, {gpd, gpdValues}]
   ]
 ]
 
