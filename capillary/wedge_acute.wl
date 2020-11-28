@@ -3119,11 +3119,11 @@ Module[
             // LaTeXStyle
             // Style[#, LabelSize["Label"]] &
           , {xGammaLabel, 0}
-          , {-2.5, -0.2}
+          , {gammaLabelXShift, -0.2}
         ]
       },
       {}
-      , ImageSize -> 0.33 ImageSizeTextWidth
+      , ImageSize -> 0.31 ImageSizeTextWidth
     ];
     (* Inset to show bulging *)
     If[apd == apdValues[[1]],
