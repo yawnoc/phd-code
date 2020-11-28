@@ -2919,7 +2919,7 @@ Module[
       , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
     ],
     (* Wedge walls *)
-    Graphics @ {BoundaryTracingStyle["Background"],
+    Graphics @ {BoundaryTracingStyle["Wall"],
       Line @ {
         xMaxMore {1, Tan[alpha]},
         {0, 0},
