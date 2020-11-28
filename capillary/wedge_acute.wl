@@ -2951,7 +2951,7 @@ Module[
       ]
       , {xy, xyTracedAss[gpdTracing] // List}
     ],
-    (* Tracing gamma arrow *)
+    (* Solution gamma arrow *)
     xArrowMin = Way[xCriticalMin, xCriticalMax, -0.45];
     xArrowMax = Way[xCriticalMin, xCriticalMax, +1.25];
     Graphics @ {
