@@ -3413,6 +3413,8 @@ Module[
   (* Plot *)
   Plot[
     Join[
+      (* Half-plane wall height *)
+      h // List,
       (* Sharp corner *)
       tNumerical[gpdTracing] @@ xySharp[s] // List,
       (* Rounded corners *)
@@ -3430,6 +3432,7 @@ Module[
     , PlotRange -> {0, All}
     , PlotStyle ->
         Join[
+          BoundaryTracingStyle["Contour"] // List,
           BoundaryTracingStyle["Wall"] // List,
           ConstantArray[
             Directive[BoundaryTracingStyle["Traced"], GeneralStyle["DefaultThick"]],
