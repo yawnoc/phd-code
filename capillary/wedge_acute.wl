@@ -3182,3 +3182,127 @@ Module[
     , {apd, apdValues}
   ]
 ]
+
+
+(* ::Section:: *)
+(*Figure: well-approximating circular arc (wedge_acute-well-approximating-arc)*)
+
+
+Module[
+  {
+    alpha,
+    wedgeRMax, wedgeXMax, wedgeYMax,
+    clearanceProportion, xMin, xMax, yMax,
+    xTip, rad, xCentre, angMin, angMax,
+    xTangency, yTangency,
+    orthogonalityMarkerLength,
+    angleMarkerRadius, textSize, textStyle,
+    dummyForTrailingCommas
+  },
+  (* Wedge *)
+  alpha = 30 Degree;
+  wedgeRMax = 1;
+  {wedgeXMax, wedgeYMax} = XYPolar[wedgeRMax, alpha];
+  (* Plot range *)
+  clearanceProportion = 1/10;
+  xMin = Way[0, wedgeXMax, -clearanceProportion];
+  xMax = Way[0, wedgeXMax, 1 + clearanceProportion];
+  yMax = Way[0, wedgeYMax, 1 + clearanceProportion];
+  (* Tip of circle (offset critical terminal point x'_0) *)
+  xTip = Way[xMin, xMax, 0.45];
+  (* Radius, centre, and angular range of circular arc *)
+  rad = xTip Sin[alpha] / (1 - Sin[alpha]);
+  xCentre = rad / Sin[alpha];
+  angMin = Pi/2 + alpha;
+  angMax = 2 Pi - angMin;
+  (* Point of tangency unto upper wedge wall *)
+  {xTangency, yTangency} = XYPolar[rad / Tan[alpha], alpha];
+  (* Etc. *)
+  orthogonalityMarkerLength = 0.125 rad;
+  angleMarkerRadius = 0.3 rad;
+  textSize = LabelSize["Label"];
+  textStyle = Style[#, textSize] & @* LaTeXStyle;
+  (* Diagram *)
+  Show[
+    EmptyAxes[{xMin, xMax}, {-yMax, yMax}
+      , AspectRatio -> Automatic
+      , AxesLabel -> {
+          Superscript[
+            Italicise["x"],
+            Style["\[Prime]", Magnification -> 1.3]
+          ] // Margined @ {{0, 0}, {0, -5}},
+          Italicise["y"]
+        }
+      , LabelStyle -> LatinModernLabelStyle @ textSize
+      , Method -> {"AxesInFront" -> False}
+      , Ticks -> None
+    ],
+    (* Radius unto tangent at upper wedge wall *)
+    Graphics @ {
+      Line @ {{xCentre, 0}, {xTangency, yTangency}}
+    },
+    Graphics @ {
+      Text[
+        Italicise["R"] // textStyle
+        , Way[{xCentre, 0}, {xTangency, yTangency}]
+        , {-1.7, -0.5}
+      ]
+    },
+    Graphics @ {
+      Line[orthogonalityMarkerLength {{1, 0}, {1, -1}, {0, -1}}]
+        // Rotate[#, alpha, {0, 0}] &
+        // Translate[#, {xTangency, yTangency}] &
+    },
+    (* Wedge half-angle *)
+    Graphics @ {
+      Circle[{0, 0}, angleMarkerRadius, {0, alpha}]
+    },
+    Graphics @ {
+      Text[
+        "\[Alpha]" // textStyle
+        , XYPolar[angleMarkerRadius, alpha / 2]
+        , {-2.5, -0.3}
+      ]
+    },
+    (* Wedge walls *)
+    Graphics @ {
+      BoundaryTracingStyle["Wall"],
+      Line @ {{wedgeXMax, wedgeYMax}, {0, 0}, {wedgeXMax, -wedgeYMax}}
+    },
+    (* Circular arc *)
+    Graphics @ {BoundaryTracingStyle["Traced"],
+      Circle[{xCentre, 0}, rad, {angMin, angMax}]
+    },
+    (* Tip of circle (offset critical terminal point x'_0) *)
+    Graphics @ {GeneralStyle["Point"],
+      Point @ {xTip, 0}
+    },
+    Graphics @ {
+      Text[
+        Subsuperscript[
+          Italicise["x"],
+          0,
+          Style["\[Prime]", Magnification -> 1.3]
+        ] // textStyle
+        , {xTip, 0}
+        , {1.25, 1.1}
+      ]
+    },
+    (* Centre of circle *)
+    Graphics @ {GeneralStyle["Point"],
+      Point @ {xCentre, 0}
+    },
+    Graphics @ {
+      Text[
+        SeparatedRow["/"][
+          Italicise["R"],
+          SeparatedRow["Thin"]["sin", "\[Alpha]"]
+        ] // textStyle
+        , {xCentre, 0}
+        , {0, 1.1}
+      ]
+    },
+    {}
+    , ImageSize -> 0.45 ImageSizeTextWidth
+  ]
+] // Ex["wedge_acute-well-approximating-arc.pdf"]
