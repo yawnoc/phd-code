@@ -3156,15 +3156,29 @@ Module[
             }
         ];
     ];
+    (* Export table of offset critical terminal point coordinates *)
+    Table[{gpd, xCriticalOffset[gpd]}, {gpd, gpdValues}]
+      // TableForm[#,
+           TableHeadings -> {
+             None,
+             {"gpd", "xCriticalOffset"}
+           }
+         ] &
+      // Ex @ FString["wedge_acute-candidates-offset-alpha-{apd}_degree-table.pdf"]
+    ;
+    (* Export plot *)
     Show[
       plot
       , FrameLabel -> {
-          Italicise["x"]' // Margined @ {{0, 0}, {0, -20}},
+          Superscript[
+            Italicise["x"],
+            Style["\[NegativeVeryThinSpace]\[Prime]", Magnification -> 1.3]
+          ] // Margined @ {{0, 0}, {0, -15}},
           Italicise["y"]
         }
       , FrameTicksStyle -> LabelSize["Tick"]
       , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
-    ]
+    ] // Ex @ FString["wedge_acute-candidates-offset-alpha-{apd}_degree.pdf"]
     , {apd, apdValues}
   ]
 ]
