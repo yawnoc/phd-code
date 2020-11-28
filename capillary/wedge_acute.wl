@@ -2996,11 +2996,14 @@ Module[
     d, xCriticalOffset,
     plotRangeFactor,
     xMax, yMax, xMaxMore,
-    xy,
+    graphicsWedgeWalls, xy, plotTracedBoundaries,
+    plot,
     xCriticalOffsetMinGamma, xCriticalOffsetMaxGamma,
     arrowDirection,
     xArrowBase, xArrowTip,
     xGammaLabel, gammaLabelXShift,
+    xMinInset, xMaxInset, yMinInset, yMaxInset,
+    insetRectangleStyle, insetRectangle, insetPlot,
     dummyForTrailingCommas
   },
   (* Prescribed angles *)
@@ -3063,24 +3066,16 @@ Module[
     xMax = plotRangeFactor * Max[xCriticalOffset /@ gpdValues];
     yMax = xMax;
     xMaxMore = 1.1 xMax;
-    Show[
-      EmptyFrame[{0, xMax}, {-yMax, yMax}
-        , FrameLabel -> {
-            Italicise["x"]' // Margined @ {{0, 0}, {0, -20}},
-            Italicise["y"]
-          }
-        , FrameTicksStyle -> LabelSize["Tick"]
-        , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
-      ],
-      (* Wedge walls *)
-      Graphics @ {BoundaryTracingStyle["Background"],
+    (* Plots re-used for inset *)
+    graphicsWedgeWalls =
+      Graphics @ {BoundaryTracingStyle["Wall"],
         Line @ {
           xMaxMore {1, Tan[alpha]},
           {0, 0},
           xMaxMore {1, -Tan[alpha]}
         }
-      },
-      (* Traced boundaries *)
+      };
+    plotTracedBoundaries =
       Table[
         xy = xyTraced[gpd];
         ParametricPlot[
@@ -3095,7 +3090,15 @@ Module[
             ]
         ]
         , {gpd, gpdValues}
+      ];
+    (* Main plot *)
+    plot = Show[
+      EmptyFrame[{0, xMax}, {-yMax, yMax}
       ],
+      (* Wedge walls *)
+      graphicsWedgeWalls,
+      (* Traced boundaries *)
+      plotTracedBoundaries,
       (* Solution gamma arrow *)
       xCriticalOffsetMinGamma = xCriticalOffset[Min @ gpdValues];
       xCriticalOffsetMaxGamma = xCriticalOffset[Max @ gpdValues];
@@ -3121,6 +3124,46 @@ Module[
       },
       {}
       , ImageSize -> 0.33 ImageSizeTextWidth
+    ];
+    (* Inset to show bulging *)
+    If[apd == apdValues[[1]],
+      (* Inset bounding box coordinates *)
+      xMinInset = xCriticalOffsetMinGamma;
+      xMaxInset = Way[xMinInset, xMax, 0.525];
+      yMinInset = xMinInset Tan[alpha];
+      yMaxInset = Way[yMinInset, yMax, 0.3];
+      (* Inset rectangle *)
+      insetRectangleStyle = Directive[EdgeForm[Black], FaceForm[None]];
+      insetRectangle = Rectangle[{xMinInset, yMinInset}, {xMaxInset, yMaxInset}];
+      (* Inset plot *)
+      insetPlot =
+        Show[
+          graphicsWedgeWalls,
+          plotTracedBoundaries,
+          Graphics @ {insetRectangleStyle, insetRectangle},
+          {}
+          , ImageSize -> 0.15 ImageSizeTextWidth
+          , PlotRange -> {{xMinInset, xMaxInset}, {yMinInset, yMaxInset}}
+        ];
+      (* Put inset plot into main plot *)
+      plot =
+        Show[
+          plot,
+          Graphics @ {insetRectangleStyle, insetRectangle},
+          {}
+          , Epilog -> {
+              Inset[insetPlot, Scaled @ {0.4, 0.852}]
+            }
+        ];
+    ];
+    Show[
+      plot
+      , FrameLabel -> {
+          Italicise["x"]' // Margined @ {{0, 0}, {0, -20}},
+          Italicise["y"]
+        }
+      , FrameTicksStyle -> LabelSize["Tick"]
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
     ]
     , {apd, apdValues}
   ]
