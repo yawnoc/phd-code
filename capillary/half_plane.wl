@@ -667,7 +667,7 @@ Module[
     , ImageSize -> 0.6 ImageSizeTextWidth
     , Joined -> True
     , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
-    , PlotMarkers -> {Automatic, Tiny}
+    , PlotMarkers -> {Automatic, 4}
     , PlotStyle -> Black
     , PlotOptions[Axes] // Evaluate
     , TicksStyle -> LabelSize["Tick"]
