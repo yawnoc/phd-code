@@ -3694,3 +3694,45 @@ Module[
     , PlotOptions[Axes] // Evaluate
   ]
 ] // Ex["wedge_acute-height-rise-profiles.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: radius vs height rise comparison (wedge_acute-radius-height-rise-comparison)*)
+
+
+Module[
+  {
+    boundaryTracingTable, conventionalTable,
+    heightMin, heightMax,
+    dummyForTrailingCommas
+  },
+  (* Import radius vs height rise tables *)
+  conventionalTable = Import["wedge_acute-radius-height-rise-conventional.csv"];
+  boundaryTracingTable = Import["wedge_acute-radius-height-rise-tracing.csv"] // Reverse;
+  (* Nicer vertical plot range *)
+  {heightMin, heightMax} = MinMax @ conventionalTable[[All, 2]];
+  heightMin = Floor[heightMin, 0.05];
+  heightMax = Ceiling[heightMax, 0.05];
+  (* Plot *)
+  ListPlot[
+    {conventionalTable, boundaryTracingTable}
+    , AspectRatio -> 0.75
+    , AxesLabel -> {"Radius", "Height"}
+    , ImageSize -> 0.7 ImageSizeTextWidth
+    , Joined -> True
+    , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+    , PlotLegends -> Placed[
+        PointLegend[
+          {"Conventional", "Boundary tracing"}
+          , LabelStyle -> LatinModernLabelStyle @ LabelSize["Legend"]
+          , LegendLayout -> "ReversedColumn"
+        ]
+        , Scaled @ {0.7, 0.7}
+      ]
+    , PlotMarkers -> {{Automatic, 5}, {"OpenMarkers", 6}}
+    , PlotRange -> {heightMin, heightMax}
+    , PlotStyle -> Black
+    , TicksStyle -> LabelSize["Tick"]
+    , PlotOptions[Axes] // Evaluate
+  ]
+] // Ex["wedge_acute-radius-height-rise-comparison.pdf"]
