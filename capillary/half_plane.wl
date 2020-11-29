@@ -621,7 +621,7 @@ Module[
 
 
 (* ::Section:: *)
-(*Figure: numerical solution relative error (half-plane-relative-error)*)
+(*Figure: numerical solution relative error (half_plane-relative-error)*)
 
 
 Module[
@@ -672,4 +672,4 @@ Module[
     , PlotOptions[Axes] // Evaluate
     , TicksStyle -> LabelSize["Tick"]
   ]
-] // Ex["half-plane-relative-error.pdf"]
+] // Ex["half_plane-relative-error.pdf"]
