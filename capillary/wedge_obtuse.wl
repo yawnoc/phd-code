@@ -433,6 +433,7 @@ Module[
         , PlotLabel -> {"apd", apd}
         , PlotMarkers -> {Automatic, Medium}
         , PlotRange -> All
+        , PlotOptions[Axes] // Evaluate
       ]
         // Ex @ FString["slope_test/wedge_obtuse-slope_test-corner-height-apd-{apd}.png"]
       ,
@@ -443,9 +444,14 @@ Module[
         , ImageSize -> 360
         , Joined -> True
         , PlotLabel -> {"apd", apd}
+        , PlotLegends -> LineLegend[
+            nearCornerFineLengthScaleValues
+            , LegendLabel -> "ncfls"
+          ]
         , PlotMarkers -> {Automatic, Medium}
         , PlotRange -> {{0, 0.01}, All}
         , PlotRangeClipping -> False
+        , PlotOptions[Axes] // Evaluate
       ]
         // Ex @ FString["slope_test/wedge_obtuse-slope_test-height-apd-{apd}.png"]
       ,
@@ -458,6 +464,7 @@ Module[
         , PlotLabel -> {"apd", apd}
         , PlotMarkers -> {Automatic, Medium}
         , PlotRange -> All
+        , PlotOptions[Axes] // Evaluate
       ]
         // Ex @ FString["slope_test/wedge_obtuse-slope_test-corner-slope-apd-{apd}.png"]
       ,
@@ -468,9 +475,15 @@ Module[
         , ImageSize -> 360
         , Joined -> True
         , PlotLabel -> {"apd", apd}
+        , PlotLegends -> LineLegend[
+            nearCornerFineLengthScaleValues
+            , LegendLabel -> "ncfls"
+          ]
         , PlotMarkers -> {Automatic, Medium}
         , PlotRange -> {{0, 0.01}, All}
         , PlotRangeClipping -> False
+        , PlotRangePadding -> {None, Scaled[0.1]}
+        , PlotOptions[Axes] // Evaluate
       ]
         // Ex @ FString["slope_test/wedge_obtuse-slope_test-slope-apd-{apd}.png"]
     ]
