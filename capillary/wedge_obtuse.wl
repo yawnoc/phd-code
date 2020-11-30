@@ -477,3 +477,60 @@ Module[
     , {apd, apdValues}
   ]
 ]
+
+
+(* ::Section:: *)
+(*Figure: numerical wedge domain (wedge_obtuse-numerical-domain)*)
+
+
+Module[
+  {
+    rMax, alpha,
+    angleMarkerRadius,
+    textStyle,
+    dummyForTrailingCommas
+  },
+  (* Geometry *)
+  rMax = rMaxMesh;
+  alpha = 135 Degree;
+  (* Diagram *)
+  angleMarkerRadius = 0.15 rMax;
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  Show[
+    (* Domain boundaries *)
+    Graphics @ {BoundaryTracingStyle["Wall"],
+      (* Wedge walls *)
+      Line @ {XYPolar[rMax, -alpha], {0, 0}, XYPolar[rMax, +alpha]},
+      (* Far arc at infinity *)
+      Circle[{0, 0}, rMax, {-alpha, alpha}],
+      {}
+    },
+    (* Wedge radius *)
+    Graphics @ {
+      Text[
+        rMaxMesh // textStyle
+        , XYPolar[rMax / 2, alpha]
+        , {2, 0.25}
+      ]
+    },
+    (* Wedge half-angle *)
+    Graphics @ {
+      Circle[{0, 0}, angleMarkerRadius, {0, alpha}]
+    },
+    Graphics @ {
+      Text[
+        "\[Alpha]" // textStyle
+        , XYPolar[angleMarkerRadius, alpha/2]
+        , {-2.5, -0.6}
+      ]
+    },
+    {}
+    , Axes -> True
+    , AxesLabel -> Italicise /@ {"x", "y"}
+    , ImageSize -> 0.5 ImageSizeTextWidth
+    , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+    , Method -> {"AxesInFront" -> False}
+    , PlotRangePadding -> Scaled[0.067]
+    , Ticks -> None
+  ]
+] // Ex["wedge_obtuse-numerical-domain.pdf"]
