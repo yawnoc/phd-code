@@ -527,7 +527,7 @@ Module[
     {}
     , Axes -> True
     , AxesLabel -> Italicise /@ {"x", "y"}
-    , ImageSize -> 0.5 ImageSizeTextWidth
+    , ImageSize -> 0.48 ImageSizeTextWidth
     , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
     , Method -> {"AxesInFront" -> False}
     , PlotRangePadding -> Scaled[0.067]
@@ -577,7 +577,7 @@ Module[
     ,
     meshWireframe,
     {}
-    , ImageSize -> 0.4 ImageSizeTextWidth
+    , ImageSize -> 0.48 * 0.85 ImageSizeTextWidth
     , PlotRange -> {{xMin, xMax}, {-yMax, yMax}}
   ]
 ] // Ex["wedge_obtuse-mesh-detail.pdf"]
