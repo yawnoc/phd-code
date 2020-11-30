@@ -447,6 +447,7 @@ Module[
         , PlotLegends -> LineLegend[
             nearCornerFineLengthScaleValues
             , LegendLabel -> "ncfls"
+            , LegendLayout -> "ReversedColumn"
           ]
         , PlotMarkers -> {Automatic, Medium}
         , PlotRange -> {{0, 0.01}, All}
@@ -478,6 +479,7 @@ Module[
         , PlotLegends -> LineLegend[
             nearCornerFineLengthScaleValues
             , LegendLabel -> "ncfls"
+            , LegendLayout -> "ReversedColumn"
           ]
         , PlotMarkers -> {Automatic, Medium}
         , PlotRange -> {{0, 0.01}, All}
