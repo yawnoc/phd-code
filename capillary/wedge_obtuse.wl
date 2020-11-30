@@ -534,3 +534,50 @@ Module[
     , Ticks -> None
   ]
 ] // Ex["wedge_obtuse-numerical-domain.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: finite element mesh detail (wedge_obtuse-mesh-detail)*)
+
+
+Module[
+  {
+    apd, alpha,
+    mesh, meshWireframe,
+    rMax, xMin, yMax, xMax,
+    tickTextStyle, axisTextStyle,
+    dummyForTrailingCommas
+  },
+  (* Wedge half-angle *)
+  apd = 135;
+  alpha = apd * Degree;
+  (* Import mesh *)
+  mesh = Import @ FString["mesh/wedge_obtuse-mesh-apd-{apd}.txt"] // Uncompress // First;
+  meshWireframe = mesh["Wireframe"];
+  rMax = 0.25;
+  {xMin, yMax} = XYPolar[rMax, alpha];
+  xMax = Abs[xMin];
+  (* Make plot *)
+  tickTextStyle = Style[#, LabelSize["Tick"]] & @* LaTeXStyle;
+  axisTextStyle = Style[#, LabelSize["Axis"]] & @* LaTeXStyle;
+  Show[
+    PolarPlot[rMax, {phi, -alpha, alpha}
+      , PlotStyle -> None
+      , PolarAxes -> {False, True}
+      , PolarAxesOrigin -> {alpha, rMax}
+      , PolarTicks -> List @
+          Table[
+            {r, N[r], {0.075 rMax, 0}}
+            , {r, FindDivisions[{0, rMax}, 4] // Rest}
+          ]
+    ]
+      /. {Text[Style[r_, {}], coords_, offset_, opts__] :>
+        Text[r // tickTextStyle, coords, {2.7, 1.8}, opts]
+      }
+    ,
+    meshWireframe,
+    {}
+    , ImageSize -> 0.4 ImageSizeTextWidth
+    , PlotRange -> {{xMin, xMax}, {-yMax, yMax}}
+  ]
+] // Ex["wedge_obtuse-mesh-detail.pdf"]
