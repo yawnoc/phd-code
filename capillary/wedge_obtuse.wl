@@ -394,3 +394,86 @@ Module[
     , {nearCornerFineLengthScale, nearCornerFineLengthScaleValues}
   ] // Compress
 ] // Ex["slope_test/wedge_obtuse-slope_test-all-data.txt"]
+
+
+(* ::Subsection:: *)
+(*Visualise*)
+
+
+Module[
+  {
+    allData,
+    apdValues, nearCornerFineLengthScaleValues,
+    heightData, slopeData, cornerHeight, cornerSlope,
+    dummyForTrailingCommas
+  },
+  (* Import all data *)
+  allData = Import["slope_test/wedge_obtuse-slope_test-all-data.txt"] // Uncompress;
+  allData = Join @@ allData;
+  (* Extract data *)
+  apdValues = allData[[All, 1]] // Union;
+  nearCornerFineLengthScaleValues = allData[[All, 2]] // Union;
+  allData // Cases[
+    {apd_, ncfls_, heightDataRaw_, slopeDataRaw_} :> (
+      heightData[apd, ncfls] = heightDataRaw;
+      cornerHeight[apd, ncfls] = heightDataRaw[[1, 2]];
+      slopeData[apd, ncfls] = slopeDataRaw;
+      cornerSlope[apd, ncfls] = slopeDataRaw[[1, 2]];
+    )
+  ];
+  (* For each wedge half-angle: *)
+  Table[
+    List[
+      (* Corner height plot *)
+      ListLogLinearPlot[
+        Table[{ncfls, cornerHeight[apd, ncfls]}, {ncfls, nearCornerFineLengthScaleValues}]
+        , AxesLabel -> {"ncfls", "corner height"}
+        , ImageSize -> 360
+        , Joined -> True
+        , PlotLabel -> {"apd", apd}
+        , PlotMarkers -> {Automatic, Medium}
+        , PlotRange -> All
+      ]
+        // Ex @ FString["slope_test/wedge_obtuse-slope_test-corner-height-apd-{apd}.png"]
+      ,
+      (* Height plot *)
+      ListPlot[
+        Table[heightData[apd, ncfls], {ncfls, nearCornerFineLengthScaleValues}]
+        , AxesLabel -> {"x", "height"}
+        , ImageSize -> 360
+        , Joined -> True
+        , PlotLabel -> {"apd", apd}
+        , PlotMarkers -> {Automatic, Medium}
+        , PlotRange -> {{0, 0.01}, All}
+        , PlotRangeClipping -> False
+      ]
+        // Ex @ FString["slope_test/wedge_obtuse-slope_test-height-apd-{apd}.png"]
+      ,
+      (* Corner slope plot *)
+      ListLogLinearPlot[
+        Table[{ncfls, -cornerSlope[apd, ncfls]}, {ncfls, nearCornerFineLengthScaleValues}]
+        , AxesLabel -> {"ncfls", "corner slope"}
+        , ImageSize -> 360
+        , Joined -> True
+        , PlotLabel -> {"apd", apd}
+        , PlotMarkers -> {Automatic, Medium}
+        , PlotRange -> All
+      ]
+        // Ex @ FString["slope_test/wedge_obtuse-slope_test-corner-slope-apd-{apd}.png"]
+      ,
+      (* Slope plot *)
+      ListPlot[
+        Table[slopeData[apd, ncfls], {ncfls, nearCornerFineLengthScaleValues}]
+        , AxesLabel -> {"x", "slope"}
+        , ImageSize -> 360
+        , Joined -> True
+        , PlotLabel -> {"apd", apd}
+        , PlotMarkers -> {Automatic, Medium}
+        , PlotRange -> {{0, 0.01}, All}
+        , PlotRangeClipping -> False
+      ]
+        // Ex @ FString["slope_test/wedge_obtuse-slope_test-slope-apd-{apd}.png"]
+    ]
+    , {apd, apdValues}
+  ]
+]
