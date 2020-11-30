@@ -211,3 +211,42 @@ Table[
   ]
   , {apd, apdMeshValues}
 ]
+
+
+(* ::Section:: *)
+(*Numerical solution*)
+
+
+(* ::Subsection:: *)
+(*Table*)
+
+
+(* (This is slow (~30 sec) from all the calls to Import.) *)
+Join @@ Table[
+  Table[
+    Module[{tNumerical, messages, timing, heightCorner},
+      (* Import numerical solution etc. *)
+      {tNumerical, messages, timing} =
+        FString @ "solution/wedge_obtuse-solution-apd-{apd}-gpd-{gpd}.txt"
+          // Import // Uncompress // Part[#, {1, 4, 5}] &;
+      (* Filter out uninformative messages *)
+      messages = DeleteCases[messages, string_ /; StringContainsQ[string, "StringForm"]];
+      (* Make pretty *)
+      messages = StringRiffle[messages, "\n"];
+      messages = messages /. {"" -> "\[HappySmiley]"};
+      (* Compute corner height *)
+      heightCorner = tNumerical[0, 0];
+      (* Return row of table *)
+      {apd * Degree, gpd * Degree, heightCorner, timing, messages}
+    ]
+    , {gpd, gpdSolutionValues}
+  ]
+  , {apd, apdMeshValues}
+] // TableForm[#
+  , TableAlignments -> {Left, Center}
+  , TableDepth -> 2
+  , TableHeadings -> {
+      None,
+      {"alpha", "gamma", "corner height", "absolute time", "messages"}
+    }
+] & // Ex["wedge_obtuse-solution-table.pdf"]
