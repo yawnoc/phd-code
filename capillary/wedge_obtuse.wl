@@ -154,3 +154,60 @@ Table[
   ]
   , {apd, apdMeshValues}
 ]
+
+
+(* ::Section:: *)
+(*Finite element mesh check*)
+
+
+(* (This is slow (~5 sec).) *)
+Table[
+  Module[
+    {
+      mesh, predicateWet, numElements,
+      boundaryCoordinates, wetBoundaryCoordinates,
+      plot,
+      dummyForTrailingCommas
+    },
+    (* Import mesh *)
+    {mesh, predicateWet} =
+      FString @ "mesh/wedge_obtuse-mesh-apd-{apd}.txt"
+        // Import // Uncompress;
+    numElements = Length @ mesh[[2, 1, 1]];
+    (* Determine predicate-satisfying boundary coordinates *)
+    boundaryCoordinates =
+      Part[
+        mesh["Coordinates"],
+        mesh["BoundaryElements"][[1, 1]] // Flatten // Union
+      ];
+    wetBoundaryCoordinates =
+      Select[
+        boundaryCoordinates,
+        predicateWet @@ # &
+      ];
+    (* Make plot *)
+    plot =
+      Show[
+        mesh["Wireframe"],
+        ListPlot[boundaryCoordinates, PlotStyle -> Directive[Red, PointSize[Medium]]],
+        ListPlot[wetBoundaryCoordinates, PlotStyle -> Directive[Blue, PointSize[Medium]]],
+        {}
+        , PlotLabel -> FString @ "{numElements} mesh elements"
+      ];
+    (* Export *)
+    {
+      (* Full plot *)
+      plot
+        // Ex @ FString @ "mesh/wedge_obtuse-mesh-apd-{apd}.png"
+      ,
+      (* Zoom near origin to verify wetting predicate *)
+      Show[plot
+        , ImageSize -> 480
+        , PlotLabel -> None
+        , PlotRange -> {{-0.15, 0.15}, {-0.15, 0.15}}
+      ]
+        // Ex @ FString @ "mesh/wedge_obtuse-mesh-apd-{apd}-zoom.png"
+    }
+  ]
+  , {apd, apdMeshValues}
+]
