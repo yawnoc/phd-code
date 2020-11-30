@@ -1243,8 +1243,7 @@ Module[{dest},
 
 
 (* ::Subsubsection:: *)
-(*Solve PDE for hot regime A < A_\[Natural]\[Pi]*)
-(*(Version 12 required)*)
+(*Solve BVP for hot regime A < A_\[Natural]\[Pi]*)
 
 
 Module[{dest},
@@ -1278,8 +1277,7 @@ Module[{dest},
 
 
 (* ::Subsubsection:: *)
-(*Solve PDE for warm-to-hot transition A = A_\[Natural]\[Pi]*)
-(*(Version 12 required)*)
+(*Solve BVP for warm-to-hot transition A = A_\[Natural]\[Pi]*)
 
 
 Module[{dest},
@@ -1313,8 +1311,7 @@ Module[{dest},
 
 
 (* ::Subsubsection:: *)
-(*Solve PDE for warm regime A_\[Natural]\[Pi] < A < A_\[Natural]0*)
-(*(Version 12 required)*)
+(*Solve BVP for warm regime A_\[Natural]\[Pi] < A < A_\[Natural]0*)
 
 
 Module[{dest},
@@ -1348,8 +1345,7 @@ Module[{dest},
 
 
 (* ::Subsubsection:: *)
-(*Solve PDE for cold-to-warm transition A = A_\[Natural]0*)
-(*(Version 12 required)*)
+(*Solve BVP for cold-to-warm transition A = A_\[Natural]0*)
 
 
 Module[{dest},

@@ -1,12 +1,5 @@
 (* ::Package:: *)
 
-(* ::Text:: *)
-(*https://mathematica.stackexchange.com/a/155268*)
-(*.wl files (or .wls in Version 12) are the way to go for Git.*)
-(*I am using .wl for backward compatibility with Version 11,*)
-(*and because GitHub currently does not apply syntax colouring for .wls files.*)
-
-
 SetDirectory @ ParentDirectory @ NotebookDirectory[]
 << Conway`
 << Curvilinear`

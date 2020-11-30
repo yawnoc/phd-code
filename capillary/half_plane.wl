@@ -81,7 +81,7 @@ ExportIfNotExists["half_plane-mesh.txt",
 
 
 (* ::Subsection:: *)
-(*Solve PDE (Version 12 required)*)
+(*Solve boundary value problem*)
 
 
 (* (This is slow (~7 sec), so compute once and store.) *)

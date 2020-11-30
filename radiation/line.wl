@@ -397,7 +397,7 @@ Module[{dest},
 
 
 (* ::Subsubsection:: *)
-(*Solve boundary value problem (Version 12 required)*)
+(*Solve boundary value problem*)
 
 
 (* (This is not slow, nevertheless compute once and store.) *)

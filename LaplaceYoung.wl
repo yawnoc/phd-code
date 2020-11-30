@@ -280,8 +280,7 @@ SolveLaplaceYoung::usage = (
   <> "Solves the Laplace--Young equation over the finite element mesh mesh "
   <> "with contact angle gamma along the portions of the boundary "
   <> "for which prWet[x, y] is True.\n"
-  <> "Uses the built-in nonlinear capability in NDSolve`FEM` "
-  <> "(Version 12 required)."
+  <> "Uses the built-in nonlinear capability of NDSolve`FEM`, Version 12."
 );
 
 

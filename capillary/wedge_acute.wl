@@ -104,7 +104,7 @@ Table[
 
 
 (* ::Subsection:: *)
-(*Solve PDE (Version 12 required)*)
+(*Solve boundary value problem*)
 
 
 (* (These are slow (~1 hr), so compute once and store.) *)

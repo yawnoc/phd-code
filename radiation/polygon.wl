@@ -1395,7 +1395,7 @@ Table[
 
 
 (* ::Subsubsection:: *)
-(*Solve PDEs (Version 12 required)*)
+(*Solve BVPs*)
 
 
 Table[
@@ -1629,7 +1629,7 @@ Module[{dest},
 
 
 (* ::Subsubsection:: *)
-(*Solve PDE (rotund) (Version 12 required)*)
+(*Solve BVP (rotund)*)
 
 
 Module[{dest},
@@ -1663,7 +1663,7 @@ Module[{dest},
 
 
 (* ::Subsubsection:: *)
-(*Solve PDE (elongated) (Version 12 required)*)
+(*Solve BVP (elongated)*)
 
 
 Module[{dest},
