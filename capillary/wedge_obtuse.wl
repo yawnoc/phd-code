@@ -252,6 +252,48 @@ Join @@ Table[
 ] & // Ex["wedge_obtuse-solution-table.pdf"]
 
 
+(* ::Subsection:: *)
+(*Table for theoretical vs computed corner slopes*)
+
+
+(* (This is slow (~10 sec) from all the calls to Import.) *)
+Module[
+  {
+    apd, alpha,
+    gamma, k,
+    infiniteSlopeQ, theoreticalSlope,
+    tNumerical, computedSlope, slopeRelError,
+    dummyForTrailingCommas
+  },
+  (* Wedge half-angle *)
+  apd = 135;
+  alpha = apd * Degree;
+  (* For each contact angle: *)
+  Table[
+    (* Theoretical corner slope *)
+    gamma = gpd Degree;
+    k = Sin[alpha] / Cos[gamma];
+    infiniteSlopeQ = alpha >= Pi/2 + gamma;
+    theoreticalSlope = If[infiniteSlopeQ, Infinity, 1 / Sqrt[k^2 - 1] // N];
+    (* Import numerical solution *)
+    tNumerical =
+      Import @ FString["solution/wedge_obtuse-solution-apd-{apd}-gpd-{gpd}.txt"]
+        // Uncompress // First;
+    computedSlope = -Derivative[1, 0][tNumerical][0, 0];
+    slopeRelError = If[infiniteSlopeQ, "N/A", computedSlope / theoreticalSlope - 1];
+    (* Build row of table *)
+    {gamma, theoreticalSlope, computedSlope, slopeRelError}
+    , {gpd, gpdSolutionValues}
+  ]
+    // TableForm[#
+      , TableHeadings -> {
+          None,
+          {"gamma", "theoretical slope", "computed slope", "rel. error"}
+        }
+    ] &
+] // Ex["wedge_obtuse-slope-comparison.pdf"]
+
+
 (* ::Section:: *)
 (*Slope dodginess test*)
 
