@@ -328,9 +328,10 @@ Module[
       equilateralTriangleArea, refinementFunction,
       boundaryMesh, mesh, numMeshElements,
       predicateWet,
-      tNumerical, tXDerivative, tYDerivative,
-        symmetryXValues, symmetryHeightData, symmetrySlopeData,
-        wallRValues, wallHeightData, wallXDerivativeData, wallYDerivativeData,
+      tNumerical, tXDerivative, tYDerivative, tSlope,
+      rValues,
+        symmetryHeightData, symmetrySlopeData,
+        wallHeightData, wallSlopeData,
     dummyForTrailingCommas
   },
   (* Constants *)
@@ -423,26 +424,25 @@ Module[
     tNumerical = SolveLaplaceYoung[gamma, mesh, predicateWet];
     tXDerivative = Derivative[1, 0][tNumerical];
     tYDerivative = Derivative[0, 1][tNumerical];
-    (* Compute data (along line of symmetry) *)
-    symmetryXValues =
+    tSlope = Function[{x, y}, Sqrt[tXDerivative[x, y]^2 + tYDerivative[x, y]^2]];
+    rValues =
       Join[
         Range[0, 0.1, 0.001],
         Range[0.1, 1, 0.01] // Rest,
         Range[1, 5, 0.1] // Rest,
         {}
       ];
-    symmetryHeightData = Table[{x, tNumerical[x, 0]}, {x, symmetryXValues}];
-    symmetrySlopeData = Table[{x, tXDerivative[x, 0]}, {x, symmetryXValues}];
+    (* Compute data (along line of symmetry) *)
+    symmetryHeightData = Table[{r, tNumerical @@ XYPolar[r, 0]}, {r, rValues}];
+    symmetrySlopeData = Table[{r, tSlope @@ XYPolar[r, 0]}, {r, rValues}];
     (* Compute data (along wall) *)
-    wallRValues = symmetryXValues;
-    wallHeightData = Table[{r, tNumerical @@ XYPolar[r, alpha]}, {r, wallRValues}];
-    wallXDerivativeData = Table[{r, tXDerivative @@ XYPolar[r, alpha]}, {r, wallRValues}];
-    wallYDerivativeData = Table[{r, tYDerivative @@ XYPolar[r, alpha]}, {r, wallRValues}];
+    wallHeightData = Table[{r, tNumerical @@ XYPolar[r, alpha]}, {r, rValues}];
+    wallSlopeData = Table[{r, tSlope @@ XYPolar[r, alpha]}, {r, rValues}];
     (* Return row *)
     {
       apd, nearCornerFineLengthScale,
       symmetryHeightData, symmetrySlopeData,
-      wallHeightData, wallXDerivativeData, wallYDerivativeData,
+      wallHeightData, wallSlopeData,
       Nothing
     }
     , {apd, apdValues}
@@ -461,7 +461,7 @@ Module[
     apdValues, nearCornerFineLengthScaleValues,
     symmetryHeightData, symmetrySlopeData,
     cornerHeight, cornerSlope,
-    wallHeightData, wallXDerivativeData, wallYDerivativeData,
+    wallHeightData, wallSlopeData,
     dummyForTrailingCommas
   },
   (* Import all data *)
@@ -471,7 +471,7 @@ Module[
   apdValues = allData[[All, 1]] // Union;
   nearCornerFineLengthScaleValues = allData[[All, 2]] // Union;
   allData // Cases[
-    {apd_, ncfls_, shData_, ssData_, whData_, wxData_, wyData_} :> (
+    {apd_, ncfls_, shData_, ssData_, whData_, wsData_} :> (
       (* Along line of symmetry *)
       symmetryHeightData[apd, ncfls] = shData;
         cornerHeight[apd, ncfls] = shData[[1, 2]];
@@ -479,8 +479,7 @@ Module[
         cornerSlope[apd, ncfls] = ssData[[1, 2]];
       (* Along wall *)
       wallHeightData[apd, ncfls] = whData;
-      wallXDerivativeData[apd, ncfls] = wxData;
-      wallYDerivativeData[apd, ncfls] = wyData;
+      wallSlopeData[apd, ncfls] = wsData;
     )
   ];
   (* For each wedge half-angle: *)
@@ -502,7 +501,7 @@ Module[
       (* Symmetry height plot *)
       ListPlot[
         Table[symmetryHeightData[apd, ncfls], {ncfls, nearCornerFineLengthScaleValues}]
-        , AxesLabel -> {"x", "symm height"}
+        , AxesLabel -> {"r", "symm height"}
         , ImageSize -> 360
         , Joined -> True
         , PlotLabel -> {"apd", apd}
@@ -534,7 +533,7 @@ Module[
       (* Symmetry slope plot *)
       ListPlot[
         Table[symmetrySlopeData[apd, ncfls], {ncfls, nearCornerFineLengthScaleValues}]
-        , AxesLabel -> {"x", "symm slope"}
+        , AxesLabel -> {"r", "symm slope"}
         , ImageSize -> 360
         , Joined -> True
         , PlotLabel -> {"apd", apd}
@@ -564,16 +563,16 @@ Module[
             , LegendLayout -> "ReversedColumn"
           ]
         , PlotMarkers -> {Automatic, Medium}
-        , PlotRange -> {{0, 0.01}, All}
+        , PlotRange -> {{0, 0.02}, All}
         , PlotRangeClipping -> False
         , PlotOptions[Axes] // Evaluate
       ]
         // Ex @ FString["slope_test/wedge_obtuse-slope_test-wall-height-apd-{apd}.png"]
       ,
-      (* Wall x-derivative *)
+      (* Wall slope *)
       ListPlot[
-        Table[wallXDerivativeData[apd, ncfls], {ncfls, nearCornerFineLengthScaleValues}]
-        , AxesLabel -> {"r", "wall x der"}
+        Table[wallSlopeData[apd, ncfls], {ncfls, nearCornerFineLengthScaleValues}]
+        , AxesLabel -> {"r", "wall slope"}
         , ImageSize -> 360
         , Joined -> True
         , PlotLabel -> {"apd", apd}
@@ -583,30 +582,11 @@ Module[
             , LegendLayout -> "ReversedColumn"
           ]
         , PlotMarkers -> {Automatic, Medium}
-        , PlotRange -> {{0, 0.01}, All}
+        , PlotRange -> {{0, 0.02}, All}
         , PlotRangeClipping -> False
         , PlotOptions[Axes] // Evaluate
       ]
-        // Ex @ FString["slope_test/wedge_obtuse-slope_test-wall-x-apd-{apd}.png"]
-      ,
-      (* Wall y-derivative *)
-      ListPlot[
-        Table[wallYDerivativeData[apd, ncfls], {ncfls, nearCornerFineLengthScaleValues}]
-        , AxesLabel -> {"r", "wall y der"}
-        , ImageSize -> 360
-        , Joined -> True
-        , PlotLabel -> {"apd", apd}
-        , PlotLegends -> LineLegend[
-            nearCornerFineLengthScaleValues
-            , LegendLabel -> "ncfls"
-            , LegendLayout -> "ReversedColumn"
-          ]
-        , PlotMarkers -> {Automatic, Medium}
-        , PlotRange -> {{0, 0.03}, All}
-        , PlotRangeClipping -> False
-        , PlotOptions[Axes] // Evaluate
-      ]
-        // Ex @ FString["slope_test/wedge_obtuse-slope_test-wall-y-apd-{apd}.png"]
+        // Ex @ FString["slope_test/wedge_obtuse-slope_test-wall-slope-{apd}.png"]
     ]
     , {apd, apdValues}
   ]
