@@ -673,3 +673,104 @@ Module[
     , PlotRange -> {{xMin, xMax}, {-yMax, yMax}}
   ]
 ] // Ex["wedge_obtuse-mesh-detail.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: numerical wedge solution (wedge_obtuse-solution)*)
+
+
+Module[
+  {
+    apd, gpd,
+    alpha, gamma,
+    rMax, xArcCorner, yArcCorner,
+    tNumerical,
+    x, y, mesh,
+    verticalEdge, wallHeight,
+    dummyForTrailingCommas
+  },
+  (* Parameters *)
+  apd = 135;
+  gpd = 60;
+  alpha = apd * Degree;
+  gamma = gpd * Degree;
+  (* Plot range *)
+  rMax = 3;
+  {xArcCorner, yArcCorner} = XYPolar[rMax, alpha];
+  (* Import numerical solution *)
+  tNumerical =
+    Import @ FString["solution/wedge_obtuse-solution-apd-{apd}-gpd-{gpd}.txt"]
+      // Uncompress // First;
+  (* Plot *)
+  mesh = tNumerical["ElementMesh"];
+  wallHeight = Ceiling[HHalfPlane[gamma], 0.2];
+  verticalEdge @ {x_, y_} := Line @ {{x, y, 0}, {x, y, wallHeight}};
+  Show[
+    (* Numerical solution *)
+    Plot3D[
+      tNumerical[x, y], Element[{x, y}, mesh]
+      , AxesEdge -> {{-1, -1}, {+1, -1}, {-1, -1}}
+      , AxesLabel -> {
+          Italicise["x"],
+          Italicise["y"],
+          Italicise["T"] // Margined @ {{0, 5}, {0, 0}}
+        }
+      , Boxed -> {Back, Bottom, Left}
+      , Filling -> 0
+      , FillingStyle -> BoundaryTracingStyle["Solution3D"]
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+      , Lighting -> GeneralStyle["AmbientLighting"]
+      , PlotPoints -> 20
+      , PlotRange -> {0, wallHeight}
+      , PlotRangePadding -> {{Scaled[0.125], Automatic}, Automatic, None}
+      , PlotStyle -> BoundaryTracingStyle["Solution3D"]
+      , TicksStyle -> LabelSize["Tick"]
+      , RegionFunction -> Function[{x, y},
+          RPolar[x, y] < rMax
+        ]
+      , ViewPoint -> {3.8, -1.2, 1.7}
+    ],
+    (* Wedge walls *)
+    Plot3D[
+      wallHeight, {x, xArcCorner, 0}, {y, -yArcCorner, yArcCorner}
+      , Filling -> 0
+      , FillingStyle -> BoundaryTracingStyle["Wall3D"]
+      , Lighting -> GeneralStyle["AmbientLighting"]
+      , Mesh -> None
+      , PlotPoints -> 20
+      , PlotStyle -> BoundaryTracingStyle["Wall3D"]
+      , RegionFunction -> Function[{x, y},
+          Abs[y] < x Tan[alpha]
+        ]
+    ],
+    (* Manually drawn solution base edges *)
+    Graphics3D @ {
+      Line @ {{0, 0, 0}, {xArcCorner, -yArcCorner, 0}},
+      {}
+    },
+    ParametricPlot3D[
+      rMax {Cos[phi], Sin[phi], 0}
+      , {phi, -alpha, alpha}
+      , PlotStyle -> Directive[Black, Thickness[0]]
+    ],
+    (* Manually drawn solution vertical edges *)
+    Graphics3D @ {
+      Line @ {
+        {xArcCorner, -yArcCorner, tNumerical[xArcCorner, -yArcCorner]},
+        {xArcCorner, -yArcCorner, 0}
+      },
+      {}
+    },
+    (* Manually drawn wedge wall vertical edges *)
+    Graphics3D @ {
+      verticalEdge /@ {{xArcCorner, -yArcCorner}, {xArcCorner, +yArcCorner}},
+      Line @ {{0, 0, tNumerical[0, 0]}, {0, 0, wallHeight}},
+      {}
+    },
+    {}
+    , ImageSize -> 0.6 ImageSizeTextWidth
+  ]
+] // Ex["wedge_obtuse-solution.png"
+  , Background -> None
+  , ImageResolution -> 4 BasicImageResolution
+]
