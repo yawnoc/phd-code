@@ -906,7 +906,7 @@ Module[
     gamma, k,
     infiniteHeightQ, infiniteSlopeQ,
     theoreticalHeight, theoreticalSlope,
-    tSol,
+    tSol, tXDerivative, tYDerivative,
     computedHeight, computedSlope, slopeRelError,
     dummyForTrailingCommas
   },
@@ -926,9 +926,11 @@ Module[
     tSol =
       StringTemplate["solution/wedge_acute-solution-apd-``-gpd-``.txt"][apd, gpd]
         // Import // Uncompress // First;
+    tXDerivative = Derivative[1, 0][tSol];
+    tYDerivative = Derivative[0, 1][tSol];
     (* Computed corner height and slope *)
     computedHeight = tSol[0, 0];
-    computedSlope = -Derivative[1, 0][tSol][0, 0];
+    computedSlope = Sqrt[tXDerivative[0, 0]^2 + tYDerivative[0, 0]^2];
     slopeRelError = If[infiniteSlopeQ, "N/A", computedSlope / theoreticalSlope - 1];
     (* Build row of table *)
     {
