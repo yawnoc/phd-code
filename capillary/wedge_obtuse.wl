@@ -1001,3 +1001,115 @@ Module[
   , Background -> None
   , ImageResolution -> 4 BasicImageResolution
 ]
+
+
+(* ::Section:: *)
+(*Figure: mesh with additional refinement (wedge_obtuse-mesh-additional-refinement)*)
+
+
+Module[
+  {
+    globalCoarseLengthScale, wallFineLengthScale, nearCornerRadius,
+    apd, nearCornerFineLengthScale,
+      rMax, alpha,
+      boundaryPoints, numBoundaryPoints, boundaryElements,
+      equilateralTriangleArea, refinementFunction,
+      boundaryMesh, mesh, numMeshElements,
+      predicateWet,
+      tNumerical, tXDerivative, tYDerivative, tSlope,
+      rValues,
+        symmetryHeightData, symmetrySlopeData,
+        wallHeightData, wallSlopeData,
+    rMaxPlot, xMinPlot, yMaxPlot, xMaxPlot,
+    tickTextStyle, axisTextStyle,
+    dummyForTrailingCommas
+  },
+  (* Constants *)
+  globalCoarseLengthScale = 0.2;
+  wallFineLengthScale = 0.01;
+  nearCornerRadius = 0.01;
+  (* Constants (2) *)
+  apd = 135;
+  nearCornerFineLengthScale = 0.001;
+  (* Build mesh *)
+    (* Geometry *)
+    rMax = rMaxMesh;
+    alpha = apd * Degree;
+    (* Boundary points and elements *)
+    boundaryPoints =
+      Join[
+        (* Lower wedge wall *)
+        Table[
+          XYPolar[r, -alpha]
+          , {r, UniformRange[0, rMax, wallFineLengthScale]}
+        ]
+          // Most,
+        (* Far arc at infinity *)
+        Table[
+          XYPolar[rMax, phi]
+          , {phi, UniformRange[-alpha, alpha, globalCoarseLengthScale / rMax]}
+        ]
+          // Most,
+        (* Upper wedge wall *)
+        Table[
+          XYPolar[r, +alpha]
+          , {r, UniformRange[rMax, 0, -wallFineLengthScale]}
+        ]
+          // Most,
+        {}
+      ];
+    numBoundaryPoints = Length[boundaryPoints];
+    boundaryElements =
+      LineElement /@ {
+        Table[{n, n + 1}, {n, numBoundaryPoints}]
+          // Mod[#, numBoundaryPoints, 1] &
+      };
+    (* Special refinement *)
+    equilateralTriangleArea = Function[{len}, Sqrt[3]/4 * len^2];
+    refinementFunction =
+      Function[{vertices, area},
+        Or[
+          area > equilateralTriangleArea[globalCoarseLengthScale],
+          Norm @ Mean[vertices] < nearCornerRadius
+            && area > equilateralTriangleArea[nearCornerFineLengthScale]
+        ]
+      ];
+    (* Build mesh *)
+    boundaryMesh =
+      ToBoundaryMesh[
+        "Coordinates" -> boundaryPoints,
+        "BoundaryElements" -> boundaryElements,
+        {}
+      ];
+    mesh = ToElementMesh[boundaryMesh
+      , "ImproveBoundaryPosition" -> True
+      , MeshRefinementFunction -> refinementFunction
+    ];
+  (* Plot *)
+  rMaxPlot = 0.055;
+  {xMinPlot, yMaxPlot} = XYPolar[rMaxPlot, alpha];
+  xMaxPlot = Abs[xMinPlot];
+  (* Make plot *)
+  tickTextStyle = Style[#, LabelSize["Tick"]] & @* LaTeXStyle;
+  axisTextStyle = Style[#, LabelSize["Axis"]] & @* LaTeXStyle;
+  Show[
+    PolarPlot[rMaxPlot, {phi, -alpha, alpha}
+      , PlotStyle -> None
+      , PolarAxes -> {False, True}
+      , PolarAxesOrigin -> {alpha, rMaxPlot}
+      , PolarTicks -> List @
+          Table[
+            {r, N[r], {0.02, 0}}
+            , {r, FindDivisions[{0, rMaxPlot}, 4] // Rest}
+          ]
+    ]
+      /. {Text[Style[r_, {}], coords_, offset_, opts__] :>
+        Text[r // tickTextStyle, coords, {2.3, 2.2}, opts]
+      }
+    ,
+    mesh["Wireframe"],
+    {}
+    , ImageSize -> 0.4 ImageSizeTextWidth
+    , PlotRange -> {{xMinPlot, xMaxPlot}, {-yMaxPlot, yMaxPlot}}
+  ]
+] // Ex["wedge_obtuse-mesh-additional-refinement.pdf"]
