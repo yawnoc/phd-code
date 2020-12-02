@@ -262,7 +262,8 @@ Module[
     apd, alpha,
     gamma, k,
     infiniteSlopeQ, theoreticalSlope,
-    tNumerical, computedSlope, slopeRelError,
+    tNumerical, tXDerivative, tYDerivative,
+    computedSlope, slopeRelError,
     dummyForTrailingCommas
   },
   (* Wedge half-angle *)
@@ -279,7 +280,9 @@ Module[
     tNumerical =
       Import @ FString["solution/wedge_obtuse-solution-apd-{apd}-gpd-{gpd}.txt"]
         // Uncompress // First;
-    computedSlope = -Derivative[1, 0][tNumerical][0, 0];
+    tXDerivative = Derivative[1, 0][tNumerical];
+    tYDerivative = Derivative[0, 1][tNumerical];
+    computedSlope = Sqrt[tXDerivative[0, 0]^2 + tYDerivative[0, 0]^2];
     slopeRelError = If[infiniteSlopeQ, "N/A", computedSlope / theoreticalSlope - 1];
     (* Build row of table *)
     {gamma, theoreticalSlope, computedSlope, slopeRelError}
