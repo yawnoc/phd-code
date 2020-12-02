@@ -657,6 +657,144 @@ Module[
 ]
 
 
+(* ::Subsection:: *)
+(*Corner neighbourhood test*)
+
+
+(* (This is slow (~15 sec).) *)
+(*
+  I do not know how much memory is required for this,
+  so I would suggest running this on a fresh kernel.
+*)
+Module[
+  {
+    apd, gpd,
+    alpha, gamma,
+      globalCoarseLengthScale, wallFineLengthScale, nearCornerRadius,
+      nearCornerFineLengthScale,
+      rMax,
+      boundaryPoints, numBoundaryPoints, boundaryElements,
+      equilateralTriangleArea, refinementFunction,
+      boundaryMesh, mesh, numMeshElements,
+      predicateWet,
+    tNumerical, tXDerivative, tYDerivative,
+    coordMax, coordSliceValues,
+    imageSize,
+    dummyForTrailingCommas
+  },
+  (* Parameters *)
+  apd = 135;
+  gpd = 60;
+  alpha = apd * Degree;
+  gamma = gpd * Degree;
+  (* Build mesh and compute numerical solution *)
+  (* (copied from above) *)
+    (* Parameters *)
+    globalCoarseLengthScale = 0.2;
+    wallFineLengthScale = 0.01;
+    nearCornerRadius = 0.01;
+    nearCornerFineLengthScale = 0.0001;
+    (* Geometry *)
+    rMax = rMaxMesh;
+    (* Boundary points and elements *)
+    boundaryPoints =
+      Join[
+        (* Lower wedge wall *)
+        Table[
+          XYPolar[r, -alpha]
+          , {r, UniformRange[0, rMax, wallFineLengthScale]}
+        ]
+          // Most,
+        (* Far arc at infinity *)
+        Table[
+          XYPolar[rMax, phi]
+          , {phi, UniformRange[-alpha, alpha, globalCoarseLengthScale / rMax]}
+        ]
+          // Most,
+        (* Upper wedge wall *)
+        Table[
+          XYPolar[r, +alpha]
+          , {r, UniformRange[rMax, 0, -wallFineLengthScale]}
+        ]
+          // Most,
+        {}
+      ];
+    numBoundaryPoints = Length[boundaryPoints];
+    boundaryElements =
+      LineElement /@ {
+        Table[{n, n + 1}, {n, numBoundaryPoints}]
+          // Mod[#, numBoundaryPoints, 1] &
+      };
+    (* Special refinement *)
+    equilateralTriangleArea = Function[{len}, Sqrt[3]/4 * len^2];
+    refinementFunction =
+      Function[{vertices, area},
+        Or[
+          area > equilateralTriangleArea[globalCoarseLengthScale],
+          Norm @ Mean[vertices] < nearCornerRadius
+            && area > equilateralTriangleArea[nearCornerFineLengthScale]
+        ]
+      ];
+    (* Build mesh *)
+    boundaryMesh =
+      ToBoundaryMesh[
+        "Coordinates" -> boundaryPoints,
+        "BoundaryElements" -> boundaryElements,
+        {}
+      ];
+    mesh = ToElementMesh[boundaryMesh
+      , "ImproveBoundaryPosition" -> True
+      , MeshRefinementFunction -> refinementFunction
+    ];
+    (* Predicate function for wetting boundaries *)
+    predicateWet =
+      If[alpha < Pi/2,
+        Function[{x, y}, x <= rMax Cos[alpha] // Evaluate],
+        Function[{x, y}, Abs[y] <= rMax Sin[Pi - alpha] && x <= 0 // Evaluate]
+      ];
+    (* Compute numerical solution to capillary BVP *)
+    tNumerical = SolveLaplaceYoung[gamma, mesh, predicateWet];
+    tXDerivative = Derivative[1, 0][tNumerical];
+  (* Plot *)
+  coordMax = 0.01;
+  coordSliceValues = Subdivide[-coordMax, coordMax, 4];
+  imageSize = 360;
+  {
+    (* Height *)
+    Plot[
+      Table[tNumerical[x, y], {y, coordSliceValues}] // Evaluate
+      , {x, -coordMax, coordMax}
+      , AxesLabel -> {"x", "height"}
+      , AxesOrigin -> {-coordMax, Automatic}
+      , ImageSize -> imageSize
+      , PlotLegends -> LineLegend[coordSliceValues
+          , LegendLabel -> Italicise["y"]
+        ]
+      , PlotRange -> Full
+      , PlotStyle -> {Automatic, Automatic, Automatic, Dotted, Dotted}
+      , PlotOptions[Axes] // Evaluate
+    ]
+      // Ex["slope_test/wedge_obtuse-slope_test-neighbourhood-height.png"]
+    ,
+    (* x-derivative *)
+    Plot[
+      Table[tXDerivative[x, y], {y, coordSliceValues}] // Evaluate
+      , {x, -coordMax, coordMax}
+      , AxesLabel -> {"x", "slope"}
+      , AxesOrigin -> {-coordMax, Automatic}
+      , ImageSize -> imageSize
+      , PlotLegends -> LineLegend[coordSliceValues
+          , LegendLabel -> Italicise["y"]
+        ]
+      , PlotRange -> Full
+      , PlotStyle -> {Automatic, Automatic, Automatic, Dotted, Dotted}
+      , PlotOptions[Axes] // Evaluate
+    ]
+      // Ex["slope_test/wedge_obtuse-slope_test-neighbourhood-slope.png"]
+  }
+] // AbsoluteTiming
+
+
 (* ::Section:: *)
 (*Figure: numerical wedge domain (wedge_obtuse-numerical-domain)*)
 
