@@ -798,6 +798,54 @@ Module[
 ] // AbsoluteTiming
 
 
+(* ::Subsection:: *)
+(*Table for theoretical vs computed corner slopes*)
+
+
+Module[
+  {
+    allData,
+    apd, alpha,
+    gpd, gamma, k,
+    theoreticalSlope,
+    apdValues, nearCornerFineLengthScaleValues,
+    computedSlope, slopeRelError,
+    dummyForTrailingCommas
+  },
+  (* Import all data *)
+  allData = Import["slope_test/wedge_obtuse-slope_test-all-data.txt"] // Uncompress;
+  allData = Join @@ allData;
+  (* Selected value of wedge half-angle *)
+  apd = 135;
+  alpha = apd * Degree;
+  (* Theoretical corner slope *)
+  gpd = 60;
+  gamma = gpd Degree;
+  k = Sin[alpha] / Cos[gamma];
+  theoreticalSlope = 1 / Sqrt[k^2 - 1];
+  (* Extract computed corner slope data *)
+  apdValues = allData[[All, 1]] // Union;
+  nearCornerFineLengthScaleValues = allData[[All, 2]] // Union;
+  allData // Cases[
+    {apd, ncfls_, _, symmetrySlopeData_, __} :> (
+      computedSlope[ncfls] = symmetrySlopeData[[1, 2]];
+      slopeRelError[ncfls] = computedSlope[ncfls] / theoreticalSlope - 1;
+    )
+  ];
+  (* Build table *)
+  Table[
+    {ncfls, computedSlope[ncfls], slopeRelError[ncfls]}
+    , {ncfls, nearCornerFineLengthScaleValues // Reverse}
+  ]
+    // TableForm[#,
+      , TableHeadings -> {
+          None,
+          {"ncfls", "computed slope", "rel. error"}
+        }
+    ] &
+] // Ex["wedge_obtuse-slope-comparison-additional-refinement.pdf"]
+
+
 (* ::Section:: *)
 (*Figure: numerical wedge domain (wedge_obtuse-numerical-domain)*)
 
