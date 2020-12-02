@@ -1112,4 +1112,4 @@ Module[
     , ImageSize -> 0.4 ImageSizeTextWidth
     , PlotRange -> {{xMinPlot, xMaxPlot}, {-yMaxPlot, yMaxPlot}}
   ]
-] // Ex["wedge_obtuse-mesh-additional-refinement.pdf"]
+] // Ex["wedge_obtuse-mesh-detail-additional-refinement.pdf"]
