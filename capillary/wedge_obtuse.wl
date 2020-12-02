@@ -294,6 +294,70 @@ Module[
 ] // Ex["wedge_obtuse-slope-comparison.pdf"]
 
 
+(* ::Subsection:: *)
+(*Corner neighbourhood test*)
+
+
+(* A visual check of local linearity. *)
+Module[
+  {
+    apd, gpd,
+    alpha, gamma,
+    tNumerical, tXDerivative,
+    coordMax, coordSliceValues,
+    imageSize,
+    dummyForTrailingCommas
+  },
+  (* Parameters *)
+  apd = 135;
+  gpd = 60;
+  alpha = apd * Degree;
+  gamma = gpd * Degree;
+  (* Import numerical solution *)
+  tNumerical =
+    Import @ FString["solution/wedge_obtuse-solution-apd-{apd}-gpd-{gpd}.txt"]
+      // Uncompress // First;
+  tXDerivative = Derivative[1, 0][tNumerical];
+  (* Plot *)
+  coordMax = 0.01;
+  coordSliceValues = Subdivide[-coordMax, coordMax, 4];
+  imageSize = 360;
+  {
+    (* Height *)
+    Plot[
+      Table[tNumerical[x, y], {y, coordSliceValues}] // Evaluate
+      , {x, -coordMax, coordMax}
+      , AxesLabel -> {"x", "height"}
+      , AxesOrigin -> {-coordMax, Automatic}
+      , ImageSize -> imageSize
+      , PlotLegends -> LineLegend[coordSliceValues
+          , LegendLabel -> Italicise["y"]
+        ]
+      , PlotRange -> Full
+      , PlotStyle -> {Automatic, Automatic, Automatic, Dotted, Dotted}
+      , PlotOptions[Axes] // Evaluate
+    ]
+      // Ex["solution/wedge_obtuse-solution-neighbourhood-height.png"]
+    ,
+    (* x-derivative *)
+    Plot[
+      Table[tXDerivative[x, y], {y, coordSliceValues}] // Evaluate
+      , {x, -coordMax, coordMax}
+      , AxesLabel -> {"x", "slope"}
+      , AxesOrigin -> {-coordMax, Automatic}
+      , ImageSize -> imageSize
+      , PlotLegends -> LineLegend[coordSliceValues
+          , LegendLabel -> Italicise["y"]
+        ]
+      , PlotRange -> Full
+      , PlotStyle -> {Automatic, Automatic, Automatic, Dotted, Dotted}
+      , PlotOptions[Axes] // Evaluate
+    ]
+      // Ex["solution/wedge_obtuse-solution-neighbourhood-slope.png"]
+  }
+]
+
+
 (* ::Section:: *)
 (*Slope dodginess test*)
 
