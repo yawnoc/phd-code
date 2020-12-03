@@ -979,7 +979,8 @@ Module[
   (* Plot *)
   mesh = tNumerical["ElementMesh"];
   wallHeight = Ceiling[HHalfPlane[gamma], 0.2];
-  verticalEdge @ {x_, y_} := Line @ {{x, y, 0}, {x, y, wallHeight}};
+  verticalEdge @ {x_, y_} :=
+    Line @ {{x, y, tNumerical[x, y]}, {x, y, wallHeight}};
   Show[
     (* Numerical solution *)
     Plot3D[
@@ -1028,18 +1029,13 @@ Module[
       , {phi, -alpha, alpha}
       , PlotStyle -> Directive[Black, Thickness[0]]
     ],
-    (* Manually drawn solution vertical edges *)
-    Graphics3D @ {
-      Line @ {
-        {xArcCorner, -yArcCorner, tNumerical[xArcCorner, -yArcCorner]},
-        {xArcCorner, -yArcCorner, 0}
-      },
-      {}
-    },
     (* Manually drawn wedge wall vertical edges *)
     Graphics3D @ {
-      verticalEdge /@ {{xArcCorner, -yArcCorner}, {xArcCorner, +yArcCorner}},
-      Line @ {{0, 0, tNumerical[0, 0]}, {0, 0, wallHeight}},
+      verticalEdge /@ {
+        {xArcCorner, -yArcCorner},
+        {xArcCorner, +yArcCorner},
+        {0, 0}
+      },
       {}
     },
     {}
