@@ -1157,3 +1157,104 @@ Module[
     , PlotRange -> {{xMinPlot, xMaxPlot}, {-yMaxPlot, yMaxPlot}}
   ]
 ] // Ex["wedge_obtuse-mesh-detail-additional-refinement.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: near-corner slope with additional refinement (wedge_obtuse-slope-additional-refinement-*)*)
+
+
+Module[
+  {
+    rMax, casesWithinRange,
+    allData,
+    slopeMin, slopeMax,
+    apd, nearCornerFineLengthScaleValues,
+    symmetrySlopeData, wallSlopeData,
+    opts,
+    symmetryPlot, legend, wallPlot,
+    dummyForTrailingCommas
+  },
+  (* Horizontal plot range *)
+  rMax = 0.015;
+  casesWithinRange = Cases[{r_, _} /; r <= rMax];
+  (* Import all data *)
+  allData = Import["slope_test/wedge_obtuse-slope_test-all-data.txt"] // Uncompress;
+  allData = Join @@ allData;
+  (* Extract data *)
+  apd = 135;
+  nearCornerFineLengthScaleValues = allData[[All, 2]] // Union;
+  allData // Cases[
+    {apd, ncfls_, _, ssData_, _, wsData_} :> (
+      symmetrySlopeData[ncfls] = ssData // casesWithinRange;
+      wallSlopeData[ncfls] = wsData // casesWithinRange;
+    )
+  ];
+  (* Vertical plot range *)
+  {slopeMin, slopeMax} = MinMax[
+    Table[
+      {
+        symmetrySlopeData[ncfls][[All, 2]],
+        wallSlopeData[ncfls][[All, 2]]
+      }
+      , {ncfls, nearCornerFineLengthScaleValues}
+    ]
+  ];
+  (* Plot options *)
+  opts = {
+    AxesLabel -> {Italicise["r"], "Slope"},
+    ImageSize -> 0.45 ImageSizeTextWidth,
+    Joined -> True,
+    LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"],
+    TicksStyle -> LabelSize["Tick"],
+    PlotMarkers -> {"OpenMarkers", 5},
+    PlotRange -> {slopeMin, slopeMax},
+    PlotRangeClipping -> False,
+    PlotRangePadding -> {{None, 0.001}, {0.05, 0.08}},
+    PlotStyle -> Black,
+    PlotOptions[Axes] // Evaluate
+  };
+  (* Slope along line of symmetry *)
+  (*
+    First use PlotLegends to get a properly styled legend,
+    then extract it for separate export.
+  *)
+  symmetryPlot =
+    ListPlot[
+      Table[symmetrySlopeData[ncfls], {ncfls, nearCornerFineLengthScaleValues}]
+      , PlotLegends -> Placed[
+          LineLegend[
+            nearCornerFineLengthScaleValues
+            , LabelStyle -> LatinModernLabelStyle @ LabelSize["Legend"]
+            (* Don't bother with LegendLabel; just write \ell_\ultra in LaTeX *)
+            , LegendLayout -> "Row"
+            , LegendMarkerSize -> 4 LabelSize["Legend"]
+          ]
+          , Scaled @ {0.5, 0.5}
+        ]
+      , opts
+    ];
+  symmetryPlot /. {
+    Legended[p_, Placed[l_, ___]] :> (
+      symmetryPlot = p;
+      legend = l;
+    )
+  };
+  legend = GraphicsRow[{legend}
+    , ImageSize -> ImageSizeTextWidth
+    , ItemAspectRatio -> 0.1
+    , Spacings -> -ImageSizeTextWidth (* (no idea why this works) *)
+  ];
+  (* Slope along wall *)
+  wallPlot =
+    ListPlot[
+      Table[wallSlopeData[ncfls], {ncfls, nearCornerFineLengthScaleValues}]
+      , opts
+    ];
+  (* Export *)
+  {
+    symmetryPlot // Ex["wedge_obtuse-slope-additional-refinement-symmetry.pdf"],
+    wallPlot // Ex["wedge_obtuse-slope-additional-refinement-wall.pdf"],
+    legend // Ex["wedge_obtuse-slope-additional-refinement-legend.pdf"],
+    Nothing
+  }
+]
