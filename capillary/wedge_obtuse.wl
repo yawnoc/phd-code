@@ -1340,7 +1340,7 @@ Module[
       , PlotStyle -> BoundaryTracingStyle["NonViable"]
     ],
     {}
-    , ImageSize -> 0.45 ImageSizeTextWidth
+    , ImageSize -> 0.5 * 0.8 ImageSizeTextWidth
   ]
 ] // Ex["wedge_obtuse-viable.pdf"]
 
@@ -1441,6 +1441,6 @@ Module[
       , {xy, xyTracedList}
     ],
     {}
-    , ImageSize -> 0.45 ImageSizeTextWidth
+    , ImageSize -> 0.5 * 0.8 ImageSizeTextWidth
   ]
 ] // Ex["wedge_obtuse-traced-boundaries.pdf"]
