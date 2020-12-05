@@ -156,6 +156,22 @@ Table[
 ]
 
 
+(* ::Subsection:: *)
+(*Elliptic critical terminal point*)
+
+
+x0[tNumerical_, gammaTracing_] :=
+  Module[{p},
+    (* \[PartialD]T/\[PartialD]x *)
+    p = Derivative[1, 0][tNumerical];
+    (* Find x == x_0 such that \[PartialD]T/\[PartialD]x == cot(gamma-tracing) *)
+    SeekRoot[
+      p[#, 0] + Cot[gammaTracing] &,
+      {0, rMaxMesh}, 20
+    ]
+  ];
+
+
 (* ::Section:: *)
 (*Finite element mesh check*)
 
