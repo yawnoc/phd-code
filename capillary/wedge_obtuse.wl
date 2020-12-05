@@ -1277,6 +1277,75 @@ Module[
 
 
 (* ::Section:: *)
+(*Figure: viable domain  (wedge_obtuse-viable)*)
+
+
+Module[
+  {
+    apd, gpd,
+    alpha, gamma,
+    tNumerical,
+    derList, p, q, grad2, f, vi,
+    xCritical,
+    xMax, xMin, yMax, rMaxWall,
+    more, xMinMore, xMaxMore, yMaxMore,
+    dummyForTrailingCommas
+  },
+  (* Angular parameters *)
+  {apd, gpd} = {135, 60};
+  {alpha, gamma} = {apd, gpd} Degree;
+  (* Import numerical solution *)
+  tNumerical =
+    Import @ FString["solution/wedge_obtuse-solution-apd-{apd}-gpd-{gpd}.txt"]
+      // Uncompress // First;
+  (* Derivative list for boundary tracing *)
+  {p, q, grad2, f, vi} = derList = ContactDerivativeList[tNumerical, gamma];
+  (* Critical terminal point x_0 *)
+  xCritical = x0[tNumerical, gamma];
+  (* Plot range *)
+  xMax = Ceiling[1.1 xCritical, 0.05];
+  xMin = Round[-3 xMax, 0.05];
+  yMax = SeekRoot[vi[xMin, #] &, xMin Tan[alpha] {1, 3}, 20];
+  rMaxWall = xMin Sec[alpha];
+  (* Plot range but more *)
+  more = 0.05;
+  xMinMore = xMin - more;
+  xMaxMore = xMax + more;
+  yMaxMore = yMax + more;
+  (* Make plot *)
+  Show[
+    EmptyFrame[{xMin, xMax}, {-yMax, yMax}
+      , FrameLabel -> {
+          Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
+          Italicise["y"]
+        }
+      , FrameTicksStyle -> LabelSize["Tick"]
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+    ],
+    (* Wedge walls *)
+    Graphics @ {BoundaryTracingStyle["Wall"],
+      Line @ {
+        xMinMore {1, Tan[alpha]},
+        {0, 0},
+        xMinMore {1, -Tan[alpha]}
+      }
+    },
+    (* Non-viable domain *)
+    RegionPlot[
+      vi[x, y] < 0
+      , {x, xMinMore, xMaxMore}
+      , {y, -yMaxMore, yMaxMore}
+      , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
+      , PlotPoints -> 5
+      , PlotStyle -> BoundaryTracingStyle["NonViable"]
+    ],
+    {}
+    , ImageSize -> 0.45 ImageSizeTextWidth
+  ]
+] // Ex["wedge_obtuse-viable.pdf"]
+
+
+(* ::Section:: *)
 (*Figure: generic traced boundaries  (wedge_obtuse-traced-boundaries)*)
 
 
