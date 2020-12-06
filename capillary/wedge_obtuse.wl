@@ -1444,3 +1444,159 @@ Module[
     , ImageSize -> 0.5 * 0.8 ImageSizeTextWidth
   ]
 ] // Ex["wedge_obtuse-traced-boundaries.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: terminal points  (wedge_obtuse-terminal-points)*)
+
+
+Module[
+  {
+    apd, gpd,
+    alpha, gamma,
+    tNumerical,
+    derList, p, q, grad2, f, vi,
+    xCritical,
+    xMax, xMin, yMax, rMaxWall,
+    more, xMinMore, xMaxMore, yMaxMore,
+    xOrdinary, yOrdinary,
+    sMax, xyContourList,
+    textStyle, textStyleBracket,
+    plot,
+    legendLabelStyle,
+    legendCurves, legendRegions,
+    dummyForTrailingCommas
+  },
+  (* Angular parameters *)
+  {apd, gpd} = {135, 60};
+  {alpha, gamma} = {apd, gpd} Degree;
+  (* Import numerical solution *)
+  tNumerical =
+    Import @ FString["solution/wedge_obtuse-solution-apd-{apd}-gpd-{gpd}.txt"]
+      // Uncompress // First;
+  (* Derivative list for boundary tracing *)
+  {p, q, grad2, f, vi} = derList = ContactDerivativeList[tNumerical, gamma];
+  (* Critical terminal point x_0 *)
+  xCritical = x0[tNumerical, gamma];
+  (* Plot range *)
+  xMax = 3.1 xCritical;
+  xMin = -0.65 xMax;
+  yMax = SeekRoot[vi[xMin, #] &, xMin Tan[alpha] {1, 3}, 20];
+  rMaxWall = xMin Sec[alpha];
+  (* Plot range but more *)
+  more = 0.05;
+  xMinMore = xMin - more;
+  xMaxMore = xMax + more;
+  yMaxMore = yMax + more;
+  (* Ordinary terminal point *)
+  xOrdinary = Way[0, xCritical, 0.05];
+  yOrdinary = SeekRoot[vi[xOrdinary, #] &, {0, yMax}, 5];
+  (* T-contours *)
+  sMax = RPolar[xMax - xMin, 2 yMax];
+  xyContourList =
+    Table[
+      ContourByArcLength[tNumerical][xyInitial, 0, sMax {-1, 1}, 1]
+      , {xyInitial, {{xCritical, 0}, {xOrdinary, yOrdinary}}}
+    ];
+  (* Text style *)
+  textStyle = Style[#, LabelSize["Point"]] & @* LaTeXStyle;
+  textStyleBracket = Style[#, LabelSize["PointBracket"]] &;
+  (* Make plot *)
+  plot = Show[
+    EmptyFrame[{xMin, xMax}, {-yMax, yMax}
+      , Frame -> None
+    ],
+    (* Wedge walls *)
+    (*Graphics @ {BoundaryTracingStyle["Wall"],
+      Line @ {
+        xMinMore {1, Tan[alpha]},
+        {0, 0},
+        xMinMore {1, -Tan[alpha]}
+      }
+    },*)
+    (* Non-viable domain *)
+    RegionPlot[
+      vi[x, y] < 0
+      , {x, xMinMore, xMaxMore}
+      , {y, -yMaxMore, yMaxMore}
+      , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
+      , PlotPoints -> 5
+      , PlotStyle -> BoundaryTracingStyle["NonViable"]
+    ],
+    (* Local T-contours *)
+    Table[
+      ParametricPlot[
+        xy[s] // Through
+        , {s, DomainStart[xy], DomainEnd[xy]}
+        , PlotPoints -> 2
+        , PlotStyle -> BoundaryTracingStyle["Background"]
+      ]
+      , {xy, xyContourList}
+    ],
+    (* Critical terminal point (x_0, 0) *)
+    Graphics @ {
+      GeneralStyle["Point"],
+      Point @ {xCritical, 0}
+    },
+    Graphics @ {
+      Text[
+        Row @ {
+          "(" // textStyleBracket,
+          "\[NegativeVeryThinSpace]",
+          Subscript[Italicise["x"], 0],
+          ",\[ThinSpace]",
+          0,
+          ")" // textStyleBracket
+        },
+        {xCritical, 0},
+        {-1.7, -0.82}
+      ] // textStyle,
+      Text[
+        "critical",
+        {xCritical, 0},
+        {-1.55, 0.82}
+      ] // textStyle,
+      {}
+    },
+    (* Ordinary terminal point *)
+    Graphics @ {
+      GeneralStyle["Point"],
+      Point @ {xOrdinary, yOrdinary}
+    },
+    Graphics @ {
+      Text[
+        "ordinary",
+        {xOrdinary, yOrdinary},
+        {-1.4, -0.25}
+      ] // textStyle,
+      {}
+    },
+    {}
+  ];
+  (* Legend *)
+  legendLabelStyle = LatinModernLabelStyle @ LabelSize["Legend"];
+  legendCurves =
+    CurveLegend[
+      BoundaryTracingStyle /@ {"Background", "Terminal"},
+      {Row @ {Italicise["T"], "\[Hyphen]contour"}, "terminal curve"}
+      , LabelStyle -> legendLabelStyle
+    ];
+  legendRegions =
+    RegionLegend[
+      BoundaryTracingStyle /@ {"NonViable"},
+      {"non\[Hyphen]viable domain"}
+      , LabelStyle -> legendLabelStyle
+    ];
+  (* Combined *)
+  GraphicsRow[
+    {
+      plot,
+      Column[Join[legendCurves, legendRegions]
+        , Spacings -> {0, {-1.5, -1.5, -1.4}}
+      ]
+    }
+    , ItemAspectRatio -> 2 yMax / (xMax - xMin)
+    , ImageSize -> 0.63 ImageSizeTextWidth
+    , Spacings -> {0, 0}
+  ]
+] // Ex["wedge_obtuse-terminal-points.pdf"]
