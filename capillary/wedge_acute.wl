@@ -1461,8 +1461,9 @@ Module[
     xMax, yMax, rMax,
     more, xMaxMore, yMaxMore,
     derList, p, q, grad2, f, vi,
-    rStartList,
-    xyStartList, xyTracedList,
+    rStartList, xyStartList,
+    xStartTerminal, yStartTerminal,
+    xyTracedList,
     plot, legend,
     legendLabelStyle,
     legendCurves, legendRegions,
@@ -1496,6 +1497,11 @@ Module[
   *)
   rStartList = Subdivide[rMax, 12] // Rest;
   xyStartList = Table[XYPolar[r, -alpha], {r, rStartList}];
+    (* Append a starting point along the terminal curve *)
+    xStartTerminal = Way[xCritical, xMax, 0.6];
+    yStartTerminal =
+      SeekRoot[vi[xStartTerminal, #] &, {0, xStartTerminal Tan[alpha]}, 5];
+    xyStartList = xyStartList // Append @ {xStartTerminal, yStartTerminal};
   xyTracedList =
     Table[
       ContactTracedBoundary[derList][xyStart, 0, {0, 2 rMax}
