@@ -1589,6 +1589,113 @@ Module[
 
 
 (* ::Section:: *)
+(*Figure: generic traced boundary branches  (wedge_acute-traced-boundaries-*-branch)*)
+
+
+Module[
+  {
+    apd, gpd,
+    alpha, gamma,
+    tNumerical, xCritical,
+    xMax, yMax, rMax,
+    more, xMaxMore, yMaxMore,
+    derList, p, q, grad2, f, vi,
+    rStartList, xyStartList,
+    xStartTerminal, yStartTerminal,
+    xyTracedList,
+    branchCases, branchYSigns, ySign,
+    dummyForTrailingCommas
+  },
+  (* Angular parameters *)
+  {apd, gpd} = {40, 60};
+  {alpha, gamma} = {apd, gpd} Degree;
+  (* Import numerical solution *)
+  tNumerical =
+    Import @ FString["solution/wedge_acute-solution-apd-{apd}-gpd-{gpd}.txt"]
+      // Uncompress // First;
+  (* Derivative list for boundary tracing *)
+  {p, q, grad2, f, vi} = derList = ContactDerivativeList[tNumerical, gamma];
+  (* Critical terminal point x_0 *)
+  xCritical = x0[tNumerical, gamma];
+  (* Plot range *)
+  xMax = Ceiling[1.5 xCritical, 0.2];
+  yMax = xMax Tan[alpha];
+  rMax = RPolar[xMax, yMax];
+  (* Plot range but more *)
+  more = 0.05;
+  xMaxMore = xMax + more;
+  yMaxMore = yMax + more;
+  (* Traced boundaries (upper branch) *)
+  (*
+    NOTE: wall integration doesn't work
+    because the traced boundary ventures slightly outside the wedge domain
+    and Mathematica complains about Indeterminate values.
+    So the wall boundaries are drawn manually at the end.
+  *)
+  rStartList = Subdivide[rMax, 12] // Rest;
+  xyStartList = Table[XYPolar[r, -alpha], {r, rStartList}];
+    (* Append a starting point along the terminal curve *)
+    xStartTerminal = Way[xCritical, xMax, 0.55];
+    yStartTerminal =
+      SeekRoot[vi[xStartTerminal, #] &, {0, xStartTerminal Tan[alpha]}, 5];
+    xyStartList = xyStartList // Append @ {xStartTerminal, yStartTerminal};
+  xyTracedList =
+    Table[
+      ContactTracedBoundary[derList][xyStart, 0, {0, 2 rMax}
+        , -1, 1
+        , 0, Function[{x, y}, x > xMaxMore]
+      ]
+      , {xyStart, xyStartList}
+    ];
+  (* Plot *)
+  branchCases = {"upper", "lower"};
+  branchYSigns = {1, -1};
+  Table[
+    ySign = AssociationThread[branchCases -> branchYSigns][case];
+    Show[
+      EmptyFrame[{0, xMax}, {-yMax, yMax}
+        , Frame -> None
+      ],
+      (* Wedge walls *)
+      Graphics @ {BoundaryTracingStyle["Wall"],
+        HalfLine[{0, 0}, XYPolar[1, alpha]],
+        HalfLine[{0, 0}, XYPolar[1, -alpha]],
+        {}
+      },
+      (* Non-viable domain *)
+      RegionPlot[
+        vi[x, y] < 0
+        , {x, xCritical, xMaxMore}
+        , {y, -yMaxMore, yMaxMore}
+        , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
+        , PlotPoints -> 9
+        , PlotStyle -> BoundaryTracingStyle["NonViable"]
+      ],
+      (* Traced boundaries *)
+      Table[
+        ParametricPlot[
+          EvaluatePair[xy, s, ySign] // Evaluate
+          , {s, DomainStart[xy], DomainEnd[xy]}
+          , PlotStyle -> BoundaryTracingStyle["Traced"]
+        ]
+        , {xy, xyTracedList}
+      ],
+      (* Traced boundary walls *)
+      ParametricPlot[
+        {x, ySign * x Tan[alpha]} // Evaluate
+        , {x, 0, xMaxMore}
+        , PlotPoints -> 2
+        , PlotStyle -> BoundaryTracingStyle["Traced"]
+      ],
+      {}
+      , ImageSize -> 0.5 * 0.8 ImageSizeTextWidth
+    ] // Ex @ FString["wedge_acute-traced-boundaries-{case}-branch.pdf"]
+    , {case, branchCases}
+  ]
+]
+
+
+(* ::Section:: *)
 (*Figure: traced boundaries, patched (wedge_acute-traced-boundaries-patched)*)
 
 
