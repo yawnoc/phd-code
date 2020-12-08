@@ -167,7 +167,7 @@ x0[tNumerical_, gammaTracing_] :=
     (* Find x == x_0 such that \[PartialD]T/\[PartialD]x == cot(gamma-tracing) *)
     SeekRoot[
       p[#, 0] + Cot[gammaTracing] &,
-      {0, rMaxMesh}, 20
+      {0, rMaxMesh}
     ]
   ];
 
