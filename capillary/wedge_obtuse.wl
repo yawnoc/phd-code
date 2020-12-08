@@ -1447,6 +1447,75 @@ Module[
 
 
 (* ::Section:: *)
+(*Figure: viable domain, larger scale  (wedge_obtuse-viable-larger-scale)*)
+
+
+Module[
+  {
+    apd, gpd,
+    alpha, gamma,
+    tNumerical,
+    derList, p, q, grad2, f, vi,
+    xCritical,
+    xMax, xMin, yMax, rMaxWall,
+    more, xMinMore, xMaxMore, yMaxMore,
+    dummyForTrailingCommas
+  },
+  (* Angular parameters *)
+  {apd, gpd} = {135, 60};
+  {alpha, gamma} = {apd, gpd} Degree;
+  (* Import numerical solution *)
+  tNumerical =
+    Import @ FString["solution/wedge_obtuse-solution-apd-{apd}-gpd-{gpd}.txt"]
+      // Uncompress // First;
+  (* Derivative list for boundary tracing *)
+  {p, q, grad2, f, vi} = derList = ContactDerivativeList[tNumerical, gamma];
+  (* Critical terminal point x_0 *)
+  xCritical = x0[tNumerical, gamma];
+  (* Plot range *)
+  xMax = 2 xCritical;
+  xMin = -7 xMax;
+  yMax = SeekRoot[vi[xMin, #] &, xMin Tan[alpha] {1, 3}, 20];
+  rMaxWall = xMin Sec[alpha];
+  (* Plot range but more *)
+  more = 0.05;
+  xMinMore = xMin - more;
+  xMaxMore = xMax + more;
+  yMaxMore = yMax + more;
+  (* Make plot *)
+  Show[
+    EmptyFrame[{xMin, xMax}, {-yMax, yMax}
+      , FrameLabel -> {
+          Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
+          Italicise["y"]
+        }
+      , FrameTicksStyle -> LabelSize["Tick"]
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+    ],
+    (* Wedge walls *)
+    Graphics @ {BoundaryTracingStyle["Wall"],
+      Line @ {
+        xMinMore {1, Tan[alpha]},
+        {0, 0},
+        xMinMore {1, -Tan[alpha]}
+      }
+    },
+    (* Non-viable domain *)
+    RegionPlot[
+      vi[x, y] < 0
+      , {x, xMinMore, xMaxMore}
+      , {y, -yMaxMore, yMaxMore}
+      , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
+      , PlotPoints -> 7
+      , PlotStyle -> BoundaryTracingStyle["NonViable"]
+    ],
+    {}
+    , ImageSize -> 0.4 ImageSizeTextWidth
+  ]
+] // Ex["wedge_obtuse-viable-larger-scale.pdf"]
+
+
+(* ::Section:: *)
 (*Figure: terminal points  (wedge_obtuse-terminal-points)*)
 
 
