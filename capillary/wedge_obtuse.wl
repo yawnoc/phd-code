@@ -1600,3 +1600,104 @@ Module[
     , Spacings -> {0, 0}
   ]
 ] // Ex["wedge_obtuse-terminal-points.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: generic traced boundary branches  (wedge_obtuse-traced-boundaries-*-branch)*)
+
+
+(* (This is a little slow (~5 sec).) *)
+Module[
+  {
+    apd, gpd,
+    alpha, gamma,
+    tNumerical,
+    derList, p, q, grad2, f, vi,
+    xCritical,
+    xMax, xMin, yMax, rMaxWall,
+    more, xMinMore, xMaxMore, yMaxMore,
+    rStartListWall, xyStartListWall, xyStartListSymmetry, xyStartList,
+    sMax, xyTracedList,
+    branchCases, branchYSigns, ySign,
+    dummyForTrailingCommas
+  },
+  (* Angular parameters *)
+  {apd, gpd} = {135, 60};
+  {alpha, gamma} = {apd, gpd} Degree;
+  (* Import numerical solution *)
+  tNumerical =
+    Import @ FString["solution/wedge_obtuse-solution-apd-{apd}-gpd-{gpd}.txt"]
+      // Uncompress // First;
+  (* Derivative list for boundary tracing *)
+  {p, q, grad2, f, vi} = derList = ContactDerivativeList[tNumerical, gamma];
+  (* Critical terminal point x_0 *)
+  xCritical = x0[tNumerical, gamma];
+  (* Plot range *)
+  xMax = 1.2 xCritical;
+  xMin = -5 xCritical;
+  yMax = SeekRoot[vi[xMin, #] &, xMin Tan[alpha] {1, 3}, 20];
+  rMaxWall = xMin Sec[alpha];
+  (* Plot range but more *)
+  more = 0.05;
+  xMinMore = xMin - more;
+  xMaxMore = xMax + more;
+  yMaxMore = yMax + more;
+  (* Traced boundary starting points (upper branch) *)
+  rStartListWall = (1/12 + Subdivide[9]) rMaxWall // Prepend[0];
+  xyStartListWall = Table[XYPolar[r, alpha], {r, rStartListWall}];
+  xyStartListSymmetry = Table[{x, 0}, {x, {0.2, 0.35, 0.5, 0.7, 0.9} xCritical}];
+  xyStartList = Join[xyStartListWall, xyStartListSymmetry];
+  (* Traced boundaries (upper branch) *)
+  sMax = RPolar[xMax - xMin, 2 yMax];
+  xyTracedList =
+    Table[
+      Quiet[
+        ContactTracedBoundary[derList][xyStart, 0, {-1, 1} sMax
+          , -1, 1
+          , 0, Function[{x, y}, x < xMinMore]
+        ]
+        , {InterpolatingFunction::femdmval, NDSolveValue::nlnum}
+      ]
+      , {xyStart, xyStartList}
+    ];
+  (* Make plot *)
+  branchCases = {"upper", "lower"};
+  branchYSigns = {1, -1};
+  Table[
+    ySign = AssociationThread[branchCases -> branchYSigns][case];
+    Show[
+      EmptyFrame[{xMin, xMax}, {-yMax, yMax}
+        , Frame -> None
+      ],
+      (* Wedge walls *)
+      Graphics @ {BoundaryTracingStyle["Wall"],
+        Line @ {
+          xMinMore {1, ySign * Tan[alpha]},
+          {0, 0}
+        }
+      },
+      (* Non-viable domain *)
+      RegionPlot[
+        vi[x, y] < 0
+        , {x, xMinMore, xMaxMore}
+        , {y, -yMaxMore, yMaxMore}
+        , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
+        , PlotPoints -> 7
+        , PlotStyle -> BoundaryTracingStyle["NonViable"]
+      ],
+      (* Traced boundaries *)
+      Table[
+        ParametricPlot[
+          EvaluatePair[xy, s, ySign] // Evaluate
+          , {s, DomainStart[xy], DomainEnd[xy]}
+          , PlotStyle -> BoundaryTracingStyle["Traced"]
+        ]
+          /. line_Line :> {Arrowheads @ {{-0.08, 0.33}}, Arrow[line]}
+        , {xy, xyTracedList}
+      ],
+      {}
+      , ImageSize -> 0.5 * 0.8 ImageSizeTextWidth
+    ] // Ex @ FString["wedge_obtuse-traced-boundaries-{case}-branch.pdf"]
+    , {case, branchCases}
+  ]
+]
