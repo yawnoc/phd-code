@@ -1936,3 +1936,169 @@ Module[
     , {gpdTracing, gpdTracingValues}
   ]
 ]
+
+
+(* ::Section:: *)
+(*Figure: traced boundary branches, different contact angle (wedge_obtuse-traced-boundaries-different-angle-*-branch)*)
+
+
+(* (This is a little slow (~5 sec).) *)
+Module[
+  {
+    apd, gpd, gpdTracing,
+    alpha, gamma, gammaTracing,
+    d,
+    tNumerical,
+    derList, p, q, grad2, f, vi,
+    xCritical,
+    xMax, xMin, yMax, rMaxWall,
+    more, xMinMore, xMaxMore, yMaxMore,
+    clearance, xyStartList,
+    sMax, xyTracedList,
+    branchCases, branchYSigns, ySign,
+    nonManifoldStyle,
+    arrowify,
+    dummyForTrailingCommas
+  },
+  (* Angular parameters *)
+  {apd, gpd, gpdTracing} = {135, 60, 63};
+  {alpha, gamma, gammaTracing} = {apd, gpd, gpdTracing} Degree;
+  (* Half-plane offset distance *)
+  d = DHalfPlane[gamma, gammaTracing];
+  (* Import numerical solution *)
+  tNumerical =
+    Import @ FString["solution/wedge_obtuse-solution-apd-{apd}-gpd-{gpd}.txt"]
+      // Uncompress // First;
+  (* Derivative list for boundary tracing *)
+  {p, q, grad2, f, vi} = derList = ContactDerivativeList[tNumerical, gammaTracing];
+  (* Critical terminal point x_0 *)
+  xCritical = x0[tNumerical, gammaTracing];
+  (* Plot range *)
+  xMax = 1.2 xCritical;
+  xMin = -5 xCritical;
+  yMax = xMin Tan[alpha];
+  rMaxWall = xMin Sec[alpha];
+  (* Plot range but more *)
+  more = 0.05;
+  xMinMore = xMin - more;
+  xMaxMore = xMax + more;
+  yMaxMore = yMax + more;
+  (* Traced boundary starting points (upper branch) *)
+  clearance = 10^-6;
+  xyStartList["general"] = Join[
+    (* collides with vertex *)
+    {{0, 0}},
+    (* collides with upper wall *)
+    Table[XYPolar[r, +alpha], {r, (Range[5] 0.16 - 0.02) rMaxWall}],
+    {}
+  ];
+  xyStartList["lower"] =
+    (* deflects into lower wall *)
+    Table[XYPolar[r, -alpha + clearance], {r, (Range[2, 8, 2] 0.16 - 0.02) rMaxWall}];
+  xyStartList["terminal"] =
+    (* deflects into lower half of terminal curve *)
+    Table[
+      {
+        xStart,
+        SeekRoot[vi[xStart, #] &, {-xStart Tan[alpha], -yMax}, 10] + clearance
+      }
+      , {xStart, {-0.2, -1.25} xCritical}
+    ];
+  xyStartList["manifold"] =
+    (* close enough to unstable manifold *)
+    {XYPolar[2 rMaxWall, -alpha] + XYPolar[d, -alpha + Pi/2]};
+  (* Traced boundaries (upper branch) *)
+  sMax = rMaxMesh;
+  Table[
+    xyTracedList[type] =
+      Table[
+        Quiet[
+          ContactTracedBoundary[derList][xyStart, 0, {-1, 1} sMax
+            , -1, 1
+            , 0, Function[{x, y}, x < xMinMore]
+          ]
+          , {InterpolatingFunction::femdmval, NDSolveValue::nlnum}
+        ]
+        , {xyStart, xyStartList[type]}
+      ]
+    , {type, {"general", "lower", "terminal", "manifold"}}
+  ];
+  (* Make plot *)
+  branchCases = {"upper", "lower"};
+  branchYSigns = {1, -1};
+  arrowify[proportion_] :=
+    # /. {line_Line :> {Arrowheads @ {{-0.08, proportion}}, Arrow[line]}} &;
+  nonManifoldStyle = Directive[
+    BoundaryTracingStyle["Traced"],
+    BoundaryTracingStyle["Background"] // Last
+  ];
+  Table[
+    ySign = AssociationThread[branchCases -> branchYSigns][case];
+    Show[
+      EmptyFrame[{xMin, xMax}, {-yMax, yMax}
+        , Frame -> None
+        , PlotRangePadding -> None
+      ],
+      (* Wedge walls *)
+      Graphics @ {BoundaryTracingStyle["Wall"],
+        Line @ {
+          xMinMore {1, Tan[alpha]},
+          {0, 0},
+          xMinMore {1, -Tan[alpha]}
+        }
+      },
+      (* Non-viable domain *)
+      RegionPlot[
+        vi[x, y] < 0
+        , {x, xMinMore, xMaxMore}
+        , {y, -yMaxMore, yMaxMore}
+        , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
+        , PlotPoints -> 7
+        , PlotStyle -> BoundaryTracingStyle["NonViable"]
+      ],
+      (* Traced boundaries (general) *)
+      Table[
+        ParametricPlot[
+          EvaluatePair[xy, s, ySign] // Evaluate
+          , {s, DomainStart[xy], DomainEnd[xy]}
+          , PlotStyle -> nonManifoldStyle
+        ]
+          // arrowify[0.3]
+        , {xy, xyTracedList["general"]}
+      ],
+      (* Traced boundaries (deflects into lower wall) *)
+      Table[
+        ParametricPlot[
+          EvaluatePair[xy, s, ySign] // Evaluate
+          , {s, DomainStart[xy], DomainEnd[xy]}
+          , PlotStyle -> nonManifoldStyle
+        ]
+          // arrowify[0.45]
+        , {xy, xyTracedList["lower"]}
+      ],
+      (* Traced boundaries (deflects into terminal) *)
+      Table[
+        ParametricPlot[
+          EvaluatePair[xy, s, ySign] // Evaluate
+          , {s, DomainStart[xy], DomainEnd[xy]}
+          , PlotStyle -> nonManifoldStyle
+        ]
+          // arrowify[0.15]
+        , {xy, xyTracedList["terminal"]}
+      ],
+      (* Traced boundaries (unstable manifold) *)
+      Table[
+        ParametricPlot[
+          EvaluatePair[xy, s, ySign] // Evaluate
+          , {s, DomainStart[xy], DomainEnd[xy]}
+          , PlotStyle -> BoundaryTracingStyle["Traced"]
+        ]
+          // arrowify[0.56]
+        , {xy, xyTracedList["manifold"]}
+      ],
+      {}
+      , ImageSize -> 0.5 * 0.8 ImageSizeTextWidth
+    ] // Ex @ FString["wedge_obtuse-traced-boundaries-different-angle-{case}-branch.pdf"]
+    , {case, branchCases}
+  ]
+]
