@@ -2422,13 +2422,36 @@ Module[
           , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
         ],
         (* Non-viable domain *)
-        RegionPlot[
-          vi[x, y] < 0
-          , {x, xCritical, xMaxMore}
-          , {y, -yMaxMore, yMaxMore}
-          , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
-          , PlotPoints -> 7
-          , PlotStyle -> BoundaryTracingStyle["NonViable"]
+        If[
+          gammaTracing < gamma,
+          {
+            RegionPlot[
+               vi[x, y] < 0
+               , {x, xCritical, xMaxMore}
+               , {y, -yMaxMore, yMaxMore}
+               , BoundaryStyle -> None
+               , PlotPoints -> 7
+               , PlotStyle -> BoundaryTracingStyle["NonViable"]
+             ],
+            ContourPlot[
+               vi[x, y] == 0
+               , {x, xCritical, xMaxMore}
+               , {y, -yMaxMore, yMaxMore}
+               , ContourLabels -> None
+               , ContourStyle -> BoundaryTracingStyle["Terminal"]
+               , PlotPoints -> 7
+             ]
+           },
+           {
+             RegionPlot[
+               vi[x, y] < 0
+               , {x, xCritical, xMaxMore}
+               , {y, -yMaxMore, yMaxMore}
+               , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
+               , PlotPoints -> 7
+               , PlotStyle -> BoundaryTracingStyle["NonViable"]
+             ]
+           }
         ],
         (* Wedge walls *)
         Graphics @ {BoundaryTracingStyle["Wall"],
