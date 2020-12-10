@@ -1784,12 +1784,13 @@ Module[
     tNumerical,
     gpdTracingValues, caseNameList,
     gammaTracing,
+    d,
     xCritical,
     xTerminal, yTerminal, rTerminal,
     xMin, xMax, yMax, rMaxWall,
     more, xMinMore, xMaxMore, yMaxMore,
     derList, p, q, grad2, f, vi,
-    phiClearance, xyStartList,
+    clearance, xyStartList,
     sMax, xyTracedList,
     plot,
     caseName,
@@ -1805,10 +1806,12 @@ Module[
     Import @ FString["solution/wedge_obtuse-solution-apd-{apd}-gpd-{gpd}.txt"]
       // Uncompress // First;
   (* Different tracing contact angle *)
-  gpdTracingValues = {58, 70};
+  gpdTracingValues = {58, 63};
   caseNameList = {"less", "more"};
   Table[
     gammaTracing = gpdTracing * Degree;
+    (* Half-plane offset distance *)
+    d = DHalfPlane[gamma, gammaTracing];
     (* Critical terminal point x_0 *)
     xCritical = x0[tNumerical, gammaTracing];
     (* Derivative list for boundary tracing *)
@@ -1825,7 +1828,7 @@ Module[
         xMax = 1.5 xCritical;
         yMax = xMin Tan[alpha];
       ,
-        xMax = 1.25 xCritical;
+        xMax = 1.7 xCritical;
         xMin = -4.5 xCritical;
         yMax = xMin Tan[alpha]
         (*yMax = 0.65 SeekRoot[vi[xMin, #] &, xMin Tan[alpha] {1, 3}, 20]*);
@@ -1837,25 +1840,33 @@ Module[
     xMaxMore = xMax (1 + more);
     yMaxMore = yMax (1 + more);
     (* Starting points *)
-    phiClearance = 10^-6;
+    clearance = 10^-6;
     If[
       gammaTracing < gamma,
         xyStartList = Join[
           Table[XYPolar[r, +alpha], {r, {0, 0.09, 0.21, 0.34, 0.48, 0.63} rTerminal}],
-          Table[XYPolar[r, -alpha + phiClearance], {r, {0.31, 0.65} rTerminal}],
+          Table[XYPolar[r, -alpha + clearance], {r, {0.31, 0.65} rTerminal}],
           {{0.5 xCritical, 0}},
           {}
         ];
       ,
         xyStartList = Join[
           {{0, 0}},
-          Table[XYPolar[r, +alpha], {r, (Range[5] 0.16 - 0.02) rMaxWall}],
-          Table[XYPolar[r, -alpha + phiClearance], {r, (Range[2, 8, 2] 0.16 - 0.02) rMaxWall}],
+          Table[XYPolar[r, +alpha], {r, (Range[6] 0.16 - 0.02) rMaxWall}],
+          Table[XYPolar[r, -alpha + clearance], {r, (Range[3, 9, 3] 0.16 - 0.02) rMaxWall}],
+          {XYPolar[2 rMaxWall, -alpha] + XYPolar[d, -alpha + Pi/2]},
+          Table[
+            {
+              xStart,
+              SeekRoot[vi[xStart, #] &, {-xStart Tan[alpha], -yMax}, 10] + clearance
+            }
+            , {xStart, {-0.2, -1.25} xCritical}
+          ],
           {}
         ];
     ];
     (* Traced boundaries (upper branch) *)
-    sMax = RPolar[xMax - xMin, 2 yMax];
+    sMax = rMaxMesh;
     xyTracedList =
       Table[
         Quiet[
