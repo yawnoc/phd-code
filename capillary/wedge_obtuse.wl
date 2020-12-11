@@ -2102,3 +2102,196 @@ Module[
     , {case, branchCases}
   ]
 ]
+
+
+(* ::Section:: *)
+(*Figure: pseudo-rounding construction (wedge_obtuse-pseudo-rounding-construction-*)*)
+
+
+Module[
+  {
+    apd, gpd, gpdTracing,
+    alpha, gamma, gammaTracing,
+    d,
+    tNumerical,
+    derList, p, q, grad2, f, vi,
+    xCritical,
+    xArrowBase, yArrowBase,
+    xInitial, yInitial,
+    xMinWall, yMaxWall,
+    xMinOffset, yMaxOffset,
+    arrowLength,
+    orthogonalityMarkerLength, orthogonalityMarkerStyle,
+    wallThicknessCorrection,
+    textStyleLabel, textStylePoint, textStylePointBracket,
+    xyTraced, sCorner, xyCorner,
+    plot, opts,
+    dummyForTrailingCommas
+  },
+  (* Angular parameters *)
+  {apd, gpd, gpdTracing} = {135, 60, 63};
+  {alpha, gamma, gammaTracing} = {apd, gpd, gpdTracing} Degree;
+  (* Half-plane offset distance *)
+  d = DHalfPlane[gamma, gammaTracing];
+  (* Import numerical solution *)
+  tNumerical =
+    Import @ FString["solution/wedge_obtuse-solution-apd-{apd}-gpd-{gpd}.txt"]
+      // Uncompress // First;
+  (* Derivative list for boundary tracing *)
+  {p, q, grad2, f, vi} = derList = ContactDerivativeList[tNumerical, gammaTracing];
+  (* Critical terminal point x_0 *)
+  xCritical = x0[tNumerical, gammaTracing];
+  (* Base of wall coordinate (xi) arrow *)
+  xArrowBase = -7 xCritical;
+  yArrowBase = xArrowBase Tan[alpha];
+  (* End point of traced boundary (used for initial condition) *)
+  {xInitial, yInitial} = {xArrowBase, yArrowBase} + XYPolar[d, alpha - Pi/2];
+  (* End point of wall to be shown *)
+  {xMinWall, yMaxWall} = 1.2 {xArrowBase, yArrowBase};
+  (* End point of offset wedge to be shown *)
+  {xMinOffset, yMaxOffset} = {xMinWall, yMaxWall} + XYPolar[d, alpha - Pi/2];
+  (* Etc. *)
+  arrowLength = 2.7 d;
+  orthogonalityMarkerLength = 0.35 d;
+  orthogonalityMarkerStyle = Directive[EdgeForm[Black], FaceForm[]];
+  wallThicknessCorrection = -0.1;
+  (* Text style *)
+  textStyleLabel = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  textStylePoint = Style[#, LabelSize["Point"]] & @* LaTeXStyle;
+  textStylePointBracket = Style[#, LabelSize["PointBracket"]] &;
+  (* Compute traced boundary (LOWER branch, which is physically higher) *)
+  xyTraced =
+    Quiet[
+      ContactTracedBoundary[derList][
+        {xInitial, yInitial}, 0, {0, 2 yMaxWall}
+        , 1, -1
+      ]
+      , {InterpolatingFunction::femdmval, NDSolveValue::nlnum}
+    ];
+  (* Corner point (y == 0) *)
+  sCorner = SeekRoot[xyTraced[[2]], {DomainStart[xyTraced], DomainEnd[xyTraced]}];
+  xyCorner = EvaluatePair[xyTraced, sCorner];
+  (* Wedge walls *)
+  plot["walls"] = Show[
+    Graphics @ {BoundaryTracingStyle["Wall"],
+      Line @ {
+        {xMinWall, +yMaxWall},
+        {0, 0},
+        {xMinWall, -yMaxWall}
+      }
+    },
+    {}
+  ];
+  (* Plot showing direction *)
+  plot["direction"] = Show[
+    (* Coordinate arrow *)
+    Graphics @ {
+      Directive[GeneralStyle["Thick"], Arrowheads[0.1]],
+      Arrow @ {
+        {xArrowBase, yArrowBase},
+        {xArrowBase, yArrowBase} + XYPolar[arrowLength, alpha - Pi/2]
+      },
+      Text[
+        "\[Xi]" // textStyleLabel
+        , {xArrowBase, yArrowBase} + XYPolar[arrowLength, alpha - Pi/2]
+        , {-2.25, -0.3}
+      ],
+      {}
+    },
+    Graphics @ {orthogonalityMarkerStyle,
+      Rectangle[
+        {xArrowBase, yArrowBase},
+        {xArrowBase, yArrowBase}
+          + orthogonalityMarkerLength {1 + wallThicknessCorrection, -1}
+      ] // Rotate[#, alpha - Pi/2, {xArrowBase, yArrowBase}] &
+    },
+    (* Wedge walls *)
+    plot["walls"],
+    Graphics @ {
+      Text[
+        "\[Xi]" == SeparatedRow[]["\[VeryThinSpace]", 0] // textStyleLabel
+        , {xMinWall, +yMaxWall}
+        , {1.4, -0.35}
+      ]
+    },
+    Graphics @ {
+      Text[
+        "\[Xi]" ==
+          Row @ {
+            Italicise["d"],
+            "(" // textStylePointBracket,
+            "\[NegativeVeryThinSpace]",
+            "\[Gamma]",
+            ",\[ThinSpace]",
+            Subscript["\[Gamma]", Style["\[NegativeVeryThinSpace]\[Bullet]", Magnification -> 1.8]],
+            ")" // textStylePointBracket
+          }
+          // textStyleLabel
+        , {xMinOffset, +yMaxOffset}
+        , {0.5, -1.2}
+      ]
+    },
+    (* Offset wedge *)
+    (* (separate lines to ensure dotting at the corner) *)
+    Graphics @ {BoundaryTracingStyle["Contour"],
+      Line @ {
+        {d / Sin[alpha], 0},
+        {xMinOffset, +yMaxOffset}
+      },
+      Line @ {
+        {d / Sin[alpha], 0},
+        {xMinOffset, -yMaxOffset} * 1.02 (* (optical correction) *)
+      },
+      {}
+    },
+    (* Traced boundaries *)
+    ParametricPlot[
+      EvaluatePair[xyTraced, s] // IncludeYReflection // Evaluate
+      , {s, DomainStart[xyTraced], DomainEnd[xyTraced]}
+      , PlotStyle -> BoundaryTracingStyle["Traced"]
+    ] /. {line_Line :> {Arrowheads @ {{0.1, 0.85}}, Arrow[line]}},
+    {}
+  ];
+  (* Plot showing psuedo-rounding corner *)
+  plot["corner"] = Show[
+    (* Wedge walls *)
+    plot["walls"],
+    (* Traced boundaries *)
+    ParametricPlot[
+      EvaluatePair[xyTraced,
+        sCorner - Abs[s - sCorner]
+        , -Sign[s - sCorner]
+      ] // Evaluate
+      , {s, 0, 2 sCorner}
+      , PlotStyle -> BoundaryTracingStyle["Traced"]
+    ],
+    (* Corner point (x_c, 0) *)
+    Graphics @ {
+      Text[
+        Row @ {
+          "(" // textStylePointBracket,
+          "\[NegativeVeryThinSpace]",
+          Subscript[Italicise["x"], "c"],
+          ",\[ThinSpace]",
+          0,
+          ")" // textStylePointBracket
+        } // textStylePoint
+        , xyCorner
+        , {-1.25, -0.15}
+      ],
+    },
+    {}
+  ];
+  (* Options (fix vertical sizing) *)
+  opts = {
+    ImageSize -> {Automatic, 0.45 * 1.15 ImageSizeTextWidth},
+    PlotRange -> {{All, All}, {-1.2 yMaxWall, 1.4 yMaxWall}},
+    {}
+  };
+  (* Export *)
+  Table[
+    Show[plot[case], opts]
+      // Ex @ FString["wedge_obtuse-pseudo-rounding-construction-{case}.pdf"]
+    , {case, {"direction", "corner"}}
+  ]
+]
