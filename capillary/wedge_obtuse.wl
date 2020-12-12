@@ -2554,3 +2554,125 @@ Module[
     , ImageSize -> 0.4 ImageSizeTextWidth
   ]
 ] // Ex["wedge_obtuse-pseudo-roundings-offset.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: height-rise profiles (wedge_obtuse-height-rise-profiles)*)
+
+
+(* (This is slow (~6 sec).) *)
+Module[
+  {
+    apd, gpdTracing,
+    alpha, gammaTracing, h,
+    gpdValues,
+    gamma, d,
+    tNumerical,
+    xCriticalOffset,
+    xMin, xMax, yMax,
+    sMaxPlot,
+    more, xMinMore,
+    p, q, grad2, f, vi, derList,
+    xInitial, yInitial, xyTraced, sCorner,
+    xy, sMax,
+    xySharp, tCorner,
+    dummyForTrailingCommas
+  },
+  (* Prescribed angles *)
+  apd = 135;
+  gpdTracing = 60;
+  {alpha, gammaTracing} = {apd, gpdTracing} Degree;
+  (* Half-plane wall height *)
+  h = HHalfPlane[gammaTracing];
+  (* Solution contact angles *)
+  gpdValues = {10, 40};
+  (* For various solution contact angles (1): *)
+  Table[
+    (* Solution contact angle *)
+    gamma = gpd * Degree;
+    (* Half-plane offset distance *)
+    d[gpd] = DHalfPlane[gamma, gammaTracing];
+    (* Import numerical solution *)
+    tNumerical[gpd] =
+      Import @ FString["solution/wedge_obtuse-solution-apd-{apd}-gpd-{gpd}.txt"]
+        // Uncompress // First;
+    (* Offset critical terminal point (for plot range) *)
+    xCriticalOffset[gpd] = x0[tNumerical[gpd], gammaTracing] - d[gpd] / Sin[alpha];
+    , {gpd, gpdValues // Append[gpdTracing]}
+  ];
+  (* Plot range *)
+  xMin = 1.5 Min[xCriticalOffset /@ gpdValues];
+  xMax = 0;
+  yMax = xMin Tan[alpha];
+  sMaxPlot = 4;
+  (* Plot range but more *)
+  more = 0.05;
+  xMinMore = xMin - more;
+  (* For various solution contact angles (2): *)
+  Table[
+    (* Initial point *)
+    {xInitial, yInitial} = XYPolar[0.7 rMaxMesh, alpha] + XYPolar[d[gpd], alpha - Pi/2];
+    (* Derivative list for boundary tracing *)
+    {p, q, grad2, f, vi} = derList = ContactDerivativeList[tNumerical[gpd], gammaTracing];
+    (* Compute traced boundary (LOWER branch, which be physically higher) *)
+    xyTraced[gpd] =
+      Quiet[
+        ContactTracedBoundary[derList][
+          {xInitial, yInitial}, 0, {0, rMaxMesh}
+          , 1, -1
+          , -Infinity
+        ]
+        , {InterpolatingFunction::femdmval, NDSolveValue::nlnum}
+      ];
+    (* Corner point (y == 0) *)
+    sCorner[gpd] =
+      SeekRoot[
+        xyTraced[gpd][[2]],
+        {DomainStart @ xyTraced[gpd], DomainEnd @ xyTraced[gpd]}
+        , 20
+      ];
+    , {gpd, gpdValues}
+  ];
+  (* Sharp corner (original walls) *)
+  xySharp[s_] := XYPolar[Abs[s], Sign[s] alpha];
+  (* Sharp corner (dip) height *)
+  tCorner = tNumerical[gpdTracing][0, 0];
+  (* Make plot *)
+  Plot[
+    Join[
+      (* Half-plane wall height *)
+      h // List,
+      (* Sharp corner *)
+      tNumerical[gpdTracing] @@ xySharp[s] // List,
+      (* Rounded corners *)
+      Table[
+        xy = xyTraced[gpd];
+        sMax = sCorner[gpd];
+        tNumerical[gpd] @@
+          EvaluatePair[xy, sMax - Abs[s], -Sign[s]]
+        , {gpd, gpdValues}
+      ],
+      {}
+    ] // Evaluate
+    , {s, -sMaxPlot, sMaxPlot}
+    , AspectRatio -> 0.5
+    , AxesLabel -> Italicise /@ {"s", "T"}
+    (*, AxesOrigin -> {-sMaxPlot, Automatic}*)
+    , ImageSize -> 0.6 ImageSizeTextWidth
+    , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+    , PlotRange -> {Floor[tCorner, 0.1], All}
+    (*, PlotRangePadding -> {None, Scaled /@ {0.01, 0.05}}*)
+    , PlotStyle ->
+        Join[
+          BoundaryTracingStyle["Contour"] // List,
+          BoundaryTracingStyle["Wall"] // List,
+          ConstantArray[
+            Directive[BoundaryTracingStyle["Traced"], GeneralStyle["DefaultThick"]],
+            Length[gpdValues]
+          ],
+          {}
+        ]
+    , TicksStyle -> LabelSize["Tick"]
+    , PlotOptions[Axes] // Evaluate
+  ]
+] // Ex["wedge_obtuse-height-rise-profiles.pdf"]
