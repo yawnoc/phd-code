@@ -2295,3 +2295,127 @@ Module[
     , {case, {"direction", "corner"}}
   ]
 ]
+
+
+(* ::Section:: *)
+(*Figure: family of pseudo-roundings (wedge_obtuse-pseudo-roundings)*)
+
+
+(* (This is slow (~6 sec).) *)
+Module[
+  {
+    apd, gpd,
+    alpha, gamma,
+    tNumerical,
+    gpdTracingValues,
+    xCriticalMin, xCriticalMax,
+    xMin, xMax, yMax,
+    more, xMinMore,
+    gammaTracing, d,
+    xInitial, yInitial,
+    p, q, grad2, f, vi, derList,
+    xyTraced, sCorner,
+    xy, sMax,
+    xArrowMin, xArrowMax,
+    dummyForTrailingCommas
+  },
+  (* Known solution angles *)
+  apd = 135;
+  gpd = 60;
+  alpha = apd * Degree;
+  gamma = gpd * Degree;
+  (* Import numerical solution *)
+  tNumerical =
+    Import @ FString["solution/wedge_obtuse-solution-apd-{apd}-gpd-{gpd}.txt"]
+      // Uncompress // First;
+  (* Tracing contact angles *)
+  gpdTracingValues = Range[gpd + 5, 85, 5];
+  (* Plot range *)
+  xCriticalMin = x0[tNumerical, Min[gpdTracingValues] Degree];
+  xCriticalMax = x0[tNumerical, Max[gpdTracingValues] Degree];
+  xMin = -2 xCriticalMax;
+  xMax = 1.5 xCriticalMax;
+  yMax = 1.2 xMin Tan[alpha];
+  (* Plot range but more *)
+  more = 0.05;
+  xMinMore = xMin - more;
+  (* Compute pseudo-roundings *)
+  Table[
+    (* Tracing contact angle *)
+    gammaTracing = gpdTracing * Degree;
+    (* Half-plane offset distance *)
+    d = DHalfPlane[gamma, gammaTracing];
+    (* Initial point *)
+    {xInitial, yInitial} = 1.5 xMin {1, Tan[alpha]} + XYPolar[d, alpha - Pi/2];
+    (* Derivative list for boundary tracing *)
+    {p, q, grad2, f, vi} = derList = ContactDerivativeList[tNumerical, gammaTracing];
+    (* Compute traced boundary (LOWER branch, which be physically higher) *)
+    xyTraced[gpdTracing] =
+      Quiet[
+        ContactTracedBoundary[derList][
+          {xInitial, yInitial}, 0, {0, 2 yInitial}
+          , 1, -1
+          , -Infinity
+        ]
+        , {InterpolatingFunction::femdmval, NDSolveValue::nlnum}
+      ];
+    (* Corner point (y == 0) *)
+    sCorner[gpdTracing] =
+      SeekRoot[
+        xyTraced[gpdTracing][[2]],
+        {DomainStart @ xyTraced[gpdTracing], DomainEnd @ xyTraced[gpdTracing]}
+        , 20
+      ];
+    , {gpdTracing, gpdTracingValues}
+  ];
+  (* Make plot *)
+  Show[
+    EmptyFrame[{xMin, xMax}, {-yMax, yMax}
+      , FrameLabel -> {
+          Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
+          Italicise["y"]
+        }
+      , FrameTicksStyle -> LabelSize["Tick"]
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+    ],
+    (* Wedge walls *)
+    Graphics @ {BoundaryTracingStyle["Wall"],
+      Line @ {
+        xMinMore {1, Tan[alpha]},
+        {0, 0},
+        xMinMore {1, -Tan[alpha]}
+      }
+    },
+    (* Traced boundaries *)
+    Table[
+      xy = xyTraced[gpdTracing];
+      sMax = sCorner[gpdTracing];
+      ParametricPlot[
+        EvaluatePair[xy, sMax - Abs[s - sMax], -Sign[s - sMax]]
+          // Evaluate
+        , {s, 0, 2 sMax}
+        , PlotStyle -> BoundaryTracingStyle["Traced"]
+      ]
+      , {gpdTracing, gpdTracingValues}
+    ],
+    (* Tracing gamma arrow *)
+    xArrowMin = Way[xCriticalMin, xCriticalMax, -0.06];
+    xArrowMax = Way[xCriticalMin, xCriticalMax, +1.5];
+    Graphics @ {
+      GeneralStyle["Translucent"], GeneralStyle["Thick"],
+      Arrowheads[Medium],
+      Arrow @ {{xArrowMin, 0}, {xArrowMax, 0}}
+    },
+    Graphics @ {
+      Text[
+        Subscript["\[Gamma]", Style["\[NegativeVeryThinSpace]\[Bullet]", Magnification -> 1.8]]
+          // LaTeXStyle
+          // Style[#, LabelSize["Label"]] &
+        , {xArrowMax, 0}
+        , {1, -1.2}
+      ]
+    },
+    {}
+    , ImageSize -> 0.4 ImageSizeTextWidth
+  ]
+] // Ex["wedge_obtuse-pseudo-roundings.pdf"]
