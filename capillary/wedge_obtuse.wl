@@ -2419,3 +2419,138 @@ Module[
     , ImageSize -> 0.4 ImageSizeTextWidth
   ]
 ] // Ex["wedge_obtuse-pseudo-roundings.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: pseudo-roundings (grouped by contact angle) with offset applied (wedge_obtuse-pseudo-roundings-offset)*)
+
+
+(* (This is slow (~6 sec).) *)
+Module[
+  {
+    apd, gpdTracing,
+    alpha, gammaTracing,
+    gpdValues,
+    gamma, d,
+    tNumerical,
+    xCriticalOffset,
+    xMin, xMax, yMax,
+    more, xMinMore,
+    p, q, grad2, f, vi, derList,
+    xInitial, yInitial, xyTraced, sCorner,
+    xy, sMax,
+    xCriticalOffsetMinGamma, xCriticalOffsetMaxGamma,
+    xArrowMin, xArrowMax,
+    dummyForTrailingCommas
+  },
+  (* Prescribed angles *)
+  apd = 135;
+  gpdTracing = 60;
+  {alpha, gammaTracing} = {apd, gpdTracing} Degree;
+  (* Solution contact angles *)
+  gpdValues = Range[10, 50, 10];
+  (* For various solution contact angles (1): *)
+  Table[
+    (* Solution contact angle *)
+    gamma = gpd * Degree;
+    (* Half-plane offset distance *)
+    d[gpd] = DHalfPlane[gamma, gammaTracing];
+    (* Import numerical solution *)
+    tNumerical[gpd] =
+      Import @ FString["solution/wedge_obtuse-solution-apd-{apd}-gpd-{gpd}.txt"]
+        // Uncompress // First;
+    (* Offset critical terminal point (for plot range) *)
+    xCriticalOffset[gpd] = x0[tNumerical[gpd], gammaTracing] - d[gpd] / Sin[alpha];
+    , {gpd, gpdValues}
+  ];
+  (* Plot range *)
+  xMin = 1.5 Min[xCriticalOffset /@ gpdValues];
+  xMax = 0;
+  yMax = xMin Tan[alpha];
+  (* Plot range but more *)
+  more = 0.05;
+  xMinMore = xMin - more;
+  (* For various solution contact angles (2): *)
+  Table[
+    (* Initial point *)
+    {xInitial, yInitial} = 1.5 xMin {1, Tan[alpha]} + XYPolar[d[gpd], alpha - Pi/2];
+    (* Derivative list for boundary tracing *)
+    {p, q, grad2, f, vi} = derList = ContactDerivativeList[tNumerical[gpd], gammaTracing];
+    (* Compute traced boundary (LOWER branch, which be physically higher) *)
+    xyTraced[gpd] =
+      Quiet[
+        ContactTracedBoundary[derList][
+          {xInitial, yInitial}, 0, {0, 2 yInitial}
+          , 1, -1
+          , -Infinity
+        ]
+        , {InterpolatingFunction::femdmval, NDSolveValue::nlnum}
+      ];
+    (* Corner point (y == 0) *)
+    sCorner[gpd] =
+      SeekRoot[
+        xyTraced[gpd][[2]],
+        {DomainStart @ xyTraced[gpd], DomainEnd @ xyTraced[gpd]}
+        , 20
+      ];
+    , {gpd, gpdValues}
+  ];
+  (* Make plot *)
+  Show[
+    EmptyFrame[{xMin, xMax}, {-yMax, yMax}
+      , FrameLabel -> {
+          Superscript[
+            Italicise["x"],
+            Style["\[NegativeVeryThinSpace]\[Prime]", Magnification -> 1.3]
+          ] // Margined @ {{0, 0}, {0, -15}},
+          Italicise["y"]
+        }
+      , FrameTicksStyle -> LabelSize["Tick"]
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+    ],
+    (* Wedge walls *)
+    Graphics @ {BoundaryTracingStyle["Wall"],
+      Line @ {
+        xMinMore {1, Tan[alpha]},
+        {0, 0},
+        xMinMore {1, -Tan[alpha]}
+      }
+    },
+    (* Traced boundaries *)
+    Table[
+      xy = xyTraced[gpd];
+      sMax = sCorner[gpd];
+      ParametricPlot[
+        Subtract[
+          EvaluatePair[xy, sMax - Abs[s - sMax], -Sign[s - sMax]],
+          {d[gpd] / Sin[alpha], 0}
+        ]
+          // Evaluate
+        , {s, 0, 2 sMax}
+        , PlotStyle -> BoundaryTracingStyle["Traced"]
+      ]
+      , {gpd, gpdValues}
+    ],
+    (* Solution gamma arrow *)
+    xCriticalOffsetMinGamma = xCriticalOffset[Min @ gpdValues];
+    xCriticalOffsetMaxGamma = xCriticalOffset[Max @ gpdValues];
+    xArrowMin = Way[xCriticalOffsetMinGamma, xCriticalOffsetMaxGamma, -0.3];
+    xArrowMax = Way[xCriticalOffsetMinGamma, xCriticalOffsetMaxGamma, +1.4];
+    Graphics @ {
+      GeneralStyle["Translucent"], GeneralStyle["Thick"],
+      Arrowheads[Medium],
+      Arrow @ {{xArrowMin, 0}, {xArrowMax, 0}}
+    },
+    Graphics @ {
+      Text[
+        "\[Gamma]"
+          // LaTeXStyle
+          // Style[#, LabelSize["Label"]] &
+        , {xArrowMin, 0}
+        , {2.5, -0.2}
+      ]
+    },
+    {}
+    , ImageSize -> 0.4 ImageSizeTextWidth
+  ]
+] // Ex["wedge_obtuse-pseudo-roundings-offset.pdf"]
