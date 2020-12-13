@@ -2679,7 +2679,7 @@ Module[
 
 
 (* ::Section:: *)
-(*Figure:*)
+(*Figure: approximating a contour with traced boundaries (wedge_obtuse-traced-boundaries-approximation-*)*)
 
 
 (* (This is rather slow (~10 sec).) *)
@@ -2805,6 +2805,7 @@ Module[
           // IncludeYReflection
           // Evaluate
         , {s, DomainStart[xy], DomainEnd[xy]}
+        , PlotPoints -> 9
         , PlotStyle -> BoundaryTracingStyle["Background"]
         , RegionFunction -> regionFunctionTraced
       ]
@@ -2815,12 +2816,13 @@ Module[
       ParametricPlot[
         EvaluatePair[xy, s] // Evaluate
         , {s, DomainStart[xy], DomainEnd[xy]}
+        , PlotPoints -> 2
         , PlotStyle -> BoundaryTracingStyle["Contour"]
       ]
       , {xy, {xyContour}}
     ],
     {}
-    , ImageSize -> 0.45 ImageSizeTextWidth
+    , ImageSize -> 0.45 * 0.9 ImageSizeTextWidth
   ];
   plot["contour"] = Show[
     plot["common"],
@@ -2837,7 +2839,7 @@ Module[
           == Subscript[Italicise["h"], Style["\[NegativeVeryThinSpace]\[Bullet]", Magnification -> 1.8]]*)
         Row @ {Italicise["T"], "\[Hyphen]contour"}
           // LaTeXStyle
-          // Style[#, LabelSize["Label"]] &
+          // Style[#, LabelSize["Straight"]] &
         , EvaluatePair[xyContour, sContourLabel]
         , {-1.2, 0}
       ]
@@ -2853,6 +2855,7 @@ Module[
           // IncludeYReflection
           // Evaluate
         , {s, sStart[n], sEnd[n]}
+        , PlotPoints -> 2
         , PlotStyle -> BoundaryTracingStyle["Traced"]
       ]
       , {n, Keys[intersectionCurveAss]}
@@ -2862,6 +2865,7 @@ Module[
   (* Export *)
   Table[
     plot[case]
+      // Ex @ FString["wedge_obtuse-traced-boundaries-approximation-{case}.pdf"]
     , {case, {"contour", "serrated"}}
   ]
 ]
