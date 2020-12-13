@@ -2697,6 +2697,7 @@ Module[
     xStartContour, xyContour,
     xyStartListUpper, xyTracedListUpper,
     xyStartListLower, xyTracedListLower,
+    intersectionCurveAss, sStart, sEnd,
     dummyForTrailingCommas
   },
   (* Angular paramters *)
@@ -2751,6 +2752,34 @@ Module[
       ]
       , {xyStart, xyStartListLower}
     ];
+  (* Determine intersections (hard-coded) *)
+  (* (Too much work to try and automate this) *)
+  intersectionCurveAss = Association[
+    5 -> {15, 16},
+    6 -> {14, 15},
+    7 -> {12, 14},
+    8 -> {11, 12},
+    9 -> {10, 11},
+    10 -> {9, 10},
+    9 -> {10, 11},
+    10 -> {9, 10},
+    11 -> {8, 9},
+    12 -> {7, 8},
+    14 -> {6, 7},
+    15 -> {5, 6},
+    Nothing
+  ];
+  Table[
+    sStart[n] = First @ SeekParametricIntersection[
+      xyTracedListUpper[[n]],
+      xyTracedListLower[[intersectionCurveAss[n] // First]]
+    ];
+    sEnd[n] = First @ SeekParametricIntersection[
+      xyTracedListUpper[[n]],
+      xyTracedListLower[[intersectionCurveAss[n] // Last]]
+    ];
+    , {n, Keys[intersectionCurveAss]}
+  ];
   (* Labelled version of plot for hard-coding *)
   (* (Too much work to try and automate this) *)
   Show[
@@ -2777,6 +2806,17 @@ Module[
         , PlotStyle -> Red
       ]
       , {xy, xyTracedListLower}
+    ],
+    (* Traced boundaries (indentations) *)
+    Table[
+      ParametricPlot[
+        EvaluatePair[xyTracedListUpper[[n]], s]
+          // IncludeYReflection
+          // Evaluate
+        , {s, sStart[n], sEnd[n]}
+        , PlotStyle -> Green
+      ]
+      , {n, Keys[intersectionCurveAss]}
     ],
     (* Contour *)
     Table[
