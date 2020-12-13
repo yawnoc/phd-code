@@ -149,3 +149,155 @@ Module[
     {}
   ]
 ] // Ex["capillary-contact-angle.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: serrated approximation geometry (capillary-serrated-approximation-geometry)*)
+
+
+Module[
+  {
+    theta,
+    edgeHalfWidth, edgeHalfHeight,
+    orthogonalityMarkerLength, angleMarkerLength,
+    normalVectorLength, gradientVectorLength,
+    arrowStyle,
+    textStyleStraight, textStyleLabel,
+    dummyForTrailingCommas
+  },
+  (* Geometry *)
+  theta = 30 Degree;
+  edgeHalfWidth = 1;
+  edgeHalfHeight = edgeHalfWidth Tan[theta];
+  (* Etc. *)
+  orthogonalityMarkerLength = 0.15 normalVectorLength;
+  angleMarkerLength = 0.35 edgeHalfWidth;
+  normalVectorLength = 0.9 edgeHalfWidth;
+  gradientVectorLength = 1.2 edgeHalfWidth;
+  arrowStyle = Directive[GeneralStyle["Thick"], Arrowheads[0.04]];
+  (* Text styles *)
+  textStyleStraight = Style[#, LabelSize["Straight"]] & @* LaTeXStyle;
+  textStyleLabel = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  (* Make diagram *)
+  Show[
+    (* Serrated path normal vectors *)
+    Graphics @ {
+      Line[orthogonalityMarkerLength {{0, 1}, {1, 1}, {1, 0}}]
+        // Rotate[#, theta, {0, 0}] &
+        // Translate[#, {-edgeHalfWidth, 0}] &,
+      Line[orthogonalityMarkerLength {{0, 1}, {-1, 1}, {-1, 0}}]
+        // Rotate[#, -theta, {0, 0}] &
+        // Translate[#, {+edgeHalfWidth, 0}] &,
+      {}
+    },
+    Graphics @ {arrowStyle,
+      Arrow @ {
+        {-edgeHalfWidth, 0},
+        {-edgeHalfWidth, 0} + XYPolar[normalVectorLength, Pi/2 + theta]
+      },
+      Arrow @ {
+        {+edgeHalfWidth, 0},
+        {+edgeHalfWidth, 0} + XYPolar[normalVectorLength, Pi/2 - theta]
+      },
+      {}
+    },
+    Graphics @ {
+      Text[
+        Embolden["n"] // textStyleLabel
+        , {-edgeHalfWidth, 0} + XYPolar[normalVectorLength, Pi/2 + theta]
+        , {1, -1}
+      ],
+      Text[
+        Embolden["n"] // textStyleLabel
+        , {+edgeHalfWidth, 0} + XYPolar[normalVectorLength, Pi/2 - theta]
+        , {-1, -1}
+      ],
+      {}
+    },
+    (* Angle between normal vector and gradient vector *)
+    Graphics @ {
+      Circle[{-edgeHalfWidth, 0}, angleMarkerLength, {0, theta}],
+      Circle[{+edgeHalfWidth, 0}, angleMarkerLength, {Pi, Pi - theta}],
+      {}
+    },
+    Graphics @ {
+      Text[
+        "\[Theta]" // textStyleLabel
+        , {-edgeHalfWidth, 0} + XYPolar[angleMarkerLength, theta/2]
+        , {-2.2, -0.1}
+      ],
+      Text[
+        "\[Theta]" // textStyleLabel
+        , {+edgeHalfWidth, 0} + XYPolar[angleMarkerLength, Pi - theta/2]
+        , {1.7, -0.1}
+      ],
+      {}
+    },
+    (* Serrated path *)
+    Graphics @ {BoundaryTracingStyle["Traced"],
+      Line @ {
+        {-3 edgeHalfWidth, 0},
+        {-2 edgeHalfWidth, -edgeHalfHeight},
+        {0, edgeHalfHeight},
+        {2 edgeHalfWidth, -edgeHalfHeight},
+        Way[
+          {2 edgeHalfWidth, -edgeHalfHeight},
+          {3 edgeHalfWidth, 0}
+          , 0.7
+        ],
+        Nothing
+      }
+    },
+    Graphics @ {
+      Text[
+        "serrated path" // textStyleStraight
+        , {2 edgeHalfWidth, -edgeHalfHeight}
+        , {0, 1}
+      ]
+    },
+    (* T-contour *)
+    Graphics @ {BoundaryTracingStyle["Contour"],
+      Line @ {
+        {-3.3 edgeHalfWidth, 0},
+        {3.1 edgeHalfWidth, 0}
+      }
+    },
+    Graphics @ {
+      Text[
+        Row @ {Italicise["T"], "\[Hyphen]contour"} // textStyleStraight
+        , {2.5 edgeHalfWidth, 0}
+        , {0, -1.2}
+      ]
+    },
+    (* Gradient vector *)
+    Graphics @ {
+      Line[orthogonalityMarkerLength {{0, 1}, {-1, 1}, {-1, 0}}]
+    },
+    Graphics @ {arrowStyle,
+      Arrow @ {{0, 0}, {0, gradientVectorLength}}
+    },
+    Graphics @ {
+      (* Fake Del *)
+      {
+        RegularPolygon[3]
+          // Scale[#, 0.095] &
+          // Rotate[#, Pi] &
+          // Translate[#, gradientVectorLength {-0.06, 0.911}] &
+      },
+      {White,
+        RegularPolygon[3]
+          // Scale[#, 0.045] &
+          // Rotate[#, Pi] &
+          // Translate[#, gradientVectorLength {-0.053, 0.915}] &
+      },
+      Text[
+        Italicise["T"] // textStyleLabel
+        , {0, gradientVectorLength}
+        , {-1, -1}
+      ],
+      {}
+    },
+    {}
+    , ImageSize -> 0.9 ImageSizeTextWidth
+  ]
+] // Ex["capillary-serrated-approximation-geometry.pdf"]
