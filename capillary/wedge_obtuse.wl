@@ -2682,7 +2682,7 @@ Module[
 (*Figure:*)
 
 
-(* (This is slow (~10 sec).) *)
+(* (This is rather slow (~10 sec).) *)
 Module[
   {
     apd, gpd, gpdTracing,
@@ -2698,6 +2698,8 @@ Module[
     xyStartListUpper, xyTracedListUpper,
     xyStartListLower, xyTracedListLower,
     intersectionCurveAss, sStart, sEnd,
+    yMaxTraced, regionFunctionTraced, plot,
+    yContourLabel, sContourLabel,
     dummyForTrailingCommas
   },
   (* Angular paramters *)
@@ -2720,7 +2722,7 @@ Module[
   yMaxWall = xMinWall Tan[alpha];
   rMaxWall = RPolar[xMinWall, yMaxWall];
   (* Plot range *)
-  xMax = 1.2 xCritical;
+  xMax = 1.1 xCritical;
   xMin = xMinWall;
   yMax = 1.7 yMaxWall;
   (* Maxmimum arc length *)
@@ -2780,33 +2782,70 @@ Module[
     ];
     , {n, Keys[intersectionCurveAss]}
   ];
-  (* Labelled version of plot for hard-coding *)
-  (* (Too much work to try and automate this) *)
-  Show[
+  (* Make plots *)
+  yMaxTraced = Way[yMaxWall, yMax];
+  regionFunctionTraced = Function[{x, y}, Abs[y] < yMaxTraced // Evaluate];
+  plot["common"] = Show[
     EmptyFrame[{xMin, xMax}, {-yMax, yMax}
+      , FrameLabel -> {
+          Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
+          Italicise["y"]
+        }
+      , FrameTicksStyle -> LabelSize["Tick"]
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
     ],
     (* Walls *)
     Graphics @ {BoundaryTracingStyle["Wall"],
       Line[2 {{xMinWall, +yMaxWall}, {0, 0}, {xMinWall, -yMaxWall}}]
     },
-    (* Traced boundaries (upper branch) *)
+    (* Traced boundaries *)
     Table[
       ParametricPlot[
-        EvaluatePair[xy, s] // Evaluate
+        EvaluatePair[xy, s]
+          // IncludeYReflection
+          // Evaluate
         , {s, DomainStart[xy], DomainEnd[xy]}
-        , PlotStyle -> Blue
+        , PlotStyle -> BoundaryTracingStyle["Background"]
+        , RegionFunction -> regionFunctionTraced
       ]
       , {xy, xyTracedListUpper}
     ],
-    (* Traced boundaries (lower branch) *)
+    (* Contour *)
     Table[
       ParametricPlot[
         EvaluatePair[xy, s] // Evaluate
         , {s, DomainStart[xy], DomainEnd[xy]}
-        , PlotStyle -> Red
+        , PlotStyle -> BoundaryTracingStyle["Contour"]
       ]
-      , {xy, xyTracedListLower}
+      , {xy, {xyContour}}
     ],
+    {}
+    , ImageSize -> 0.45 ImageSizeTextWidth
+  ];
+  plot["contour"] = Show[
+    plot["common"],
+    (* Label for contour *)
+    yContourLabel = Way[yMaxTraced, yMax, 0.75];
+    sContourLabel = SeekRoot[
+      xyContour[[2]][#] - yContourLabel &,
+      {0, DomainEnd[xyContour]}
+      , 10
+    ];
+    Graphics @ {
+      Text[
+        (*Italicise["T"]
+          == Subscript[Italicise["h"], Style["\[NegativeVeryThinSpace]\[Bullet]", Magnification -> 1.8]]*)
+        Row @ {Italicise["T"], "\[Hyphen]contour"}
+          // LaTeXStyle
+          // Style[#, LabelSize["Label"]] &
+        , EvaluatePair[xyContour, sContourLabel]
+        , {-1.2, 0}
+      ]
+    },
+    {}
+  ];
+  plot["serrated"] = Show[
+    plot["common"],
     (* Traced boundaries (indentations) *)
     Table[
       ParametricPlot[
@@ -2814,22 +2853,15 @@ Module[
           // IncludeYReflection
           // Evaluate
         , {s, sStart[n], sEnd[n]}
-        , PlotStyle -> Green
+        , PlotStyle -> BoundaryTracingStyle["Traced"]
       ]
       , {n, Keys[intersectionCurveAss]}
     ],
-    (* Contour *)
-    Table[
-      ParametricPlot[
-        EvaluatePair[xy, s] // Evaluate
-        , {s, DomainStart[xy], DomainEnd[xy]}
-        , PlotStyle -> Purple
-      ]
-      , {xy, {xyContour}}
-    ],
-    (* Labelled starting points *)
-    ListPlot @ Table[Labeled[xyStartListUpper[[n]], Style[n, Blue]], {n, Length[xyStartListUpper]}],
-    ListPlot @ Table[Labeled[xyStartListLower[[n]], Style[n, Red]], {n, Length[xyStartListLower]}],
     {}
+  ];
+  (* Export *)
+  Table[
+    plot[case]
+    , {case, {"contour", "serrated"}}
   ]
 ]
