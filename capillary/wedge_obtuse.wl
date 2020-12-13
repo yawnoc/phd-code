@@ -2676,3 +2676,120 @@ Module[
     , PlotOptions[Axes] // Evaluate
   ]
 ] // Ex["wedge_obtuse-height-rise-profiles.pdf"]
+
+
+(* ::Section:: *)
+(*Figure:*)
+
+
+(* (This is slow (~10 sec).) *)
+Module[
+  {
+    apd, gpd, gpdTracing,
+    alpha, gamma, gammaTracing,
+    d, hTracing,
+    tNumerical,
+    xCritical,
+    p, q, grad2, f, vi, derList,
+    xMinWall, yMaxWall, rMaxWall,
+    xMax, xMin, yMax,
+    sMax,
+    xStartContour, xyContour,
+    xyStartListUpper, xyTracedListUpper,
+    xyStartListLower, xyTracedListLower,
+    dummyForTrailingCommas
+  },
+  (* Angular paramters *)
+  {apd, gpd, gpdTracing} = {135, 20, 55};
+  {alpha, gamma, gammaTracing} = {apd, gpd, gpdTracing} Degree;
+  (* Half-plane offset distance *)
+  d = DHalfPlane[gamma, gammaTracing];
+  (* Half-plane wall height for tracing contact angle *)
+  hTracing = HHalfPlane[gammaTracing];
+  (* Import numerical solution *)
+  tNumerical =
+    Import @ FString["solution/wedge_obtuse-solution-apd-{apd}-gpd-{gpd}.txt"]
+      // Uncompress // First;
+  (* Critical terminal point x_0 *)
+  xCritical = x0[tNumerical, gammaTracing];
+  (* Derivative list for boundary tracing *)
+  {p, q, grad2, f, vi} = derList = ContactDerivativeList[tNumerical, gammaTracing];
+  (* Wall extremities *)
+  xMinWall = - xCritical;
+  yMaxWall = xMinWall Tan[alpha];
+  rMaxWall = RPolar[xMinWall, yMaxWall];
+  (* Plot range *)
+  xMax = 1.2 xCritical;
+  xMin = xMinWall;
+  yMax = 1.7 yMaxWall;
+  (* Maxmimum arc length *)
+  sMax = 4 rMaxWall;
+  (* Contour T == h_tracing *)
+  xStartContour = SeekRoot[tNumerical[#, 0] - hTracing &, {0, xCritical}, 20];
+  xyContour = ContourByArcLength[tNumerical][{xStartContour, 0}, 0, {-1, 1} sMax];
+  (* Traced boundaries (upper branch) *)
+  xyStartListUpper = Join[
+    Table[XYPolar[r, +alpha], {r, Range[0, 8] rMaxWall / 6}],
+    Table[XYPolar[r, -alpha], {r, Range[0, 10] rMaxWall / 3 // Rest}],
+    {}
+  ] // SortBy[#, Last, Greater] &;
+  xyTracedListUpper =
+    Table[
+      Quiet[
+        ContactTracedBoundary[derList][xyStart, 0, {0, sMax}, -1, 1]
+        , {InterpolatingFunction::femdmval, NDSolveValue::nlnum, NDSolveValue::nrnum1}
+      ]
+      , {xyStart, xyStartListUpper}
+    ];
+  (* Traced boundaries (lower branch) *)
+  xyStartListLower = {#[[1]], -#[[2]]} & /@ xyStartListUpper;
+  xyTracedListLower =
+    Table[
+      Quiet[
+        ContactTracedBoundary[derList][xyStart, 0, {0, sMax}, 1, -1]
+        , {InterpolatingFunction::femdmval, NDSolveValue::nlnum, NDSolveValue::nrnum1}
+      ]
+      , {xyStart, xyStartListLower}
+    ];
+  (* Labelled version of plot for hard-coding *)
+  (* (Too much work to try and automate this) *)
+  Show[
+    EmptyFrame[{xMin, xMax}, {-yMax, yMax}
+    ],
+    (* Walls *)
+    Graphics @ {BoundaryTracingStyle["Wall"],
+      Line[2 {{xMinWall, +yMaxWall}, {0, 0}, {xMinWall, -yMaxWall}}]
+    },
+    (* Traced boundaries (upper branch) *)
+    Table[
+      ParametricPlot[
+        EvaluatePair[xy, s] // Evaluate
+        , {s, DomainStart[xy], DomainEnd[xy]}
+        , PlotStyle -> Blue
+      ]
+      , {xy, xyTracedListUpper}
+    ],
+    (* Traced boundaries (lower branch) *)
+    Table[
+      ParametricPlot[
+        EvaluatePair[xy, s] // Evaluate
+        , {s, DomainStart[xy], DomainEnd[xy]}
+        , PlotStyle -> Red
+      ]
+      , {xy, xyTracedListLower}
+    ],
+    (* Contour *)
+    Table[
+      ParametricPlot[
+        EvaluatePair[xy, s] // Evaluate
+        , {s, DomainStart[xy], DomainEnd[xy]}
+        , PlotStyle -> Purple
+      ]
+      , {xy, {xyContour}}
+    ],
+    (* Labelled starting points *)
+    ListPlot @ Table[Labeled[xyStartListUpper[[n]], Style[n, Blue]], {n, Length[xyStartListUpper]}],
+    ListPlot @ Table[Labeled[xyStartListLower[[n]], Style[n, Red]], {n, Length[xyStartListLower]}],
+    {}
+  ]
+]
