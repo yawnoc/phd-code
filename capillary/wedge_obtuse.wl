@@ -299,6 +299,36 @@ rhoIndentationsFittedProfile =
 
 
 (* ::Subsubsection:: *)
+(*Effective contact angle profile*)
+
+
+(* ::Subsubsubsection:: *)
+(*Raw version*)
+
+
+(* gamma_e == gamma_e (x, y) *)
+gammaEffectiveRaw =
+  Module[{gammaTracing, grad2},
+    gammaTracing = gammaTracingIndentations;
+    grad2 = ContactDerivativeList[tNumericalIndentations, gammaTracing][[3]];
+    Function[{x, y},
+      ArcCos @ Divide[
+        Sqrt @ grad2[x, y],
+        Sqrt[1 + grad2[x, y]]
+      ] // Evaluate
+    ]
+  ];
+
+
+(* gamma_e == gamma_e (s) *)
+gammaEffectiveRawProfile =
+  Function[{s},
+    gammaEffectiveRaw @@ EvaluatePair[xyContourIndentations, s]
+      // Evaluate
+  ];
+
+
+(* ::Subsubsection:: *)
 (*Triangular groove width values*)
 
 
@@ -3701,3 +3731,41 @@ Module[
     , Spacings -> 0.01 ImageSizeTextWidth
   ]
 ] // Ex["wedge_obtuse-height-rise-profiles-grooves.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: effective contact angle profile along contour (wedge_obtuse-effective-contact-angle-profile-contour)*)
+
+
+Module[
+  {
+    sMax,
+    dummyForTrailingCommas
+  },
+  (* Plot range *)
+  sMax = 5;
+  (* Make plot *)
+  Plot[
+    {gammaTracingIndentations, gammaEffectiveRawProfile[s]}
+    , {s, -sMax, sMax}
+    , AxesLabel -> {
+        Italicise["s"],
+        Subscript["\[Gamma]" // LaTeXStyle, "e"]
+      }
+    , ImageSize -> 0.5 ImageSizeTextWidth
+    , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+    , PlotPoints -> 2
+    , PlotRange -> {0, (gpdTracingIndentations + 5) Degree}
+    , PlotStyle -> {BoundaryTracingStyle["Contour"], Black}
+    , Ticks -> {Automatic,
+        Table[
+          {
+            gpd * Degree,
+            SeparatedRow["VeryThin"][gpd, Style["\[Degree]", Magnification -> 1.2]]
+          }
+          , {gpd, Range[0, gpdTracingIndentations + 5, 10]}
+        ]
+      }
+    , TicksStyle -> LabelSize["Tick"]
+  ]
+] // Ex["wedge_obtuse-effective-contact-angle-profile-contour.pdf"]
