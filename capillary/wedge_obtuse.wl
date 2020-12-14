@@ -343,6 +343,7 @@ distanceContourIndentations[s1_, s2_] :=
 
 
 (* Compute positions *)
+sGroovePairsList[];
 Table[
   Module[
     {
@@ -352,7 +353,7 @@ Table[
       dummyForTrailingCommas
     },
     (* Maximum arc-length cutoff *)
-    sMax = 5;
+    sMax = 10;
     (* Crude upper bound for numer of grooves *)
     nMax = Ceiling[sMax / sigma];
     (* Initialise pairs list with central groove *)
@@ -387,6 +388,84 @@ Table[
     (* Store values *)
     sGroovePairsList[sigma] = sPairsList;
   ];
+  , {sigma, sigmaValues}
+];
+
+
+(* ::Subsubsection:: *)
+(*Triangular-groove indented boundary points*)
+
+
+xyIndentationList[];
+Table[
+  Module[
+    {
+      fineLengthScale,
+      grooveHeight, grooveHypotenuse,
+      numGrooveSubdivisions,
+      sPairsList, nMax,
+      boundaryPointList,
+      sLower, sUpper,
+      xyLower, xyUpper,
+      xyDisplacement, xyHalfway,
+      xyVertex,
+      sLowerNext,
+      dummyForTrailingCommas
+    },
+    (* Fine length scale *)
+    fineLengthScale = sigma / 5;
+    (* Groove geometry *)
+    grooveHeight = sigma/2 * Tan[phiIndentations];
+    grooveHypotenuse = sigma/2 / Cos[phiIndentations];
+    (* Number of subdivisions required for groove walls *)
+    numGrooveSubdivisions = Ceiling[grooveHypotenuse / fineLengthScale];
+    (* Get grooves list *)
+    sPairsList = sGroovePairsList[sigma];
+    nMax = Length[sPairsList];
+    (* Initialise boundary point list *)
+    boundaryPointList = {};
+    (* For each groove: *)
+    Do[
+      (* Groove endpoint arc-lengths *)
+      {sLower, sUpper} = sPairsList[[n]];
+      (* Groove endpoint positions *)
+      xyLower = EvaluatePair[xyContourIndentations, sLower];
+      xyUpper = EvaluatePair[xyContourIndentations, sUpper];
+      (* Displacement and halfway therebetween *)
+      xyDisplacement = xyUpper - xyLower;
+      xyHalfway = Way[xyLower, xyUpper];
+      (* Groove vertex position *)
+      xyVertex = xyHalfway + grooveHeight Cross @ Normalize[xyDisplacement];
+      (* Append groove points *)
+      boundaryPointList = Join[boundaryPointList,
+        Subdivide[xyLower, xyVertex, numGrooveSubdivisions] // Most,
+        Subdivide[xyVertex, xyUpper, numGrooveSubdivisions] // Most,
+        {}
+      ];
+      (* Next groove position *)
+      If[n < nMax,
+        sLowerNext = sPairsList[[n + 1]] // First;
+        ,
+        sLowerNext = DomainEnd[xyContourIndentations];
+      ];
+      (* Append points up till next groove *)
+      boundaryPointList = Join[boundaryPointList,
+        Table[
+          EvaluatePair[xyContourIndentations, s]
+          , {s, UniformRange[sUpper, sLowerNext, fineLengthScale]}
+        ]
+      ];
+      , {n, nMax}
+    ];
+    (* Symmetrise about y == 0 *)
+    boundaryPointList = Select[boundaryPointList, #[[2]] >= 0 &];
+    boundaryPointList =
+      Join[
+        boundaryPointList /. {x_, y_} :> {x, -y} // Reverse,
+        boundaryPointList
+      ];
+    xyIndentationList[sigma] = boundaryPointList;
+  ]
   , {sigma, sigmaValues}
 ];
 
