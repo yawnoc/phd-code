@@ -301,3 +301,102 @@ Module[
     , ImageSize -> 0.9 ImageSizeTextWidth
   ]
 ] // Ex["capillary-serrated-approximation-geometry.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: wall with grooves (capillary-wall-with-grooves)*)
+
+
+Module[
+  {
+    sigma, lambda, phi,
+    yMaxGroove, yArrow,
+    angleMarkerRadius,
+    arrowStyle,
+    textStyleLabel,
+    dummyForTrailingCommas
+  },
+  (* Constants *)
+  sigma = 2;
+  lambda = 4;
+  phi = 50 Degree;
+  (* More constants *)
+  yMaxGroove = sigma/2 Tan[phi];
+  yArrow = -0.15 sigma;
+  (* Etc. *)
+  angleMarkerRadius = 0.22 sigma;
+  arrowStyle = Arrowheads @ {-Small, Small};
+  textStyleLabel = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  (* Make diagram *)
+  Show[
+    (* Contour *)
+    Graphics @ {
+      BoundaryTracingStyle["Contour"],
+      GeneralStyle["DefaultThick"],
+      Table[
+        Line @ {{xGrooveCorner, 0}, {xGrooveCorner + sigma, 0}}
+        , {xGrooveCorner, {0, sigma + lambda}}
+      ]
+    },
+    (* Groove spacing *)
+    Graphics @ {
+      arrowStyle,
+      Arrow @ {{sigma, yArrow}, {sigma + lambda, yArrow}},
+      Text[
+        "\[Lambda]" // textStyleLabel
+        , {sigma + lambda/2, yArrow}
+        , {0, 1}
+      ],
+      {}
+    },
+    (* Groove width *)
+    Table[
+      Graphics @ {
+        arrowStyle,
+        Arrow @ {{xGrooveCorner, yArrow}, {xGrooveCorner + sigma, yArrow}},
+        Text[
+          "\[Sigma]" // textStyleLabel
+          , {xGrooveCorner + sigma/2, yArrow}
+          , {0, 1}
+        ],
+        {}
+      }
+      , {xGrooveCorner, {0, sigma + lambda}}
+    ],
+    (* Groove angle *)
+    Table[
+      Graphics @ {
+        Circle[{xGrooveCorner, 0}, angleMarkerRadius, {0, phi}],
+        Text[
+          "\[CurlyPhi]" // textStyleLabel
+          , {xGrooveCorner, 0} + XYPolar[angleMarkerRadius, phi/2]
+          , {-1.65, -0.5}
+        ],
+        {}
+      }
+      , {xGrooveCorner, {0, sigma + lambda}}
+    ],
+    (* Indented wall *)
+    Graphics @ {
+      Directive[
+        FaceForm[BoundaryTracingStyle["Wall"] // Last],
+        EdgeForm[GeneralStyle["DefaultThick"]]
+      ],
+      Polygon @ {
+        {0, 0},
+        {sigma/2, yMaxGroove},
+        {sigma, 0},
+        {sigma + lambda, 0},
+        {sigma + lambda + sigma/2, yMaxGroove},
+        {2 sigma + lambda, 0},
+        {2 sigma + 2 lambda, 0},
+        {2 sigma + 2 lambda, 2 yMaxGroove},
+        {-lambda, 2 yMaxGroove},
+        {-lambda, 0}
+      }
+    },
+    {}
+    , ImageSize -> 0.6 ImageSizeTextWidth
+    , PlotRange -> {{-0.3 sigma, 2.8 sigma + lambda}, {All, 1.7 yMaxGroove}}
+  ]
+] // Ex["capillary-wall-with-grooves.pdf"]
