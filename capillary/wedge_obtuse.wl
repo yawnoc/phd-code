@@ -172,6 +172,58 @@ x0[tNumerical_, gammaTracing_] :=
   ];
 
 
+(* ::Subsection:: *)
+(*Dip-coating with indentations*)
+
+
+(* ::Subsubsection:: *)
+(*Angular parameters*)
+
+
+apdIndentations = 135;
+gpdIndentations = 20;
+gpdTracingIndentations = 55;
+
+
+{alphaIndentations, gammaIndentations, gammaTracingIndentations} =
+  {apdIndentations, gpdIndentations, gpdTracingIndentations} Degree;
+
+
+(* ::Subsubsection:: *)
+(*Numerical solution*)
+
+
+tNumericalIndentations =
+  Import @ FString[
+    "solution/wedge_obtuse-solution-apd-{apdIndentations}-gpd-{gpdIndentations}.txt"
+  ] // Uncompress // First;
+
+
+(* ::Subsubsection:: *)
+(*Contour to be approximated*)
+
+
+xStartContourIndentations =
+  Module[{hTracing},
+    hTracing = HHalfPlane[gammaTracingIndentations];
+    SeekRoot[
+      tNumericalIndentations[#, 0] - hTracing &,
+      {0, rMaxMesh}
+      , 20
+    ]
+  ];
+
+
+xyContourIndentations =
+  Quiet[
+    ContourByArcLength[tNumericalIndentations][
+      {xStartContourIndentations, 0}
+      , 0, {-1, 1} 2 rMaxMesh
+    ]
+    , {InterpolatingFunction::femdmval, NDSolveValue::nlnum}
+  ];
+
+
 (* ::Section:: *)
 (*Finite element mesh check*)
 
