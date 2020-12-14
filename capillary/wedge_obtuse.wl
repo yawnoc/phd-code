@@ -474,6 +474,8 @@ Table[
 (*Indented finite element mesh*)
 
 
+(* (These are not slow, nevertheless compute once and store. *)
+(* (Delete the files manually to compute from scratch.) *)
 Table[
   ExportIfNotExists[FString @ "mesh/wedge_obtuse-mesh-indented-sigma-{sigma}.txt",
     Module[
@@ -530,6 +532,33 @@ Table[
         ];
       (* Return *)
       {mesh, predicateWet} // Compress
+    ]
+  ]
+  , {sigma, sigmaValues}
+]
+
+
+(* ::Subsubsection:: *)
+(*Indented BVP numerical solutions*)
+
+
+(* (This is slow (~45 sec), so compute once and store.) *)
+(* (Delete the files manually to compute from scratch.) *)
+(*
+  I do not know how much memory is required for this,
+  so I would suggest running this on a fresh kernel.
+*)
+Table[
+  ExportIfNotExists[FString @ "solution/wedge_obtuse-solution-indented-sigma-{sigma}.txt",
+    Module[{mesh, predicateWet, tNumerical},
+      (* Import mesh *)
+      {mesh, predicateWet} =
+        FString @ "mesh/wedge_obtuse-mesh-indented-sigma-{sigma}.txt"
+          // Import // Uncompress;
+      (* Compute numerical solution to capillary BVP *)
+      tNumerical = SolveLaplaceYoung[gammaTracingIndentations, mesh, predicateWet];
+      (* Return *)
+      tNumerical // Compress
     ]
   ]
   , {sigma, sigmaValues}
