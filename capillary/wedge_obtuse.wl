@@ -228,7 +228,12 @@ xyContourIndentations =
 (*Roughness profile*)
 
 
-rhoIndentations =
+(* ::Subsubsubsection:: *)
+(*Raw version*)
+
+
+(* rho == rho (x, y) *)
+rhoIndentationsRaw =
   Module[{gammaTracing, grad2},
     gammaTracing = gammaTracingIndentations;
     grad2 = ContactDerivativeList[tNumericalIndentations, gammaTracing][[3]];
@@ -239,6 +244,58 @@ rhoIndentations =
       ] // Evaluate
     ]
   ];
+
+
+(* rho == rho (s) *)
+rhoIndentationsRawProfile =
+  Function[{s},
+    rhoIndentationsRaw @@ EvaluatePair[xyContourIndentations, s]
+      // Evaluate
+  ];
+
+
+(* ::Subsubsubsection:: *)
+(*Fitted version*)
+
+
+(* rho == rho (s) model *)
+rhoIndentationsFittedProfileModel =
+  Module[
+    {
+      sStart, sEnd,
+      sDataCutoff, sDataValues, data,
+      rhoModel,
+      dummyForTrailingCommas
+    },
+    (* Domain in arc-length *)
+    sStart = DomainStart[xyContourIndentations];
+    sEnd = DomainEnd[xyContourIndentations];
+    (* Cutoff for data points when roughness is near 1 *)
+    sDataCutoff = SeekRoot[
+      rhoIndentationsRawProfile[#] - (1 + 10^-4) &,
+      {0, sEnd}
+    ];
+    (* Build table of data for fitting *)
+    sDataValues = Subdivide[-sDataCutoff, sDataCutoff, 2 * 50];
+    data = Table[{s, rhoIndentationsRawProfile[s]}, {s, sDataValues}];
+    (* Determine fit *)
+    With[{s = \[FormalS], rho0 = \[FormalRho], sChar = \[FormalA]},
+      rhoModel =
+        NonlinearModelFit[
+          data,
+          1 + (rho0 - 1) Exp[-Abs[s] / sChar],
+          {{rho0, 1.4}, {sChar, 1}},
+          s
+        ]
+    ];
+    (* Return fit *)
+    rhoModel
+  ];
+
+
+(* rho == rho (s) *)
+rhoIndentationsFittedProfile =
+  Function[{s}, rhoIndentationsFittedProfileModel[s] // Evaluate];
 
 
 (* ::Section:: *)
