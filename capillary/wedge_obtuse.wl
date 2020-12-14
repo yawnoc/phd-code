@@ -989,6 +989,34 @@ Module[
 
 
 (* ::Section:: *)
+(*Roughness profile fit check*)
+
+
+Module[{sMax, plot},
+  sMax = 5;
+  plot = Plot[
+    {
+      rhoIndentationsRawProfile[s],
+      rhoIndentationsFittedProfile[s]
+    }
+    , {s, -sMax, sMax}
+    , ImageSize -> Medium
+    , PlotRange -> {0, All}
+    , PlotLegends -> {"Raw", "Fitted"}
+  ];
+  Column @ {
+    rhoIndentationsFittedProfileModel,
+    Table[
+      {prop, rhoIndentationsFittedProfileModel[prop]}
+      , {prop, {"ParameterTable", "RSquared"}}
+    ] // TableForm,
+    plot,
+    Nothing
+  }
+] // Ex["wedge_obtuse-roughness-profile-fit-check.pdf"]
+
+
+(* ::Section:: *)
 (*Figure: numerical wedge domain (wedge_obtuse-numerical-domain)*)
 
 
