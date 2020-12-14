@@ -470,6 +470,72 @@ Table[
 ];
 
 
+(* ::Subsubsection:: *)
+(*Indented finite element mesh*)
+
+
+Table[
+  ExportIfNotExists[FString @ "mesh/wedge_obtuse-mesh-indented-sigma-{sigma}.txt",
+    Module[
+      {
+        boundaryPointsIndented, xMaxIndented,
+        rCorner, phiCorner,
+        coarseLengthScale, boundaryPointsFarArc,
+        boundaryPoints, numBoundaryPoints, boundaryElements,
+        boundaryMesh, mesh,
+        predicateWet,
+        dummyForTrailingCommas
+      },
+      (* Indented boundary points *)
+      boundaryPointsIndented = xyIndentationList[sigma];
+      xMaxIndented = boundaryPointsIndented[[All, 1]] // Max;
+      (* Corner where indented boundary meets far arc *)
+      {rCorner, phiCorner} = RPhiPolar @@ Last[boundaryPointsIndented];
+      (* Far arc boundary points *)
+      coarseLengthScale = 0.5;
+      boundaryPointsFarArc =
+        Table[
+          XYPolar[rCorner, ang]
+          , {ang, UniformRange[-phiCorner, phiCorner, coarseLengthScale / rCorner]}
+        ] // Rest // Most;
+      (* Combined boundary points *)
+      boundaryPoints = Join[
+        boundaryPointsIndented // Reverse,
+        boundaryPointsFarArc
+      ];
+      numBoundaryPoints = Length[boundaryPoints];
+      boundaryElements =
+        LineElement /@ {
+          Table[{n, n + 1}, {n, numBoundaryPoints}]
+            // Mod[#, numBoundaryPoints, 1] &
+        };
+      (* Build mesh *)
+      boundaryMesh =
+        ToBoundaryMesh[
+          "Coordinates" -> boundaryPoints,
+          "BoundaryElements" -> boundaryElements,
+          {}
+        ];
+      mesh = ToElementMesh[boundaryMesh
+        , "ImproveBoundaryPosition" -> True
+        , MeshRefinementFunction -> MeshRefinementUniform[coarseLengthScale]
+      ];
+      (* Predicate function for wetting boundaries *)
+      predicateWet =
+        Function[{x, y},
+          And[
+            Abs[y] <= rCorner Sin[Pi - phiCorner],
+            x < xMaxIndented + sigma
+          ] // Evaluate
+        ];
+      (* Return *)
+      {mesh, predicateWet} // Compress
+    ]
+  ]
+  , {sigma, sigmaValues}
+]
+
+
 (* ::Section:: *)
 (*Finite element mesh check*)
 
