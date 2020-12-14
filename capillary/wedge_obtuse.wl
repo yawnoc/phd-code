@@ -224,6 +224,23 @@ xyContourIndentations =
   ];
 
 
+(* ::Subsubsection:: *)
+(*Roughness profile*)
+
+
+rhoIndentations =
+  Module[{gammaTracing, grad2},
+    gammaTracing = gammaTracingIndentations;
+    grad2 = ContactDerivativeList[tNumericalIndentations, gammaTracing][[3]];
+    Function[{x, y},
+      Divide[
+        Sqrt @ grad2[x, y],
+        Cos[gammaTracing] Sqrt[1 + grad2[x, y]]
+      ] // Evaluate
+    ]
+  ];
+
+
 (* ::Section:: *)
 (*Finite element mesh check*)
 
