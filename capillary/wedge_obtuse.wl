@@ -3556,3 +3556,91 @@ Module[
     , TicksStyle -> LabelSize["Tick"]
   ]
 ] // Ex["wedge_obtuse-roughness-profile-contour.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: triangular groove indentations height rise profiles (wedge_obtuse-height-rise-profiles-grooves)*)
+
+
+Module[
+  {
+    yMax, tMax,
+    makeData,
+    tNumerical,
+      fineLengthScale, sStart, sEnd,
+    boundaryPoints, data,
+    plotList, plot, aspectRatio, alpha,
+    dummyForTrailingCommas
+  },
+  (* Plot range *)
+  yMax = 3;
+  tMax = 0.85;
+  (* Function converting <{x, y}-list, T> to <{y, T}-list> *)
+  makeData[xyList_, tFun_] :=
+    {
+      (* y-coordinates *)
+      xyList[[All, 2]],
+      (* T-values *)
+      tFun @@@ xyList
+    } // Transpose // Select[Abs @ #[[1]] <= yMax &];
+  (* Import non-indented numerical solution *)
+  tNumerical["non"] =
+    "solution/wedge_obtuse-solution-non_indented.txt"
+      // Import // Uncompress;
+  (* Non-indented boundary (i.e. T-contour) plotting points *)
+  fineLengthScale = 0.01;
+  sStart = DomainStart[xyContourIndentations];
+  sEnd = DomainEnd[xyContourIndentations];
+  boundaryPoints["non"] =
+    Table[
+      EvaluatePair[xyContourIndentations, s]
+      , {s, UniformRange[sStart, sEnd, fineLengthScale][[;; ;; 10]]}
+    ];
+  (* Non-indented data to be plotted *)
+  data["non"] = makeData[boundaryPoints["non"], tNumerical["non"]];
+  (* Make list of plots for various sigma: *)
+  plotList = Table[
+    (* Import indented numerical solution *)
+    tNumerical[sigma] =
+      FString @ "solution/wedge_obtuse-solution-indented-sigma-{sigma}.txt"
+        // Import // Uncompress;
+    (* Indented data to be plotted *)
+    data[sigma] = makeData[xyIndentationList[sigma], tNumerical[sigma]];
+    (* Make plot *)
+    plot = ListPlot[
+      {data["non"], data[sigma]}
+      , AspectRatio -> Automatic
+      , AxesLabel -> Italicise /@ {"y", "T"}
+      , AxesOrigin -> {-yMax, Automatic}
+      , Epilog -> {
+          (* PlotLabel gets screwed up by GraphicsColumn *)
+          Text[
+            LaTeXStyle["\[Sigma]"] == sigma
+              // LaTeXStyle
+              // Style[#, LabelSize["Label"]] &
+            , {0, tMax}
+            , {0, -0.5}
+          ]
+        }
+      , Joined -> True
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+      , PlotRange -> {{-yMax, yMax}, {0, tMax}}
+      , PlotRangeClipping -> None
+      , PlotStyle -> {Gray, Directive[Black, AbsoluteThickness[1]]}
+      , TicksStyle -> LabelSize["Tick"]
+    ];
+    (* Get natural aspect ratio *)
+    aspectRatio = AspectRatio /. AbsoluteOptions[plot];
+    alpha = apdIndentations * Degree;
+    (* Tweak to account for wedge half-angle *)
+    (* (the profile being viewed looking in the negative x-direction) *)
+    Show[plot, AspectRatio -> aspectRatio / Sin[alpha]]
+    , {sigma, sigmaValues // Rest // Most}
+  ];
+  (* Export *)
+  GraphicsColumn[plotList
+    , ImageSize -> ImageSizeTextWidth
+    , ItemAspectRatio -> 0.3
+    , Spacings -> 0.01 ImageSizeTextWidth
+  ]
+] // Ex["wedge_obtuse-height-rise-profiles-grooves.pdf"]
