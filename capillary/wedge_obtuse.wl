@@ -3023,3 +3023,29 @@ Module[
     , {case, {"contour", "serrated"}}
   ]
 ]
+
+
+(* ::Section:: *)
+(*Figure: roughness profile along contour (wedge_obtuse-roughness-profile-contour)*)
+
+
+Module[
+  {
+    sMax,
+    dummyForTrailingCommas
+  },
+  (* Plot range *)
+  sMax = 5;
+  (* Make plot *)
+  Plot[
+    {1, rhoIndentationsRawProfile[s]}
+    , {s, -sMax, sMax}
+    , AxesLabel -> {Italicise["s"], "\[Rho]" // LaTeXStyle}
+    , ImageSize -> 0.5 ImageSizeTextWidth
+    , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+    , PlotPoints -> 2
+    , PlotRange -> {0, All}
+    , PlotStyle -> {BoundaryTracingStyle["Contour"], Black}
+    , TicksStyle -> LabelSize["Tick"]
+  ]
+] // Ex["wedge_obtuse-roughness-profile-contour.pdf"]
