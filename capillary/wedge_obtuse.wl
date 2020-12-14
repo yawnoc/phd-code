@@ -458,11 +458,11 @@ Table[
       , {n, nMax}
     ];
     (* Symmetrise about y == 0 *)
-    boundaryPointList = Select[boundaryPointList, #[[2]] >= 0 &];
+    boundaryPointList = boundaryPointList[[numGrooveSubdivisions + 1 ;;]];
     boundaryPointList =
       Join[
         boundaryPointList /. {x_, y_} :> {x, -y} // Reverse,
-        boundaryPointList
+        boundaryPointList // Rest
       ];
     xyIndentationList[sigma] = boundaryPointList;
   ]
