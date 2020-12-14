@@ -3559,6 +3559,69 @@ Module[
 
 
 (* ::Section:: *)
+(*Figure: triangular groove indentations domain and mesh (wedge_obtuse-with-grooves-*)*)
+
+
+Module[
+  {
+    sigma,
+    xMin, xMax, yMax,
+    boundaryPoints, mesh,
+    plot,
+    dummyForTrailingCommas
+  },
+  (* Value of sigma *)
+  sigma = 0.1;
+  (* Plot range *)
+  xMin = -0.6;
+  xMax = 0.4;
+  yMax = 1.05;
+  (* Boundary points for domain plot *)
+  boundaryPoints = xyIndentationList[sigma];
+  (* Mesh for mesh plot *)
+  mesh =
+    FString["mesh/wedge_obtuse-mesh-indented-sigma-{sigma}.txt"]
+      // Import // Uncompress // First;
+  (* Common plot *)
+  plot["common"] =
+    EmptyFrame[{xMin, xMax}, {-yMax, yMax}
+      , FrameLabel -> {
+          Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
+          Italicise["y"]
+        }
+      , FrameTicksStyle -> LabelSize["Tick"]
+      , ImageSize -> 0.8 * 0.45 ImageSizeTextWidth
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+    ];
+  (* Make domain plot *)
+  plot["domain"] =
+    Show[
+      plot["common"],
+      Graphics @ {
+        Directive[
+          FaceForm[BoundaryTracingStyle["Wall"] // Last],
+          EdgeForm[GeneralStyle["DefaultThick"]]
+        ],
+        Polygon[boundaryPoints]
+      },
+      {}
+    ];
+  (* Make mesh plot *)
+  plot["mesh"] =
+    Show[
+      plot["common"],
+      mesh["Wireframe"],
+      {}
+    ];
+  (* Export *)
+  Table[
+    plot[case] // Ex @ FString["wedge_obtuse-with-grooves-{case}.pdf"]
+    , {case, {"domain", "mesh"}}
+  ]
+]
+
+
+(* ::Section:: *)
 (*Figure: triangular groove indentations height rise profiles (wedge_obtuse-height-rise-profiles-grooves)*)
 
 
