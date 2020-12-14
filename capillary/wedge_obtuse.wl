@@ -298,6 +298,71 @@ rhoIndentationsFittedProfile =
   Function[{s}, rhoIndentationsFittedProfileModel[s] // Evaluate];
 
 
+(* ::Subsubsection:: *)
+(*Triangular groove width values*)
+
+
+sigmaValues = {0.2, 0.1, 0.05, 0.02, 0.01};
+
+
+(* ::Subsubsection:: *)
+(*Triangular groove angle value*)
+
+
+phiIndentations =
+  Max[
+    ArcCos[1 / rhoIndentationsRawProfile[0]],
+    ArcCos[1 / rhoIndentationsFittedProfile[0]]
+  ] / Degree // Ceiling[#, 5] & // # Degree &
+
+
+phiIndentations < gammaTracingIndentations
+
+
+(* ::Subsubsection:: *)
+(*Triangular groove positions (arc-length)*)
+
+
+(*
+  Note that we use the smoothed version of roughness
+  to avoid issues with rho < 1 (resulting in lambda < 0).
+  For simplicity we assume symmetry.
+*)
+sGrooveList[];
+Table[
+  Module[{sMax, sList, sCurrent, rhoCurrent, lambda, sNext},
+    (* Maximum arc-length cutoff *)
+    sMax = 5;
+    (* Initialise central groove *)
+    sCurrent = 0;
+    sList = {sCurrent};
+    (* Iteratively compute groove locations *)
+    Do[
+      (* Current roughness *)
+      rhoCurrent = rhoIndentationsFittedProfile[sCurrent];
+      (* Separation distance *)
+      lambda =
+        Divide[
+          1 / Cos[phiIndentations] - rhoCurrent,
+          rhoCurrent - 1
+        ] * sigma;
+      (* Next location *)
+      sNext = sCurrent + sigma + lambda;
+      (* Update current location *)
+      If[sNext > sMax - sigma,
+        Break[]
+        ,
+        sList = sList // Append[sNext];
+        sCurrent = sNext;
+      ];
+      , {n, 0, Ceiling[sMax / sigma]}
+    ];
+    sGrooveList[sigma] = sList;
+  ]
+  , {sigma, sigmaValues}
+];
+
+
 (* ::Section:: *)
 (*Finite element mesh check*)
 
