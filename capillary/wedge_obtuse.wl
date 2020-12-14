@@ -1341,6 +1341,29 @@ Table[
 
 
 (* ::Section:: *)
+(*Indented numerical solution check*)
+
+
+(* (This is slow (~10 sec).) *)
+Table[
+  Module[{tNumerical, mesh, x, y},
+    (* Import numerical solution *)
+    tNumerical =
+      FString @ "solution/wedge_obtuse-solution-indented-sigma-{sigma}.txt"
+        // Import // Uncompress;
+    mesh = tNumerical["ElementMesh"];
+    (* Make plot *)
+    Plot3D[
+      tNumerical[x, y], Element[{x, y}, mesh]
+      , PlotRange -> Full
+      , RegionFunction -> Function[{x, y}, RPolar[x, y] < 3]
+    ] // Ex @ FString["solution/wedge_obtuse-solution-indented-sigma-{sigma}.png"]
+  ]
+  , {sigma, sigmaValues}
+]
+
+
+(* ::Section:: *)
 (*Figure: numerical wedge domain (wedge_obtuse-numerical-domain)*)
 
 
