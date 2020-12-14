@@ -1437,6 +1437,56 @@ Table[
 
 
 (* ::Section:: *)
+(*Non-indented finite element mesh check*)
+
+
+Module[
+  {
+    mesh, predicateWet, numElements,
+    boundaryCoordinates, wetBoundaryCoordinates,
+    plot,
+    dummyForTrailingCommas
+  },
+  (* Import mesh *)
+  {mesh, predicateWet} = "mesh/wedge_obtuse-mesh-non_indented.txt" // Import // Uncompress;
+  numElements = Length @ mesh[[2, 1, 1]];
+  (* Determine predicate-satisfying boundary coordinates *)
+  boundaryCoordinates =
+    Part[
+      mesh["Coordinates"],
+      mesh["BoundaryElements"][[1, 1]] // Flatten // Union
+    ];
+  wetBoundaryCoordinates =
+    Select[
+      boundaryCoordinates,
+      predicateWet @@ # &
+    ];
+  (* Make plot *)
+  plot =
+    Show[
+      mesh["Wireframe"],
+      ListPlot[boundaryCoordinates, PlotStyle -> Directive[Red, PointSize[Medium]]],
+      ListPlot[wetBoundaryCoordinates, PlotStyle -> Directive[Blue, PointSize[Medium]]],
+      {}
+      , PlotLabel -> FString @ "{numElements} mesh elements"
+    ];
+  (* Export *)
+  {
+    (* Full plot *)
+    plot
+      // Ex["mesh/wedge_obtuse-mesh-non_indented.png"]
+    ,
+    (* Zoom near origin to verify wetting predicate *)
+    Show[plot
+      , PlotLabel -> None
+      , PlotRange -> 0.3 {{-0.2, 1}, {-1, 1}}
+    ]
+      // Ex["mesh/wedge_obtuse-mesh-non_indented-zoom.png"]
+  }
+]
+
+
+(* ::Section:: *)
 (*Figure: numerical wedge domain (wedge_obtuse-numerical-domain)*)
 
 
