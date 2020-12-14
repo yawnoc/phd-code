@@ -1506,6 +1506,24 @@ Module[
 
 
 (* ::Section:: *)
+(*Non-indented numerical solution check*)
+
+
+Module[{tNumerical, mesh, x, y},
+  (* Import numerical solution *)
+  tNumerical =
+    "solution/wedge_obtuse-solution-non_indented.txt"
+      // Import // Uncompress;
+  mesh = tNumerical["ElementMesh"];
+  (* Make plot *)
+  Plot3D[
+    tNumerical[x, y], Element[{x, y}, mesh]
+    , PlotRange -> Full
+  ] // Ex["solution/wedge_obtuse-solution-non_indented.png"]
+]
+
+
+(* ::Section:: *)
 (*Figure: numerical wedge domain (wedge_obtuse-numerical-domain)*)
 
 
