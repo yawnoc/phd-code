@@ -638,6 +638,25 @@ ExportIfNotExists[FString @ "mesh/wedge_obtuse-mesh-non_indented.txt",
 ]
 
 
+(* ::Subsubsection:: *)
+(*Non-indented BVP numerical solution*)
+
+
+(* (This is not slow, nevertheless compute once and store.) *)
+(* (Delete the file manually to compute from scratch.) *)
+ExportIfNotExists["solution/wedge_obtuse-solution-non_indented.txt",
+  Module[{mesh, predicateWet, tNumerical},
+    (* Import mesh *)
+    {mesh, predicateWet} =
+      "mesh/wedge_obtuse-mesh-non_indented.txt" // Import // Uncompress;
+    (* Compute numerical solution to capillary BVP *)
+    tNumerical = SolveLaplaceYoung[gammaTracingIndentations, mesh, predicateWet];
+    (* Return *)
+    tNumerical // Compress
+  ]
+]
+
+
 (* ::Section:: *)
 (*Finite element mesh check*)
 
