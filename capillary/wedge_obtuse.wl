@@ -565,6 +565,79 @@ Table[
 ]
 
 
+(* ::Subsubsection:: *)
+(*Non-indented finite element mesh*)
+
+
+(* (This is not slow, nevertheless compute once and store. *)
+(* (Delete the file manually to compute from scratch.) *)
+ExportIfNotExists[FString @ "mesh/wedge_obtuse-mesh-non_indented.txt",
+  Module[
+    {
+      fineLengthScale, sStart, sEnd,
+      boundaryPointsWetting, xMaxWetting,
+      rCorner, phiCorner,
+      coarseLengthScale, boundaryPointsFarArc,
+      boundaryPoints, numBoundaryPoints, boundaryElements,
+      boundaryMesh, mesh,
+      predicateWet,
+      dummyForTrailingCommas
+    },
+    (* Wetting boundary points (which is the T-contour) *)
+    fineLengthScale = 0.01;
+    sStart = DomainStart[xyContourIndentations];
+    sEnd = DomainEnd[xyContourIndentations];
+    boundaryPointsWetting =
+      Table[
+        EvaluatePair[xyContourIndentations, s]
+        , {s, UniformRange[sStart, sEnd, fineLengthScale]}
+      ];
+    xMaxWetting = boundaryPointsWetting[[All, 1]] // Max;
+    (* Corner where wetting boundary meets far arc *)
+    {rCorner, phiCorner} = RPhiPolar @@ Last[boundaryPointsWetting];
+    (* Far arc boundary points *)
+    coarseLengthScale = 0.5;
+    boundaryPointsFarArc =
+      Table[
+        XYPolar[rCorner, ang]
+        , {ang, UniformRange[-phiCorner, phiCorner, coarseLengthScale / rCorner]}
+      ] // Rest // Most;
+    (* Combined boundary points *)
+    boundaryPoints = Join[
+      boundaryPointsWetting // Reverse,
+      boundaryPointsFarArc
+    ];
+    numBoundaryPoints = Length[boundaryPoints];
+    boundaryElements =
+      LineElement /@ {
+        Table[{n, n + 1}, {n, numBoundaryPoints}]
+          // Mod[#, numBoundaryPoints, 1] &
+      };
+    (* Build mesh *)
+    boundaryMesh =
+      ToBoundaryMesh[
+        "Coordinates" -> boundaryPoints,
+        "BoundaryElements" -> boundaryElements,
+        {}
+      ];
+    mesh = ToElementMesh[boundaryMesh
+      , "ImproveBoundaryPosition" -> True
+      , MeshRefinementFunction -> MeshRefinementUniform[coarseLengthScale]
+    ];
+    (* Predicate function for wetting boundaries *)
+    predicateWet =
+      Function[{x, y},
+        And[
+          Abs[y] <= rCorner Sin[Pi - phiCorner],
+          x <= xMaxWetting
+        ] // Evaluate
+      ];
+    (* Return *)
+    {mesh, predicateWet} // Compress
+  ]
+]
+
+
 (* ::Section:: *)
 (*Finite element mesh check*)
 
