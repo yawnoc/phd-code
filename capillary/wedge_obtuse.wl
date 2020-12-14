@@ -326,39 +326,67 @@ phiIndentations < gammaTracingIndentations
 (*
   Note that we use the smoothed version of roughness
   to avoid issues with rho < 1 (resulting in lambda < 0).
-  For simplicity we assume symmetry.
+  We only bother with the top half (y > 0) due to symmetry.
+  We compute pairs {sLower, sUpper} for the endpoints
+  of the triangular grooves.
+  Note that sUpper - sLower is not exactly equal
+  to the groove width sigma, because the boundary is curved.
 *)
-sGrooveList[];
+
+
+(* Straight-line distance between points along contour *)
+distanceContourIndentations[s1_, s2_] :=
+  RPolar @@ Subtract[
+    EvaluatePair[xyContourIndentations, s2],
+    EvaluatePair[xyContourIndentations, s1]
+  ] // Evaluate;
+
+
+(* Compute positions *)
 Table[
-  Module[{sMax, sList, sCurrent, rhoCurrent, lambda, sNext},
+  Module[
+    {
+      sMax, nMax,
+      sLower, sUpper, sPairsList,
+      rho, lambda, sLowerNext,
+      dummyForTrailingCommas
+    },
     (* Maximum arc-length cutoff *)
     sMax = 5;
-    (* Initialise central groove *)
-    sCurrent = 0;
-    sList = {sCurrent};
+    (* Crude upper bound for numer of grooves *)
+    nMax = Ceiling[sMax / sigma];
+    (* Initialise pairs list with central groove *)
+    sUpper = SeekRoot[
+      distanceContourIndentations[#, -#] - sigma &,
+      {0, 2 sigma}, 4
+    ];
+    sLower = -sUpper;
+    sPairsList = {{sLower, sUpper}};
     (* Iteratively compute groove locations *)
     Do[
       (* Current roughness *)
-      rhoCurrent = rhoIndentationsFittedProfile[sCurrent];
+      rho = rhoIndentationsFittedProfile @ Way[sLower, sUpper];
       (* Separation distance *)
-      lambda =
-        Divide[
-          1 / Cos[phiIndentations] - rhoCurrent,
-          rhoCurrent - 1
-        ] * sigma;
+      lambda = Divide[1 / Cos[phiIndentations] - rho, rho - 1] sigma;
       (* Next location *)
-      sNext = sCurrent + sigma + lambda;
-      (* Update current location *)
-      If[sNext > sMax - sigma,
+      sLowerNext = sUpper + lambda;
+      (* Check whether finished *)
+      If[sLowerNext > sMax - 2 sigma,
         Break[]
-        ,
-        sList = sList // Append[sNext];
-        sCurrent = sNext;
       ];
-      , {n, 0, Ceiling[sMax / sigma]}
+      (* Update location *)
+      sLower = sLowerNext;
+      sUpper = SeekRoot[
+        distanceContourIndentations[sLower, #] - sigma &,
+        {sLower, sLower + 2 sigma}, 4
+      ];
+      (* Append to pairs list *)
+      sPairsList = sPairsList // Append @ {sLower, sUpper};
+      , {n, 0, nMax}
     ];
-    sGrooveList[sigma] = sList;
-  ]
+    (* Store values *)
+    sGroovePairsList[sigma] = sPairsList;
+  ];
   , {sigma, sigmaValues}
 ];
 
