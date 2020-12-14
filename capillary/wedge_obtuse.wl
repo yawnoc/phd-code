@@ -3569,7 +3569,7 @@ Module[
     tNumerical,
       fineLengthScale, sStart, sEnd,
     boundaryPoints, data,
-    plotList, plot, aspectRatio, alpha,
+    plotList, plot,
     dummyForTrailingCommas
   },
   (* Plot range *)
@@ -3609,7 +3609,7 @@ Module[
     (* Make plot *)
     plot = ListPlot[
       {data["non"], data[sigma]}
-      , AspectRatio -> Automatic
+      , AspectRatio -> 0.2
       , AxesLabel -> Italicise /@ {"y", "T"}
       , AxesOrigin -> {-yMax, Automatic}
       , Epilog -> {
@@ -3628,13 +3628,7 @@ Module[
       , PlotRangeClipping -> None
       , PlotStyle -> {Gray, Directive[Black, AbsoluteThickness[1]]}
       , TicksStyle -> LabelSize["Tick"]
-    ];
-    (* Get natural aspect ratio *)
-    aspectRatio = AspectRatio /. AbsoluteOptions[plot];
-    alpha = apdIndentations * Degree;
-    (* Tweak to account for wedge half-angle *)
-    (* (the profile being viewed looking in the negative x-direction) *)
-    Show[plot, AspectRatio -> aspectRatio / Sin[alpha]]
+    ]
     , {sigma, sigmaValues // Rest // Most}
   ];
   (* Export *)
