@@ -3573,7 +3573,7 @@ Module[
   (* Value of sigma *)
   sigma = 0.1;
   (* Plot range *)
-  xMin = -0.6;
+  xMin = -0.65;
   xMax = 0.4;
   yMax = 1.05;
   (* Boundary points for domain plot *)
