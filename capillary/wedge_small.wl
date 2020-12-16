@@ -100,3 +100,66 @@ Table[
   ]
   , {apd, apdMeshValues}
 ]
+
+
+(* ::Section:: *)
+(*Finite element mesh check*)
+
+
+Table[
+  Module[
+    {
+      mesh, predicateWet, predicateCorner, numElements,
+      boundaryCoordinates,
+      wetBoundaryCoordinates, cornerBoundaryCoordinates,
+      plot,
+      dummyForTrailingCommas
+    },
+    (* Import mesh *)
+    {mesh, predicateWet, predicateCorner} =
+      FString["mesh/wedge_small-mesh-apd-{apd}.txt"] // Import // Uncompress;
+    numElements = Length @ mesh[[2, 1, 1]];
+    (* Determine predicate-satisfying boundary coordinates *)
+    boundaryCoordinates =
+      Part[
+        mesh["Coordinates"],
+        mesh["BoundaryElements"][[1, 1]] // Flatten // Union
+      ];
+    wetBoundaryCoordinates =
+      Select[
+        boundaryCoordinates,
+        predicateWet @@ # &
+      ];
+    cornerBoundaryCoordinates =
+      Select[
+        boundaryCoordinates,
+        predicateCorner @@ # &
+      ];
+    (* Make plot *)
+    plot =
+      Show[
+        mesh["Wireframe"],
+        ListPlot[
+          {wetBoundaryCoordinates, cornerBoundaryCoordinates}
+          , PlotMarkers -> {Automatic, Small}
+        ],
+        {}
+        , ImageSize -> Large
+        , PlotLabel -> FString @ "{numElements} mesh elements"
+      ];
+    (* Export *)
+    {
+      (* Full plot *)
+      plot
+        // Ex @ FString @ "mesh/wedge_small-mesh-apd-{apd}.png"
+      ,
+      (* Zoom near origin to verify wetting predicate *)
+      Show[plot
+        , PlotLabel -> None
+        , PlotRange -> {{0, 1}, {1/2, 1}} apd * Degree
+      ]
+        // Ex @ FString @ "mesh/wedge_small-mesh-apd-{apd}-zoom.png"
+    }
+  ]
+  , {apd, apdMeshValues}
+]
