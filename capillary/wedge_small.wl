@@ -343,3 +343,69 @@ Module[
       }
   ] &
 ] // Ex["wedge_small-solution-table.pdf"]
+
+
+(* ::Subsection:: *)
+(*H and T plots*)
+
+
+(* (This is slow (~30 sec) from all the calls to Import.) *)
+Module[
+  {
+    alpha, gpdValues,
+    gamma,
+    hSmall, tSmallPolar,
+    rMax, phiValues, opts,
+    hPlot, tPlot,
+    dummyForTrailingCommas
+  },
+  (* For various alpha *)
+  Table[
+    alpha = apd * Degree;
+    (* For various gamma *)
+    gpdValues = Join[{1}, Range[5, 90 - apd, 5]];
+    Table[
+      gamma = gpd * Degree;
+      (* Import wedge_small solution H == H (r, \[Phi]) *)
+      hSmall =
+        FString["solution/wedge_small-solution-apd-{apd}-gpd-{gpd}.txt"]
+          // Import // Uncompress // First;
+      tSmallPolar[r_, phi_] := hSmall[r, phi] / r;
+      (* Plotting constants *)
+      rMax = rMaxMesh;
+      phiValues = Subdivide[0, alpha, 4];
+      opts = {
+        ImageSize -> 240,
+        PlotLabel -> {"apd", apd, "gpd", gpd},
+        PlotOptions[Axes]
+      };
+      (* Make plots *)
+      hPlot =
+        Plot[
+          Table[hSmall[r, phi], {phi, phiValues}] // Evaluate
+          , {r, 0, rMax}
+          , AxesLabel -> Italicise /@ {"r", "H"}
+          , PlotLegends -> LineLegend[phiValues, LegendLabel -> "\[Phi]"]
+          , opts // Evaluate
+        ];
+      tPlot =
+        Plot[
+          Table[tSmallPolar[r, phi], {phi, phiValues}]
+            // Append @ HHalfPlane[gamma]
+            // Evaluate
+          , {r, 0, rMax}
+          , AxesLabel -> Italicise /@ {"r", "T"}
+          , PlotStyle -> (
+              ConstantArray[Automatic, Length[phiValues]]
+                // Append[Dashed]
+            )
+          , opts // Evaluate
+        ];
+      (* Export *)
+      Row @ {hPlot, tPlot}
+        // Ex @ FString["solution/wedge_small-solution-apd-{apd}-gpd-{gpd}.png"]
+      , {gpd, gpdValues}
+    ]
+    , {apd, apdMeshValues}
+  ]
+]
