@@ -310,3 +310,36 @@ Table[
   ]
   , {apd, apdMeshValues}
 ]
+
+
+(* ::Section:: *)
+(*Numerical solution check*)
+
+
+(* ::Subsection:: *)
+(*Table*)
+
+
+(* (This is slow (~15 sec) from all the calls to Import.) *)
+Module[
+  {
+    gpdValues,
+    numIterates, absoluteChange,
+    dummyForTrailingCommas
+  },
+  Join @@ Table[
+    gpdValues = Join[{1}, Range[5, 90 - apd, 5]];
+    Table[
+      {numIterates, absoluteChange} =
+        FString["solution/wedge_small-solution-apd-{apd}-gpd-{gpd}.txt"]
+          // Import // Uncompress // Rest;
+      {apd * Degree, gpd * Degree, numIterates, absoluteChange}
+      , {gpd, gpdValues}
+    ]
+    , {apd, apdMeshValues}
+  ] // TableForm[#
+    , TableHeadings -> {None,
+        {"alpha", "gamma", "Iterates", "Absolute change"}
+      }
+  ] &
+] // Ex["wedge_small-solution-table.pdf"]
