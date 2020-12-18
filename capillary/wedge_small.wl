@@ -103,6 +103,139 @@ Table[
 ]
 
 
+(* ::Subsection:: *)
+(*Solve capillary boundary value problem (fixed-point iteration)*)
+
+
+(* See Page c1-4 of manuscripts/capillary-1-small.pdf *)
+
+
+(* (This is slow (~3.5 hr), so compute once and store.) *)
+(* (Delete the files manually to compute from scratch.) *)
+(*
+  I do not know how much memory is required for this,
+  so I would suggest running this on a fresh kernel.
+*)
+$HistoryLength = 0;
+With[{r = \[FormalR], phi = \[FormalPhi], h = \[FormalCapitalH]},
+Module[
+  {
+    gpdValues,
+    mesh, predicateUpperWall, predicateLowerWall, predicateCorner,
+    meshCoordinates,
+    alpha, gamma, k,
+    grad, inactiveGrad, inactiveDiv,
+    hCornerSegment, hPrevious,
+      nMax, absoluteChangeTolerance,
+      pTilde, qTilde, c,
+      kMatrix, vVector,
+      hCurrent,
+      absoluteChange,
+      returnList,
+    dummyForTrailingCommas
+  },
+  (* For each value of alpha: *)
+  Table[
+    (* Solution contact angles (gpd means "gamma per degree") *)
+    gpdValues = Join[{1}, Range[5, 90 - apd, 5]];
+    (* If all values of contact angle have been account for: *)
+    If[
+      Table[
+        FString @ "solution/wedge_small-solution-apd-{apd}-gpd-{gpd}.txt"
+        , {gpd, gpdValues}
+      ] // AllTrue[FileExistsQ]
+      ,
+      (* Then skip; *)
+      Null
+      ,
+      (* Otherwise import mesh *)
+      {mesh, predicateUpperWall, predicateLowerWall, predicateCorner} =
+        FString["mesh/wedge_small-mesh-apd-{apd}.txt"] // Import // Uncompress;
+      meshCoordinates = mesh["Coordinates"];
+      (* For each value of gamma: *)
+      Table[
+        (* Angular parameters etc. *)
+        alpha = apd * Degree;
+        gamma = gpd * Degree;
+        k = Sin[alpha] / Cos[gamma];
+        (* Solve and export *)
+        ExportIfNotExists[FString @ "solution/wedge_small-solution-apd-{apd}-gpd-{gpd}.txt",
+          (* Formally rectangular derivative operators (see (c1.27)) *)
+          grad = Grad[#, {r, phi}] &;
+          inactiveGrad = Inactive[Grad][#, {r, phi}] &;
+          inactiveDiv = Inactive[Div][#, {r, phi}] &;
+          (* Boundary data along corner segment (c1.32) *)
+          hCornerSegment = Function[{r, phi}, (Cos[phi] - Sqrt[k^2 - Sin[phi]^2]) / k];
+          (* May as well use that as the initial guess *)
+          hPrevious = hCornerSegment;
+          (* Fixed-point iteration *)
+          nMax = 1000;
+          absoluteChangeTolerance = 10^-4;
+          Do[
+            (* Components of gradient de-singularised (see (c1.23) and (c1.24)) *)
+            pTilde = r * D[hPrevious[r, phi], r] - hPrevious[r, phi];
+            qTilde = D[hPrevious[r, phi], phi];
+            (* Common scalar coefficient (c1.26) *)
+            c = 1 / Sqrt[r^4 + pTilde^2 + qTilde^2];
+            (* Diffusion coefficient matrix (c1.28) *)
+            kMatrix = {{r^2 * c, 0}, {0, c}};
+            (* Conservative convection coefficients (c1.29) *)
+            vVector = {r * c, 0};
+            (* Solve linearised boundary value problem in H *)
+            hCurrent =
+              NDSolveValue[
+                {
+                  (* Left hand side of (c1.30), negated *)
+                  inactiveDiv[
+                    -kMatrix . inactiveGrad[h[r, phi]]
+                    + Inactive[Times][vVector, h[r, phi]]
+                  ] ==
+                    (* Right hand side of (c1.30), negated *)
+                    - h[r, phi]
+                    (* Neumann boundary condition (c1.31) *)
+                    + NeumannValue[Cos[gamma], predicateUpperWall[r, phi]]
+                    + NeumannValue[Cos[gamma], predicateLowerWall[r, phi]]
+                  ,
+                  (* Dirichlet condition along corner segment (c1.32) *)
+                  DirichletCondition[
+                    h[r, phi] == hCornerSegment[r, phi],
+                    predicateCorner[r, phi]
+                  ]
+                },
+                h,
+                Element[{r, phi}, mesh]
+              ];
+            (* Compute absolute change *)
+            absoluteChange =
+              Max @ Table[
+                hCurrent @@ coord - hPrevious @@ coord // Abs
+                , {coord, meshCoordinates}
+              ];
+            (* Store return list *)
+            returnList = {hCurrent, n, absoluteChange};
+            (* If global convergence reached: *)
+            If[absoluteChange < absoluteChangeTolerance,
+              (* Stop iteration *)
+              Break[];
+              ,
+              (* Otherwise update solution *)
+              hPrevious = hCurrent;
+            ];
+            , {n, nMax}
+          ];
+          (* Return *)
+          returnList // Compress
+        ]
+        , {gpd, gpdValues}
+      ]
+    ]
+    , {apd, apdMeshValues}
+  ]
+]
+]
+$HistoryLength = Infinity;
+
+
 (* ::Section:: *)
 (*Finite element mesh check*)
 
