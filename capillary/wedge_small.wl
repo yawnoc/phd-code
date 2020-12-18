@@ -50,7 +50,7 @@ Table[
         fineLengthScale, coarseLengthScale,
         boundaryPoints, numBoundaryPoints, boundaryElements,
         boundaryMesh, mesh,
-        predicateWet, predicateCorner,
+        predicateUpperWall, predicateLowerWall, predicateCorner,
         dummyForTrailingCommas
       },
       (* Geometry *)
@@ -91,11 +91,12 @@ Table[
         , MeshRefinementFunction -> MeshRefinementUniform[coarseLengthScale]
       ];
       (* Predicate for wetting boundaries (wedge walls) *)
-      predicateWet = Function[{r, phi}, r > 0 && Abs[phi] == alpha // Evaluate];
+      predicateUpperWall = Function[{r, phi}, phi == +alpha // Evaluate];
+      predicateLowerWall = Function[{r, phi}, phi == -alpha // Evaluate];
       (* Predicate for corner segment (r == 0) *)
       predicateCorner = Function[{r, phi}, r == 0 // Evaluate];
       (* Return *)
-      {mesh, predicateWet, predicateCorner} // Compress
+      {mesh, predicateUpperWall, predicateLowerWall, predicateCorner} // Compress
     ]
   ]
   , {apd, apdMeshValues}
@@ -109,14 +110,18 @@ Table[
 Table[
   Module[
     {
-      mesh, predicateWet, predicateCorner, numElements,
+      mesh,
+        predicateUpperWall, predicateLowerWall, predicateCorner,
+      numElements,
       boundaryCoordinates,
-      wetBoundaryCoordinates, cornerBoundaryCoordinates,
+        upperWallBoundaryCoordinates,
+        lowerWallBoundaryCoordinates,
+        cornerBoundaryCoordinates,
       plot,
       dummyForTrailingCommas
     },
     (* Import mesh *)
-    {mesh, predicateWet, predicateCorner} =
+    {mesh, predicateUpperWall, predicateLowerWall, predicateCorner} =
       FString["mesh/wedge_small-mesh-apd-{apd}.txt"] // Import // Uncompress;
     numElements = Length @ mesh[[2, 1, 1]];
     (* Determine predicate-satisfying boundary coordinates *)
@@ -125,10 +130,15 @@ Table[
         mesh["Coordinates"],
         mesh["BoundaryElements"][[1, 1]] // Flatten // Union
       ];
-    wetBoundaryCoordinates =
+    upperWallBoundaryCoordinates =
       Select[
         boundaryCoordinates,
-        predicateWet @@ # &
+        predicateUpperWall @@ # &
+      ];
+    lowerWallBoundaryCoordinates =
+      Select[
+        boundaryCoordinates,
+        predicateLowerWall @@ # &
       ];
     cornerBoundaryCoordinates =
       Select[
@@ -140,7 +150,11 @@ Table[
       Show[
         mesh["Wireframe"],
         ListPlot[
-          {wetBoundaryCoordinates, cornerBoundaryCoordinates}
+          {
+            upperWallBoundaryCoordinates,
+            lowerWallBoundaryCoordinates,
+            cornerBoundaryCoordinates
+          }
           , PlotMarkers -> {Automatic, Small}
         ],
         {}
