@@ -409,3 +409,66 @@ Module[
     , {apd, apdMeshValues}
   ]
 ]
+
+
+(* ::Subsection:: *)
+(*Comparison with Cartesian solver, borderline case*)
+
+
+(* (This is slow (~5 sec) from all the calls to Import.) *)
+Module[
+  {
+    alpha, gpdValues,
+    gamma,
+    hSmall, tSmallPolar,
+    tAcute, tAcutePolar,
+    rMax, phiValues, opts,
+    plot,
+    dummyForTrailingCommas
+  },
+  (* For various alpha *)
+  Table[
+    alpha = apd * Degree;
+    (* For various gamma *)
+    gpdValues = {90 - apd};
+    Table[
+      gamma = gpd * Degree;
+      (* Import wedge_small solution H == H (r, \[Phi]) *)
+      hSmall =
+        FString["solution/wedge_small-solution-apd-{apd}-gpd-{gpd}.txt"]
+          // Import // Uncompress // First;
+      tSmallPolar[r_, phi_] := hSmall[r, phi] / r;
+      (* Import wedge_acute solution T == T (x, y) *)
+      tAcute =
+        FString["../wedge_acute/solution/wedge_acute-solution-apd-{apd}-gpd-{gpd}.txt"]
+          // Import // Uncompress // First;
+      tAcutePolar[r_, phi_] := tAcute @@ XYPolar[r, phi];
+      (* Plotting constants *)
+      rMax = rMaxMesh;
+      phiValues = Subdivide[0, alpha, 4];
+      opts = {
+        ImageSize -> 270,
+        PlotLabel -> {"apd", apd, "gpd", gpd},
+        PlotOptions[Axes]
+      };
+      (* Make plot and export *)
+      plot =
+        LogPlot[
+          Table[
+            tSmallPolar[r, phi] / tAcutePolar[r, phi] - 1 // Abs
+            , {phi, phiValues}
+          ] // Evaluate
+          , {r, 0, rMax}
+          , AxesLabel -> {Italicise["r"], "Rel. discr."}
+          , AxesOrigin -> {0, 0}
+          , PlotLegends -> LineLegend[phiValues, LegendLabel -> "\[Phi]"]
+          , PlotRange -> Full
+          , opts // Evaluate
+        ];
+      plot
+        // Ex @ FString["solution/wedge_small-solution-comparison-apd-{apd}-gpd-{gpd}.png"]
+      , {gpd, gpdValues}
+    ]
+    , {apd, apdMeshValues}
+  ]
+]
