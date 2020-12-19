@@ -236,6 +236,109 @@ Module[
 $HistoryLength = Infinity;
 
 
+(* ::Subsection:: *)
+(*Boundary tracing*)
+
+
+(* ::Subsubsection:: *)
+(*List of pure-function derivatives*)
+
+
+(*
+  See (c1.23), (c1.24), (c1.37), and (c1.40).
+  Analogue to LaplaceYoung`ContactDerivativeList.
+*)
+tracingDerivativeList[hNumerical_, gammaTracing_?NumericQ] :=
+  Module[
+    {
+      hRDerivative, hPhiDerivative,
+      pTilde, qTilde, fTilde, phiTilde,
+      dummyForTrailingCommas
+    },
+    (* Straight derivatives *)
+    hRDerivative = Derivative[1, 0][hNumerical];
+    hPhiDerivative = Derivative[0, 1][hNumerical];
+    (* De-singularised components of gradient (P-tilde, Q-tilde) *)
+    pTilde = Function[{r, phi},
+      r * hRDerivative[r, phi] - hNumerical[r, phi]
+        // Evaluate
+    ];
+    qTilde = hPhiDerivative;
+    (* De-singularised flux function (F-tilde) *)
+    fTilde = Function[{r, phi},
+      Cos[gammaTracing]
+      Sqrt[r^4 + pTilde[r, phi]^2 + qTilde[r, phi]^2]
+        // Evaluate
+    ];
+    (* De-singularised viability function (\[CapitalPhi]-tilde) *)
+    phiTilde = Function[{r, phi},
+      Sin[gammaTracing]^2 (pTilde[r, phi]^2 + qTilde[r, phi]^2)
+        - r^4 * Cos[gammaTracing]^2
+        // Evaluate
+    ];
+    (* Return *)
+    {pTilde, qTilde, fTilde, phiTilde}
+  ];
+
+
+(* ::Subsubsection:: *)
+(*Traced boundary (arc-length parametrisation)*)
+
+
+(* See (c1.42) & (c1.43). *)
+tracedBoundary[derList_][{r0_, phi0_}, s0_, {sStart_, sEnd_}
+  , sSign_: 1
+  , branchSign_: 1
+  , terminationPhiTilde_: 0
+  , terminationFunction_: (False &)
+] :=
+  Module[
+    {
+      pTilde, qTilde, fTilde, phiTilde,
+      rDerivative, phiDerivative,
+      dummyForTrailingCommas
+    },
+    (* Derivative list *)
+    {pTilde, qTilde, fTilde, phiTilde} = derList;
+    (* Right hand sides of boundary tracing system of ODEs *)
+    rDerivative[r_, phi_] :=
+      Divide[
+        -qTilde[r, phi] fTilde[r, phi] + branchSign * pTilde[r, phi] Re @ Sqrt @ phiTilde[r, phi],
+        pTilde[r, phi]^2 + qTilde[r, phi]^2
+      ];
+    phiDerivative[r_, phi_] :=
+      Divide[
+        +pTilde[r, phi] fTilde[r, phi] + branchSign * qTilde[r, phi] Re @ Sqrt @ phiTilde[r, phi],
+        pTilde[r, phi]^2 + qTilde[r, phi]^2
+      ] / r;
+    (* Solve boundary tracing system of ODEs *)
+    (* NOTE:
+      Using `phi = \[FormalPhi]` results in a Transpose::nmtx error.
+      See <https://mathematica.stackexchange.com/q/236730>.
+    *)
+    With[{r = \[FormalR], phi = \[FormalF], s = \[FormalS]},
+      NDSolveValue[
+        {
+          r'[s] == sSign * rDerivative[r[s], phi[s]],
+          phi'[s] == sSign * phiDerivative[r[s], phi[s]],
+          r[s0] == r0,
+          phi[s0] == phi0,
+          WhenEvent[
+            {
+              phiTilde[r[s], phi[s]] < terminationPhiTilde,
+              terminationFunction[r[s], phi[s]]
+            },
+            "StopIntegration"
+          ]
+        }
+        , {r, phi}
+        , {s, sStart, sEnd}
+        , NoExtrapolation
+      ]
+    ]
+  ];
+
+
 (* ::Section:: *)
 (*Finite element mesh check*)
 
