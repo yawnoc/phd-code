@@ -282,6 +282,20 @@ tracingDerivativeList[hNumerical_, gammaTracing_?NumericQ] :=
 
 
 (* ::Subsubsection:: *)
+(*Elliptic critical terminal point*)
+
+
+r0[pTilde_, gammaTracing_] :=
+  Quiet[
+    SeekRoot[
+      pTilde[#, 0] / #^2 + Cot[gammaTracing] &,
+      {0, rMaxMesh}
+    ]
+    , {Power::infy}
+  ];
+
+
+(* ::Subsubsection:: *)
 (*Traced boundary (arc-length parametrisation)*)
 
 
