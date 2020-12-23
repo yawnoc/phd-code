@@ -589,3 +589,111 @@ Module[
     , {apd, apdMeshValues}
   ]
 ]
+
+
+(* ::Section:: *)
+(*Figure: original wedge & formal rectangle (wedge_small-domain-*)*)
+
+
+Module[
+  {
+    rMax, alpha, numSubdivisions,
+    textStyleLabel, opts, paddingLabel, paddingNothing,
+    plot,
+    xArrow, yArrow,
+    dummyForTrailingCommas
+  },
+  (* Geometry *)
+  rMax = 2;
+  alpha = 30 Degree;
+  numSubdivisions = 4;
+  (* Options *)
+  textStyleLabel = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  opts = {Nothing
+    , ImageSize -> 0.3 ImageSizeTextWidth
+    , PlotRange -> {{0, rMax}, rMax Sin[alpha] {-1, 1}}
+  };
+  paddingLabel = Scaled[0.12];
+  paddingNothing = Scaled[0.02];
+  (* Original wedge diagram *)
+  plot["original-wedge"] = Show[
+    Graphics @ {
+      (* Constant r (circular arcs) *)
+      Table[
+        Circle[{0, 0}, r, {-alpha, alpha}]
+        , {r, Subdivide[0, rMax, numSubdivisions]}
+      ],
+      (* Constant \[Phi] (radial rays) *)
+      Table[
+        Line @ {{0, 0}, XYPolar[rMax, phi]}
+        , {phi, Subdivide[-alpha, alpha, numSubdivisions]}
+      ],
+      (* Labels *)
+      Text[
+        Italicise["r"] // textStyleLabel
+        , XYPolar[rMax / 2, -alpha]
+        , {1.7, 0.8}
+      ],
+      Text[
+        "\[Phi]" // textStyleLabel
+        , {rMax, 0}
+        , {-2.7, 0}
+      ],
+      {}
+    },
+    {}
+    , PlotRangePadding -> {{paddingNothing, paddingLabel}, paddingNothing}
+    , opts
+  ];
+  (* Formal rectangle diagram *)
+  plot["formal-rectangle"] = Show[
+    Graphics @ {
+      (* Constant r (circular arcs) *)
+      Table[
+        Line @ {{r, -alpha}, {r, alpha}}
+        , {r, Subdivide[0, rMax, numSubdivisions]}
+      ],
+      (* Constant \[Phi] (radial rays) *)
+      Table[
+        Line @ {{0, phi}, {rMax, phi}}
+        , {phi, Subdivide[-alpha, alpha, numSubdivisions]}
+      ],
+      (* Labels *)
+      Text[
+        Italicise["r"] // textStyleLabel
+        , {rMax / 2, -alpha}
+        , {0, 1}
+      ],
+      Text[
+        "\[Phi]" // textStyleLabel
+        , {0, 0}
+        , {3, 0}
+      ],
+      {}
+    },
+    {}
+    , PlotRangePadding -> {{paddingLabel, paddingNothing}, paddingNothing}
+    , opts
+  ];
+  (* Double-arrow between *)
+  xArrow = 1;
+  yArrow = 0.13;
+  plot["double-arrow"] = Show[
+    Graphics @ {
+      GeneralStyle["VeryThick"], Arrowheads[0.2],
+      LightGray,
+      Arrow @ {{-xArrow, yArrow}, {xArrow, yArrow}},
+      Arrow @ {{xArrow, -yArrow}, {-xArrow, -yArrow}}
+    },
+    {}
+    , ImageSize -> 0.25 ImageSizeTextWidth
+    , PlotRange -> All
+    , PlotRangePadding -> {yArrow, 2 yArrow}
+  ];
+  (* Export *)
+  Table[
+    plot[case]
+      // Ex @ FString["wedge_small-domain-{case}.pdf"]
+    , {case, {"original-wedge", "formal-rectangle", "double-arrow"}}
+  ]
+]
