@@ -697,3 +697,51 @@ Module[
     , {case, {"original-wedge", "formal-rectangle", "double-arrow"}}
   ]
 ]
+
+
+(* ::Section:: *)
+(*Figure: mesh detail (wedge_small-mesh-detail)*)
+
+
+Module[
+  {
+    apd, alpha, rMax,
+    mesh, meshWireframe,
+    dummyForTrailingCommas
+  },
+  (* Geometry *)
+  apd = 30;
+  alpha = apd * Degree;
+  rMax = rMaxMesh;
+  (* Import mesh *)
+  mesh =
+    Import @ FString["mesh/wedge_small-mesh-apd-{apd}.txt"]
+      // Uncompress // First;
+  meshWireframe = mesh["Wireframe"];
+  (* Mesh detail *)
+  (* (not bothering with full mesh) *)
+  Show[
+    meshWireframe
+    , Frame -> {{True, False}, {True, True}}
+    , FrameLabel -> {
+        Italicise["r"] // Margined @ {{0, 0}, {0, -0.03 ImageSizeTextWidth}},
+        "\[Phi]" // LaTeXStyle
+      }
+    , FrameTicks -> {Automatic,
+        Table[
+          {
+            phipd * Degree,
+            SeparatedRow["VeryThin"][phipd, Style["\[Degree]", Magnification -> 1.2]]
+          }
+          , {phipd, Subdivide[-apd, apd, 4]}
+        ]
+      }
+    , FrameTicksStyle -> LabelSize["Tick"]
+    , ImageSize -> 0.8 ImageSizeTextWidth
+    , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+    , PlotRange -> {{0, 2}, {-alpha, alpha}}
+    , PlotRangeClipping -> True
+    , PlotOptions[Frame] // Evaluate
+  ]
+    // Ex["wedge_small-mesh-detail.pdf"]
+]
