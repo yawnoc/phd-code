@@ -745,3 +745,108 @@ Module[
   ]
     // Ex["wedge_small-mesh-detail.pdf"]
 ]
+
+
+(* ::Section:: *)
+(*Figure: numerical solution (wedge_small-solution-*)*)
+
+
+Module[
+  {
+    apd, alpha,
+    gpdValues, gpdCases,
+    rMax, phiValues,
+    opts,
+    case,
+    hSolution, tSolution,
+    rArrow,
+    hArrowMin, hArrowMax,
+    tArrowMin, tArrowMax,
+    arrowStyle, textStyle,
+    hPlot, tPlot,
+    dummyForTrailingCommas
+  },
+  (* Wedge half-angle *)
+  apd = 30;
+  alpha = apd * Degree;
+  (* Contact angles *)
+  gpdValues = {45, 60};
+  gpdCases = {"small", "borderline"};
+  (* Plot range *)
+  rMax = 6;
+  phiValues = Range[0, apd, 10] Degree;
+  opts = {Nothing
+    , ImagePadding -> {{0.5, 0.5}, {0.5, 0.7}} ImageSizeCentimetre
+    , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+    , PlotPoints -> 2
+    , PlotStyle -> Black
+    , TicksStyle -> LabelSize["Tick"]
+    , PlotOptions[Axes]
+  };
+  (* For each solution contact angle: *)
+  Table[
+    case = AssociationThread[gpdValues -> gpdCases][gpd];
+    (* Import numerical solution *)
+    hSolution =
+      FString["solution/wedge_small-solution-apd-{apd}-gpd-{gpd}.txt"]
+        // Import // Uncompress // First;
+    tSolution[r_, phi_] := hSolution[r, phi] / r;
+    (* Phi arrow *)
+    rArrow = 1.7;
+    hArrowMin = hSolution[rArrow, 0] - 0.4;
+    hArrowMax = hSolution[rArrow, alpha] + 0.7;
+    tArrowMin = tSolution[rArrow, 0] - 0.25;
+    tArrowMax = tSolution[rArrow, alpha] + 0.45;
+    arrowStyle = Directive[
+      GeneralStyle["Translucent"],
+      GeneralStyle["Thick"],
+      Arrowheads[Medium]
+    ];
+    textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+    (* Make plots *)
+    hPlot =
+      Plot[
+        Table[hSolution[r, phi], {phi, phiValues}] // Evaluate
+        , {r, 0, rMax}
+        , AxesLabel -> Italicise /@ {"r", "H"}
+        , Epilog -> {
+            {arrowStyle,
+              Arrow @ {{rArrow, hArrowMin}, {rArrow, hArrowMax}}
+            },
+            {
+              Text["\[Phi]" // textStyle
+                , {rArrow, hArrowMax}
+                , {0, -1}
+              ]
+            }
+          }
+        , PlotRange -> {0, 3}
+        , opts // Evaluate
+      ];
+    tPlot =
+      Plot[
+        Table[tSolution[r, phi], {phi, phiValues}] // Evaluate
+        , {r, 0, rMax}
+        , AxesLabel -> Italicise /@ {"r", "T"}
+        , Epilog -> {
+            {arrowStyle,
+              Arrow @ {{rArrow, tArrowMin}, {rArrow, tArrowMax}}
+            },
+            {
+              Text["\[Phi]" // textStyle
+                , {rArrow, tArrowMax}
+                , {0, -1}
+              ]
+            }
+          }
+        , PlotRange -> {0, 2.1}
+        , opts // Evaluate
+      ];
+    GraphicsColumn[{hPlot, tPlot}
+      , ImageSize -> 0.45 ImageSizeTextWidth
+      , ItemAspectRatio -> 0.75
+    ]
+      // Ex @ FString["wedge_small-solution-{case}.pdf"]
+    , {gpd, gpdValues}
+  ]
+]
