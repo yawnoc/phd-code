@@ -3867,7 +3867,7 @@ Module[
         ]
         , Scaled @ {0.7, 0.7}
       ]
-    , PlotMarkers -> {{Automatic, 5}, {"OpenMarkers", 6}}
+    , PlotMarkers -> {{Automatic, 6}, {"OpenMarkers", 6}}
     , PlotRange -> {heightMin, heightMax}
     , PlotStyle -> Black
     , TicksStyle -> LabelSize["Tick"]
