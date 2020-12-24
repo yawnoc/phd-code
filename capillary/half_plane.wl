@@ -646,7 +646,7 @@ Module[
   xFun = XHalfPlane[gamma];
   h = HHalfPlane[gamma];
   (* Exact values *)
-  xSamplingValues = Subdivide[0, 3, 50];
+  xSamplingValues = Subdivide[0, 3, 30];
   tExactValues =
     Table[
       SeekRoot[xFun[#] - x &, {0, h}, 10] // Quiet
@@ -667,7 +667,7 @@ Module[
     , ImageSize -> 0.6 ImageSizeTextWidth
     , Joined -> True
     , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
-    , PlotMarkers -> {Automatic, 4}
+    , PlotMarkers -> {Automatic, 5}
     , PlotStyle -> Black
     , PlotOptions[Axes] // Evaluate
     , TicksStyle -> LabelSize["Tick"]
