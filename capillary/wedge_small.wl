@@ -850,3 +850,72 @@ Module[
     , {gpd, gpdValues}
   ]
 ]
+
+
+(* ::Section:: *)
+(*Figure: borderline comparison (wedge_small-borderline-comparison)*)
+
+
+Module[
+  {
+    apd, gpd,
+    alpha, gamma,
+    hSmall, tSmallPolar,
+    tAcute, tAcutePolar,
+    rMax, rValues,
+    relativeDiscrepancyTable,
+    dummyForTrailingCommas
+  },
+  (* Angular parameters *)
+  apd = 30;
+  gpd = 60;
+  {alpha, gamma} = {apd, gpd} Degree;
+  (* Import wedge_small solution H == H (r, \[Phi]) *)
+  hSmall =
+    FString["solution/wedge_small-solution-apd-{apd}-gpd-{gpd}.txt"]
+      // Import // Uncompress // First;
+  tSmallPolar[r_, phi_] := hSmall[r, phi] / r;
+  (* Import wedge_acute solution T == T (x, y) *)
+  tAcute =
+    FString["../wedge_acute/solution/wedge_acute-solution-apd-{apd}-gpd-{gpd}.txt"]
+      // Import // Uncompress // First;
+  tAcutePolar[r_, phi_] := tAcute @@ XYPolar[r, phi];
+  (* Values to be plotted *)
+  rMax = 5;
+  rValues = Subdivide[0, rMax, 20] // Rest // Prepend[10^-6];
+  relativeDiscrepancyTable =
+    Table[
+      Table[
+        {
+          r,
+          tSmallPolar[r, phi] / tAcutePolar[r, phi] - 1
+            // Abs
+        }
+        , {r, rValues}
+      ]
+      , {phi, {0, alpha}}
+    ];
+  (* Make plot and export *)
+  ListLogPlot[
+    relativeDiscrepancyTable
+    , AxesLabel -> {
+        Italicise["r"] // Margined @ {{0, 1}, {5, 0}},
+        Style["Relative discrepancy", Smaller]
+      }
+    , ImageSize -> {Automatic, 0.35 ImageSizeTextWidth}
+    , Joined -> True
+    , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+    , PlotLegends -> LineLegend[
+        {
+          LaTeXStyle["\[Phi]"] == 0,
+          LaTeXStyle["\[Phi]"] == LaTeXStyle["\[Alpha]"]
+        }
+        , LabelStyle -> LatinModernLabelStyle @ LabelSize["Legend"]
+      ]
+    , PlotMarkers -> {{Automatic, 6}, {"OpenMarkers", 5}}
+    , PlotStyle -> Black
+    , TicksStyle -> LabelSize["Tick"]
+    , PlotOptions[Axes] // Evaluate
+  ]
+    // Ex["wedge_small-borderline-comparison.pdf"]
+]
