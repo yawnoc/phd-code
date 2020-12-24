@@ -1913,7 +1913,7 @@ Module[
     Joined -> True,
     LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"],
     TicksStyle -> LabelSize["Tick"],
-    PlotMarkers -> {"OpenMarkers", 5},
+    PlotMarkers -> {{Automatic, 6}, {"OpenMarkers", 5}},
     PlotRange -> {slopeMin, slopeMax},
     PlotRangeClipping -> False,
     PlotRangePadding -> {{None, 0.001}, {0.05, 0.08}},
@@ -1934,7 +1934,7 @@ Module[
             , LabelStyle -> LatinModernLabelStyle @ LabelSize["Legend"]
             (* Don't bother with LegendLabel; just write \ell_\ultra in LaTeX *)
             , LegendLayout -> "Row"
-            , LegendMarkerSize -> 4 LabelSize["Legend"]
+            , LegendMarkerSize -> {4, (* magic *) 0.6} LabelSize["Legend"]
           ]
           , Scaled @ {0.5, 0.5}
         ]
