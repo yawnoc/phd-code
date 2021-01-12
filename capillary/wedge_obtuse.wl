@@ -1378,6 +1378,164 @@ Module[
 
 
 (* ::Section:: *)
+(*Slope dodginess test, large angle case*)
+
+
+(*
+  Same as "Slope dodginess test" above,
+  but for the large angle case.
+  We examine the effect of additional refinement for:
+  * alpha == {135} Degree
+  * gamma == 30 Degree
+  * global coarse length scale 0.2
+  * wall fine length scale 0.01
+  * near-corner (r < 0.01) fine length scales {0.01, 0.005, 0.002, 0.001}
+*)
+
+
+(* ::Subsection:: *)
+(*Compute data and store*)
+
+
+(* (This is slow (~2 min).) *)
+(*
+  I do not know how much memory is required for this,
+  so I would suggest running this on a fresh kernel.
+*)
+Module[
+  {
+    gamma,
+    globalCoarseLengthScale, wallFineLengthScale, nearCornerRadius,
+    apdValues, nearCornerFineLengthScaleValues,
+      rMax, alpha,
+      boundaryPoints, numBoundaryPoints, boundaryElements,
+      equilateralTriangleArea, refinementFunction,
+      boundaryMesh, mesh, numMeshElements,
+      predicateWet,
+      tNumerical, tXDerivative, tYDerivative, tSlope,
+      rValues,
+        symmetryHeightData, symmetrySlopeData,
+        wallHeightData, wallSlopeData,
+    dummyForTrailingCommas
+  },
+  (* Constants *)
+  gamma = 30 Degree;
+  globalCoarseLengthScale = 0.2;
+  wallFineLengthScale = 0.01;
+  nearCornerRadius = 0.01;
+  (* Values to test *)
+  apdValues = {135};
+  nearCornerFineLengthScaleValues = {0.01, 0.001, 0.0005, 0.0002, 0.0001};
+  (* For each pair of test values: *)
+  Table[
+    (* Build mesh *)
+    rMax = rMaxMesh;
+    alpha = apd * Degree;
+    (* Boundary points and elements *)
+    boundaryPoints =
+      Join[
+        (* Lower wedge wall *)
+        Table[
+          XYPolar[r, -alpha]
+          , {r, UniformRange[0, rMax, wallFineLengthScale]}
+        ]
+          // Most,
+        (* Far arc at infinity *)
+        Table[
+          XYPolar[rMax, phi]
+          , {phi, UniformRange[-alpha, alpha, globalCoarseLengthScale / rMax]}
+        ]
+          // Most,
+        (* Upper wedge wall *)
+        Table[
+          XYPolar[r, +alpha]
+          , {r, UniformRange[rMax, 0, -wallFineLengthScale]}
+        ]
+          // Most,
+        {}
+      ];
+    numBoundaryPoints = Length[boundaryPoints];
+    boundaryElements =
+      LineElement /@ {
+        Table[{n, n + 1}, {n, numBoundaryPoints}]
+          // Mod[#, numBoundaryPoints, 1] &
+      };
+    (* Special refinement *)
+    equilateralTriangleArea = Function[{len}, Sqrt[3]/4 * len^2];
+    refinementFunction =
+      Function[{vertices, area},
+        Or[
+          area > equilateralTriangleArea[globalCoarseLengthScale],
+          Norm @ Mean[vertices] < nearCornerRadius
+            && area > equilateralTriangleArea[nearCornerFineLengthScale]
+        ]
+      ];
+    (* Build mesh *)
+    boundaryMesh =
+      ToBoundaryMesh[
+        "Coordinates" -> boundaryPoints,
+        "BoundaryElements" -> boundaryElements,
+        {}
+      ];
+    mesh = ToElementMesh[boundaryMesh
+      , "ImproveBoundaryPosition" -> True
+      , MeshRefinementFunction -> refinementFunction
+    ];
+    (* Export mesh wireframe for visual check *)
+    numMeshElements = Length @ mesh[[2, 1, 1]];
+    Show[
+      mesh["Wireframe"]
+      , Frame -> True
+      , ImageSize -> 240
+      , PlotLabel -> Column @ {
+          FString @ "apd: {apd}",
+          FString @ "nearCornerFineLengthScale: {nearCornerFineLengthScale}",
+          FString @ "numMeshElements: {numMeshElements}",
+          Nothing
+        }
+      , PlotRange -> 0.1 {{-1, 1}, {-1, 1}}
+      , PlotRangeClipping -> True
+    ] // Ex @ FString[
+      "slope_test_large/wedge_obtuse-slope_test_large-apd-{apd}-fls-{nearCornerFineLengthScale}.png"
+    ];
+    (* Predicate function for wetting boundaries *)
+    predicateWet =
+      If[alpha < Pi/2,
+        Function[{x, y}, x <= rMax Cos[alpha] // Evaluate],
+        Function[{x, y}, Abs[y] <= rMax Sin[Pi - alpha] && x <= 0 // Evaluate]
+      ];
+    (* Compute numerical solution to capillary BVP *)
+    tNumerical = SolveLaplaceYoung[gamma, mesh, predicateWet];
+    tXDerivative = Derivative[1, 0][tNumerical];
+    tYDerivative = Derivative[0, 1][tNumerical];
+    tSlope = Function[{x, y}, Sqrt[tXDerivative[x, y]^2 + tYDerivative[x, y]^2]];
+    rValues =
+      Join[
+        Range[0, 0.1, 0.001],
+        Range[0.1, 1, 0.01] // Rest,
+        Range[1, 5, 0.1] // Rest,
+        {}
+      ];
+    (* Compute data (along line of symmetry) *)
+    symmetryHeightData = Table[{r, tNumerical @@ XYPolar[r, 0]}, {r, rValues}];
+    symmetrySlopeData = Table[{r, tSlope @@ XYPolar[r, 0]}, {r, rValues}];
+    (* Compute data (along wall) *)
+    wallHeightData = Table[{r, tNumerical @@ XYPolar[r, alpha]}, {r, rValues}];
+    wallSlopeData = Table[{r, tSlope @@ XYPolar[r, alpha]}, {r, rValues}];
+    (* Return row *)
+    {
+      apd, nearCornerFineLengthScale,
+      symmetryHeightData, symmetrySlopeData,
+      wallHeightData, wallSlopeData,
+      Nothing
+    }
+    , {apd, apdValues}
+    , {nearCornerFineLengthScale, nearCornerFineLengthScaleValues}
+  ] // Compress
+] // Ex["slope_test_large/wedge_obtuse-slope_test_large-all-data.txt"]
+
+
+(* ::Section:: *)
 (*Roughness profile fit check*)
 
 
