@@ -1535,6 +1535,148 @@ Module[
 ] // Ex["slope_test_large/wedge_obtuse-slope_test_large-all-data.txt"]
 
 
+(* ::Subsection:: *)
+(*Visualise*)
+
+
+Module[
+  {
+    allData,
+    apdValues, nearCornerFineLengthScaleValues,
+    symmetryHeightData, symmetrySlopeData,
+    cornerHeight, cornerSlope,
+    wallHeightData, wallSlopeData,
+    dummyForTrailingCommas
+  },
+  (* Import all data *)
+  allData = Import["slope_test_large/wedge_obtuse-slope_test_large-all-data.txt"] // Uncompress;
+  allData = Join @@ allData;
+  (* Extract data *)
+  apdValues = allData[[All, 1]] // Union;
+  nearCornerFineLengthScaleValues = allData[[All, 2]] // Union;
+  allData // Cases[
+    {apd_, ncfls_, shData_, ssData_, whData_, wsData_} :> (
+      (* Along line of symmetry *)
+      symmetryHeightData[apd, ncfls] = shData;
+        cornerHeight[apd, ncfls] = shData[[1, 2]];
+      symmetrySlopeData[apd, ncfls] = ssData;
+        cornerSlope[apd, ncfls] = ssData[[1, 2]];
+      (* Along wall *)
+      wallHeightData[apd, ncfls] = whData;
+      wallSlopeData[apd, ncfls] = wsData;
+    )
+  ];
+  (* For each wedge half-angle: *)
+  Table[
+    List[
+      (* Corner height plot *)
+      ListLogLinearPlot[
+        Table[{ncfls, cornerHeight[apd, ncfls]}, {ncfls, nearCornerFineLengthScaleValues}]
+        , AxesLabel -> {"ncfls", "corner height"}
+        , ImageSize -> 360
+        , Joined -> True
+        , PlotLabel -> {"apd", apd}
+        , PlotMarkers -> {Automatic, Medium}
+        , PlotRange -> All
+        , PlotOptions[Axes] // Evaluate
+      ]
+        // Ex @ FString["slope_test_large/wedge_obtuse-slope_test_large-corner-height-apd-{apd}.png"]
+      ,
+      (* Symmetry height plot *)
+      ListPlot[
+        Table[symmetryHeightData[apd, ncfls], {ncfls, nearCornerFineLengthScaleValues}]
+        , AxesLabel -> {"r", "symm height"}
+        , ImageSize -> 360
+        , Joined -> True
+        , PlotLabel -> {"apd", apd}
+        , PlotLegends -> LineLegend[
+            nearCornerFineLengthScaleValues
+            , LegendLabel -> "ncfls"
+            , LegendLayout -> "ReversedColumn"
+          ]
+        , PlotMarkers -> {Automatic, Medium}
+        , PlotRange -> {{0, 0.01}, All}
+        , PlotRangeClipping -> False
+        , PlotOptions[Axes] // Evaluate
+      ]
+        // Ex @ FString["slope_test_large/wedge_obtuse-slope_test_large-symm-height-apd-{apd}.png"]
+      ,
+      (* Corner slope plot *)
+      ListLogLinearPlot[
+        Table[{ncfls, -cornerSlope[apd, ncfls]}, {ncfls, nearCornerFineLengthScaleValues}]
+        , AxesLabel -> {"ncfls", "corner slope"}
+        , ImageSize -> 360
+        , Joined -> True
+        , PlotLabel -> {"apd", apd}
+        , PlotMarkers -> {Automatic, Medium}
+        , PlotRange -> All
+        , PlotOptions[Axes] // Evaluate
+      ]
+        // Ex @ FString["slope_test_large/wedge_obtuse-slope_test_large-corner-slope-apd-{apd}.png"]
+      ,
+      (* Symmetry slope plot *)
+      ListPlot[
+        Table[symmetrySlopeData[apd, ncfls], {ncfls, nearCornerFineLengthScaleValues}]
+        , AxesLabel -> {"r", "symm slope"}
+        , ImageSize -> 360
+        , Joined -> True
+        , PlotLabel -> {"apd", apd}
+        , PlotLegends -> LineLegend[
+            nearCornerFineLengthScaleValues
+            , LegendLabel -> "ncfls"
+            , LegendLayout -> "ReversedColumn"
+          ]
+        , PlotMarkers -> {Automatic, Medium}
+        , PlotRange -> {{0, 0.01}, All}
+        , PlotRangeClipping -> False
+        , PlotRangePadding -> {None, Scaled[0.1]}
+        , PlotOptions[Axes] // Evaluate
+      ]
+        // Ex @ FString["slope_test_large/wedge_obtuse-slope_test_large-symm-slope-apd-{apd}.png"]
+      ,
+      (* Wall height *)
+      ListPlot[
+        Table[wallHeightData[apd, ncfls], {ncfls, nearCornerFineLengthScaleValues}]
+        , AxesLabel -> {"r", "wall height"}
+        , ImageSize -> 360
+        , Joined -> True
+        , PlotLabel -> {"apd", apd}
+        , PlotLegends -> LineLegend[
+            nearCornerFineLengthScaleValues
+            , LegendLabel -> "ncfls"
+            , LegendLayout -> "ReversedColumn"
+          ]
+        , PlotMarkers -> {Automatic, Medium}
+        , PlotRange -> {{0, 0.02}, All}
+        , PlotRangeClipping -> False
+        , PlotOptions[Axes] // Evaluate
+      ]
+        // Ex @ FString["slope_test_large/wedge_obtuse-slope_test_large-wall-height-apd-{apd}.png"]
+      ,
+      (* Wall slope *)
+      ListPlot[
+        Table[wallSlopeData[apd, ncfls], {ncfls, nearCornerFineLengthScaleValues}]
+        , AxesLabel -> {"r", "wall slope"}
+        , ImageSize -> 360
+        , Joined -> True
+        , PlotLabel -> {"apd", apd}
+        , PlotLegends -> LineLegend[
+            nearCornerFineLengthScaleValues
+            , LegendLabel -> "ncfls"
+            , LegendLayout -> "ReversedColumn"
+          ]
+        , PlotMarkers -> {Automatic, Medium}
+        , PlotRange -> {{0, 0.02}, All}
+        , PlotRangeClipping -> False
+        , PlotOptions[Axes] // Evaluate
+      ]
+        // Ex @ FString["slope_test_large/wedge_obtuse-slope_test_large-wall-slope-{apd}.png"]
+    ]
+    , {apd, apdValues}
+  ]
+]
+
+
 (* ::Section:: *)
 (*Roughness profile fit check*)
 
