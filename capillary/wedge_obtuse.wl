@@ -2268,6 +2268,86 @@ Module[
 
 
 (* ::Section:: *)
+(*Figure: near-corner height with additional refinement (wedge_obtuse-moderate-height-additional-refinement-*)*)
+
+
+Module[
+  {
+    rMax, casesWithinRange,
+    allData,
+    heightMin, heightMax,
+    apd, nearCornerFineLengthScaleValues,
+    symmetryHeightData, wallHeightData,
+    opts,
+    symmetryPlot, wallPlot,
+    dummyForTrailingCommas
+  },
+  (* Horizontal plot range *)
+  rMax = 0.015;
+  casesWithinRange = Cases[{r_, _} /; r <= rMax];
+  (* Import all data *)
+  allData = Import["slope_test/wedge_obtuse-slope_test-all-data.txt"] // Uncompress;
+  allData = Join @@ allData;
+  (* Extract data *)
+  apd = 135;
+  nearCornerFineLengthScaleValues = allData[[All, 2]] // Union;
+  allData // Cases[
+    {apd, ncfls_, shData_, _, whData_, _} :> (
+      symmetryHeightData[ncfls] = shData // casesWithinRange;
+      wallHeightData[ncfls] = whData // casesWithinRange;
+    )
+  ];
+  (* Vertical plot range *)
+  heightMin = 0;
+  heightMax = 1.2 Max[
+    Table[
+      {
+        symmetryHeightData[ncfls][[All, 2]],
+        wallHeightData[ncfls][[All, 2]]
+      }
+      , {ncfls, nearCornerFineLengthScaleValues}
+    ]
+  ];
+  (* Plot options *)
+  opts = {
+    AxesLabel -> {Italicise["r"], "Height"},
+    ImageSize -> 0.45 ImageSizeTextWidth,
+    Joined -> True,
+    LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"],
+    TicksStyle -> LabelSize["Tick"],
+    PlotMarkers -> {{Automatic, 6}, {"OpenMarkers", 5}},
+    PlotRange -> {heightMin, heightMax},
+    PlotRangeClipping -> False,
+    PlotRangePadding -> {{None, 0.001}, None},
+    PlotStyle -> Black,
+    PlotOptions[Axes] // Evaluate
+  };
+  (* Slope along line of symmetry *)
+  (*
+    First use PlotLegends to get a properly styled legend,
+    then extract it for separate export.
+  *)
+  symmetryPlot =
+    ListPlot[
+      Table[symmetryHeightData[ncfls], {ncfls, nearCornerFineLengthScaleValues}]
+      , opts
+    ];
+  (* Slope along wall *)
+  wallPlot =
+    ListPlot[
+      Table[wallHeightData[ncfls], {ncfls, nearCornerFineLengthScaleValues}]
+      , opts
+    ];
+  (* Export *)
+  {
+    symmetryPlot // Ex["wedge_obtuse-moderate-height-additional-refinement-symmetry.pdf"],
+    wallPlot // Ex["wedge_obtuse-moderate-height-additional-refinement-wall.pdf"],
+    Nothing
+  }
+]
+
+
+(* ::Section:: *)
 (*Figure: viable domain  (wedge_obtuse-viable)*)
 
 
