@@ -2167,7 +2167,7 @@ Module[
 
 
 (* ::Section:: *)
-(*Figure: near-corner slope with additional refinement (wedge_obtuse-slope-additional-refinement-*)*)
+(*Figure: near-corner slope with additional refinement (wedge_obtuse-moderate-slope-additional-refinement-*)*)
 
 
 Module[
@@ -2259,9 +2259,9 @@ Module[
     ];
   (* Export *)
   {
-    symmetryPlot // Ex["wedge_obtuse-slope-additional-refinement-symmetry.pdf"],
-    wallPlot // Ex["wedge_obtuse-slope-additional-refinement-wall.pdf"],
-    legend // Ex["wedge_obtuse-slope-additional-refinement-legend.pdf"],
+    symmetryPlot // Ex["wedge_obtuse-moderate-slope-additional-refinement-symmetry.pdf"],
+    wallPlot // Ex["wedge_obtuse-moderate-slope-additional-refinement-wall.pdf"],
+    legend // Ex["wedge_obtuse-moderate-slope-additional-refinement-legend.pdf"],
     Nothing
   }
 ]
