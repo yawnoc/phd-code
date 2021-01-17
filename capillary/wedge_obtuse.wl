@@ -2323,10 +2323,6 @@ Module[
     PlotOptions[Axes] // Evaluate
   };
   (* Slope along line of symmetry *)
-  (*
-    First use PlotLegends to get a properly styled legend,
-    then extract it for separate export.
-  *)
   symmetryPlot =
     ListPlot[
       Table[symmetryHeightData[ncfls], {ncfls, nearCornerFineLengthScaleValues}]
