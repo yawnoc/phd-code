@@ -922,6 +922,108 @@ Module[
 
 
 (* ::Section:: *)
+(*Figure: (non-)viable domain  (wedge_small-viable)*)
+
+
+Module[
+  {
+    apd, gpd,
+    alpha, gamma,
+    hSmall, tSmallPolar,
+    derivativeList,
+    pTilde, qTilde, fTilde, phiTilde,
+    rCritical,
+    xMax, yMax, rMax,
+    more, xMaxMore, yMaxMore, rMaxMore,
+    plot,
+    legendLabelStyle,
+    legendCurves, legendRegions,
+    dummyForTrailingCommas
+  },
+  (* Angular parameters *)
+  {apd, gpd} = {30, 45};
+  {alpha, gamma} = {apd, gpd} Degree;
+  (* Import wedge_small solution H == H (r, \[Phi]) *)
+  hSmall =
+    FString["solution/wedge_small-solution-apd-{apd}-gpd-{gpd}.txt"]
+      // Import // Uncompress // First;
+  tSmallPolar[r_, phi_] := hSmall[r, phi] / r;
+  (* Derivative list for boundary tracing *)
+  derivativeList = {pTilde, qTilde, fTilde, phiTilde} =
+    tracingDerivativeList[hSmall, gamma];
+  (* Critical terminal point r_0 *)
+  rCritical = r0[pTilde, gamma];
+  (* Plot range *)
+  xMax = Ceiling[2 rCritical, 0.2];
+  yMax = xMax Tan[alpha];
+  rMax = RPolar[xMax, yMax];
+  (* Plot range but more *)
+  more = 0.05;
+  xMaxMore = xMax + more;
+  yMaxMore = yMax + more;
+  rMaxMore = rMax + more;
+  (* Plot *)
+  plot = Show[
+    EmptyFrame[{0, xMax}, {-yMax, yMax}
+      , FrameLabel -> {
+          Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
+          Italicise["y"]
+        }
+      , FrameTicksStyle -> LabelSize["Tick"]
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+    ],
+    (* Wedge walls *)
+    Graphics @ {BoundaryTracingStyle["Wall"],
+      Line @ {
+        xMaxMore {1, Tan[alpha]},
+        {0, 0},
+        xMaxMore {1, -Tan[alpha]}
+      }
+    },
+    (* Non-viable domain *)
+    RegionPlot[
+      phiTilde @@ RPhiPolar[x, y] < 0
+      , {x, rCritical, xMaxMore}
+      , {y, -yMaxMore, yMaxMore}
+      , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
+      , PlotPoints -> 11
+      , PlotStyle -> BoundaryTracingStyle["NonViable"]
+    ],
+    {}
+  ];
+  (* Legend *)
+  legendLabelStyle = LatinModernLabelStyle @ LabelSize["Legend"];
+  legendCurves =
+    CurveLegend[
+      BoundaryTracingStyle /@ {"Wall", "Terminal"},
+      {"wedge wall", "terminal curve"}
+      , LabelStyle -> legendLabelStyle
+    ];
+  legendRegions =
+    RegionLegend[
+      BoundaryTracingStyle /@ {"NonViable"},
+      {"non\[Hyphen]viable domain"}
+      , LabelStyle -> legendLabelStyle
+    ];
+  (* Export *)
+  {
+    Show[plot
+      , ImageSize -> 0.5 ImageSizeTextWidth
+    ]
+      // Ex["wedge_small-viable.pdf"]
+    ,
+    GraphicsColumn[Join[legendCurves, legendRegions]
+      , Alignment -> Left
+      , ImageSize -> 0.3 ImageSizeTextWidth
+      , ItemAspectRatio -> 0.15
+      , Spacings -> {0, 0}
+    ]
+      // Ex["wedge_small-viable-legend.pdf"]
+  }
+]
+
+
+(* ::Section:: *)
 (*Figure: generic traced boundaries  (wedge_small-traced-boundaries)*)
 
 
