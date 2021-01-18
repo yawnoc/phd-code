@@ -919,3 +919,130 @@ Module[
   ]
     // Ex["wedge_small-borderline-comparison.pdf"]
 ]
+
+
+(* ::Section:: *)
+(*Figure: generic traced boundaries  (wedge_small-traced-boundaries)*)
+
+
+Module[
+  {
+    apd, gpd,
+    alpha, gamma,
+    hSmall, tSmallPolar,
+    derivativeList,
+    pTilde, qTilde, fTilde, phiTilde,
+    rCritical,
+    xMax, yMax, rMax,
+    more, xMaxMore, yMaxMore, rMaxMore,
+    rStartList, rphiStartList,
+      rStartTerminal, phiStartTerminal,
+    rphiTracedList,
+    plot,
+    dummyForTrailingCommas
+  },
+  (* Angular parameters *)
+  {apd, gpd} = {30, 45};
+  {alpha, gamma} = {apd, gpd} Degree;
+  (* Import wedge_small solution H == H (r, \[Phi]) *)
+  hSmall =
+    FString["solution/wedge_small-solution-apd-{apd}-gpd-{gpd}.txt"]
+      // Import // Uncompress // First;
+  tSmallPolar[r_, phi_] := hSmall[r, phi] / r;
+  (* Derivative list for boundary tracing *)
+  derivativeList = {pTilde, qTilde, fTilde, phiTilde} =
+    tracingDerivativeList[hSmall, gamma];
+  (* Critical terminal point r_0 *)
+  rCritical = r0[pTilde, gamma];
+  (* Plot range *)
+  xMax = Ceiling[1.5 rCritical, 0.2];
+  yMax = xMax Tan[alpha];
+  rMax = RPolar[xMax, yMax];
+  (* Plot range but more *)
+  more = 0.05;
+  xMaxMore = xMax + more;
+  yMaxMore = yMax + more;
+  rMaxMore = rMax + more;
+  (*
+    NOTE: wall integration doesn't work
+    because the traced boundary ventures slightly outside the wedge domain
+    and Mathematica complains about Indeterminate values.
+    So the wall boundaries are drawn manually at the end.
+  *)
+  (* Starting points for boundary tracing *)
+  rStartList = Subdivide[rMax, 10] // Rest;
+  rphiStartList = Table[{r, -alpha}, {r, rStartList}];
+    (* Append a starting point along the terminal curve *)
+    rStartTerminal = Way[rCritical, rMax];
+    phiStartTerminal = SeekRoot[
+      phiTilde[rStartTerminal, #] &,
+      {0, alpha},
+      5
+    ];
+    rphiStartList = rphiStartList // Append @ {rStartTerminal, phiStartTerminal};
+  (* Traced boundaries (upper branch) *)
+  rphiTracedList =
+    Table[
+      tracedBoundary[derivativeList][
+        rphiStart, 0, {0, 2 rMax}
+        , -1, 1
+        , 0, Function[{r, phi}, r Cos[phi] > xMaxMore]
+      ]
+      , {rphiStart, rphiStartList}
+    ];
+  (* Plot *)
+  plot = Show[
+    EmptyFrame[{0, xMax}, {-yMax, yMax}
+      , FrameLabel -> {
+          Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
+          Italicise["y"]
+        }
+      , FrameTicksStyle -> LabelSize["Tick"]
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+    ],
+    (* Wedge walls *)
+    Graphics @ {BoundaryTracingStyle["Wall"],
+      Line @ {
+        xMaxMore {1, Tan[alpha]},
+        {0, 0},
+        xMaxMore {1, -Tan[alpha]}
+      }
+    },
+    (* Non-viable domain *)
+    RegionPlot[
+      phiTilde @@ RPhiPolar[x, y] < 0
+      , {x, rCritical, xMaxMore}
+      , {y, -yMaxMore, yMaxMore}
+      , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
+      , PlotPoints -> 11
+      , PlotStyle -> BoundaryTracingStyle["NonViable"]
+    ],
+    (* Traced boundaries *)
+    Table[
+      ParametricPlot[
+        XYPolar @@ EvaluatePair[rphi, s]
+          // IncludeYReflection
+          // Evaluate
+        , {s, DomainStart[rphi], DomainEnd[rphi]}
+        , PlotPoints -> 2
+        , PlotStyle -> BoundaryTracingStyle["Traced"]
+      ]
+      , {rphi, rphiTracedList}
+    ],
+    (* Traced boundary walls *)
+    ParametricPlot[
+      XYPolar[r, alpha]
+        // IncludeYReflection
+        // Evaluate
+      , {r, 0, rMaxMore}
+      , PlotPoints -> 2
+      , PlotStyle -> BoundaryTracingStyle["Traced"]
+    ],
+    {}
+  ];
+  (* Export *)
+  (* (re-use legend from "wedge_acute-traced-boundaries-legend.pdf") *)
+  Show[plot
+    , ImageSize -> 0.5 ImageSizeTextWidth
+  ] // Ex["wedge_small-traced-boundaries.pdf"]
+]
