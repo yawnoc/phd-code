@@ -1041,6 +1041,7 @@ Module[
       rStartTerminal, phiStartTerminal,
     rphiTracedList,
     plot,
+    textStyle, textStyleBracket,
     dummyForTrailingCommas
   },
   (* Angular parameters *)
@@ -1140,6 +1141,28 @@ Module[
       , PlotPoints -> 2
       , PlotStyle -> BoundaryTracingStyle["Traced"]
     ],
+    (* Critical terminal point (x_0, 0) *)
+    Graphics @ {
+      GeneralStyle["Point"],
+      Point @ {rCritical, 0}
+    },
+    textStyle = Style[#, LabelSize["Point"]] & @* LaTeXStyle;
+    textStyleBracket = Style[#, LabelSize["PointBracket"]] &;
+    Graphics @ {
+      Text[
+        Row @ {
+          "(" // textStyleBracket,
+          "\[NegativeVeryThinSpace]",
+          Subscript[Italicise["x"], 0],
+          ",\[ThinSpace]",
+          0,
+          ")" // textStyleBracket
+        },
+        {rCritical, 0},
+        {-1.4, -0.1}
+      ] // textStyle,
+      {}
+    },
     {}
   ];
   (* Export *)
