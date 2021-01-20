@@ -1037,6 +1037,7 @@ Module[
     rCritical,
     xMax, yMax, rMax,
     more, xMaxMore, yMaxMore, rMaxMore,
+    nMax, nValues, correctionFactor,
     rStartList, rphiStartList,
       rStartTerminal, phiStartTerminal,
     rphiTracedList,
@@ -1073,10 +1074,16 @@ Module[
     So the wall boundaries are drawn manually at the end.
   *)
   (* Starting points for boundary tracing *)
-  rStartList = Subdivide[rMax, 10] // Rest;
+  nMax = 10;
+  nValues = Join[
+    Range[nMax - 4],
+    {nMax - 3.1, nMax - 2.2, nMax - 1/2}
+  ];
+  correctionFactor = 1.05; (* to make boundary pass through (x_0, 0) *)
+  rStartList = Table[correctionFactor * n / nMax * rMax, {n, nValues}];
   rphiStartList = Table[{r, -alpha}, {r, rStartList}];
     (* Append a starting point along the terminal curve *)
-    rStartTerminal = Way[rCritical, rMax];
+    rStartTerminal = Way[rCritical, rMax, 0.56];
     phiStartTerminal = SeekRoot[
       phiTilde[rStartTerminal, #] &,
       {0, alpha},
@@ -1117,7 +1124,7 @@ Module[
       , {x, rCritical, xMaxMore}
       , {y, -yMaxMore, yMaxMore}
       , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
-      , PlotPoints -> 11
+      , PlotPoints -> 8
       , PlotStyle -> BoundaryTracingStyle["NonViable"]
     ],
     (* Traced boundaries *)
