@@ -1297,3 +1297,109 @@ Module[
   ]
     // Ex["wedge_small-traced-boundaries-hyperbolic-both.pdf"]
 ]
+
+
+(* ::Subsection:: *)
+(*Rounding*)
+
+
+Module[
+  {
+    apd, gpd,
+    alpha, gamma,
+    hSmall, tSmallPolar,
+    derivativeList,
+    pTilde, qTilde, fTilde, phiTilde,
+    rCritical,
+    xMax, yMax, rMax,
+    more, xMaxMore, yMaxMore, rMaxMore,
+    rphi,
+    textStyle, textStyleBracket,
+    plot,
+    dummyForTrailingCommas
+  },
+  (* Angular parameters *)
+  {apd, gpd} = {30, 45};
+  {alpha, gamma} = {apd, gpd} Degree;
+  (* Import wedge_small solution H == H (r, \[Phi]) *)
+  hSmall =
+    FString["solution/wedge_small-solution-apd-{apd}-gpd-{gpd}.txt"]
+      // Import // Uncompress // First;
+  tSmallPolar[r_, phi_] := hSmall[r, phi] / r;
+  (* Derivative list for boundary tracing *)
+  derivativeList = {pTilde, qTilde, fTilde, phiTilde} =
+    tracingDerivativeList[hSmall, gamma];
+  (* Critical terminal point r_0 *)
+  rCritical = r0[pTilde, gamma];
+  (* Plot range *)
+  xMax = Ceiling[2 rCritical, 0.2];
+  yMax = xMax Tan[alpha];
+  rMax = RPolar[xMax, yMax];
+  (* Plot range but more *)
+  more = 0.05;
+  xMaxMore = xMax + more;
+  yMaxMore = yMax + more;
+  rMaxMore = rMax + more;
+  (* Traced boundary through (x_0, 0) (upper branch) *)
+  rphi =
+    Quiet[
+      tracedBoundary[derivativeList][
+        {rCritical, 0}, 0, 2 rMax {0, 1}
+        , -1, 1
+        , -Infinity, Function[{r, phi}, r Cos[phi] > xMaxMore]
+      ]
+      , {InterpolatingFunction::femdmval, NDSolveValue::nlnum}
+    ];
+  (* Text style *)
+  textStyle = Style[#, LabelSize["Point"]] & @* LaTeXStyle;
+  textStyleBracket = Style[#, LabelSize["PointBracket"]] &;
+  (* Plot *)
+  plot = Show[
+    EmptyFrame[{0, xMax}, {-yMax, yMax}
+      , Frame -> None
+    ],
+    (* Wedge walls *)
+    Graphics @ {BoundaryTracingStyle["Wall"],
+      Line @ {
+        xMaxMore {1, Tan[alpha]},
+        {0, 0},
+        xMaxMore {1, -Tan[alpha]}
+      }
+    },
+    (* Traced boundaries *)
+    ParametricPlot[
+      XYPolar @@ EvaluatePair[rphi, s]
+        // IncludeYReflection
+        // Evaluate
+      , {s, DomainStart[rphi], DomainEnd[rphi]}
+      , PlotPoints -> 2
+      , PlotStyle -> BoundaryTracingStyle["Traced"]
+    ],
+    (* Critical terminal point (x_0, 0) *)
+    Graphics @ {
+      GeneralStyle["Point"],
+      Point @ {rCritical, 0}
+    },
+    Graphics @ {
+      Text[
+        Row @ {
+          "(" // textStyleBracket,
+          "\[NegativeVeryThinSpace]",
+          Subscript[Italicise["x"], 0],
+          ",\[ThinSpace]",
+          0,
+          ")" // textStyleBracket
+        },
+        {rCritical, 0},
+        {1.45, -0.1}
+      ] // textStyle,
+      {}
+    },
+    {}
+  ];
+  (* Export *)
+  Show[plot
+    , ImageSize -> 0.45 * 0.85 ImageSizeTextWidth
+  ]
+    // Ex["wedge_small-traced-boundaries-hyperbolic-rounding.pdf"]
+]
