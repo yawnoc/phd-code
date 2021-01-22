@@ -2733,7 +2733,7 @@ Module[
       , PlotStyle -> BoundaryTracingStyle["NonViable"]
     ],
     {}
-    , ImageSize -> 0.4 ImageSizeTextWidth
+    , ImageSize -> 0.36 ImageSizeTextWidth
   ]
 ] // Ex["wedge_obtuse-viable-larger-scale.pdf"]
 
