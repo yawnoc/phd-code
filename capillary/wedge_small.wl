@@ -1175,7 +1175,7 @@ Module[
   (* Export *)
   (* (re-use legend from "wedge_acute-traced-boundaries-legend.pdf") *)
   Show[plot
-    , ImageSize -> 0.5 ImageSizeTextWidth
+    , ImageSize -> 0.45 ImageSizeTextWidth
   ] // Ex["wedge_small-traced-boundaries.pdf"]
 ]
 
