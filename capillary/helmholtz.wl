@@ -1101,7 +1101,7 @@ Module[
     , {s, -sMax, sMax}
     , AspectRatio -> Automatic
     , AxesLabel -> Italicise /@ {"s", "U"}
-    , ImageSize -> 0.8 ImageSizeTextWidth
+    , ImageSize -> 0.65 ImageSizeTextWidth
     , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
     , PlotRange -> {0, All}
     , PlotStyle -> {
