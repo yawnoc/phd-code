@@ -2164,6 +2164,107 @@ Module[
 
 
 (* ::Section:: *)
+(*Figure: concave spikes near r = 1 (line-traced-boundaries-hot-spikes)*)
+
+
+Module[
+  {
+    a, rFl, rSh,
+    xMin, xMax, yMax,
+    phiTracedRaw, rRawStart, rRawEnd,
+    phiRawEnd, phiTraced,
+    phiTerminal,
+    rInflection, phiInflection,
+    textStyle,
+    dummyForTrailingCommas
+  },
+  (* Constants *)
+  a = aHot;
+  rFl = rFlat[a];
+  rSh = rSharp[a];
+  (* Plot range *)
+  xMax = 1;
+  yMax = 1.7 rSh;
+  xMin = -1.5 rSh;
+  (* Traced boundary *)
+  phiTracedRaw = phiTraHot["outer"];
+  rRawStart = DomainStart[phiTracedRaw];
+  rRawEnd = DomainEnd[phiTracedRaw];
+  (* Enforce phi == 0 at r == 1 *)
+  phiRawEnd = phiTracedRaw[rRawEnd];
+  phiTraced[r_] := phiTracedRaw[r] - phiRawEnd // Evaluate;
+  (* Endpoint phi for terminal curve traced boundary portion *)
+  phiTerminal = phiTraced[rRawStart] // Abs;
+  (* Inflection coordinates *)
+  rInflection = rInfl;
+  phiInflection = phiTraced[rInflection] // Abs;
+  (* Text style *)
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  (* Make plot *)
+  Show[
+    EmptyAxes[{xMin, xMax}, {-yMax, yMax}
+      , AspectRatio -> Automatic
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+      , ImageSize -> 0.7 ImageSizeTextWidth
+      , PlotRange -> All
+      , PlotRangePadding -> {{Scaled[0.1], Automatic}, Scaled[0.2]}
+      , PlotRangeClipping -> None
+      , Ticks -> {Automatic, None}
+      , TicksStyle -> LabelSize["Tick"]
+    ],
+    (* Non-viable domain *)
+    Graphics @ {
+      FaceForm @ BoundaryTracingStyle["NonViable"],
+      EdgeForm @ BoundaryTracingStyle["Terminal"],
+      Annulus @ {rFl, rSh}
+    },
+    (* Traced boundaries (spike) *)
+    ParametricPlot[
+      XYPolar[r, phiTraced[r]]
+        // IncludeYReflection
+        // Evaluate
+      , {r, rRawStart, rRawEnd}
+      , PlotPoints -> Automatic
+      , PlotStyle -> BoundaryTracingStyle["Traced"]
+    ],
+    Graphics @ {
+      Text[
+        "concave" // textStyle
+        , {0.5, 0}
+        , {0, -1.4}
+      ],
+      {}
+    },
+    (* Traced boundaries (terminal curve portion) *)
+    Graphics @ {BoundaryTracingStyle["Traced"],
+      Circle[{0, 0}, rSh, {phiTerminal, 2 Pi - phiTerminal}]
+    },
+    Graphics @ {
+      Text[
+        "convex" // textStyle
+        , XYPolar[rSh, Way[phiTerminal, 2 Pi - phiTerminal, 0.2]]
+        , {1, -1.1}
+      ],
+      {}
+    },
+    (* Point of inflection *)
+    Graphics @ {GeneralStyle["Point"],
+      Point @ IncludeYReflection @ XYPolar[rInflection, phiInflection]
+    },
+    Graphics @ {
+      Text[
+        "inflection" // textStyle
+        , XYPolar[rInflection, phiInflection]
+        , {-0.7, -1.4}
+      ],
+      {}
+    },
+    {}
+  ] // Ex["line-traced-boundaries-hot-spikes.pdf"]
+]
+
+
+(* ::Section:: *)
 (*Figure: hot regime protrusion*)
 (*(line-traced-boundaries-hot-protrusion.pdf)*)
 
