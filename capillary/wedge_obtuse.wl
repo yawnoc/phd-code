@@ -2563,7 +2563,7 @@ Module[
       , PlotStyle -> BoundaryTracingStyle["NonViable"]
     ],
     {}
-    , ImageSize -> 0.5 * 0.8 ImageSizeTextWidth
+    , ImageSize -> 0.5 * 0.7 ImageSizeTextWidth
   ]
 ] // Ex["wedge_obtuse-viable.pdf"]
 
@@ -2609,7 +2609,7 @@ Module[
   yMaxMore = yMax + more;
   (* Traced boundary starting points (upper branch) *)
   xyStartListWall = Table[XYPolar[r, alpha], {r, Subdivide[rMaxWall, 12]}];
-  xyStartListSymmetry = Table[{x, 0}, {x, {0.24, 0.45, 0.65, 0.82} xCritical}];
+  xyStartListSymmetry = Table[{x, 0}, {x, {0.27, 0.52, 0.78} xCritical}];
   xyStartList = Join[xyStartListWall, xyStartListSymmetry];
   (* Traced boundaries (upper branch) *)
   sMax = RPolar[xMax - xMin, 2 yMax];
@@ -2664,7 +2664,7 @@ Module[
       , {xy, xyTracedList}
     ],
     {}
-    , ImageSize -> 0.5 * 0.8 ImageSizeTextWidth
+    , ImageSize -> 0.5 * 0.7 ImageSizeTextWidth
   ]
 ] // Ex["wedge_obtuse-traced-boundaries.pdf"]
 
