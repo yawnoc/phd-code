@@ -1958,6 +1958,7 @@ Module[
   plot = Show[
     EmptyFrame[{xMin, xMax}, {-yMax, yMax}
       , Frame -> None
+      , PlotRangePadding -> {Automatic, None}
     ],
     (* Contours *)
     Table[
@@ -2014,7 +2015,7 @@ Module[
       Text[
         "ordinary",
         xyOrdinary,
-        {-1.4, textVerticalShift}
+        {-1.35, textVerticalShift}
       ] // textStyle,
       {}
     },
@@ -2042,9 +2043,9 @@ Module[
         , Spacings -> {0, {-1.5, -1.5, -1.4}}
       ]
     }
-    , ItemAspectRatio -> 2.2
+    , ItemAspectRatio -> 1.7
     , ImageSize -> 0.65 ImageSizeTextWidth
-    , Spacings -> {0, 0}
+    , Spacings -> {-0.1 ImageSizeTextWidth, 0}
   ]
 ] // Ex["wedge_acute-terminal-points.pdf"]
 
