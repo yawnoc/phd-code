@@ -800,11 +800,12 @@ Module[
   (* Text style *)
   textStyle = Style[#, LabelSize["Point"]] & @* LaTeXStyle;
   textStyleBracket = Style[#, LabelSize["PointBracket"]] &;
-  textVerticalShift = -0.25;
+  textVerticalShift = -0.23;
   (* Plot *)
   plot = Show[
     EmptyFrame[{xMin, xMax}, {-yMax, yMax}
       , Frame -> None
+      , PlotRangePadding -> {{Scaled[0.05], Scaled[0.04]}, None}
     ],
     (* Contours *)
     Table[
@@ -848,7 +849,7 @@ Module[
       Text[
         "critical",
         {x0, 0},
-        {-1.45, textVerticalShift}
+        {-1.42, textVerticalShift}
       ] // textStyle,
       {}
     },
@@ -861,7 +862,7 @@ Module[
       Text[
         "ordinary",
         xyOrdinary,
-        {-1.45, textVerticalShift}
+        {-1.35, textVerticalShift}
       ] // textStyle,
       {}
     },
@@ -889,9 +890,9 @@ Module[
         , Spacings -> {0, {-1.5, -1.5, -1.4}}
       ]
     }
-    , ItemAspectRatio -> 2.6
+    , ItemAspectRatio -> 1.75
     , ImageSize -> 0.63 ImageSizeTextWidth
-    , Spacings -> {0.08 ImageSizeTextWidth, 0}
+    , Spacings -> {-0.1 ImageSizeTextWidth, 0}
   ]
 ] // Ex["helmholtz-terminal-points.pdf"]
 
