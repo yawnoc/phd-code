@@ -2383,7 +2383,7 @@ Module[
     yMax = xMax Tan[alpha];
     rMax = RPolar[xMax, yMax];
     (* Plot range but more *)
-    more = 0.05;
+    more = 0.1;
     xMaxMore = xMax + more;
     yMaxMore = yMax + more;
     (* Derivative list for boundary tracing *)
@@ -2479,7 +2479,7 @@ Module[
     (* Export *)
     caseName = AssociationThread[gpdTracingValues, caseNameList][gpdTracing];
     Show[plot
-      , ImageSize -> 0.45 ImageSizeTextWidth
+      , ImageSize -> 0.4 ImageSizeTextWidth
     ] // Ex @ FString["wedge_acute-traced-boundaries-different-angle-{caseName}.pdf"]
     , {gpdTracing, gpdTracingValues}
   ]
