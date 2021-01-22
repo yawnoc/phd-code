@@ -2988,7 +2988,7 @@ Module[
         , {xy, xyTracedList}
       ],
       {}
-      , ImageSize -> 0.5 * 0.8 ImageSizeTextWidth
+      , ImageSize -> 0.45 * 0.65 ImageSizeTextWidth
     ] // Ex @ FString["wedge_obtuse-traced-boundaries-{case}-branch.pdf"]
     , {case, branchCases}
   ]
