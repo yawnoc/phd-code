@@ -437,7 +437,7 @@ Module[
           Italicise["y"]
         }
       , FrameTicksStyle -> LabelSize["Tick"]
-      , ImageSize -> 0.5 * 0.8 ImageSizeTextWidth
+      , ImageSize -> 0.5 * 0.7 ImageSizeTextWidth
       , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
     ],
     (* Wedge walls *)
@@ -480,7 +480,7 @@ Module[
   xMaxMore = xMax + more;
   yMaxMore = yMax + more;
   (* Traced boundaries (upper branch) *)
-  xyStartList = Table[XYPolar[r, -alpha], {r, Subdivide[rMax, 12]}];
+  xyStartList = Table[XYPolar[r, -alpha], {r, Subdivide[rMax, 10]}];
   xyTracedList =
     Table[
       xyTraced[xyStart, 0, {0, 2 rMax}, -1]
@@ -509,7 +509,7 @@ Module[
           Italicise["y"]
         }
       , FrameTicksStyle -> LabelSize["Tick"]
-      , ImageSize -> 0.5 * 0.8 ImageSizeTextWidth
+      , ImageSize -> 0.5 * 0.7 ImageSizeTextWidth
       , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
     ],
     (* Wedge walls *)
