@@ -947,7 +947,7 @@ Module[
   Show[
     EmptyFrame[{0, xMax}, {-yMax, yMax}
       , Frame -> None
-      , ImageSize -> 0.45 * 0.6 ImageSizeTextWidth
+      , ImageSize -> 0.45 * 0.55 ImageSizeTextWidth
       , PlotRangePadding -> {{0.04, Automatic}, Automatic}
     ],
     (* Wedge walls *)
@@ -1035,7 +1035,7 @@ Module[
   Show[
     EmptyFrame[{0, xMax}, {-yMax, yMax}
       , Frame -> None
-      , ImageSize -> 0.45 * 0.6 ImageSizeTextWidth
+      , ImageSize -> 0.45 * 0.55 ImageSizeTextWidth
       , PlotRangePadding -> {{0.04, Automatic}, Automatic}
     ],
     (* Wedge walls *)
