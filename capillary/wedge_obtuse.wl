@@ -3774,7 +3774,7 @@ Module[
       ]
     },
     {}
-    , ImageSize -> 0.4 ImageSizeTextWidth
+    , ImageSize -> 0.38 ImageSizeTextWidth
   ]
 ] // Ex["wedge_obtuse-pseudo-roundings-offset.pdf"]
 
