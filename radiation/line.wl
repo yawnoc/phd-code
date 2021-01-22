@@ -706,6 +706,25 @@ Module[
 
 
 (* ::Subsection:: *)
+(*Near x = 1 (upper branch)*)
+
+
+With[{a = \[FormalCapitalA], r = \[FormalR]},
+  Module[{phiDerivativeAsymptotic, phiAsymptotic},
+    phiDerivativeAsymptotic = Series[phiTraDer[a][r], {r, 1, 4}];
+    phiAsymptotic = Integrate[phiDerivativeAsymptotic, r];
+    {
+      {"d\[Phi]/dr", phiDerivativeAsymptotic},
+      {"\[Phi]", phiAsymptotic},
+      Nothing
+    }
+      // FullSimplify[#, a > 0] &
+      // TableForm
+  ]
+] // Ex["line-traced-r-near-1.pdf"]
+
+
+(* ::Subsection:: *)
 (*Curvature and radius of inflection*)
 
 
