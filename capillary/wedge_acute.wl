@@ -1495,7 +1495,7 @@ Module[
     and Mathematica complains about Indeterminate values.
     So the wall boundaries are drawn manually at the end.
   *)
-  rStartList = Subdivide[rMax, 12] // Rest;
+  rStartList = Subdivide[rMax, 10] // Rest;
   xyStartList = Table[XYPolar[r, -alpha], {r, rStartList}];
     (* Append a starting point along the terminal curve *)
     xStartTerminal = Way[xCritical, xMax, 0.6];
@@ -1575,7 +1575,7 @@ Module[
   (* Export *)
   {
     Show[plot
-      , ImageSize -> 0.45 ImageSizeTextWidth
+      , ImageSize -> 0.4 ImageSizeTextWidth
     ] // Ex["wedge_acute-traced-boundaries.pdf"]
     ,
     GraphicsColumn[Join[legendCurves, legendRegions]
