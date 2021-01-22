@@ -1493,7 +1493,7 @@ Module[{textStyle},
 Module[
   {
     aStep, aValues, aMin,
-    rMax,
+    xMax, yMin, yMax,
     plotList,
     rMaxNon,
     textStyle, arrowStyle,
@@ -1507,16 +1507,19 @@ Module[
   aValues = aNat + aStep * Range[-1, 1];
   aMin = Min[aValues];
   (* Plot range *)
-  rMax = 1.05 rSharp[aMin];
+  xMax = 1.25 rSharp[aMin];
+  yMin = -rSharp[aMin];
+  yMax = 1.2 rSharp[aMin];
   (* List of plots *)
   plotList =
     Table[
       rMaxNon = If[a < aNat, rSharp[a], rNat];
       Show[
-        EmptyFrame[{-rMax, rMax}, {-rMax, 1.3 rMax}
+        EmptyFrame[{-xMax, xMax}, {yMin, yMax}
           , Frame -> None
           , FrameLabel -> None
           , FrameTicks -> None
+          , PlotRangePadding -> {Automatic, {None, Automatic}}
         ],
         Which[
           (* Hot regime *)
@@ -1583,7 +1586,7 @@ Module[
         ]
       },
       (* A == A_nat *)
-      xGraphicsANat = 0.51;
+      xGraphicsANat = 0.515;
       Graphics @ {arrowStyle,
         Line @ {
           {xGraphicsANat, 0},
@@ -1657,7 +1660,7 @@ Module[
       // Ex["line-viable-legend.pdf"]
     ,
     Nothing
-  } 
+  }
 ]
 
 
