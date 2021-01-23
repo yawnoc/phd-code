@@ -1875,3 +1875,160 @@ Module[
     , ImageSize -> 0.45 ImageSizeTextWidth
   ] // Ex["wedge_small-candidates.pdf"]
 ]
+
+
+(* ::Section:: *)
+(*Figure: small regime candidate boundaries grouped with offset applied (wedge_small-small-candidates-offset-alpha-*_degree)*)
+
+
+(* (This is slow (~10 sec).) *)
+Module[
+  {
+    apdValues, gpdTracing, gammaTracing,
+    alpha, gpdValues,
+    gamma,
+    hSmall, tSmallPolar,
+    derivativeList, pTilde, qTilde, fTilde, phiTilde,
+    rCritical, d, xCriticalOffset,
+    sMax, rphiTraced,
+    plotRangeFactor, xMax, yMax, xMaxMore,
+    plot, rphi,
+    xCriticalOffsetMinGamma, xCriticalOffsetMaxGamma,
+    arrowDirection, xArrowBase, xArrowTip,
+    xGammaLabel, gammaLabelXShift,
+    dummyForTrailingCommas
+  },
+  (* Prescribed angles *)
+  apdValues = {30, 45, 60};
+  gpdTracing = 25;
+  gammaTracing = gpdTracing * Degree;
+  (* For various wedge half-angles: *)
+  Table[
+    alpha = apd * Degree;
+    (* Known solution angles *)
+    gpdValues = Range[5, gpdTracing, 5];
+    Which[
+      apd == apdValues[[1]],
+        gpdValues = Drop[gpdValues, {2, 3}];
+      ,
+      apd == apdValues[[2]],
+        gpdValues = Drop[gpdValues, {2, 3}];
+      ,
+      apd == apdValues[[3]],
+        gpdValues = Part[gpdValues, {1, -1}];
+    ];
+    (* For various known solution angles: *)
+    Table[
+      gamma = gpd * Degree;
+      (* Import numerical solutions *)
+      hSmall[gpd] =
+        FString["solution/wedge_small-solution-apd-{apd}-gpd-{gpd}.txt"]
+          // Import // Uncompress // First;
+      tSmallPolar[gpd][r_, phi_] := hSmall[gpd][r, phi] / r;
+      (* Derivative list for boundary tracing *)
+      derivativeList = {pTilde, qTilde, fTilde, phiTilde} =
+        tracingDerivativeList[hSmall[gpd], gammaTracing];
+      (* Critical terminal point (x_0, 0) *)
+      rCritical[gpd] = r0[pTilde, gammaTracing];
+      (* Offset distance *)
+      d[gpd] = DHalfPlane[gamma, gammaTracing];
+      (* Offset critical terminal point (x'_0, 0) *)
+      xCriticalOffset[gpd] = rCritical[gpd] - d[gpd] / Sin[alpha];
+      (* Compute candidate boundary *)
+      sMax = 2; (* Probably enough, NOT a proven upper bound *)
+      rphiTraced[gpd] =
+        Quiet[
+          tracedBoundary[derivativeList][
+            {rCritical[gpd], 0}, 0, {0, sMax}
+            , -1, 1
+            , -Infinity
+          ]
+          , {InterpolatingFunction::femdmval, NDSolveValue::nlnum}
+        ];
+      , {gpd, gpdValues}
+    ];
+    (* Plot range *)
+    plotRangeFactor =
+      Which[
+        apd == apdValues[[1]], 1.85,
+        apd == apdValues[[2]], 1.7,
+        apd == apdValues[[3]], 2.5
+      ];
+    xMax = plotRangeFactor * Max[xCriticalOffset /@ gpdValues];
+    yMax = xMax;
+    xMaxMore = 1.1 xMax;
+    (* Make plot *)
+    plot = Show[
+      EmptyFrame[{0, xMax}, {-yMax, yMax}
+        , FrameLabel -> {
+            Superscript[
+              Italicise["x"],
+              Style["\[NegativeVeryThinSpace]\[Prime]", Magnification -> 1.3]
+            ] // Margined @ {{0, 0}, {0, -15}},
+            Italicise["y"]
+          }
+        , FrameTicksStyle -> LabelSize["Tick"]
+        , ImageSize -> 0.31 ImageSizeTextWidth
+        , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+      ],
+      (* Wedge walls *)
+      Graphics @ {BoundaryTracingStyle["Wall"],
+        Line @ {
+          xMaxMore {1, Tan[alpha]},
+          {0, 0},
+          xMaxMore {1, -Tan[alpha]}
+        }
+      },
+      (* Traced boundaries *)
+      Table[
+        rphi = rphiTraced[gpd];
+        ParametricPlot[
+          Subtract[
+            XYPolar @@ EvaluatePair[rphi, Abs[s], Sign[s]],
+            {d[gpd] / Sin[alpha], 0}
+          ] // Evaluate
+          , {s, -DomainEnd[rphi], DomainEnd[rphi]}
+          , PlotPoints -> 4
+          , PlotStyle -> Directive[
+              BoundaryTracingStyle["Traced"],
+              GeneralStyle["DefaultThick"]
+            ]
+        ]
+        , {gpd, gpdValues}
+      ],
+      (* Solution gamma arrow *)
+      xCriticalOffsetMinGamma = xCriticalOffset[Min @ gpdValues];
+      xCriticalOffsetMaxGamma = xCriticalOffset[Max @ gpdValues];
+      arrowDirection = Sign[xCriticalOffsetMaxGamma - xCriticalOffsetMinGamma];
+      xArrowBase = xCriticalOffsetMinGamma - 0.1 xMax * arrowDirection;
+      xArrowTip = xCriticalOffsetMaxGamma + 0.2 xMax * arrowDirection;
+      Graphics @ {
+        GeneralStyle["Translucent"], GeneralStyle["Thick"],
+        Arrowheads[Medium],
+        Arrow @ {{xArrowBase, 0}, {xArrowTip, 0}}
+      },
+      (* Solution gamma label *)
+      xGammaLabel = Max[xArrowBase, xArrowTip];
+      gammaLabelXShift = If[xArrowBase < xArrowTip, -1.6, -2.5];
+      Graphics @ {
+        Text[
+          "\[Gamma]"
+            // LaTeXStyle
+            // Style[#, LabelSize["Label"]] &
+          , {xGammaLabel, 0}
+          , {gammaLabelXShift, -0.2}
+        ]
+      },
+      {}
+    ];
+    (* Export plot *)
+    {
+      {"apd", apd},
+      {"gpdValues", gpdValues},
+      plot // Ex @ FString[
+        "wedge_small-small-candidates-offset-alpha-{apd}_degree.pdf"
+      ]
+    }
+    , {apd, apdValues}
+  ] // Column
+] // Ex["wedge_small-small-candidates-offset-log.pdf"]
