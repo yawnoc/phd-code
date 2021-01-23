@@ -2101,6 +2101,3 @@ Module[
     , {apd, apdValues}
   ] // Column
 ] // Ex["wedge_small-small-candidates-offset-log.pdf"]
-
-
-
