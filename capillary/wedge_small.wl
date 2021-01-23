@@ -1403,3 +1403,187 @@ Module[
   ]
     // Ex["wedge_small-traced-boundaries-hyperbolic-rounding.pdf"]
 ]
+
+
+(* ::Section:: *)
+(*Figure: different contact angle offset, top view (wedge_small-different-angle-offset-top)*)
+
+
+Module[
+  {
+    apd, gpd, gpdTracing,
+    alpha, gamma, gammaTracing,
+    hSmall, tSmallPolar,
+    derivativeList,
+    pTilde, qTilde, fTilde, phiTilde,
+    rCritical,
+    rEnd, phiEnd, sMax,
+    rphi, sEnd,
+    xEnd, yEnd,
+    d, xArrowBase, yArrowBase,
+    xMaxWall, yMaxWall,
+    xMaxOffset, yMaxOffset,
+    arrowLength,
+    orthogonalityMarkerLength, orthogonalityMarkerStyle,
+    wallThicknessCorrection,
+    textStyleLabel, textStylePoint, textStylePointBracket,
+    plot,
+    dummyForTrailingCommas
+  },
+  (* Angular parameters *)
+  {apd, gpd, gpdTracing} = {30, 45, 55};
+  {alpha, gamma, gammaTracing} = {apd, gpd, gpdTracing} Degree;
+  (* Import wedge_small solution H == H (r, \[Phi]) *)
+  hSmall =
+    FString["solution/wedge_small-solution-apd-{apd}-gpd-{gpd}.txt"]
+      // Import // Uncompress // First;
+  tSmallPolar[r_, phi_] := hSmall[r, phi] / r;
+  (* Derivative list for boundary tracing *)
+  derivativeList = {pTilde, qTilde, fTilde, phiTilde} =
+    tracingDerivativeList[hSmall, gammaTracing];
+  (* Critical terminal point r_0 *)
+  rCritical = r0[pTilde, gammaTracing];
+  (* Ending r for traced boundary *)
+  rEnd = 2.5 rCritical;
+  sMax = 2 rEnd;
+  (* Traced boundary through (x_0, 0) (upper branch) *)
+  rphi =
+    Quiet[
+      tracedBoundary[derivativeList][
+        {rCritical, 0}, 0, {0, sMax}
+        , -1, 1
+        , -Infinity, Function[{r, phi}, r > rEnd]
+      ]
+      , {InterpolatingFunction::femdmval, NDSolveValue::nlnum}
+    ];
+  sEnd = DomainEnd[rphi];
+  {rEnd, phiEnd} = EvaluatePair[rphi, sEnd];
+  {xEnd, yEnd} = XYPolar[rEnd, phiEnd];
+  (* Half-plane offset distance *)
+  d = DHalfPlane[gamma, gammaTracing];
+  (* Base of wall coordinate (xi) arrow *)
+  xArrowBase = xEnd + d Cos[alpha + Pi/2];
+  yArrowBase = xArrowBase Tan[alpha];
+  (* End point of wall to be shown *)
+  {xMaxWall, yMaxWall} = 1.15 {xArrowBase, yArrowBase};
+  (* End point of offset wedge to be shown *)
+  {xMaxOffset, yMaxOffset} = {xMaxWall, yMaxWall} + XYPolar[d, alpha - Pi/2];
+  (* Etc. *)
+  arrowLength = 5 d;
+  orthogonalityMarkerLength = 0.5 d;
+  orthogonalityMarkerStyle = Directive[EdgeForm[Black], FaceForm[None]];
+  wallThicknessCorrection = -0.1;
+  (* Text style *)
+  textStyleLabel = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  textStylePoint = Style[#, LabelSize["Point"]] & @* LaTeXStyle;
+  textStylePointBracket = Style[#, LabelSize["PointBracket"]] &;
+  (* Plot *)
+  plot =
+    Show[
+      (* Coordinate arrow *)
+      Graphics @ {
+        Directive[GeneralStyle["Thick"], Arrowheads[0.1]],
+        Arrow @ {
+          {xArrowBase, yArrowBase},
+          {xArrowBase, yArrowBase} + XYPolar[arrowLength, alpha - Pi/2]
+        },
+        Text[
+          "\[Xi]" // textStyleLabel
+          , {xArrowBase, yArrowBase} + XYPolar[arrowLength, alpha - Pi/2]
+          , {-2.5, -0.4}
+        ],
+        {}
+      },
+      Graphics @ {orthogonalityMarkerStyle,
+        Rectangle[
+          {xArrowBase, yArrowBase},
+          {xArrowBase, yArrowBase}
+            + orthogonalityMarkerLength {1 + wallThicknessCorrection, -1}
+        ] // Rotate[#, -(Pi/2 - alpha), {xArrowBase, yArrowBase}] &
+      },
+      (* Wedge walls *)
+      Graphics @ {BoundaryTracingStyle["Wall"],
+        Line @ {
+          {xMaxWall, +yMaxWall},
+          {0, 0},
+          {xMaxWall, -yMaxWall}
+        }
+      },
+      Graphics @ {
+        Text[
+          "\[Xi]" == SeparatedRow[]["\[VeryThinSpace]", 0] // textStyleLabel
+          , {xMaxWall, +yMaxWall}
+          , {-1.6, -0.4}
+          , XYPolar[1, alpha]
+        ]
+      },
+      Graphics @ {
+        Text[
+          "\[Xi]" ==
+            Row @ {
+              Italicise["d"],
+              "(" // textStylePointBracket,
+              "\[NegativeVeryThinSpace]",
+              "\[Gamma]",
+              ",\[ThinSpace]",
+              Subscript["\[Gamma]", Style["\[NegativeVeryThinSpace]\[Bullet]", Magnification -> 1.8]],
+              ")" // textStylePointBracket
+            }
+            // textStyleLabel
+          , {xMaxOffset, +yMaxOffset}
+          , {-1.3, 0.3}
+          , XYPolar[1, alpha]
+        ]
+      },
+      (* Offset wedge *)
+      (* (separate lines to ensure dotting at the corner) *)
+      Graphics @ {BoundaryTracingStyle["Contour"],
+        Line @ {
+          {d / Sin[alpha], 0},
+          {xMaxOffset, +yMaxOffset} * 1.01 (* optical correction *)
+        },
+        Line @ {
+          {d / Sin[alpha], 0},
+          {xMaxOffset, -yMaxOffset}
+        },
+        {}
+      },
+      (* Traced boundaries *)
+      ParametricPlot[
+        XYPolar @@ EvaluatePair[rphi, s]
+          // IncludeYReflection
+          // Evaluate
+        , {s, 0, 0.98 sEnd}
+        , PlotPoints -> 2
+        , PlotStyle -> BoundaryTracingStyle["Traced"]
+      ],
+      (* Critical terminal point (x_0, 0) *)
+      Graphics @ {
+        GeneralStyle["Point"],
+        Point @ {rCritical, 0}
+      },
+      Graphics @ {
+        Text[
+          Row @ {
+            "(" // textStylePointBracket,
+            "\[NegativeVeryThinSpace]",
+            Subscript[Italicise["x"], 0],
+            ",\[ThinSpace]",
+            0,
+            ")" // textStylePointBracket
+          } // textStylePoint
+          , {rCritical, 0}
+          , {-1.5, -0.2}
+        ],
+        {}
+      },
+      {}
+      , PlotRange -> All
+      , PlotRangePadding -> 0.1
+    ];
+  (* Export *)
+  Show[plot
+    , ImageSize -> 0.5 ImageSizeTextWidth
+  ]
+    // Ex["wedge_small-different-angle-offset-top.pdf"]
+]
