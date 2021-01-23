@@ -1293,7 +1293,7 @@ Module[
   ];
   (* Export *)
   Show[plot
-    , ImageSize -> 0.45 * 0.85 ImageSizeTextWidth
+    , ImageSize -> 0.45 * 0.75 ImageSizeTextWidth
   ]
     // Ex["wedge_small-traced-boundaries-hyperbolic-both.pdf"]
 ]
@@ -1399,7 +1399,7 @@ Module[
   ];
   (* Export *)
   Show[plot
-    , ImageSize -> 0.45 * 0.85 ImageSizeTextWidth
+    , ImageSize -> 0.45 * 0.75 ImageSizeTextWidth
   ]
     // Ex["wedge_small-traced-boundaries-hyperbolic-rounding.pdf"]
 ]
