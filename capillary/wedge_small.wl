@@ -1892,10 +1892,17 @@ Module[
     rCritical, d, xCriticalOffset,
     sMax, rphiTraced,
     plotRangeFactor, xMax, yMax, xMaxMore,
-    plot, rphi,
+    graphicsWedgeWalls, rphi, plotTracedBoundaries,
+    mainPlot,
     xCriticalOffsetMinGamma, xCriticalOffsetMaxGamma,
     arrowDirection, xArrowBase, xArrowTip,
     xGammaLabel, gammaLabelXShift,
+    xyFun, sBulging, xBulging, yBulging,
+    deltaXInset, deltaYInset,
+    xMinInset, xMaxInset, yMinInset, yMaxInset,
+    insetScaledCoordinates,
+    insetRectangleStyle, insetRectangle,
+    insetPlot, combinedPlot, plot,
     dummyForTrailingCommas
   },
   (* Prescribed angles *)
@@ -1957,29 +1964,16 @@ Module[
     xMax = plotRangeFactor * Max[xCriticalOffset /@ gpdValues];
     yMax = xMax;
     xMaxMore = 1.1 xMax;
-    (* Make plot *)
-    plot = Show[
-      EmptyFrame[{0, xMax}, {-yMax, yMax}
-        , FrameLabel -> {
-            Superscript[
-              Italicise["x"],
-              Style["\[NegativeVeryThinSpace]\[Prime]", Magnification -> 1.3]
-            ] // Margined @ {{0, 0}, {0, -15}},
-            Italicise["y"]
-          }
-        , FrameTicksStyle -> LabelSize["Tick"]
-        , ImageSize -> 0.31 ImageSizeTextWidth
-        , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
-      ],
-      (* Wedge walls *)
+    (* Plots re-used for inset *)
+    graphicsWedgeWalls =
       Graphics @ {BoundaryTracingStyle["Wall"],
         Line @ {
           xMaxMore {1, Tan[alpha]},
           {0, 0},
           xMaxMore {1, -Tan[alpha]}
         }
-      },
-      (* Traced boundaries *)
+      };
+    plotTracedBoundaries =
       Table[
         rphi = rphiTraced[gpd];
         ParametricPlot[
@@ -1995,7 +1989,15 @@ Module[
             ]
         ]
         , {gpd, gpdValues}
+      ];
+    (* Make main plot *)
+    mainPlot = Show[
+      EmptyFrame[{0, xMax}, {-yMax, yMax}
       ],
+      (* Wedge walls *)
+      graphicsWedgeWalls,
+      (* Traced boundaries *)
+      plotTracedBoundaries,
       (* Solution gamma arrow *)
       xCriticalOffsetMinGamma = xCriticalOffset[Min @ gpdValues];
       xCriticalOffsetMaxGamma = xCriticalOffset[Max @ gpdValues];
@@ -2021,6 +2023,73 @@ Module[
       },
       {}
     ];
+    (* Make inset to show bulging *)
+    If[apd == apdValues[[3]], combinedPlot = mainPlot,
+      (* Position of bulge *)
+      rphi = rphiTraced[Min @ gpdValues];
+      xyFun =
+        Subtract[
+          XYPolar @@ EvaluatePair[rphi, #],
+          {d[Min @ gpdValues] / Sin[alpha], 0}
+        ] &;
+      sBulging =
+        SeekFirstRootBisection[
+          PhiPolar @@ xyFun[#] - alpha &,
+          {0, 0.6},
+          10
+        ];
+      {xBulging, yBulging} = xyFun[sBulging];
+      (* Inset bounding box size and scaled positioning coordinates *)
+      Which[
+        apd == apdValues[[1]],
+          deltaXInset = deltaYInset = 0.07;
+          insetScaledCoordinates = {0.33, 0.85};
+          ,
+        apd == apdValues[[2]],
+          deltaXInset = deltaYInset = 0.03;
+          insetScaledCoordinates = {0.26, 0.87};
+      ];
+      (* Inset rectangle *)
+      xMinInset = xBulging - deltaXInset;
+      xMaxInset = xBulging + deltaXInset;
+      yMinInset = yBulging - deltaYInset;
+      yMaxInset = yBulging + deltaYInset;
+      insetRectangleStyle = Directive[EdgeForm[Black], FaceForm[None]];
+      insetRectangle = Rectangle[{xMinInset, yMinInset}, {xMaxInset, yMaxInset}];
+      (* Inset *)
+      insetPlot =
+        Show[
+          graphicsWedgeWalls,
+          plotTracedBoundaries,
+          Graphics @ {insetRectangleStyle, insetRectangle},
+          {}
+          , ImageSize -> 0.105 ImageSizeTextWidth
+          , PlotRange -> {{xMinInset, xMaxInset}, {yMinInset, yMaxInset}}
+          , PlotRangePadding -> Scaled[0.01]
+        ];
+      (* Combined *)
+      combinedPlot =
+        Show[
+          mainPlot,
+          Graphics @ {insetRectangleStyle, insetRectangle},
+          {}
+          , Epilog -> {Inset[insetPlot, Scaled[insetScaledCoordinates]]}
+        ];
+    ];
+    (* Final plot (with frame) *)
+    plot =
+      Show[combinedPlot
+        , FrameLabel -> {
+            Superscript[
+              Italicise["x"],
+              Style["\[NegativeVeryThinSpace]\[Prime]", Magnification -> 1.3]
+            ] // Margined @ {{0, 0}, {0, -15}},
+            Italicise["y"]
+          }
+        , FrameTicksStyle -> LabelSize["Tick"]
+        , ImageSize -> 0.31 ImageSizeTextWidth
+        , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+      ];
     (* Export plot *)
     {
       {"apd", apd},
@@ -2032,3 +2101,6 @@ Module[
     , {apd, apdValues}
   ] // Column
 ] // Ex["wedge_small-small-candidates-offset-log.pdf"]
+
+
+
