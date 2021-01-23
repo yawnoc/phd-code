@@ -1742,3 +1742,136 @@ Module[
   ]
     // Ex["wedge_small-different-angle-offset-top.pdf"]
 ]
+
+
+(* ::Section:: *)
+(*Figure: family of candidate boundaries (wedge_small-candidates)*)
+
+
+Module[
+  {
+    apd, gpd,
+    alpha, gamma,
+    hSmall, tSmallPolar,
+    gpdTracingValues,
+    pTildeTemp, xCriticalMin, xCriticalMax,
+    xMax, yMax, rMax,
+    more, xMaxMore,
+    gammaTracing,
+    derivativeList, pTilde, qTilde, fTilde, phiTilde,
+    rCritical,
+    sMax, rphiTraced,
+    rphi,
+    xArrowMin, xArrowMax,
+    dummyForTrailingCommas
+  },
+  (* Angular parameters *)
+  {apd, gpd} = {30, 45};
+  {alpha, gamma} = {apd, gpd} Degree;
+  (* Import wedge_small solution H == H (r, \[Phi]) *)
+  hSmall =
+    FString["solution/wedge_small-solution-apd-{apd}-gpd-{gpd}.txt"]
+      // Import // Uncompress // First;
+  tSmallPolar[r_, phi_] := hSmall[r, phi] / r;
+  (* Tracing contact angles *)
+  gpdTracingValues = Range[gpd, 75, 5];
+  (* Plot range *)
+  pTildeTemp = tracingDerivativeList[hSmall, gamma] // First;
+  xCriticalMin = r0[pTildeTemp, Min[gpdTracingValues] Degree];
+  xCriticalMax = r0[pTildeTemp, Max[gpdTracingValues] Degree];
+  xMax = 1.5 xCriticalMax;
+  yMax = xMax Tan[alpha];
+  rMax = RPolar[xMax, yMax];
+  (* Plot range but more *)
+  more = 0.1;
+  xMaxMore = xMax + more;
+  (* Compute traced boundary candidates *)
+  Table[
+    (* BEGIN Table content *)
+    gammaTracing = gpdTracing * Degree;
+    (* Derivative list for boundary tracing *)
+    derivativeList = {pTilde, qTilde, fTilde, phiTilde} =
+      tracingDerivativeList[hSmall, gammaTracing];
+    (* Critical terminal point x_0 *)
+    rCritical = r0[pTilde, gammaTracing];
+    (* Traced boundary (upper branch) *)
+    sMax = 2 rMax;
+    rphiTraced[gpdTracing] =
+      Quiet[
+        tracedBoundary[derivativeList][
+          {rCritical, 0}, 0, {0, sMax}
+          , -1, 1
+          , -Infinity, Function[{r, phi}, r Cos[phi] > xMaxMore]
+        ]
+        , {InterpolatingFunction::femdmval, NDSolveValue::nlnum}
+      ];
+    (* END Table content *)
+    , {gpdTracing, gpdTracingValues}
+  ];
+  (* Make plot *)
+  Show[
+    EmptyFrame[{0, xMax}, {-yMax, yMax}
+      , FrameLabel -> {
+          Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
+          Italicise["y"]
+        }
+      , FrameTicksStyle -> LabelSize["Tick"]
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+    ],
+    (* Wedge walls *)
+    Graphics @ {BoundaryTracingStyle["Wall"],
+      Line @ {
+        xMaxMore {1, Tan[alpha]},
+        {0, 0},
+        xMaxMore {1, -Tan[alpha]}
+      }
+    },
+    (* Traced boundaries *)
+    Table[
+      rphi = rphiTraced[gpdTracing];
+      ParametricPlot[
+        XYPolar @@ EvaluatePair[rphi, Abs[s], Sign[s]]
+          // Evaluate
+        , {s, -DomainEnd[rphi], DomainEnd[rphi]}
+        , PlotPoints -> 2
+        , PlotStyle -> BoundaryTracingStyle["Traced"]
+      ]
+      , {gpdTracing, gpdTracingValues}
+    ],
+    (* Manually extend gammaTracing == gamma case *)
+    {
+      rphi = rphiTraced[gpd];
+      ParametricPlot[
+        Way[
+          XYPolar @@ EvaluatePair[rphi, DomainEnd[rphi]],
+          xMaxMore {1, Tan[alpha]}
+          , prop
+        ]
+          // IncludeYReflection
+          // Evaluate
+        , {prop, 0, 1}
+        , PlotPoints -> 2
+        , PlotStyle -> BoundaryTracingStyle["Traced"]
+      ]
+    },
+    (* Tracing gamma arrow *)
+    xArrowMin = Way[xCriticalMin, xCriticalMax, -0.13];
+    xArrowMax = Way[xCriticalMin, xCriticalMax, +1.27];
+    Graphics @ {
+      GeneralStyle["Translucent"], GeneralStyle["Thick"],
+      Arrowheads[Medium],
+      Arrow @ {{xArrowMin, 0}, {xArrowMax, 0}}
+    },
+    Graphics @ {
+      Text[
+        Subscript["\[Gamma]", Style["\[NegativeVeryThinSpace]\[Bullet]", Magnification -> 1.8]]
+          // LaTeXStyle
+          // Style[#, LabelSize["Label"]] &
+        , {xArrowMax, 0}
+        , {-1.6, -0.2}
+      ]
+    },
+    {}
+    , ImageSize -> 0.45 ImageSizeTextWidth
+  ] // Ex["wedge_small-candidates.pdf"]
+]
