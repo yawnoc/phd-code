@@ -1406,6 +1406,161 @@ Module[
 
 
 (* ::Section:: *)
+(*Figure: traced boundaries, different contact angle   (wedge_small-traced-boundaries-different-angle-*)*)
+
+
+Module[
+  {
+    apd, gpd,
+    alpha, gamma,
+    hSmall, tSmallPolar,
+    gpdTracingValues, caseNameList,
+    gammaTracing,
+    derivativeList, pTilde, qTilde, fTilde, phiTilde,
+    rCritical,
+    xMax, yMax, rMax,
+    more, xMaxMore, yMaxMore,
+    rStartList, rphiStartList,
+    rphiTracedList,
+    plot,
+    caseName,
+    dummyForTrailingCommas
+  },
+  (* Angular parameters *)
+  {apd, gpd} = {30, 45};
+  {alpha, gamma} = {apd, gpd} Degree;
+  (* Import wedge_small solution H == H (r, \[Phi]) *)
+  hSmall =
+    FString["solution/wedge_small-solution-apd-{apd}-gpd-{gpd}.txt"]
+      // Import // Uncompress // First;
+  tSmallPolar[r_, phi_] := hSmall[r, phi] / r;
+  (* Different tracing contact angle *)
+  gpdTracingValues = {40, 55};
+  caseNameList = {"less", "more"};
+  Table[
+    (* BEGIN Table content *)
+    gammaTracing = gpdTracing * Degree;
+    (* Derivative list for boundary tracing *)
+    derivativeList = {pTilde, qTilde, fTilde, phiTilde} =
+      tracingDerivativeList[hSmall, gammaTracing];
+    (* Critical terminal point r_0 *)
+    rCritical = r0[pTilde, gammaTracing];
+    (* Plot range *)
+    xMax =
+      If[gammaTracing < gamma,
+        2.5 rCritical,
+        2 rCritical
+      ];
+    yMax = xMax Tan[alpha];
+    rMax = RPolar[xMax, yMax];
+    (* Plot range but more *)
+    more = 0.1;
+    xMaxMore = xMax + more;
+    yMaxMore = yMax + more;
+    (* Starting points *)
+    If[
+      gammaTracing < gamma,
+        rStartList = Subdivide[rCritical, 4] // Rest;
+        rphiStartList = Table[{r, -alpha}, {r, rStartList}];
+      ,
+        rStartList = Subdivide[rMax, 7] // Rest;
+        rphiStartList = Join[
+          Table[{r, +alpha}, {r, rStartList[[2 ;; ;; 2]]}],
+          Table[{r, -alpha}, {r, rStartList}],
+          {{10^-6, 0}},
+          {}
+        ];
+    ];
+    (* Traced boundaries (upper branch) *)
+    rphiTracedList =
+      Table[
+        Quiet[
+          tracedBoundary[derivativeList][
+            rphiStart, 0, {0, 2 rMax}
+            , -1, 1
+            , 0, Function[{r, phi}, r Cos[phi] > xMaxMore]
+          ]
+          , {InterpolatingFunction::femdmval, NDSolveValue::nlnum, NDSolveValue::nrnum1}
+        ]
+        , {rphiStart, rphiStartList}
+      ];
+    (* Make plot *)
+    plot =
+      Show[
+        EmptyFrame[{0, xMax}, {-yMax, yMax}
+          , FrameLabel -> {
+              Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
+              Italicise["y"]
+            }
+          , FrameTicksStyle -> LabelSize["Tick"]
+          , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+        ],
+        (* Non-viable domain *)
+        If[
+          gammaTracing < gamma,
+          {
+            RegionPlot[
+               phiTilde @@ RPhiPolar[x, y] < 0
+               , {x, rCritical, xMaxMore}
+               , {y, -yMaxMore, yMaxMore}
+               , BoundaryStyle -> None
+               , PlotPoints -> 5
+               , PlotStyle -> BoundaryTracingStyle["NonViable"]
+             ],
+            ContourPlot[
+               phiTilde @@ RPhiPolar[x, y] == 0
+               , {x, rCritical, yMaxMore}
+               , {y, -yMaxMore, yMaxMore}
+               , ContourLabels -> None
+               , ContourStyle -> BoundaryTracingStyle["Terminal"]
+               , PlotPoints -> 7
+             ]
+           },
+           {
+             RegionPlot[
+               phiTilde @@ RPhiPolar[x, y] < 0
+               , {x, rCritical, xMaxMore}
+               , {y, -yMax, yMax}
+               , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
+               , PlotPoints -> 10
+               , PlotStyle -> BoundaryTracingStyle["NonViable"]
+             ]
+           }
+        ],
+        (* Wedge walls *)
+        Graphics @ {BoundaryTracingStyle["Wall"],
+          Line @ {
+            xMaxMore {1, Tan[alpha]},
+            {0, 0},
+            xMaxMore {1, -Tan[alpha]}
+          }
+        },
+        (* Traced boundaries *)
+        Table[
+          ParametricPlot[
+            XYPolar @@ EvaluatePair[rphi, s]
+              // IncludeYReflection
+              // Evaluate
+            , {s, DomainStart[rphi], DomainEnd[rphi]}
+            , PlotPoints -> 2
+            , PlotStyle -> BoundaryTracingStyle["Traced"]
+          ]
+          , {rphi, rphiTracedList}
+        ],
+        {}
+      ];
+    (* Export *)
+    caseName = AssociationThread[gpdTracingValues, caseNameList][gpdTracing];
+    Show[plot
+      , ImageSize -> 0.4 ImageSizeTextWidth
+    ] // Ex @ FString["wedge_small-traced-boundaries-different-angle-{caseName}.pdf"]
+    (* END Table content *)
+    , {gpdTracing, gpdTracingValues}
+  ]
+]
+
+
+(* ::Section:: *)
 (*Figure: different contact angle offset, top view (wedge_small-different-angle-offset-top)*)
 
 
