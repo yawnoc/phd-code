@@ -2119,7 +2119,11 @@ Module[
     apdValues, gpdTracing, gammaTracing,
     alpha,
       gpdValuesModerate, gpdValuesSmall,
+      xMaxModerate,
+      xCriticalOffsetMinGamma, xCriticalOffsetMaxGamma,
     moderatePlot, smallPlot, plot,
+    arrowDirection, xArrowBase, xArrowTip,
+    xGammaLabel, gammaLabelXShift,
     dummyForTrailingCommas
   },
   (* Definition of x0 from wedge_acute.wl *)
@@ -2181,7 +2185,6 @@ Module[
       (* Maximum arc-length for boundary tracing *)
       sMax = 3; (* Probably enough, NOT a proven upper bound *)
       (* Compute traced boundary candidates *)
-      (* (association from gpd to traced boundary *)
       Table[
         gamma = gpd * Degree;
         (* Critical terminal point x_0 *)
@@ -2201,6 +2204,7 @@ Module[
           ];
         , {gpd, gpdValues}
       ];
+      xCriticalOffsetMaxGamma = xCriticalOffset[Max @ gpdValues];
       (* Plot range *)
       plotRangeFactor =
         Which[
@@ -2209,6 +2213,7 @@ Module[
           apd == apdValues[[3]], 2.2
         ];
       xMax = plotRangeFactor * Max[xCriticalOffset /@ gpdValues];
+      xMaxModerate = xMax;
       yMax = xMax;
       xMaxMore = 1.1 xMax;
       (* Make plot *)
@@ -2299,6 +2304,7 @@ Module[
           ];
         , {gpd, gpdValues}
       ];
+      xCriticalOffsetMinGamma = xCriticalOffset[Min @ gpdValues];
       (* Make plot *)
       smallPlot = Show[
         Table[
@@ -2325,9 +2331,31 @@ Module[
       PART 3: combine and export
       ----------------------------------------------------------------
     *)
+    (* Make plot *)
     plot = Show[
       moderatePlot,
       smallPlot,
+      (* Solution gamma arrow *)
+      arrowDirection = Sign[xCriticalOffsetMaxGamma - xCriticalOffsetMinGamma];
+      xArrowBase = xCriticalOffsetMinGamma - 0.1 xMaxModerate * arrowDirection;
+      xArrowTip = xCriticalOffsetMaxGamma + 0.2 xMaxModerate * arrowDirection;
+      Graphics @ {
+        GeneralStyle["Translucent"], GeneralStyle["Thick"],
+        Arrowheads[Medium],
+        Arrow @ {{xArrowBase, 0}, {xArrowTip, 0}}
+      },
+      (* Solution gamma label *)
+      xGammaLabel = Max[xArrowBase, xArrowTip];
+      gammaLabelXShift = If[xArrowBase < xArrowTip, -1.6, -2.5];
+      Graphics @ {
+        Text[
+          "\[Gamma]"
+            // LaTeXStyle
+            // Style[#, LabelSize["Label"]] &
+          , {xGammaLabel, 0}
+          , {gammaLabelXShift, -0.2}
+        ]
+      },
       {}
       , FrameLabel -> {
           Superscript[
@@ -2340,6 +2368,7 @@ Module[
       , ImageSize -> 0.31 ImageSizeTextWidth
       , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
     ];
+    (* Export *)
     {
       {"apd", apd},
       {"gpdValuesSmall", gpdValuesSmall},
