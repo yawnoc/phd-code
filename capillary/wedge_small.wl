@@ -2101,3 +2101,251 @@ Module[
     , {apd, apdValues}
   ] // Column
 ] // Ex["wedge_small-small-candidates-offset-log.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: moderate regime candidate boundaries grouped with offset applied (wedge_small-moderate-candidates-offset-alpha-*_degree)*)
+
+
+(* (This is slow (~30 sec).) *)
+(*
+  Here we plot the 'small-regime-known-solution boundaries'
+  on top of the 'moderate-regime-known-solution boundaries'
+  in "wedge_acute-candidates-offset-alpha-{apd}_degree.pdf".
+*)
+Module[
+  {
+    x0,
+    apdValues, gpdTracing, gammaTracing,
+    alpha,
+      gpdValuesModerate, gpdValuesSmall,
+    moderatePlot, smallPlot, plot,
+    dummyForTrailingCommas
+  },
+  (* Definition of x0 from wedge_acute.wl *)
+  x0[tSol_, gammaTra_] :=
+    Module[{p, xMax},
+      (* \[PartialD]T/\[PartialD]x *)
+      p = Derivative[1, 0][tSol];
+      (* Find x == x_0 for which -\[PartialD]T/\[PartialD]x == cot(gamma-tilde) *)
+      xMax = 10;
+      SeekRoot[p[#, 0] + Cot[gammaTra] &, {0, xMax}]
+    ];
+  (* Prescribed angles *)
+  apdValues = {30, 45, 60};
+  gpdTracing = 75;
+  gammaTracing = gpdTracing * Degree;
+  (* For various wedge half-angles: *)
+  Table[
+    alpha = apd * Degree;
+    (*
+      ----------------------------------------------------------------
+      PART 1: produce the existing moderate-regime plots (grey)
+      ----------------------------------------------------------------
+    *)
+    Module[
+      {
+        gpdValues,
+        tNumerical,
+        sMax,
+        xyTraced,
+        gamma, xCritical,
+        derList, p, q, grad2, f, vi,
+        d, xCriticalOffset,
+        plotRangeFactor,
+        xMax, yMax, xMaxMore,
+        xy,
+        dummyForTrailingCommasModerate
+      },
+      (* Known solution angles *)
+      gpdValues = Range[90 - apd, gpdTracing, 5];
+      Which[
+        apd == apdValues[[1]],
+          gpdValues = Part[gpdValues, All];
+        ,
+        apd == apdValues[[2]],
+          gpdValues = Part[gpdValues, {1, -1}];
+        ,
+        apd == apdValues[[3]],
+          gpdValues = Part[gpdValues, {1, -4, -2, -1}];
+      ];
+      gpdValuesModerate = gpdValues;
+      (* Import numerical solutions *)
+      Table[
+        tNumerical[gpd] =
+          Import @ FString[
+            "../wedge_acute/solution/wedge_acute-solution-apd-{apd}-gpd-{gpd}.txt"
+          ] // Uncompress // First;
+        , {gpd, gpdValues}
+      ];
+      (* Maximum arc-length for boundary tracing *)
+      sMax = 3; (* Probably enough, NOT a proven upper bound *)
+      (* Compute traced boundary candidates *)
+      (* (association from gpd to traced boundary *)
+      Table[
+        gamma = gpd * Degree;
+        (* Critical terminal point x_0 *)
+        xCritical[gpd] = x0[tNumerical[gpd], gammaTracing];
+        (* Offset critical terminal point x'_0  *)
+        d[gpd] = DHalfPlane[gamma, gammaTracing];
+        xCriticalOffset[gpd] = xCritical[gpd] - d[gpd] / Sin[alpha];
+        (* Derivative list for boundary tracing *)
+        {p, q, grad2, f, vi} = derList =
+          ContactDerivativeList[tNumerical[gpd], gammaTracing];
+        (* Traced boundary (upper branch) *)
+        xyTraced[gpd] =
+          ContactTracedBoundary[derList][
+            {xCritical[gpd], 0}, 0, {0, sMax}
+            , -1, 1
+            , -Infinity
+          ];
+        , {gpd, gpdValues}
+      ];
+      (* Plot range *)
+      plotRangeFactor =
+        Which[
+          apd == apdValues[[1]], 1.8,
+          apd == apdValues[[2]], 2,
+          apd == apdValues[[3]], 2.2
+        ];
+      xMax = plotRangeFactor * Max[xCriticalOffset /@ gpdValues];
+      yMax = xMax;
+      xMaxMore = 1.1 xMax;
+      (* Make plot *)
+      moderatePlot = Show[
+        EmptyFrame[{0, xMax}, {-yMax, yMax}
+        ],
+        (* Wedge walls *)
+        Graphics @ {BoundaryTracingStyle["Wall"],
+          Line @ {
+            xMaxMore {1, Tan[alpha]},
+            {0, 0},
+            xMaxMore {1, -Tan[alpha]}
+          }
+        },
+        (* Traced boundaries *)
+        Table[
+          xy = xyTraced[gpd];
+          ParametricPlot[
+            Evaluate @ Subtract[
+              EvaluatePair[xy, Abs[s], Sign[s]],
+              {d[gpd] / Sin[alpha], 0}
+            ]
+            , {s, -DomainEnd[xy], DomainEnd[xy]}
+            , PlotPoints -> 4
+            , PlotStyle -> BoundaryTracingStyle["Background"]
+          ]
+          , {gpd, gpdValues}
+        ],
+        {}
+      ];
+    ];
+    (*
+      ----------------------------------------------------------------
+      PART 2: produce the new small-regime boundaries (black)
+      ----------------------------------------------------------------
+    *)
+    Module[
+      {
+        gpdValues,
+        gamma,
+        hSmall, tSmallPolar,
+        derivativeList, pTilde, qTilde, fTilde, phiTilde,
+        rCritical, d, xCriticalOffset,
+        sMax, rphiTraced,
+        rphi,
+        dummyForTrailingCommasSmall
+      },
+      (* Known solution angles *)
+      gpdValues = Range[5, 90 - apd, 5];
+      Which[
+        apd == apdValues[[1]],
+          gpdValues = Part[gpdValues, {1, -5, -2, -1}];
+        ,
+        apd == apdValues[[2]],
+          gpdValues = Part[gpdValues, {1, -1}];
+        ,
+        apd == apdValues[[3]],
+          gpdValues = Part[gpdValues, {-1}];
+      ];
+      gpdValuesSmall = gpdValues;
+      (* For various known solution angles: *)
+      Table[
+        gamma = gpd * Degree;
+        (* Import numerical solutions *)
+        hSmall[gpd] =
+          FString["solution/wedge_small-solution-apd-{apd}-gpd-{gpd}.txt"]
+            // Import // Uncompress // First;
+        tSmallPolar[gpd][r_, phi_] := hSmall[gpd][r, phi] / r;
+        (* Derivative list for boundary tracing *)
+        derivativeList = {pTilde, qTilde, fTilde, phiTilde} =
+          tracingDerivativeList[hSmall[gpd], gammaTracing];
+        (* Critical terminal point (x_0, 0) *)
+        rCritical[gpd] = r0[pTilde, gammaTracing];
+        (* Offset distance *)
+        d[gpd] = DHalfPlane[gamma, gammaTracing];
+        (* Offset critical terminal point (x'_0, 0) *)
+        xCriticalOffset[gpd] = rCritical[gpd] - d[gpd] / Sin[alpha];
+        (* Compute candidate boundary *)
+        sMax = 3; (* Probably enough, NOT a proven upper bound *)
+        rphiTraced[gpd] =
+          Quiet[
+            tracedBoundary[derivativeList][
+              {rCritical[gpd], 0}, 0, {0, sMax}
+              , -1, 1
+              , -Infinity
+            ]
+            , {InterpolatingFunction::femdmval, NDSolveValue::nlnum}
+          ];
+        , {gpd, gpdValues}
+      ];
+      (* Make plot *)
+      smallPlot = Show[
+        Table[
+          rphi = rphiTraced[gpd];
+          ParametricPlot[
+            Subtract[
+              XYPolar @@ EvaluatePair[rphi, Abs[s], Sign[s]],
+              {d[gpd] / Sin[alpha], 0}
+            ] // Evaluate
+            , {s, -DomainEnd[rphi], DomainEnd[rphi]}
+            , PlotPoints -> 4
+            , PlotStyle -> Directive @@ {
+                BoundaryTracingStyle["Traced"],
+                GeneralStyle["DefaultThick"],
+                If[apd + gpd == 90, AbsoluteDashing @ {5, 8}, Nothing]
+              }
+          ]
+          , {gpd, gpdValues}
+        ]
+      ];
+    ];
+    (*
+      ----------------------------------------------------------------
+      PART 3: combine and export
+      ----------------------------------------------------------------
+    *)
+    plot = Show[
+      moderatePlot,
+      smallPlot,
+      {}
+      , FrameLabel -> {
+          Superscript[
+            Italicise["x"],
+            Style["\[NegativeVeryThinSpace]\[Prime]", Magnification -> 1.3]
+          ] // Margined @ {{0, 0}, {0, -15}},
+          Italicise["y"]
+        }
+      , FrameTicksStyle -> LabelSize["Tick"]
+      , ImageSize -> 0.31 ImageSizeTextWidth
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+    ];
+    {
+      {"apd", apd},
+      {"gpdValuesSmall", gpdValuesSmall},
+      {"gpdValuesModerate", gpdValuesModerate},
+      plot // Ex @ FString["wedge_small-moderate-candidates-offset-alpha-{apd}_degree.pdf"]
+    }
+    , {apd, apdValues}
+  ] // Column
+] // Ex["wedge_small-moderate-candidates-offset-log.pdf"]
