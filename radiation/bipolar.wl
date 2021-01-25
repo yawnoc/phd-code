@@ -16,6 +16,7 @@ SetDirectory @ ParentDirectory @ NotebookDirectory[];
 << NDSolve`FEM`
 << Conway`
 << Curvilinear`
+<< FigureStyles`
 SetDirectory @ FileNameJoin @ {NotebookDirectory[], "bipolar"}
 
 
@@ -4366,3 +4367,177 @@ Module[{source, tSol, mesh, tExact},
     ]
   ]
 ] // Ex["bipolar-cold_warm-verification-rel_error-2d.png"]
+
+
+(* ::Section:: *)
+(*Figure: bipolar coordinates (bipolar-coordinates)*)
+
+
+Module[
+  {
+    xMax, yMax,
+    textStyleLabel, textStyleContour,
+    uContourText, vContourText, basisVectorText,
+    contourStyle,
+    basisVectorStyle, basisVectorLength,
+    orthogonalityMarkerLength,
+    updValues, uValues, uValuesLessThanPi, vValues,
+    uForLabel, vForLabel, xShiftForLabel, yShiftForLabel,
+    uvBase, xyBase, xyTipU, xyTipV,
+    dummyForTrailingCommas
+  },
+  (* Plot range *)
+  xMax = 2.5;
+  yMax = 1.8;
+  (* Text functions *)
+  textStyleLabel = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  textStyleContour = Style[#, LabelSize["Label"] - 2] & @* LaTeXStyle;
+  uContourText[value_] :=
+    Italicise["u"] == SeparatedRow["VeryThin"][value / Degree, Magnify["\[Degree]", 1.2]]
+      // textStyleContour;
+  vContourText[value_] := Italicise["v"] == value // textStyleContour;
+  basisVectorText[coord_] := Subscript[Embolden["a"], Italicise[coord]] // textStyleLabel;
+  (* Styles *)
+  contourStyle = Directive[Black, AbsoluteThickness[1]];
+  basisVectorStyle = Directive[Thickness[0.008], Arrowheads[0.03]];
+  basisVectorLength = 0.25 xMax;
+  orthogonalityMarkerLength = basisVectorLength / 6.5;
+  (* Make plot *)
+  Show[
+    EmptyAxes[{-xMax, xMax}, {-yMax, yMax}
+      , AspectRatio -> Automatic
+      , AxesStyle -> contourStyle
+      , Ticks -> None
+    ],
+    (* v-contours *)
+    vValues = {0.5, 1, 2};
+    vValues = Flatten @ {-vValues // Reverse, vValues};
+    Graphics @ {contourStyle,
+      Table[
+        {
+          Circle[{Coth[v], 0}, Csch[v] // Abs],
+          uForLabel =
+            Which[
+              v > 1, 55.5,
+              v < -1, 42,
+              True, 63
+            ] Degree;
+          Text[
+            vContourText[v]
+            , XYBipolar[uForLabel, v]
+            , {0, -1}
+            , Sign[-v] AUBipolar[uForLabel, v]
+          ]
+        }
+        , {v, vValues}
+      ],
+      Text[
+        vContourText[0]
+        , XYBipolar[67 Degree, 0]
+        , {0, 0.7}
+        , {0, 1}
+      ],
+      {}
+    },
+    (* u-contours *)
+    updValues = Range[0, 360, 45] // Select[!Divisible[#, 180] &];
+    uValues = updValues * Degree;
+    (* (avoid doubled u-contours) *)
+    uValuesLessThanPi = uValues // Select[# < Pi &];
+    Graphics @ {contourStyle,
+      Table[
+        Circle[{0, Cot[u]}, Csc[u] // Abs]
+        , {u, uValuesLessThanPi}
+      ],
+      (* Labels along y-axis *)
+      Table[
+        vForLabel = 0;
+        xShiftForLabel = If[u == Pi/2, 0.03, -0.105];
+        yShiftForLabel = If[u < Pi, -1, -1.15];
+        Text[
+          uContourText[u]
+          , XYBipolar[u, vForLabel]
+          , {xShiftForLabel, yShiftForLabel}
+          , AVBipolar[u, vForLabel]
+        ]
+        , {u, uValues // Select[90 <= # / Degree <= 270 &]}
+      ],
+      {
+        Text[
+          uContourText[180 Degree]
+          , {0, 0}
+          , {-0.105, -1}
+        ]
+      },
+      (* Labels along x-axis *)
+      {
+        Text[
+          uContourText[0]
+          , XYBipolar[0, 1.32]
+          , {0, -1}
+        ],
+        Text[
+          uContourText[0]
+          , XYBipolar[0, -1.24]
+          , {0, -1}
+        ],
+        {}
+      },
+      (* Labels which need doubling *)
+      Table[
+        xShiftForLabel = If[u > Pi/2, -0.15, -0.1];
+        yShiftForLabel = If[u > Pi/2, -1.2, -1];
+        {
+          vForLabel = 0.68;
+          Text[
+            uContourText[u]
+            , XYBipolar[u, vForLabel]
+            , {xShiftForLabel, yShiftForLabel}
+            , AVBipolar[u, vForLabel]
+          ],
+          vForLabel = 0.73;
+          Text[
+            uContourText[u]
+            , XYBipolar[u, -vForLabel]
+            , {xShiftForLabel, yShiftForLabel}
+            , AVBipolar[u, -vForLabel]
+          ]
+        }
+        , {u, uValues // Select[! 90 <= # / Degree <= 270 &]}
+      ],
+      {}
+    },
+    (* Basis vectors with orthogonality marker *)
+    uvBase = {270 Degree, 0.5};
+    xyBase = XYBipolar @@ uvBase;
+    xyTipU = xyBase + basisVectorLength * AUBipolar @@ uvBase;
+    xyTipV = xyBase + basisVectorLength * AVBipolar @@ uvBase;
+    Graphics @ {
+      Line[orthogonalityMarkerLength {{1, 0}, {1, 1}, {0, 1}}]
+        // Rotate[#, PhiPolar @@ AUBipolar @@ uvBase, {0, 0}] &
+        // Translate[#, xyBase] &
+    },
+    Graphics @ {basisVectorStyle,
+      Arrow @ {xyBase, xyTipU},
+      Text[
+        basisVectorText["u"]
+        , xyTipU
+        , {-0.8, 0.5}
+      ],
+      Arrow @ {xyBase, xyTipV},
+      Text[
+        basisVectorText["v"]
+        , xyTipV
+        , {-1.4, -0.5}
+      ],
+      {}
+    },
+    (* Singularities *)
+    Graphics @ {GeneralStyle["Point"],
+      Point @ {{-1, 0}, {1, 0}}
+    },
+    {}
+    , ImageSize -> 0.87 ImageSizeTextWidth
+    , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+  ]
+] // Ex["bipolar-coordinates.pdf"];
