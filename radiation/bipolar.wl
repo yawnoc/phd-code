@@ -4378,7 +4378,6 @@ Module[
     xMax, yMax,
     textStyleLabel, textStyleContour,
     uContourText, vContourText, basisVectorText,
-    contourStyle,
     basisVectorStyle, basisVectorLength,
     orthogonalityMarkerLength,
     updValues, uValues, uValuesLessThanPi, vValues,
@@ -4398,7 +4397,6 @@ Module[
   vContourText[value_] := Italicise["v"] == value // textStyleContour;
   basisVectorText[coord_] := Subscript[Embolden["a"], Italicise[coord]] // textStyleLabel;
   (* Styles *)
-  contourStyle = Directive[Black, AbsoluteThickness[1]];
   basisVectorStyle = Directive[Thickness[0.008], Arrowheads[0.03]];
   basisVectorLength = 0.25 xMax;
   orthogonalityMarkerLength = basisVectorLength / 6.5;
@@ -4406,13 +4404,12 @@ Module[
   Show[
     EmptyAxes[{-xMax, xMax}, {-yMax, yMax}
       , AspectRatio -> Automatic
-      , AxesStyle -> contourStyle
       , Ticks -> None
     ],
     (* v-contours *)
     vValues = {0.5, 1, 2};
     vValues = Flatten @ {-vValues // Reverse, vValues};
-    Graphics @ {contourStyle,
+    Graphics @ {
       Table[
         {
           Circle[{Coth[v], 0}, Csch[v] // Abs],
@@ -4444,7 +4441,7 @@ Module[
     uValues = updValues * Degree;
     (* (avoid doubled u-contours) *)
     uValuesLessThanPi = uValues // Select[# < Pi &];
-    Graphics @ {contourStyle,
+    Graphics @ {
       Table[
         Circle[{0, Cot[u]}, Csc[u] // Abs]
         , {u, uValuesLessThanPi}
@@ -4533,11 +4530,11 @@ Module[
       {}
     },
     (* Singularities *)
-    Graphics @ {GeneralStyle["Point"],
+    Graphics @ {PointSize[Medium],
       Point @ {{-1, 0}, {1, 0}}
     },
     {}
     , ImageSize -> 0.87 ImageSizeTextWidth
     , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
   ]
-] // Ex["bipolar-coordinates.pdf"];
+] // Ex["bipolar-coordinates.pdf"]
