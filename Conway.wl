@@ -92,6 +92,7 @@ ClearAll["Conway`*`*"];
   NodeLegend,
   NoExtrapolation,
   OffsetCharacterCode,
+  OnePointPerspective,
   ParametricTangent,
   PlotOptions,
   PreciseOptions,
@@ -835,6 +836,62 @@ OffsetCharacterCode[initial_, ""] :=
 
 OffsetCharacterCode[initial_, final_String] :=
   OffsetCharacterCode[initial, First @ ToCharacterCode[final]];
+
+
+(* ::Subsubsection:: *)
+(*OnePointPerspective*)
+
+
+OnePointPerspective::usage = (
+  "OnePointPerspective[d][e, n, r0, v][p]\n"
+  <> "Returns d-dimensional coordinates for one-point perspective for:\n"
+  <> "- Dimension d == 2 (canvas components) or d == 3 (spatial coordinates)\n"
+  <> "- Eye at e in 3D\n"
+  <> "- Canvas plane in 3D with normal n containing point r0\n"
+  <> "- Vertical axis v in 3D\n"
+  <> "- Point p in 3D\n"
+  <> "There are far better ways than the simple implementation here, "
+  <> "but I am not a 3D graphics expert."
+);
+
+
+(*
+  Suppose the point p is projected to the point r in the canvas plane.
+  Then we have
+    n.(r-r0) == 0.
+  The eye e, the point r, and the point p are collinear, so we have
+    r-e == k (p-e)
+    r == e + k (p-e)
+  for some scalar k. Therefore
+    n.(e + k (p-e) - r0) == 0
+    n.(e-r0) + k * n.(p-e) == 0
+    k == n.(r0-e) / n.(p-e)
+    r == e + n.(r0-e) / n.(p-e) * (p-e).
+  Finally we write r in a 2D basis, such that v appears vertical.
+  Now the vertical axis v gets projected to
+    b == r(p==v) - r(p==0),
+  so the horizontal shall be
+    a == b CROSS unit(n).
+  Finally, writing r == x a + y b, we have the components
+    x == r.a / a.a
+    y == r.b / b.b.
+*)
+OnePointPerspective[d : 2 | 3][e_, n_, r0_, v_][p_] :=
+  Module[{rFunction, r, b, a, x, y},
+    (* Projecting function r == r(p) *)
+    rFunction[point_] := e + n.(r0-e) / n.(point-e) * (point-e);
+    (* Projection of actual point *)
+    r = rFunction[p];
+    (* Projection of vertical axis *)
+    b = rFunction[v] - rFunction[0];
+    (* Projection of horizontal axis *)
+    a = Cross[b, Normalize[n]];
+    (* Components in 2D *)
+    x = r.a / a.a;
+    y = r.b / b.b;
+    (* Return *)
+    If[d == 2, {x, y}, r]
+  ];
 
 
 (* ::Subsubsection:: *)

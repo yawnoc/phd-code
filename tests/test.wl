@@ -184,6 +184,57 @@ Module[{points},
 ]
 
 
+(* Perspective test *)
+Module[
+  {
+    points, cube3d,
+    eye, canvasNormal, canvasPoint, vertical,
+    cube3dprojected, cube2d,
+    dummyForTrailingCommas
+  },
+  points = Tuples[{0, 1}, 3] - 1/2;
+  cube3d = {
+    Red, Line @ points[[{2, 4, 8, 6, 2}]],
+    Black,
+      Line @ points[[{1, 2}]],
+      Line @ points[[{3, 4}]],
+      Line @ points[[{5, 6}]],
+      Line @ points[[{7, 8}]],
+    Blue, Line @ points[[{1, 3, 7, 5, 1}]],
+    Nothing
+  };
+  eye = 2 {1, 2, 3};
+  canvasNormal = {1, 2, 3};
+  canvasPoint = {1, 2, 3};
+  vertical = {0, 0, 1};
+  cube3dprojected = cube3d /. {
+    {x_?NumericQ, y_?NumericQ, z_?NumericQ} :>
+      OnePointPerspective[3][eye, canvasNormal, canvasPoint, vertical]
+        @ {x, y, z}
+  };
+  cube2d = cube3d /. {
+    {x_?NumericQ, y_?NumericQ, z_?NumericQ} :>
+      OnePointPerspective[2][eye, canvasNormal, canvasPoint, vertical]
+        @ {x, y, z}
+  };
+  {
+    Show[
+      Graphics3D @ {
+        cube3d,
+        Opacity[0.5], Yellow, Hyperplane[canvasNormal, canvasPoint],
+        cube3dprojected,
+        PointSize[Large], Black, Point @ {eye},
+        {}
+      },
+      {}
+      , Boxed -> False
+      , ViewPoint -> {-1.6, 2, 3}
+    ],
+    Graphics[cube2d]
+  }
+]
+
+
 (* ::Section:: *)
 (*Testing Curvilinear.wl*)
 
