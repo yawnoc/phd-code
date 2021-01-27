@@ -104,3 +104,157 @@ Module[
     , ImageSize -> 0.45 ImageSizeTextWidth
   ]
 ] // Ex["radiation-conduction-bvp.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: self-incident-radiation-elements (self-incident-radiation-elements)*)
+
+
+Module[
+  {
+    r, n, rStar, nStar, dStar, theta, thetaStar,
+    normalVectorLength, elementWidth,
+    angleMarkerRadius, angleMarkerRadiusStar,
+    nTip, nStarTip,
+    zVector, elementGeneric, element, elementStar,
+    sweep,
+    centre, eye, canvasNormal, canvasPoint,
+    project,
+    elementStyle, positionStyle,
+    normalVectorStyle, displacementVectorStyle, angleMarkerStyle,
+    starred, textStyle,
+    dummyForTrailingCommas
+  },
+  (* Coordinates *)
+  r = {-1, 0, 0};
+  n = {0, 0, 1} // Normalize;
+  rStar = {0.7, 0, 0.3};
+  nStar = {-0.4, -0.2, 0.7} // Normalize;
+  dStar = r - rStar;
+  theta = ArcCos[n . (-dStar) / Norm[dStar]];
+  thetaStar = ArcCos[nStar . dStar / Norm[dStar]];
+  (* Plotting constants *)
+  normalVectorLength = 0.8;
+  elementWidth = 0.35;
+  angleMarkerRadius = 0.2 normalVectorLength;
+  angleMarkerRadiusStar = 0.25 normalVectorLength;
+  nTip = r + normalVectorLength * n;
+  nStarTip = rStar + normalVectorLength * nStar;
+  (* Element coordinates *)
+  zVector = {0, 0, 1};
+  elementGeneric = elementWidth/2 {{-1, -1, 0}, {1, -1, 0}, {1, 1, 0}, {-1, 1, 0}};
+  element = (elementGeneric
+    // RotationTransform[{zVector, n}]
+    // TranslationTransform[r]
+  );
+  elementStar = (elementGeneric
+    // RotationTransform[{zVector, nStar}]
+    // TranslationTransform[rStar]
+  );
+  (* Sweeping transformation (for angle markers) *)
+  sweep[origin_, angle_][startVector_, endVector_][vector_] := (
+    vector
+      // RotationTransform[angle, {startVector, endVector}, {0, 0, 0}]
+      // TranslationTransform[origin]
+  );
+  (* Perspective geometry *)
+  centre = Way[r, rStar];
+  canvasNormal = {0.15, -1, 0.4};
+  canvasPoint = centre + canvasNormal;
+  eye = centre + 10 canvasNormal;
+  project[point_] :=
+    OnePointPerspective[2][eye, canvasNormal, canvasPoint, zVector][point];
+  (* Plot styles *)
+  elementStyle = Directive[FaceForm[None], EdgeForm[Black]];
+  positionStyle = PointSize[Medium];
+  normalVectorStyle = Directive[GeneralStyle["Thick"], Arrowheads[0.06]];
+  displacementVectorStyle = Arrowheads @ {{0.05, 0.55}};
+  angleMarkerStyle = Directive[Black, Thickness[Small]];
+  (* Text functions *)
+  starred[expr_] := Superscript[expr, "\[NegativeVeryThinSpace]\[FivePointedStar]"];
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  (* Make scene *)
+  Show[
+    (* Element dA *)
+    Graphics @ {
+      positionStyle, Point[project /@ {r}],
+        Text[Embolden["r"] // textStyle
+          , project[r]
+          , {2.7, -0.23}
+        ],
+      elementStyle, Polygon[project /@ element],
+        Text[SeparatedRow[""] @ {"d", Italicise["A"]} // textStyle
+          , project[r]
+          , {0.5, 1.6}
+        ],
+      normalVectorStyle, Arrow[project /@ {r, nTip}],
+        Text[Embolden["n"] // textStyle
+          , project[nTip]
+          , {-2.5, 0}
+        ],
+      {}
+    },
+    (* Angle theta *)
+    ParametricPlot[
+      sweep[r, ang][n, -dStar][angleMarkerRadius * n]
+        // project
+        // Evaluate
+      , {ang, 0, theta}
+      , PlotPoints -> 2
+      , PlotStyle -> angleMarkerStyle
+    ],
+    Graphics @ {
+      Text["\[Theta]" // textStyle
+        , sweep[r, theta/2][n, -dStar][angleMarkerRadius * n] // project
+        , {-1.5, -0.6}
+      ]
+    },
+    (* Element dA-star *)
+    Graphics @ {
+      positionStyle, Point[project /@ {rStar}],
+        Text[
+          Embolden["r"] // starred // textStyle
+          , project[rStar]
+          , {-1.6, -0.7}
+        ],
+      elementStyle, Polygon[project /@ elementStar],
+        Text[SeparatedRow[""] @ {"d", Italicise["A"] // starred} // textStyle
+          , project[rStar]
+          , {-0.5, 1.8}
+        ],
+      normalVectorStyle, Arrow[project /@ {rStar, nStarTip}],
+        Text[Embolden["n"] // starred // textStyle
+          , project[nStarTip]
+          , {-1, -1}
+        ],
+      {}
+    },
+    (* Angle theta-star *)
+    ParametricPlot[
+      sweep[rStar, ang][nStar, dStar][angleMarkerRadiusStar * nStar]
+        // project
+        // Evaluate
+      , {ang, 0, thetaStar}
+      , PlotPoints -> 2
+      , PlotStyle -> angleMarkerStyle
+    ],
+    Graphics @ {
+      Text["\[Theta]" // starred // textStyle
+        , sweep[rStar, theta/2][nStar, dStar][angleMarkerRadiusStar * nStar] // project
+        , {0.9, -0.3}
+      ]
+    },
+    (* Displacement d-star *)
+    Graphics @ {
+      displacementVectorStyle, Arrow[project /@ {rStar, r}],
+        Text[
+          Embolden["d"] // starred // textStyle
+          , project @ Way[rStar, r]
+          , {-0.3, 1.3}
+        ],
+      {}
+    },
+    {}
+    , ImageSize -> 0.5 ImageSizeTextWidth
+  ]
+] // Ex["self-incident-radiation-elements.pdf"]
