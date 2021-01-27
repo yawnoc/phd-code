@@ -820,7 +820,7 @@ Module[
  {xTerm,
   xMin, xMax, yMin, yMax,
   plotPointsPatched,
-  textStyle, textStyleLabel,
+  textStyle, textStyleLabel, textStyleBracket,
   plotList,
   n, cUpperList, cLowerList, xCornerList, xIntList,
   iRangeList, xBathList,
@@ -841,6 +841,7 @@ Module[
   (* Styles *)
   textStyle = Style[#, LabelSize["Straight"]] & @* LaTeXStyle;
   textStyleLabel = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  textStyleBracket = Style[#, LabelSize["PointBracket"]] &;
   (* Build a plot for each list of corners *)
   plotList = Table[
     (* *)
@@ -916,7 +917,11 @@ Module[
       (* Domain labels *)
       domainLabel[str_][scaledX_, scaledY_] :=
         Text[
-          "(" <> str <> ")" // textStyleLabel
+          Row @ {
+            "(" // textStyleBracket,
+            str,
+            ")" // textStyleBracket,
+          } // textStyleLabel
           , {Way[xMin, xMax, scaledX], scaledY * yMax}
         ];
       Graphics @ {
@@ -928,8 +933,8 @@ Module[
           id == patchedIdList[[3]],
             {
               domainLabel["c"][0.3, 0.75],
-              domainLabel["d"][0.11, 0.06],
-              domainLabel["e"][0.5, -0.61],
+              domainLabel["d"][0.11, 0.05],
+              domainLabel["e"][0.5, -0.62],
               Nothing
             },
           True, {}
