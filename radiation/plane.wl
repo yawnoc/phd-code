@@ -820,13 +820,14 @@ Module[
  {xTerm,
   xMin, xMax, yMin, yMax,
   plotPointsPatched,
-  textStyle,
+  textStyle, textStyleLabel,
   plotList,
   n, cUpperList, cLowerList, xCornerList, xIntList,
   iRangeList, xBathList,
   iMin, iMax, xBath, yBathBottom, yBathTop,
   cUpper, cLower,
   xLeft, xRight,
+  domainLabel,
   dummyForTrailingCommas
  },
   (* Critical terminal curve *)
@@ -839,6 +840,7 @@ Module[
   plotPointsPatched = 2;
   (* Styles *)
   textStyle = Style[#, LabelSize["Straight"]] & @* LaTeXStyle;
+  textStyleLabel = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   (* Build a plot for each list of corners *)
   plotList = Table[
     (* *)
@@ -910,7 +912,30 @@ Module[
             ]
           , {i, iMin, iMax}]
         }
-      , {j, Length[iRangeList]}]
+      , {j, Length[iRangeList]}],
+      (* Domain labels *)
+      domainLabel[str_][scaledX_, scaledY_] :=
+        Text[
+          "(" <> str <> ")" // textStyleLabel
+          , {Way[xMin, xMax, scaledX], scaledY * yMax}
+        ];
+      Graphics @ {
+        Which[
+          id == patchedIdList[[1]],
+            domainLabel["a"][0.4, 0],
+          id == patchedIdList[[2]],
+            domainLabel["b"][0.5, 0],
+          id == patchedIdList[[3]],
+            {
+              domainLabel["c"][0.3, 0.75],
+              domainLabel["d"][0.11, 0.06],
+              domainLabel["e"][0.5, -0.61],
+              Nothing
+            },
+          True, {}
+        ]
+      },
+      {}
     ]
   , {id, patchedIdList}];
   (* Combine *)
