@@ -107,7 +107,7 @@ Module[
 
 
 (* ::Section:: *)
-(*Figure: self-incident-radiation-elements (self-incident-radiation-elements)*)
+(*Figure: self viewing radiation elements (self-viewing-radiation-elements)*)
 
 
 Module[
@@ -257,4 +257,4 @@ Module[
     {}
     , ImageSize -> 0.5 ImageSizeTextWidth
   ]
-] // Ex["self-incident-radiation-elements.pdf"]
+] // Ex["self-viewing-radiation-elements.pdf"]
