@@ -258,3 +258,243 @@ Module[
     , ImageSize -> 0.5 ImageSizeTextWidth
   ]
 ] // Ex["self-viewing-radiation-elements.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: self viewing radiation elements for a fin (self-viewing-radiation-elements-fin)*)
+
+
+Module[
+  {
+    xMaxFin, yMaxFin, zMinFin,
+    yFinScaled, yFin,
+    xMaxAxis, yMaxAxis, zMinAxis, zMaxAxis,
+    xElement, yElement, zElement,
+      dx, dy, dz,
+    xStar, yStar, zStar,
+      dxStar, dyStar, dzStar,
+    normalVectorLength, normalVector,
+      normalBase, normalTip,
+      normalStarBase, normalStarTip,
+    centre, canvasNormal, canvasPoint, eye, verticalVector, project,
+    axisStyle, finStyle,
+    elementStyle, positionStyle, normalVectorStyle,
+    differentialStyle, guideStyle,
+    starred, textStyle,
+    dummyForTrailingCommas
+  },
+  (* Fin *)
+  {xMaxFin, yMaxFin, zMinFin} = {1.6, 0.48, -2.3};
+  yFinScaled[m_][x_] := m x + (1-m) x^2;
+  yFin[x_] := yMaxFin * yFinScaled[0.13][x / xMaxFin];
+  (* Axes *)
+  xMaxAxis = 1.25 xMaxFin;
+  yMaxAxis = 1.3 yMaxFin;
+  zMinAxis = Way[zMinFin, 0, -0.13];
+  zMaxAxis = Way[zMinFin, 0, +1.1];
+  (* Non-starred element *)
+  {xElement, zElement} = {0.13 xMaxFin, 0.13 zMinFin};
+  yElement = yFin[xElement];
+  dx = 0.16 xMaxFin;
+  dz = -1.3 dx;
+  dy = yFin[xElement + dx] - yFin[xElement];
+  (* Starred element *)
+  {xStar, zStar} = {0.65 xMaxFin, 0.45 zMinFin};
+  yStar = yFin[xStar];
+  dxStar = 1.15 dx;
+  dzStar = dz;
+  dyStar = yFin[xStar + dxStar] - yFin[xStar];
+  (* Normal vectors *)
+  normalVectorLength = 1.3 yMaxFin;
+  normalVector[{x_, y_, z_}, dx_] :=
+    normalVectorLength * Normalize @ {-yFin'[x + dx/2], 1, 0};
+  normalBase = {xElement, yElement, zElement} + 1/2 {dx, dy, dz};
+  normalTip = normalBase + normalVector[normalBase, dx];
+  normalStarBase = {xStar, yStar, zStar} + 1/2 {dxStar, dyStar, dzStar};
+  normalStarTip = normalStarBase + normalVector[normalStarBase, dxStar];
+  (* Perspective geometry *)
+  centre = 1/2 {xMaxFin, yMaxFin, zMinFin};
+  canvasNormal = {0.36, 0.5, 1};
+  canvasPoint = centre + canvasNormal;
+  eye = centre + 13 canvasNormal;
+  verticalVector = {0, 1, 0};
+  project[point_] :=
+    OnePointPerspective[2][eye, canvasNormal, canvasPoint, verticalVector][point];
+  (* Plotting styles *)
+  axisStyle = Darker[Gray];
+  finStyle = Directive[Black, Thickness[Medium]];
+  elementStyle = Directive[FaceForm[None], EdgeForm[Black]];
+  positionStyle = PointSize[Medium];
+  normalVectorStyle = Directive[GeneralStyle["Thick"], Arrowheads[0.06]];
+  differentialStyle = Directive[CapForm["Round"], Thickness[0.015]];
+  guideStyle = Directive[Black, Thickness[Medium], Dotted];
+  (* Text functions *)
+  starred[expr_] := Superscript[expr, "\[NegativeVeryThinSpace]\[FivePointedStar]"];
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  (* Make scene *)
+  Show[
+    (* Axes *)
+    Graphics @ {axisStyle,
+      Line[project /@ {{0, 0, 0}, {xMaxAxis, 0, 0}}],
+        Text[
+          Italicise["x"] // textStyle
+          , project @ {xMaxAxis, 0, 0}
+          , {-2, -0.1}
+        ],
+      Line[project /@ {{0, 0, 0}, {0, yMaxAxis, 0}}],
+        Text[
+          Italicise["y"] // textStyle
+          , project @ {0, yMaxAxis, 0}
+          , {0, -1.25}
+        ],
+      Line[project /@ {{0, 0, zMinAxis}, {0, 0, zMaxAxis}}],
+        Text[
+          Italicise["z"] // textStyle
+          , project @ {0, 0, zMaxAxis}
+          , {2, 0.3}
+        ],
+      {}
+    },
+    (* Fin *)
+    {
+      (* Curved edges *)
+      ParametricPlot[
+        project /@ {
+          {x, yFin[x], 0}, (* near upper edge *)
+          {x, -yFin[x], 0}, (* near lower edge *)
+          {x, yFin[x], zMinFin}, (* near far edge *)
+          Nothing
+        }
+        , {x, 0, xMaxFin}
+        , PlotStyle -> finStyle
+      ],
+      (* Straight edges *)
+      Graphics @ {finStyle,
+        Line[project /@ {
+          {xMaxFin, yMaxFin, 0},
+          {xMaxFin, -yMaxFin, 0},
+          {xMaxFin, -yMaxFin, zMinFin},
+          {xMaxFin, yMaxFin, zMinFin},
+          {xMaxFin, yMaxFin, 0}
+        }],
+        Line[project /@ {{0, 0, 0}, {0, 0, zMinFin}}]
+      },
+      {}
+    },
+    (* Non-starred element *)
+    Graphics @ {elementStyle,
+      Polygon[project /@ {
+        {xElement, yElement, zElement},
+        {xElement + dx, yElement + dy, zElement},
+        {xElement + dx, yElement + dy, zElement + dz},
+        {xElement, yElement, zElement + dz},
+        Nothing
+      }],
+      Text[
+        SeparatedRow[""] @ {"d", Italicise["A"]} // textStyle
+        , project[normalBase]
+        , {-3.4, -0.5}
+      ],
+      {}
+    },
+    (* Starred element *)
+    Graphics @ {elementStyle,
+      Polygon[project /@ {
+        {xStar, yStar, zStar},
+        {xStar + dxStar, yStar + dyStar, zStar},
+        {xStar + dxStar, yStar + dyStar, zStar + dzStar},
+        {xStar, yStar, zStar + dzStar},
+        Nothing
+      }],
+      Text[
+        SeparatedRow[""] @ {"d", Italicise["A"] // starred} // textStyle
+        , project[normalStarBase]
+        , {1.8, -0.5}
+      ],
+      {}
+    },
+    (* Normal vectors *)
+    Graphics @ {
+      positionStyle, Point[project /@ {normalBase}],
+      normalVectorStyle, Arrow[project /@ {normalBase, normalTip}],
+      Text[
+        Embolden["n"] // textStyle
+        , project[normalTip]
+        , {2.3, 0}
+      ],
+      {}
+    },
+    Graphics @ {
+      positionStyle, Point[project /@ {normalStarBase}],
+      normalVectorStyle, Arrow[project /@ {normalStarBase, normalStarTip}],
+      Text[
+        Embolden["n"] // starred // textStyle
+        , project[normalStarTip]
+        , {-2.1, 0}
+      ],
+      {}
+    },
+    (* Starred differentials (not z) *)
+    Graphics @ {
+      differentialStyle,
+      Line[project /@ {
+        {xStar, yStar, 0},
+        {xStar + dxStar, yStar, 0},
+        {xStar + dxStar, yStar + dyStar, 0},
+        {xStar, yStar, 0}
+      }],
+      guideStyle,
+        Line[project /@ {
+          {xStar, yStar, zStar},
+          {xStar, yStar, 0}
+        }],
+        Line[project /@ {
+          {xStar + dxStar, yStar + dyStar, zStar},
+          {xStar + dxStar, yStar + dyStar, 0}
+        }],
+      Text[
+        SeparatedRow[""] @ {"d", Italicise["x"] // starred} // textStyle
+        , project[{xStar + dxStar/2, yStar, 0}]
+        , {0.1, 0.9}
+      ],
+      Text[
+        SeparatedRow[""] @ {"d", Italicise["y"] // starred} // textStyle
+        , project[{xStar + dxStar, yStar + dyStar/2, 0}]
+        , {-1.4, -0.08}
+      ],
+      Text[
+        SeparatedRow[""] @ {"d", Italicise["s"] // starred} // textStyle
+        , project @ {xStar + dxStar/2, yStar + dyStar/2, 0}
+        , {-1, -1.15}
+      ],
+      {}
+    },
+    (* Starred differentials (z) *)
+    Graphics @ {
+      differentialStyle,
+      Line[project /@ {
+        {xMaxFin, yMaxFin, zStar},
+        {xMaxFin, yMaxFin, zStar + dzStar}
+      }],
+      Text[
+        SeparatedRow[""] @ {"d", Italicise["z"] // starred} // textStyle
+        , project[{xMaxFin, yMaxFin, zStar + dzStar/2}]
+        , {-1.6, 0}
+      ],
+      {}
+    },
+    {
+      ParametricPlot[
+        project /@ {
+          {x, yFin[x], zStar},
+          {x, yFin[x], zStar + dzStar},
+          Nothing
+        }
+        , {x, xStar + dxStar, xMaxFin}
+        , PlotStyle -> guideStyle
+      ]
+    },
+    {}
+    , ImageSize -> 0.55 ImageSizeTextWidth
+  ]
+] // Ex["self-viewing-radiation-elements-fin.pdf"]
