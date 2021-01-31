@@ -970,3 +970,93 @@ Module[{legendCurves},
     , Spacings -> {{0, -0.3, 0.1} ImageSizeTextWidth, 0}
   ]
 ] // Ex["plane-domains-legend.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: Self-viewing radiation ratio (plane-self-viewing-ratio.pdf)*)
+
+
+Module[
+  {
+    labelPlacementFromInterval, intervalList,
+    numPoints, data,
+    x1, x2, xValues,
+    textStyle, textStyleBracket,
+    intervalText,
+    proportion, offset, xLabel, rLabel,
+    dummyForTrailingCommas
+  },
+  (* List of intervals {x1, x2} to plot the ratio for *)
+  labelPlacementFromInterval = Association[
+    {0, 1} -> {0.7, {0, -1.5}},
+    {0, 0.5} -> {0.5, {1, 0.75}},
+    {0.3, 0.6} -> {1, {-1, 0.7}},
+    {0.5, 0.75} -> {1, {-1.1, 0.3}},
+    {0.75, 0.95} -> {0, {1.1, -0.45}},
+    Nothing
+  ];
+  intervalList = Keys[labelPlacementFromInterval];
+  (* Number of points for sampling *)
+  numPoints = 25;
+  (* Compute data points to plot *)
+  Table[
+    {x1, x2} = interval;
+    xValues = Subdivide[x1, x2, numPoints];
+    If[x1 == 0 && x2 != 1,
+      xValues = Join[
+        Subdivide[x1, xValues[[2]], 4],
+        xValues[[3 ;;]]
+      ];
+    ];
+    data[interval] =
+      Cases[
+        Table[{x, boundaryRatio[x1, x2][x]}, {x, xValues}],
+        {_?NumericQ, _?NumericQ}
+      ] // Quiet;
+    , {interval, intervalList}
+  ];
+  (* Text style *)
+  textStyle = Style[#, LabelSize["Point"]] & @* LaTeXStyle;
+  textStyleBracket = Style[#, LabelSize["PointBracket"]] &;
+  intervalText[interval_] :=
+    Text[
+      {x1, x2} = interval;
+      {proportion, offset} = labelPlacementFromInterval[interval];
+      Row @ {
+        "(" // textStyleBracket,
+        "\[NegativeVeryThinSpace]",
+        x1,
+        ",\[ThinSpace]",
+        x2,
+        ")" // textStyleBracket
+      } // textStyle
+      ,
+        xLabel = Way[x1, x2, proportion];
+        rLabel = Interpolation[data[interval], xLabel];
+        {xLabel, Log[rLabel]}
+      , offset
+    ];
+  (* Make plot *)
+  ListLogPlot[
+    Table[data[interval], {interval, intervalList}]
+    , AxesLabel -> {
+        Italicise["x"] // Margined @ {{0, 1}, {5, 0}},
+        Italicise["R"]
+      }
+    , Epilog -> {
+        {
+          BoundaryTracingStyle["Contour"],
+          Line @ {{0, #}, {1, #}} & [1/100 // Log]
+        },
+        Table[intervalText[interval], {interval, intervalList}],
+        {}
+      }
+    , ImageSize -> 0.6 ImageSizeTextWidth
+    , Joined -> True
+    , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+    , PlotRange -> {{0, 1}, {10^-4.3, 10^1.3}}
+    , PlotRangeClipping -> False
+    , PlotStyle -> Black
+    , TicksStyle -> LabelSize["Tick"]
+  ]
+] // Ex["plane-self-viewing-ratio.pdf"]
