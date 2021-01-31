@@ -989,9 +989,10 @@ Module[
   (* List of intervals {x1, x2} to plot the ratio for *)
   labelPlacementFromInterval = Association[
     {0, 1} -> {0.7, {0, -1.5}},
-    {0, 0.5} -> {0.5, {1, 0.75}},
-    {0.3, 0.6} -> {1, {-1, 0.7}},
-    {0.5, 0.75} -> {1, {-1.1, 0.3}},
+    {0, 0.5} -> {0.1, {-1.25, 0}},
+    {0.1, 0.4} -> {0.55, {1.05, 0.5}},
+    {0.3, 0.6} -> {1, {-0.8, 0.9}},
+    {0.5, 0.75} -> {1, {-1.05, 0.4}},
     {0.75, 0.95} -> {0, {1.1, -0.45}},
     Nothing
   ];
@@ -1054,7 +1055,7 @@ Module[
     , ImageSize -> 0.55 ImageSizeTextWidth
     , Joined -> True
     , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
-    , PlotRange -> {{0, 1}, {10^-4.3, 10^1.3}}
+    , PlotRange -> {{0, 1}, {10^-5, 10^1.3}}
     , PlotRangeClipping -> False
     , PlotStyle -> Black
     , TicksStyle -> LabelSize["Tick"]
