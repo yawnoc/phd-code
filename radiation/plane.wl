@@ -988,12 +988,12 @@ Module[
   },
   (* List of intervals {x1, x2} to plot the ratio for *)
   labelPlacementFromInterval = Association[
-    {0, 1} -> {0.7, {0, -1.5}},
-    {0, 0.5} -> {0.1, {-1.25, 0}},
-    {0.1, 0.4} -> {0.55, {1.05, 0.5}},
-    {0.3, 0.6} -> {1, {-0.8, 0.9}},
-    {0.5, 0.75} -> {1, {-1.05, 0.4}},
-    {0.75, 0.95} -> {0, {1.1, -0.45}},
+    {0, 0.3} -> {1, {-1.2, 0}},
+    {0.15, 0.45} -> {1, {-0.9, 0.8}},
+    {0.3, 0.6} -> {1, {-0.9, 0.8}},
+    {0.45, 0.75} -> {1, {-1.05, 0.4}},
+    {0.6, 0.9} -> {0, {0.6, -0.8}},
+    {0.7, 1} -> {0.3, {0, -1.4}},
     Nothing
   ];
   intervalList = Keys[labelPlacementFromInterval];
@@ -1003,6 +1003,12 @@ Module[
   Table[
     {x1, x2} = interval;
     xValues = Subdivide[x1, x2, numPoints];
+    If[x1 == 0,
+      xValues = Join[
+        Subdivide[x1, xValues[[4]], 20],
+        xValues[[5 ;;]]
+      ];
+    ];
     If[x2 == 1,
       xValues = Join[
         xValues[[;; -5]],
@@ -1055,7 +1061,7 @@ Module[
     , ImageSize -> 0.55 ImageSizeTextWidth
     , Joined -> True
     , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
-    , PlotRange -> {{0, 1}, {10^-5, 10^1.3}}
+    , PlotRange -> {{0, 1}, {All, 10}}
     , PlotRangeClipping -> False
     , PlotStyle -> Black
     , TicksStyle -> LabelSize["Tick"]
