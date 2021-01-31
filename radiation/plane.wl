@@ -997,15 +997,15 @@ Module[
   ];
   intervalList = Keys[labelPlacementFromInterval];
   (* Number of points for sampling *)
-  numPoints = 25;
+  numPoints = 50;
   (* Compute data points to plot *)
   Table[
     {x1, x2} = interval;
     xValues = Subdivide[x1, x2, numPoints];
-    If[x1 == 0 && x2 != 1,
+    If[x2 == 1,
       xValues = Join[
-        Subdivide[x1, xValues[[2]], 4],
-        xValues[[3 ;;]]
+        xValues[[;; -5]],
+        Subdivide[xValues[[-4]], x2, 20]
       ];
     ];
     data[interval] =
@@ -1051,7 +1051,7 @@ Module[
         Table[intervalText[interval], {interval, intervalList}],
         {}
       }
-    , ImageSize -> 0.6 ImageSizeTextWidth
+    , ImageSize -> 0.55 ImageSizeTextWidth
     , Joined -> True
     , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
     , PlotRange -> {{0, 1}, {10^-4.3, 10^1.3}}
