@@ -466,6 +466,98 @@ Module[
 
 
 (* ::Section:: *)
+(*Figure: Slab BVP (plane-slab-bvp.pdf)*)
+
+
+Module[
+  {
+    xSlabMin, xSlabMax,
+    ySlabMin, ySlabMax, ySlabMid,
+    xRadiation, yRadiationMargin,
+    numRadiation, yRadiationValues,
+    radiationArrowStyle, radiationArrowSize,
+    xAxisMin, xAxisMax, yAxis,
+    axisStyle,
+    textStyle,
+    dummyForTrailingCommas
+  },
+  (* Slab dimensions *)
+  {xSlabMin, xSlabMax} = {0, 1};
+  {ySlabMin, ySlabMax} = {0, 1.7};
+  ySlabMid = Way[ySlabMin, ySlabMax];
+  (* Radiation arrow specs *)
+  xRadiation = Way[xSlabMin, xSlabMax, -0.15];
+  yRadiationMargin = Way[ySlabMin, ySlabMax, 0.05];
+  numRadiation = 6;
+  yRadiationValues = Subdivide[
+    ySlabMin + yRadiationMargin,
+    ySlabMax - yRadiationMargin,
+    numRadiation - 1
+  ];
+  radiationArrowStyle = Arrowheads[0.025];
+  radiationArrowSize = 2.2 Abs[xRadiation];
+  (* x-axis specs *)
+  xAxisMin = xRadiation - 2 radiationArrowSize;
+  xAxisMax = xSlabMax + 2 radiationArrowSize;
+  yAxis = ySlabMin - 0.7 radiationArrowSize;
+  axisStyle = Directive[Arrowheads[0.05]];
+  (* Make diagram *)
+  textStyle = Style[#, LabelSize["Label"] - 1] & @* LaTeXStyle;
+  Show[
+    (* Slab horizontal boundaries *)
+    Graphics @ {GeneralStyle["DefaultThick"],
+      Line @ {{xSlabMin, ySlabMax}, {xSlabMax, ySlabMax}},
+      Line @ {{xSlabMin, ySlabMin}, {xSlabMax, ySlabMin}},
+      {}
+    },
+    (* Slab radiation boundary *)
+    Graphics @ {BoundaryTracingStyle["Traced"],
+      Line @ {{xSlabMin, ySlabMax}, {xSlabMin, ySlabMin}},
+      {}
+    },
+    (* Radiation arrows *)
+    Graphics @ {radiationArrowStyle,
+      Table[
+        SquigglyArrow[{xRadiation, yRadiation}, Pi, radiationArrowSize]
+        , {yRadiation, yRadiationValues}
+      ],
+      Text[
+        "radiation" // textStyle
+        , {xRadiation - radiationArrowSize, ySlabMid}
+        , {1.3, 0}
+      ],
+      {}
+    },
+    (* Constant temperature boundary *)
+    Graphics @ {BoundaryTracingStyle["Contour"],
+      Line @ {{xSlabMax, ySlabMax}, {xSlabMax, ySlabMin}},
+      Text[
+        Column[{"constant", "temperature"}
+          , Alignment -> Center
+          , Spacings -> 0
+        ] // textStyle
+        , {xSlabMax, ySlabMid}
+        , {-1.2, 0}
+      ],
+      {}
+    },
+    (* x-axis *)
+    Graphics @ {axisStyle,
+      Arrow @ {{xAxisMin, yAxis}, {xAxisMax, yAxis}},
+      Text[
+        Italicise["x"] // textStyle
+        , {xAxisMax, yAxis}
+        , {-2.5, -0.2}
+      ],
+      {}
+    },
+    {}
+    , ImageSize -> 0.45 ImageSizeTextWidth
+  ]
+] // Ex["plane-slab-bvp.pdf"]
+
+
+(* ::Section:: *)
 (*Figure: Traced boundaries, single spike (plane-traced-boundary-spike.pdf)*)
 
 
