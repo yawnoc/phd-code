@@ -5646,6 +5646,7 @@ Module[
     xGraphicsAInfl, xGraphicsA1,
     legendLabelStyle,
     legendCurves, legendNodes,
+    textStyleBracket,
     dummyForTrailingCommas
    },
   (* Value of B *)
@@ -5795,7 +5796,21 @@ Module[
   legendNodes =
     NodeLegend[
       {Automatic},
-      {"inflection"}
+      {
+        textStyleBracket = Style[#, LabelSize["Legend"] + 2] &;
+        Row @ {
+          "inflection",
+          " ",
+          "(" // textStyleBracket,
+            "\[NegativeVeryThinSpace]",
+          Subscript[Italicise["x"], "\[VeryThinSpace]i"],
+          ",",
+          "\[VeryThinSpace]",
+          Subscript[Italicise["y"], "i"],
+          ")" // textStyleBracket,
+          Nothing
+        }
+      }
       , LabelStyle -> legendLabelStyle
       , LegendMarkerSize -> Automatic
     ];
