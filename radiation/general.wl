@@ -268,6 +268,7 @@ Module[
   {
     xMaxFin, yMaxFin, zMinFin,
     yFinScaled, yFin,
+    xMinAxis,
     xMaxAxis, yMaxAxis, zMinAxis, zMaxAxis,
     xElement, yElement, zElement,
       dx, dy, dz,
@@ -288,10 +289,11 @@ Module[
   yFinScaled[m_][x_] := m x + (1-m) x^2;
   yFin[x_] := yMaxFin * yFinScaled[0.13][x / xMaxFin];
   (* Axes *)
+  xMinAxis = -0.12 xMaxFin;
   xMaxAxis = 1.25 xMaxFin;
   yMaxAxis = 1.3 yMaxFin;
-  zMinAxis = Way[zMinFin, 0, -0.13];
-  zMaxAxis = Way[zMinFin, 0, +1.1];
+  zMinAxis = Way[zMinFin, 0, 0];
+  zMaxAxis = Way[zMinFin, 0, +1.15];
   (* Non-starred element *)
   {xElement, zElement} = {0.13 xMaxFin, 0.13 zMinFin};
   yElement = yFin[xElement];
@@ -299,7 +301,7 @@ Module[
   dz = -1.3 dx;
   dy = yFin[xElement + dx] - yFin[xElement];
   (* Starred element *)
-  {xStar, zStar} = {0.65 xMaxFin, 0.45 zMinFin};
+  {xStar, zStar} = {0.64 xMaxFin, 0.45 zMinFin};
   yStar = yFin[xStar];
   dxStar = 1.15 dx;
   dzStar = dz;
@@ -316,7 +318,7 @@ Module[
   centre = 1/2 {xMaxFin, yMaxFin, zMinFin};
   canvasNormal = {0.36, 0.5, 1};
   canvasPoint = centre + canvasNormal;
-  eye = centre + 13 canvasNormal;
+  eye = centre + 20 canvasNormal;
   verticalVector = {0, 1, 0};
   project[point_] :=
     OnePointPerspective[2][eye, canvasNormal, canvasPoint, verticalVector][point];
@@ -335,24 +337,38 @@ Module[
   Show[
     (* Axes *)
     Graphics @ {axisStyle,
-      Line[project /@ {{0, 0, 0}, {xMaxAxis, 0, 0}}],
+      Line[project /@ {{xMinAxis, 0, 0}, {xMaxAxis, 0, 0}}],
         Text[
           Italicise["x"] // textStyle
           , project @ {xMaxAxis, 0, 0}
           , {-2, -0.1}
         ],
-      Line[project /@ {{0, 0, 0}, {0, yMaxAxis, 0}}],
+      Line[project /@ {{xMinAxis, 0, 0}, {xMinAxis, yMaxAxis, 0}}],
         Text[
           Italicise["y"] // textStyle
-          , project @ {0, yMaxAxis, 0}
+          , project @ {xMinAxis, yMaxAxis, 0}
           , {0, -1.25}
         ],
-      Line[project /@ {{0, 0, zMinAxis}, {0, 0, zMaxAxis}}],
+      Line[project /@ {{xMinAxis, 0, zMinAxis}, {xMinAxis, 0, zMaxAxis}}],
         Text[
           Italicise["z"] // textStyle
-          , project @ {0, 0, zMaxAxis}
+          , project @ {xMinAxis, 0, zMaxAxis}
           , {2, 0.3}
         ],
+      {}
+    },
+    (* x-axis marks *)
+    Graphics @ {axisStyle,
+      Text[
+        Subscript[Italicise["x"], 1] // textStyle
+        , project @ {0, 0, 0}
+        , {0.3, 0.65}
+      ],
+      Text[
+        Subscript[Italicise["x"], 2] // textStyle
+        , project @ {xMaxFin, 0, 0}
+        , {1.4, 0.4}
+      ],
       {}
     },
     (* Fin *)
@@ -420,7 +436,7 @@ Module[
       Text[
         Embolden["n"] // textStyle
         , project[normalTip]
-        , {2.3, 0}
+        , {1.8, -0.1}
       ],
       {}
     },
@@ -455,17 +471,17 @@ Module[
       Text[
         SeparatedRow[""] @ {"d", Italicise["x"] // starred} // textStyle
         , project[{xStar + dxStar/2, yStar, 0}]
-        , {0.1, 0.9}
+        , {0.04, 0.85}
       ],
       Text[
         SeparatedRow[""] @ {"d", Italicise["y"] // starred} // textStyle
         , project[{xStar + dxStar, yStar + dyStar/2, 0}]
-        , {-1.4, -0.08}
+        , {-1.35, -0.08}
       ],
       Text[
         SeparatedRow[""] @ {"d", Italicise["s"] // starred} // textStyle
         , project @ {xStar + dxStar/2, yStar + dyStar/2, 0}
-        , {-1, -1.15}
+        , {-1.05, -1.15}
       ],
       {}
     },
