@@ -5898,7 +5898,11 @@ Module[
   selfStyle = Directive[GrayLevel[0.7], AbsoluteThickness[4]];
   rayArrowStyle[p_] := Arrowheads @ {{0.07, p}};
   yTickLength = (xEnd - xStart) / 25;
-  yTick[y_, xStart_: xStraight] := Line @ {{xStart, y}, {xStraight + yTickLength,  y}};
+  yTick[y_, xStart_: xStraight] := {
+    {BoundaryTracingStyle["Contour"], Gray, Line @ {{xStart, y}, {xStraight, y}}},
+    {Black, Line @ {{xStraight, y}, {xStraight + yTickLength, y}}},
+    {}
+  };
   markLength = (xEnd - xStart) / 18;
   localPositionMark[y_, ang_: 0] := (
     {Directive[AbsoluteThickness[2.5], Black],
@@ -6169,7 +6173,7 @@ Module[
             Which[
               yStar == y1, rayArrowStyle[0.65],
               yStar < yLocal, rayArrowStyle[0.5],
-              yStar < Way[yLocal, yEnd], rayArrowStyle[0.45],
+              yStar < Way[yLocal, yEnd], rayArrowStyle[0.5],
               True, rayArrowStyle[0.72]
             ],
             If[yStar > y1, Nothing, tangentStyle],
