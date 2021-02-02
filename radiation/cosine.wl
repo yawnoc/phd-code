@@ -5894,12 +5894,15 @@ Module[
     } // textStyle;
   (* Plot styles *)
   tangentStyle = Directive[Thickness[Small], GeneralStyle["Dashed"]];
-  goodStyle = Directive[Black, AbsoluteThickness[3]];
-  selfStyle = Directive[GrayLevel[0.7], AbsoluteThickness[4]];
+  goodStyle = Directive[Black, AbsoluteThickness[3], CapForm["Butt"]];
+  selfStyle = Directive[GrayLevel[0.7], AbsoluteThickness[4], CapForm["Butt"]];
   rayArrowStyle[p_] := Arrowheads @ {{0.07, p}};
   yTickLength = (xEnd - xStart) / 25;
   yTick[y_, xStart_: xStraight] := {
-    {BoundaryTracingStyle["Contour"], Gray, Line @ {{xStart, y}, {xStraight, y}}},
+    If[xStart < xStraight,
+      {BoundaryTracingStyle["Contour"], Gray, Line @ {{xStart, y}, {xStraight, y}}},
+      {}
+    ],
     {Black, Line @ {{xStraight, y}, {xStraight + yTickLength, y}}},
     {}
   };
@@ -5924,7 +5927,7 @@ Module[
         Text[
           xIt == SeparatedRow["VeryThin"]["\[Pi]", "/", 2] // textStyle
           , {xStraight, yStart}
-          , {-1, -1.2}
+          , {-1.3, -1.2}
           , {0, 1}
         ]
       },
@@ -5950,7 +5953,7 @@ Module[
             Subscript[Italicise["y"], "i"]
           ]
           , {xInflection, yInflection}
-          , {-1.35, 0.2}
+          , {-1.35, 0.4}
         ],
         {}
       },
@@ -5963,7 +5966,7 @@ Module[
             Subscript[Italicise["y"], "v"]
           ]
           , {xView, yView}
-          , {-1.3, 0}
+          , {-1.3, 0.25}
         ],
         {}
       },
@@ -5971,7 +5974,7 @@ Module[
       , ImageSize -> 0.325 ImageSizeTextWidth
       , PlotRange -> {{xStart, xEnd}, {yStart, yEnd}}
       , PlotRangePadding -> {
-          {Scaled[0.04], Scaled[0.17]},
+          {Scaled[0.05], Scaled[0.17]},
           {Scaled[0.01], Scaled[0.03]}
         }
     ];
@@ -6042,6 +6045,7 @@ Module[
       },
       {}
     ]
+      // Ex["cosine_simple-self-viewing-bounds-none.pdf"]
     ,
     (*
       --------------------------------
@@ -6110,6 +6114,7 @@ Module[
       },
       {}
     ]
+      // Ex["cosine_simple-self-viewing-bounds-concave.pdf"]
     ,
     (*
       --------------------------------
@@ -6187,6 +6192,7 @@ Module[
       },
       {}
     ]
+      // Ex["cosine_simple-self-viewing-bounds-both.pdf"]
   }
 ]
 
