@@ -5902,6 +5902,15 @@ Module[
         , PlotRange -> Full
         , PlotStyle -> BoundaryTracingStyle /@ {"Traced", "Contour"}
       ],
+      (* x-straight label *)
+      Graphics @ {
+        Text[
+          xIt == SeparatedRow["VeryThin"]["\[Pi]", "/", 2] // textStyle
+          , {xStraight, yStart}
+          , {-1, -1.2}
+          , {0, 1}
+        ]
+      },
       (* Uppermost tip *)
       Graphics @ {GeneralStyle["Point"],
         Point @ {xEnd, yEnd},
@@ -5911,7 +5920,7 @@ Module[
             Subscript[Italicise["y"], "e"]
           ]
           , {xEnd, yEnd}
-          , {0, -1.5}
+          , {1.3, -0.2}
         ],
         {}
       },
@@ -5924,7 +5933,7 @@ Module[
             Subscript[Italicise["y"], "i"]
           ]
           , {xInflection, yInflection}
-          , {-1.3, 0.5}
+          , {-1.35, 0.2}
         ],
         {}
       },
@@ -5946,7 +5955,7 @@ Module[
       , PlotRange -> {{xStart, xEnd}, {yStart, yEnd}}
       , PlotRangePadding -> {
           {Scaled[0.1], Scaled[0.25]},
-          {Scaled[0.02], Scaled[0.07]}
+          {Scaled[0.02], Scaled[0.05]}
         }
     ];
   Show[
