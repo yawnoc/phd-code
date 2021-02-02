@@ -5894,7 +5894,7 @@ Module[
     } // textStyle;
   (* Plot styles *)
   tangentStyle = Directive[Thickness[Small], GeneralStyle["Dashed"]];
-  goodStyle = Directive[Black, AbsoluteThickness[2]];
+  goodStyle = Directive[Black, AbsoluteThickness[3]];
   selfStyle = Directive[GrayLevel[0.7], AbsoluteThickness[4]];
   rayArrowStyle[p_] := Arrowheads @ {{0.07, p}};
   yTickLength = (xEnd - xStart) / 25;
