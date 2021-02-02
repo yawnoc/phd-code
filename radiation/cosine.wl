@@ -6208,6 +6208,60 @@ Module[
 
 
 (* ::Section:: *)
+(*Figure: Simple case self-viewing ratio upper bound (cosine_simple-self-viewing-ratio-bound.pdf)*)
+
+
+(*
+  Copy, paste, edit from "A vs R_crude",
+  in "Non-convex lens-like candidate self-radiation".
+*)
+Module[
+  {
+    aMin, aMax,
+    rMin, rMax,
+    textStyle,
+    dummyForTrailingCommas
+  },
+  aMin = 0;
+  aMax = aInflSimp;
+  rMin = 10^-6;
+  rMax = 10^2.7;
+  textStyle = Style[#, LabelSize["Point"]] & @* LaTeXStyle;
+  Show[
+    ListLogPlot[
+      candidateBoundaryRatioTable
+      , AxesLabel -> {
+          Italicise["A"] // Margined @ {{2, 0}, {5, 0}},
+          Subscript[Italicise["R"], Style["+", Magnification -> 1.35]]
+            // Margined @ {{0, 0}, {-5, 0}}
+        }
+      , Epilog -> {
+          BoundaryTracingStyle["Contour"],
+          Line @ {{aMin, #}, {aMax, #}} & [rPracCandSimp // Log],
+          Line @ {{aPracCandSimp, rMin // Log}, {aPracCandSimp, rPracCandSimp // Log}},
+          PointSize[Medium], Point @ {aPracCandSimp, rMin // Log},
+          Text[
+            Subscript[Italicise["A"], "p"] == SignificantFiguresForm[5][aPracCandSimp]
+              // textStyle
+            , {aPracCandSimp, rMin // Log}
+            , {-1.05, -1.08}
+          ],
+          {}
+        }
+      , Joined -> True
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+      , PlotRange -> {rMin, rMax}
+      , PlotRangeClipping -> False
+      , PlotStyle -> Black
+      , TicksStyle -> LabelSize["Tick"]
+    ],
+    {}
+    , ImageSize -> 0.52 ImageSizeTextWidth
+  ]
+] // Ex["cosine_simple-self-viewing-ratio-bound.pdf"]
+
+
+(* ::Section:: *)
 (*Figure: General case (un)physical region and (non-)viable domain (cosine_general-physical-viable.pdf)*)
 
 
