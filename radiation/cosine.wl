@@ -5853,19 +5853,18 @@ Module[
     xTraced,
     xInflection, yInflection,
     xView, yView,
-    textStyle, textStyleBracket,
-    coordinatePair,
+    textStyle, textStyleBracket, textStyleLocalPosition,
+    coordinatePairLabel,
+    tangentStyle,
+    yTickLength, yTick,
+    markLength, localPositionMark, localPositionLabel,
+    xa, ya, xb, yb, xc, yc,
     commonPlot,
     dummyForTrailingCommas
   },
   (* Radiation boundary range *)
   {yStart, yEnd} = {-2.3, 2.5};
   {xStart, xEnd} = {0, xStraight};
-  (* Plot range *)(*
-  xMin = Way[xStart, xEnd, -0.075];
-  xMax = Way[xStart, xEnd, +1.3];
-  yMin = Way[yStart, yEnd, -0.02];
-  yMax = Way[yStart, yEnd, +1.075];*)
   (* Fake traced boundary for a radiation boundary *)
   xTraced[y_] :=
     Way[
@@ -5881,7 +5880,8 @@ Module[
   (* Text functions *)
   textStyle = Style[#, LabelSize["Point"]] & @* LaTeXStyle;
   textStyleBracket = Style[#, LabelSize["PointBracket"]] &;
-  coordinatePair[x_, y_] :=
+  textStyleLocalPosition = Style[#, LabelSize["Point"] + 1] & @* LaTeXStyle;
+  coordinatePairLabel[x_, y_] :=
     Row @ {
       "(" // textStyleBracket,
       "",
@@ -5890,6 +5890,18 @@ Module[
       y,
       ")" // textStyleBracket
     } // textStyle;
+  (* Plot styles *)
+  tangentStyle = Directive[Thickness[Small], GeneralStyle["Dashed"]];
+  yTickLength = Way[xStart, xEnd, 1/25];
+  yTick[y_] := Line @ {{xStraight, y}, {xStraight + yTickLength,  y}};
+  markLength = Way[xStart, xEnd, 1/18];
+  localPositionMark[x_, y_] :=
+    {Directive[AbsoluteThickness[2.5], Black],
+      Line[markLength / Sqrt[2] * {{-1, -1}, {+1, +1}}],
+      Line[markLength / Sqrt[2] * {{+1, -1}, {-1, +1}}],
+      {}
+    } // Translate[#, {x, y}] &;
+  localPositionLabel = Embolden["r"] // textStyleLocalPosition;
   (* Make common plot *)
   commonPlot =
     Show[
@@ -5915,7 +5927,7 @@ Module[
       Graphics @ {GeneralStyle["Point"],
         Point @ {xEnd, yEnd},
         Text[
-          coordinatePair[
+          coordinatePairLabel[
             SeparatedRow["VeryThin"]["\[Pi]", "/", 2],
             Subscript[Italicise["y"], "e"]
           ]
@@ -5928,7 +5940,7 @@ Module[
       Graphics @ {GeneralStyle["Point"],
         Point @ {xInflection, yInflection},
         Text[
-          coordinatePair[
+          coordinatePairLabel[
             Subscript[Italicise["x"], "i"],
             Subscript[Italicise["y"], "i"]
           ]
@@ -5941,7 +5953,7 @@ Module[
       Graphics @ {GeneralStyle["Point"],
         Point @ {xView, yView},
         Text[
-          coordinatePair[
+          coordinatePairLabel[
             Subscript[Italicise["x"], "v"],
             Subscript[Italicise["y"], "v"]
           ]
@@ -5954,13 +5966,67 @@ Module[
       , ImageSize -> 0.32 ImageSizeTextWidth
       , PlotRange -> {{xStart, xEnd}, {yStart, yEnd}}
       , PlotRangePadding -> {
-          {Scaled[0.1], Scaled[0.25]},
+          {Scaled[0.1], Scaled[0.2]},
           {Scaled[0.02], Scaled[0.05]}
         }
     ];
-  Show[
-    commonPlot
-  ]
+  (* Local position for each case *)
+  (*
+    We use the intersection of the tangent line in case (b)
+    as the local position for case (c), because reciprocity.
+  *)
+  ya = Way[yStart, yView, 1/3];
+  xa = xTraced[ya];
+  {
+    (*
+      --------------------------------
+      (a) y < y_v
+      --------------------------------
+    *)
+    Show[commonPlot,
+      (* Tangent line through (x_v, y_v) *)
+      Graphics @ {tangentStyle,
+        HalfLine @ {{xEnd, yEnd}, {xView, yView}}
+      },
+      (* Local position (x, y) *)
+      Graphics @ {
+        localPositionMark[xa, ya],
+        Text[
+          localPositionLabel
+          , {xa, ya}
+          , {-4.4, -0.15}
+        ],
+        {}
+      },
+      (* Inflection tick *)
+      Graphics @ {
+        yTick[yInflection],
+        Text[
+          Subscript[Italicise["y"], "i"] // textStyle
+          , {xStraight + yTickLength, yInflection}
+          , {-2, -0.1}
+        ],
+        {}
+      },
+      (* Convexity labels *)
+      Graphics @ {
+        Text[
+          "convex" // textStyle
+          , {xStraight, Way[yStart, yInflection]}
+          , {0, 1}
+          , {0, 1}
+        ],
+        Text[
+          "concave" // textStyle
+          , {xStraight, Way[yInflection, yEnd]}
+          , {0, 1}
+          , {0, 1}
+        ],
+        {}
+      },
+      {}
+    ]
+  }
 ]
 
 
