@@ -5915,7 +5915,7 @@ Module[
   );
   localPositionLabel = Embolden["r"] // textStyleLocalPosition;
   (* Make common plot *)
-  commonPlot =
+  commonPlot[endStyle_: goodStyle, inflectionStyle_: goodStyle] :=
     Show[
       (* Constant-temperature boundary *)
       Graphics @ {
@@ -5930,7 +5930,7 @@ Module[
       },
       (* Uppermost tip *)
       Graphics @ {GeneralStyle["Point"],
-        Point @ {xEnd, yEnd},
+        {endStyle, Point @ {xEnd, yEnd}},
         Text[
           coordinatePairLabel[
             SeparatedRow["VeryThin"]["\[Pi]", "/", 2],
@@ -5943,7 +5943,7 @@ Module[
       },
       (* Point of inflection *)
       Graphics @ {GeneralStyle["Point"],
-        Point @ {xInflection, yInflection},
+        {inflectionStyle, Point @ {xInflection, yInflection}},
         Text[
           coordinatePairLabel[
             Subscript[Italicise["x"], "i"],
@@ -5993,7 +5993,7 @@ Module[
       --------------------------------
     *)
     {xLocal, yLocal} = {xa, ya};
-    Show[commonPlot,
+    Show[commonPlot[],
       (* Radiation boundary *)
       ParametricPlot[
         {xTraced[y], y}
@@ -6050,7 +6050,7 @@ Module[
     *)
     {y1, y2} = {yc, yEnd};
     {xLocal, yLocal} = {xb, yb};
-    Show[commonPlot,
+    Show[commonPlot[selfStyle],
       (* Radiation boundary *)
       ParametricPlot[
         {xTraced[y], y}
@@ -6118,7 +6118,7 @@ Module[
     *)
     {y1, y2} = {yb, yEnd};
     {xLocal, yLocal} = {xc, yc};
-    Show[commonPlot,
+    Show[commonPlot[selfStyle, selfStyle],
       (* Radiation boundary *)
       ParametricPlot[
         {xTraced[y], y}
