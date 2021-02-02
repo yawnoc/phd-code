@@ -5900,12 +5900,12 @@ Module[
   yTickLength = (xEnd - xStart) / 25;
   yTick[y_, xStart_: xStraight] := Line @ {{xStart, y}, {xStraight + yTickLength,  y}};
   markLength = (xEnd - xStart) / 18;
-  localPositionMark[x_, y_] :=
+  localPositionMark[y_] :=
     {Directive[AbsoluteThickness[2.5], Black],
       Line[markLength / Sqrt[2] * {{-1, -1}, {+1, +1}}],
       Line[markLength / Sqrt[2] * {{+1, -1}, {-1, +1}}],
       {}
-    } // Translate[#, {x, y}] &;
+    } // Translate[#, {xTraced[y], y}] &;
   localPositionLabel = Embolden["r"] // textStyleLocalPosition;
   (* Make common plot *)
   commonPlot =
@@ -5999,7 +5999,7 @@ Module[
       },
       (* Local position (x, y) *)
       Graphics @ {
-        localPositionMark[xLocal, yLocal],
+        localPositionMark[yLocal],
         Text[
           localPositionLabel
           , {xLocal, yLocal}
@@ -6061,7 +6061,7 @@ Module[
       },
       (* Local position (x, y) *)
       Graphics @ {
-        localPositionMark[xLocal, yLocal],
+        localPositionMark[yLocal],
         Text[
           localPositionLabel
           , {xLocal, yLocal}
@@ -6129,7 +6129,7 @@ Module[
       },
       (* Local position (x, y) *)
       Graphics @ {
-        localPositionMark[xLocal, yLocal],
+        localPositionMark[yLocal],
         Text[
           localPositionLabel
           , {xLocal, yLocal}
