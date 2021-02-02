@@ -5849,7 +5849,7 @@ Module[
   {
     yStart, yEnd,
     xStart, xEnd,
-    xTraced,
+    fun, xTraced,
     xInflection, yInflection,
     xView, yView,
     textStyle, textStyleBracket, textStyleLocalPosition,
@@ -5863,13 +5863,14 @@ Module[
     dummyForTrailingCommas
   },
   (* Radiation boundary range *)
-  {yStart, yEnd} = {-1.5, 2.1};
+  {yStart, yEnd} = {-1.3, 2};
   {xStart, xEnd} = {0.4, xStraight};
   (* Fake traced boundary for a radiation boundary *)
+  fun[y_] := Tanh[1.7y];
   xTraced[y_] :=
     Way[
       xStart, xEnd,
-      (Tanh[yStart] - Tanh[y]) / (Tanh[yStart] - Tanh[yEnd])
+      (fun[yStart] - fun[y]) / (fun[yStart] - fun[yEnd])
     ] // Evaluate;
   (* Point of inflection *)
   yInflection = 0; (* since xTraced is a rescaled version of tanh *)
@@ -6153,9 +6154,13 @@ Module[
       },
       (* Self-viewing rays *)
       Graphics @ {
-        rayArrowStyle[0.55],
         Table[
           {
+            Which[
+              yStar == y1, rayArrowStyle[0.65],
+              yStar < yLocal, rayArrowStyle[0.5],
+              True, rayArrowStyle[0.72]
+            ],
             If[yStar > y1, Nothing, tangentStyle],
             Arrow @ {
               {xTraced[yStar], yStar},
