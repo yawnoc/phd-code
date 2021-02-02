@@ -5860,13 +5860,14 @@ Module[
     xa, ya, xb, yb, xc, yc,
     commonPlot,
     xLocal, yLocal, y1, y2,
+    yStarValues,
     dummyForTrailingCommas
   },
   (* Radiation boundary range *)
   {yStart, yEnd} = {-1.3, 2};
-  {xStart, xEnd} = {0.4, xStraight};
+  {xStart, xEnd} = {0.2, xStraight};
   (* Fake traced boundary for a radiation boundary *)
-  fun[y_] := Tanh[1.7y];
+  fun[y_] := Tanh[2.5y];
   xTraced[y_] :=
     Way[
       xStart, xEnd,
@@ -5963,7 +5964,7 @@ Module[
       , ImageSize -> 0.325 ImageSizeTextWidth
       , PlotRange -> {{xStart, xEnd}, {yStart, yEnd}}
       , PlotRangePadding -> {
-          {Scaled[0.035], Scaled[0.17]},
+          {Scaled[0.04], Scaled[0.17]},
           {Scaled[0.01], Scaled[0.02]}
         }
     ];
@@ -5972,11 +5973,11 @@ Module[
     We use the intersection of the tangent line in case (b)
     as the local position for case (c), because reciprocity.
   *)
-  ya = Way[yStart, yView, 0.2];
+  ya = Way[yStart, yView, 0.3];
   xa = xTraced[ya];
-  yb = Way[yView, yInflection, 0.35];
+  yb = Way[yView, yInflection, 0.45];
   xb = xTraced[yb];
-  yc = SeekRoot[xTraced[#] + (yb + #) xTraced'[#] - Pi/2 &, {yInflection, yEnd}];
+  yc = SeekRootBisection[xTraced[#] + (yb + #) xTraced'[#] - Pi/2 &, {yInflection, yEnd}];
   xc = xTraced[yc];
   {
     (*
@@ -6086,6 +6087,7 @@ Module[
         {}
       },
       (* Self-viewing rays *)
+      yStarValues = Subdivide[y1, y2, 3];
       Graphics @ {
         rayArrowStyle[1/2],
         Table[
@@ -6096,7 +6098,7 @@ Module[
               {xLocal, yLocal}
             }
           }
-          , {yStar, Subdivide[y1, y2, 3]}
+          , {yStar, yStarValues}
         ]
       },
       {}
@@ -6153,12 +6155,18 @@ Module[
         {}
       },
       (* Self-viewing rays *)
+      yStarValues = Join[
+        Subdivide[y1, yLocal, 2] // Most,
+        {Way[yLocal, yEnd, 0.25], yEnd},
+        {}
+      ];
       Graphics @ {
         Table[
           {
             Which[
               yStar == y1, rayArrowStyle[0.65],
               yStar < yLocal, rayArrowStyle[0.5],
+              yStar < Way[yLocal, yEnd], rayArrowStyle[0.45],
               True, rayArrowStyle[0.72]
             ],
             If[yStar > y1, Nothing, tangentStyle],
@@ -6167,7 +6175,7 @@ Module[
               {xLocal, yLocal}
             }
           }
-          , {yStar, Subdivide[y1, yLocal, 2] // Most // Append[yEnd]}
+          , {yStar, yStarValues}
         ]
       },
       {}
