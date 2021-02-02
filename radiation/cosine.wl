@@ -5841,6 +5841,121 @@ Module[
 
 
 (* ::Section:: *)
+(*Figure: Simple case self-viewing bounds (cosine_simple-self-viewing-bounds-*.pdf)*)
+
+
+(* Here we use a fake traced boundary (tanh) to exaggerate the features. *)
+Module[
+  {
+    yStart, yEnd,
+    xStart, xEnd,
+    (*xMin, xMax, yMin, yMax,*)
+    xTraced,
+    xInflection, yInflection,
+    xView, yView,
+    textStyle, textStyleBracket,
+    coordinatePair,
+    commonPlot,
+    dummyForTrailingCommas
+  },
+  (* Radiation boundary range *)
+  {yStart, yEnd} = {-2.3, 2.5};
+  {xStart, xEnd} = {0, xStraight};
+  (* Plot range *)(*
+  xMin = Way[xStart, xEnd, -0.075];
+  xMax = Way[xStart, xEnd, +1.3];
+  yMin = Way[yStart, yEnd, -0.02];
+  yMax = Way[yStart, yEnd, +1.075];*)
+  (* Fake traced boundary for a radiation boundary *)
+  xTraced[y_] :=
+    Way[
+      xStart, xEnd,
+      (Tanh[yStart] - Tanh[y]) / (Tanh[yStart] - Tanh[yEnd])
+    ] // Evaluate;
+  (* Point of inflection *)
+  yInflection = 0; (* since xTraced is a rescaled version of tanh *)
+  xInflection = xTraced[yInflection];
+  (* Lowest visible point (self-viewing extremity) *)
+  yView = SeekRoot[xTraced[#] + (yEnd - #) xTraced'[#] - Pi/2 &, {yStart, yInflection}];
+  xView = xTraced[yView];
+  (* Text functions *)
+  textStyle = Style[#, LabelSize["Point"]] & @* LaTeXStyle;
+  textStyleBracket = Style[#, LabelSize["PointBracket"]] &;
+  coordinatePair[x_, y_] :=
+    Row @ {
+      "(" // textStyleBracket,
+      "",
+      x,
+      ",\[ThinSpace]",
+      y,
+      ")" // textStyleBracket
+    } // textStyle;
+  (* Make common plot *)
+  commonPlot =
+    Show[
+      (* Domain boundaries *)
+      ParametricPlot[
+        {{xTraced[y], y}, {xStraight, y}}
+        , {y, yStart, yEnd}
+        , Axes -> None
+        , PlotPoints -> 2
+        , PlotRange -> Full
+        , PlotStyle -> BoundaryTracingStyle /@ {"Traced", "Contour"}
+      ],
+      (* Uppermost tip *)
+      Graphics @ {GeneralStyle["Point"],
+        Point @ {xEnd, yEnd},
+        Text[
+          coordinatePair[
+            SeparatedRow["VeryThin"]["\[Pi]", "/", 2],
+            Subscript[Italicise["y"], "e"]
+          ]
+          , {xEnd, yEnd}
+          , {0, -1.5}
+        ],
+        {}
+      },
+      (* Point of inflection *)
+      Graphics @ {GeneralStyle["Point"],
+        Point @ {xInflection, yInflection},
+        Text[
+          coordinatePair[
+            Subscript[Italicise["x"], "i"],
+            Subscript[Italicise["y"], "i"]
+          ]
+          , {xInflection, yInflection}
+          , {-1.3, 0.5}
+        ],
+        {}
+      },
+      (* Lowest visible point (self-viewing extremity) *)
+      Graphics @ {GeneralStyle["Point"],
+        Point @ {xView, yView},
+        Text[
+          coordinatePair[
+            Subscript[Italicise["x"], "v"],
+            Subscript[Italicise["y"], "v"]
+          ]
+          , {xView, yView}
+          , {-1.3, 0}
+        ],
+        {}
+      },
+      {}
+      , ImageSize -> 0.32 ImageSizeTextWidth
+      , PlotRange -> {{xStart, xEnd}, {yStart, yEnd}}
+      , PlotRangePadding -> {
+          {Scaled[0.1], Scaled[0.25]},
+          {Scaled[0.02], Scaled[0.07]}
+        }
+    ];
+  Show[
+    commonPlot
+  ]
+]
+
+
+(* ::Section:: *)
 (*Figure: General case (un)physical region and (non-)viable domain (cosine_general-physical-viable.pdf)*)
 
 
