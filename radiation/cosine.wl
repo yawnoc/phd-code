@@ -5855,7 +5855,7 @@ Module[
     xView, yView,
     textStyle, textStyleBracket, textStyleLocalPosition,
     coordinatePairLabel,
-    tangentStyle, selfStyle, rayArrowStyle,
+    tangentStyle, goodStyle, selfStyle, rayArrowStyle,
     yTickLength, yTick,
     markLength, localPositionMark, localPositionLabel,
     xa, ya, xb, yb, xc, yc,
@@ -5864,7 +5864,7 @@ Module[
     dummyForTrailingCommas
   },
   (* Radiation boundary range *)
-  {yStart, yEnd} = {-1.7, 3};
+  {yStart, yEnd} = {-1.7, 2.5};
   {xStart, xEnd} = {0.4, xStraight};
   (* Fake traced boundary for a radiation boundary *)
   xTraced[y_] :=
@@ -5893,10 +5893,11 @@ Module[
     } // textStyle;
   (* Plot styles *)
   tangentStyle = Directive[Thickness[Small], GeneralStyle["Dashed"]];
-  selfStyle = Directive[Black, AbsoluteThickness[4]];
+  goodStyle = Directive[Black, GeneralStyle["DefaultThick"]];
+  selfStyle = Directive[BoundaryTracingStyle["Background"], AbsoluteThickness[4]];
   rayArrowStyle[p_] := Arrowheads @ {{0.07, p}};
   yTickLength = (xEnd - xStart) / 25;
-  yTick[y_] := Line @ {{xStraight, y}, {xStraight + yTickLength,  y}};
+  yTick[y_, xStart_: xStraight] := Line @ {{xStart, y}, {xStraight + yTickLength,  y}};
   markLength = (xEnd - xStart) / 18;
   localPositionMark[x_, y_] :=
     {Directive[AbsoluteThickness[2.5], Black],
@@ -5908,20 +5909,10 @@ Module[
   (* Make common plot *)
   commonPlot =
     Show[
-      (* Domain boundaries *)
-      ParametricPlot[
-        {{xTraced[y], y}, {xStraight, y}}
-        , {y, yStart, yEnd}
-        , Axes -> None
-        , PlotPoints -> 2
-        , PlotRange -> Full
-        , PlotStyle -> {
-            Directive[Black, AbsoluteThickness[2]],
-            BoundaryTracingStyle["Contour"]
-          }
-      ],
-      (* x-straight label *)
+      (* Constant-temperature boundary *)
       Graphics @ {
+        BoundaryTracingStyle["Contour"],
+        Line @ {{xStraight, yStart}, {xStraight, yEnd}},
         Text[
           xIt == SeparatedRow["VeryThin"]["\[Pi]", "/", 2] // textStyle
           , {xStraight, yStart}
@@ -5973,7 +5964,7 @@ Module[
       , PlotRange -> {{xStart, xEnd}, {yStart, yEnd}}
       , PlotRangePadding -> {
           {Scaled[0.035], Scaled[0.17]},
-          {Scaled[0.02], Scaled[0.05]}
+          {Scaled[0.01], Scaled[0.02]}
         }
     ];
   (* Local position for each case *)
@@ -5995,6 +5986,12 @@ Module[
     *)
     {xLocal, yLocal} = {xa, ya};
     Show[commonPlot,
+      (* Radiation boundary *)
+      ParametricPlot[
+        {xTraced[y], y}
+        , {y, yStart, yEnd}
+        , PlotStyle -> goodStyle
+      ],
       (* Tangent line through (x_v, y_v) *)
       Graphics @ {tangentStyle,
         HalfLine @ {{xEnd, yEnd}, {xView, yView}}
@@ -6046,6 +6043,17 @@ Module[
     {y1, y2} = {yc, yEnd};
     {xLocal, yLocal} = {xb, yb};
     Show[commonPlot,
+      (* Radiation boundary *)
+      ParametricPlot[
+        {xTraced[y], y}
+        , {y, yStart, y1}
+        , PlotStyle -> goodStyle
+      ],
+      ParametricPlot[
+        {xTraced[y], y}
+        , {y, y1, y2}
+        , PlotStyle -> selfStyle
+      ],
       (* Tangent line through (x_b, y_y) *)
       Graphics @ {tangentStyle,
         HalfLine[{xb, yb}, {xb, yb} - {xc, yc}]
@@ -6069,7 +6077,7 @@ Module[
           , {-1.4, -0.1}
         ],
         (* y_1 *)
-        yTick[y1],
+        yTick[y1, xTraced[y1]],
         Text[
           Subscript[Italicise["y"], 1] // textStyle
           , {xStraight + yTickLength, y1}
@@ -6102,6 +6110,17 @@ Module[
     {y1, y2} = {yb, yEnd};
     {xLocal, yLocal} = {xc, yc};
     Show[commonPlot,
+      (* Radiation boundary *)
+      ParametricPlot[
+        {xTraced[y], y}
+        , {y, yStart, y1}
+        , PlotStyle -> goodStyle
+      ],
+      ParametricPlot[
+        {xTraced[y], y}
+        , {y, y1, y2}
+        , PlotStyle -> selfStyle
+      ],
       (* Tangent line through (x_b, y_y) *)
       Graphics @ {tangentStyle,
         HalfLine[{xb, yb}, {xb, yb} - {xc, yc}]
@@ -6125,7 +6144,7 @@ Module[
           , {-1.4, -0.1}
         ],
         (* y_1 *)
-        yTick[y1],
+        yTick[y1, xTraced[y1]],
         Text[
           Subscript[Italicise["y"], 1] // textStyle
           , {xStraight + yTickLength, y1}
@@ -6135,7 +6154,7 @@ Module[
       },
       (* Self-viewing rays *)
       Graphics @ {
-        rayArrowStyle[0.65],
+        rayArrowStyle[0.55],
         Table[
           {
             If[yStar > y1, Nothing, tangentStyle],
