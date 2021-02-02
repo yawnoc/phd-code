@@ -1709,8 +1709,8 @@ Module[
 
 (* ::Text:: *)
 (*The asymmetric domain shall have corner at*)
-(*  x-coordinate 1/4 of the way from x_i(straight) to x_i(axis), and*)
-(*  y-coordinate 1/2 of the way from 0 to the negative y, along that x,*)
+(*  x-coordinate 1/10 of the way from x_i(straight) to x_i(axis), and*)
+(*  y-coordinate 3/4 of the way from 0 to the negative y, along that x,*)
 (*    where inflection occurs for the lower branch.*)
 
 
@@ -1727,17 +1727,17 @@ Module[
     Asymmetric domain corner
     ------------------------------------------------
     xAsymmCorner:
-      1/4 of the way from x_i(straight) to x_i(axis)
+      1/10 of the way from x_i(straight) to x_i(axis)
     yAsymmCorner:
-      1/2 of the way from 0 to the negative y, along that x,
+      3/4 of the way from 0 to the negative y, along that x,
       where inflection occurs for the lower branch.
    *)
-  xAsymmCorner = Way[xInflStraight, xInflAxis, 1/4];
+  xAsymmCorner = Way[xInflStraight, xInflAxis, 1/10];
   yInflNegative = SeekFirstRootBisection[
     curTra[a, b][xAsymmCorner, #] &,
     {0, -0.5}
   ];
-  yAsymmCorner = Way[0, yInflNegative, 1/2];
+  yAsymmCorner = Way[0, yInflNegative, 3/4];
   (*
     ------------------------------------------------
     Asymmetric domain boundaries
