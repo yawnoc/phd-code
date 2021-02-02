@@ -5854,6 +5854,10 @@ Module[
     xView, yView,
     textStyle, textStyleBracket, textStyleLocalPosition,
     coordinatePairLabel,
+      yEndLabel,
+      xInflectionLabel, yInflectionLabel,
+      xViewLabel, yViewLabel,
+      y1Label, y2Label,
     tangentStyle, goodStyle, selfStyle, rayArrowStyle,
     yTickLength, yTick,
     markLength, localPositionMark, localPositionLabel,
@@ -5892,6 +5896,14 @@ Module[
       y,
       ")" // textStyleBracket
     } // textStyle;
+  (* Subscripts with invisible spacing *)
+  yEndLabel = Subscript[Italicise["y"], "\[VeryThinSpace]e"];
+  xInflectionLabel = Subscript[Italicise["x"], "\[VeryThinSpace]\[VeryThinSpace]i"];
+  yInflectionLabel = Subscript[Italicise["y"], "\[VeryThinSpace]i"];
+  xViewLabel = Subscript[Italicise["x"], "\[VeryThinSpace]\[VeryThinSpace]v"];
+  yViewLabel = Subscript[Italicise["y"], "\[VeryThinSpace]v"];
+  y1Label = Subscript[Italicise["y"], "\[VeryThinSpace]1"];
+  y2Label = Subscript[Italicise["y"], "\[VeryThinSpace]2"];
   (* Plot styles *)
   tangentStyle = Directive[Thickness[Small], GeneralStyle["Dashed"]];
   goodStyle = Directive[Black, AbsoluteThickness[3], CapForm["Butt"]];
@@ -5916,7 +5928,11 @@ Module[
       // Rotate[#, ang, {0, 0}] &
       // Translate[#, {xTraced[y], y}] &
   );
-  localPositionLabel = Embolden["r"] // textStyleLocalPosition;
+  localPositionLabel =
+    coordinatePairLabel[
+      Italicise["x"],
+      Row @ {Italicise["y"], "\[VeryThinSpace]"}
+    ] // textStyleLocalPosition;
   (* Make common plot *)
   commonPlot[endStyle_: goodStyle, inflectionStyle_: goodStyle] :=
     Show[
@@ -5937,7 +5953,7 @@ Module[
         Text[
           coordinatePairLabel[
             SeparatedRow["VeryThin"]["\[Pi]", "/", 2],
-            Subscript[Italicise["y"], "e"]
+            yEndLabel
           ]
           , {xEnd, yEnd}
           , {1.3, -0.2}
@@ -5948,10 +5964,7 @@ Module[
       Graphics @ {GeneralStyle["Point"],
         {inflectionStyle, Point @ {xInflection, yInflection}},
         Text[
-          coordinatePairLabel[
-            Subscript[Italicise["x"], "i"],
-            Subscript[Italicise["y"], "i"]
-          ]
+          coordinatePairLabel[xInflectionLabel, yInflectionLabel]
           , {xInflection, yInflection}
           , {-1.35, 0.4}
         ],
@@ -5961,10 +5974,7 @@ Module[
       Graphics @ {GeneralStyle["Point"],
         Point @ {xView, yView},
         Text[
-          coordinatePairLabel[
-            Subscript[Italicise["x"], "v"],
-            Subscript[Italicise["y"], "v"]
-          ]
+          coordinatePairLabel[xViewLabel, yViewLabel]
           , {xView, yView}
           , {-1.3, 0.25}
         ],
@@ -6013,7 +6023,7 @@ Module[
         Text[
           localPositionLabel
           , {xLocal, yLocal}
-          , {-4.4, -0.15}
+          , {-1.65, -0.15}
         ],
         {}
       },
@@ -6021,7 +6031,7 @@ Module[
       Graphics @ {
         yTick[yInflection],
         Text[
-          Subscript[Italicise["y"], "i"] // textStyle
+          yInflectionLabel // textStyle
           , {xStraight + yTickLength, yInflection}
           , {-1.8, -0.1}
         ],
@@ -6076,7 +6086,7 @@ Module[
         Text[
           localPositionLabel
           , {xLocal, yLocal}
-          , {-4.4, 0.2}
+          , {-1.7, 0.2}
         ],
         {}
       },
@@ -6084,14 +6094,14 @@ Module[
       Graphics @ {
         (* y_2 *)
         Text[
-          Subscript[Italicise["y"], 2] // textStyle
+          y2Label // textStyle
           , {xStraight + yTickLength, y2}
           , {-1.4, -0.1}
         ],
         (* y_1 *)
         yTick[y1, xTraced[y1]],
         Text[
-          Subscript[Italicise["y"], 1] // textStyle
+          y1Label // textStyle
           , {xStraight + yTickLength, y1}
           , {-1.7, -0.1}
         ],
@@ -6145,7 +6155,7 @@ Module[
         Text[
           localPositionLabel
           , {xLocal, yLocal}
-          , {4.4, -0.5}
+          , {1.65, -0.5}
         ],
         {}
       },
@@ -6153,14 +6163,14 @@ Module[
       Graphics @ {
         (* y_2 *)
         Text[
-          Subscript[Italicise["y"], 2] // textStyle
+          y2Label // textStyle
           , {xStraight + yTickLength, y2}
           , {-1.4, -0.1}
         ],
         (* y_1 *)
         yTick[y1, xTraced[y1]],
         Text[
-          Subscript[Italicise["y"], 1] // textStyle
+          y1Label // textStyle
           , {xStraight + yTickLength, y1}
           , {-1.7, -0.1}
         ],
