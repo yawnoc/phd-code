@@ -5855,7 +5855,7 @@ Module[
     xView, yView,
     textStyle, textStyleBracket, textStyleLocalPosition,
     coordinatePairLabel,
-    tangentStyle, selfStyle,
+    tangentStyle, selfStyle, rayArrowStyle,
     yTickLength, yTick,
     markLength, localPositionMark, localPositionLabel,
     xa, ya, xb, yb, xc, yc,
@@ -5864,7 +5864,7 @@ Module[
     dummyForTrailingCommas
   },
   (* Radiation boundary range *)
-  {yStart, yEnd} = {-1.8, 2.5};
+  {yStart, yEnd} = {-1.7, 2.5};
   {xStart, xEnd} = {0.2, xStraight};
   (* Fake traced boundary for a radiation boundary *)
   xTraced[y_] :=
@@ -5894,6 +5894,7 @@ Module[
   (* Plot styles *)
   tangentStyle = Directive[Thickness[Small], GeneralStyle["Dashed"]];
   selfStyle = Directive[Black, GeneralStyle["VeryThick"]];
+  rayArrowStyle[p_] := Arrowheads @ {{0.1, p}};
   yTickLength = (xEnd - xStart) / 25;
   yTick[y_] := Line @ {{xStraight, y}, {xStraight + yTickLength,  y}};
   markLength = (xEnd - xStart) / 18;
@@ -5990,9 +5991,9 @@ Module[
     We use the intersection of the tangent line in case (b)
     as the local position for case (c), because reciprocity.
   *)
-  ya = Way[yStart, yView, 1/4];
+  ya = Way[yStart, yView, 0.2];
   xa = xTraced[ya];
-  yb = Way[yView, yInflection, 1/3];
+  yb = Way[yView, yInflection, 0.3];
   xb = xTraced[yb];
   yc = SeekRoot[xTraced[#] + (yb + #) xTraced'[#] - Pi/2 &, {yInflection, yEnd}];
   xc = xTraced[yc];
@@ -6047,7 +6048,7 @@ Module[
     Show[commonPlot,
       (* Tangent line through (x_b, y_y) *)
       Graphics @ {tangentStyle,
-        HalfLine @ {{xc, yc}, {xb, yb}}
+        HalfLine[{xb, yb}, {xb, yb} - {xc, yc}]
       },
       (* Local position (x, y) *)
       Graphics @ {
@@ -6065,7 +6066,7 @@ Module[
         Text[
           Subscript[Italicise["y"], 2] // textStyle
           , {xStraight + yTickLength, y2}
-          , {-1.5, -0.1}
+          , {-1.4, -0.1}
         ],
         (* y_1 *)
         yTick[y1],
@@ -6086,12 +6087,16 @@ Module[
       ],
       (* Self-viewing rays *)
       Graphics @ {
+        rayArrowStyle[1/2],
         Table[
-          Arrow @ {
-            {xTraced[yStar], yStar},
-            {xLocal, yLocal}
+          {
+            If[yStar > y1, Nothing, tangentStyle],
+            Arrow @ {
+              {xTraced[yStar], yStar},
+              {xLocal, yLocal}
+            }
           }
-          , {yStar, Subdivide[y1, y2, 3] // Rest}
+          , {yStar, Subdivide[y1, y2, 3]}
         ]
       },
       {}
