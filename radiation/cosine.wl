@@ -5849,7 +5849,6 @@ Module[
   {
     yStart, yEnd,
     xStart, xEnd,
-    (*xMin, xMax, yMin, yMax,*)
     xTraced,
     xInflection, yInflection,
     xView, yView,
@@ -5864,7 +5863,7 @@ Module[
     dummyForTrailingCommas
   },
   (* Radiation boundary range *)
-  {yStart, yEnd} = {-1.7, 2.5};
+  {yStart, yEnd} = {-1.5, 2.1};
   {xStart, xEnd} = {0.4, xStraight};
   (* Fake traced boundary for a radiation boundary *)
   xTraced[y_] :=
@@ -5893,8 +5892,8 @@ Module[
     } // textStyle;
   (* Plot styles *)
   tangentStyle = Directive[Thickness[Small], GeneralStyle["Dashed"]];
-  goodStyle = Directive[Black, GeneralStyle["DefaultThick"]];
-  selfStyle = Directive[BoundaryTracingStyle["Background"], AbsoluteThickness[4]];
+  goodStyle = Directive[Black, AbsoluteThickness[2]];
+  selfStyle = Directive[Gray, GeneralStyle["Translucent"], AbsoluteThickness[4]];
   rayArrowStyle[p_] := Arrowheads @ {{0.07, p}};
   yTickLength = (xEnd - xStart) / 25;
   yTick[y_, xStart_: xStraight] := Line @ {{xStart, y}, {xStraight + yTickLength,  y}};
@@ -5974,7 +5973,7 @@ Module[
   *)
   ya = Way[yStart, yView, 0.2];
   xa = xTraced[ya];
-  yb = Way[yView, yInflection, 0.3];
+  yb = Way[yView, yInflection, 0.35];
   xb = xTraced[yb];
   yc = SeekRoot[xTraced[#] + (yb + #) xTraced'[#] - Pi/2 &, {yInflection, yEnd}];
   xc = xTraced[yc];
