@@ -5864,8 +5864,8 @@ Module[
     dummyForTrailingCommas
   },
   (* Radiation boundary range *)
-  {yStart, yEnd} = {-1.7, 2.5};
-  {xStart, xEnd} = {0.2, xStraight};
+  {yStart, yEnd} = {-1.7, 3};
+  {xStart, xEnd} = {0.4, xStraight};
   (* Fake traced boundary for a radiation boundary *)
   xTraced[y_] :=
     Way[
@@ -5893,8 +5893,8 @@ Module[
     } // textStyle;
   (* Plot styles *)
   tangentStyle = Directive[Thickness[Small], GeneralStyle["Dashed"]];
-  selfStyle = Directive[Black, GeneralStyle["VeryThick"]];
-  rayArrowStyle[p_] := Arrowheads @ {{0.1, p}};
+  selfStyle = Directive[Black, AbsoluteThickness[4]];
+  rayArrowStyle[p_] := Arrowheads @ {{0.07, p}};
   yTickLength = (xEnd - xStart) / 25;
   yTick[y_] := Line @ {{xStraight, y}, {xStraight + yTickLength,  y}};
   markLength = (xEnd - xStart) / 18;
@@ -5968,21 +5968,11 @@ Module[
         ],
         {}
       },
-      (* Inflection tick *)
-      Graphics @ {
-        yTick[yInflection],
-        Text[
-          Subscript[Italicise["y"], "i"] // textStyle
-          , {xStraight + yTickLength, yInflection}
-          , {-1.8, -0.1}
-        ],
-        {}
-      },
       {}
-      , ImageSize -> 0.32 ImageSizeTextWidth
+      , ImageSize -> 0.325 ImageSizeTextWidth
       , PlotRange -> {{xStart, xEnd}, {yStart, yEnd}}
       , PlotRangePadding -> {
-          {Scaled[0.05], Scaled[0.17]},
+          {Scaled[0.035], Scaled[0.17]},
           {Scaled[0.02], Scaled[0.05]}
         }
     ];
@@ -6016,6 +6006,16 @@ Module[
           localPositionLabel
           , {xLocal, yLocal}
           , {-4.4, -0.15}
+        ],
+        {}
+      },
+      (* Inflection tick *)
+      Graphics @ {
+        yTick[yInflection],
+        Text[
+          Subscript[Italicise["y"], "i"] // textStyle
+          , {xStraight + yTickLength, yInflection}
+          , {-1.8, -0.1}
         ],
         {}
       },
@@ -6077,14 +6077,6 @@ Module[
         ],
         {}
       },
-      (* Self-viewing portion *)
-      ParametricPlot[
-        {xTraced[y], y}
-        , {y, y1, y2}
-        , PlotPoints -> 2
-        , PlotRange -> Full
-        , PlotStyle -> selfStyle
-      ],
       (* Self-viewing rays *)
       Graphics @ {
         rayArrowStyle[1/2],
@@ -6097,6 +6089,62 @@ Module[
             }
           }
           , {yStar, Subdivide[y1, y2, 3]}
+        ]
+      },
+      {}
+    ]
+    ,
+    (*
+      --------------------------------
+      (c) y_i < y < y_e
+      --------------------------------
+    *)
+    {y1, y2} = {yb, yEnd};
+    {xLocal, yLocal} = {xc, yc};
+    Show[commonPlot,
+      (* Tangent line through (x_b, y_y) *)
+      Graphics @ {tangentStyle,
+        HalfLine[{xb, yb}, {xb, yb} - {xc, yc}]
+      },
+      (* Local position (x, y) *)
+      Graphics @ {
+        localPositionMark[xLocal, yLocal],
+        Text[
+          localPositionLabel
+          , {xLocal, yLocal}
+          , {4.4, -0.15}
+        ],
+        {}
+      },
+      (* Bound ticks *)
+      Graphics @ {
+        (* y_2 *)
+        Text[
+          Subscript[Italicise["y"], 2] // textStyle
+          , {xStraight + yTickLength, y2}
+          , {-1.4, -0.1}
+        ],
+        (* y_1 *)
+        yTick[y1],
+        Text[
+          Subscript[Italicise["y"], 1] // textStyle
+          , {xStraight + yTickLength, y1}
+          , {-1.7, -0.1}
+        ],
+        {}
+      },
+      (* Self-viewing rays *)
+      Graphics @ {
+        rayArrowStyle[0.65],
+        Table[
+          {
+            If[yStar > y1, Nothing, tangentStyle],
+            Arrow @ {
+              {xTraced[yStar], yStar},
+              {xLocal, yLocal}
+            }
+          }
+          , {yStar, Subdivide[y1, yLocal, 2] // Most // Append[yEnd]}
         ]
       },
       {}
