@@ -6068,11 +6068,11 @@ Module[
       },
       (* Local position (x, y) *)
       Graphics @ {
-        localPositionMark[yLocal, -15 Degree],
+        localPositionMark[yLocal, -20 Degree],
         Text[
           localPositionLabel
           , {xLocal, yLocal}
-          , {-4.4, 0}
+          , {-4.4, 0.2}
         ],
         {}
       },
@@ -6136,11 +6136,11 @@ Module[
       },
       (* Local position (x, y) *)
       Graphics @ {
-        localPositionMark[yLocal],
+        localPositionMark[yLocal, -10 Degree],
         Text[
           localPositionLabel
           , {xLocal, yLocal}
-          , {4.4, -0.15}
+          , {4.4, -0.5}
         ],
         {}
       },
