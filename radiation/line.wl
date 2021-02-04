@@ -2114,7 +2114,7 @@ Module[
   phi = 40 Degree;
   xi = rSharp (Sec[phi] - 1); (* see (r2.24) *)
   (* Vertical extent of tangent line *)
-  yMax = 1.1 rSharp;
+  yMax = 1.2 rSharp;
   (* Styles *)
   angleMarkerLength = 0.25 rSharp;
   orthogonalityMarkerLength = 0.1 rSharp;
@@ -2124,7 +2124,10 @@ Module[
   Show[
     Graphics @ {
       (* Circle r == r_sharp *)
-      Circle[{0, 0}, rSharp],
+      {
+        BoundaryTracingStyle["Terminal"],
+        Circle[{0, 0}, rSharp]
+      },
       (* Radius unto tangent line *)
       Line @ {{0, 0}, {rSharp, 0}},
       Text[
@@ -2152,7 +2155,10 @@ Module[
         , XYPolar[2, 0.62 phi/2 + Pi]
       ],
       (* Tangent line *)
-      Line @ {{rSharp, -yMax}, {rSharp, yMax}},
+      {
+        BoundaryTracingStyle["Traced"],
+        Line @ {{rSharp, -yMax}, {rSharp, yMax}}
+      },
       (* Orthogonality marker *)
       Line[
         {rSharp, 0} + orthogonalityMarkerLength * # & /@{
