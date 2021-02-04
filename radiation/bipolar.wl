@@ -4378,6 +4378,7 @@ Module[
     xMax, yMax,
     textStyleLabel, textStyleContour,
     uContourText, vContourText, basisVectorText,
+    curvilinearStyle,
     basisVectorStyle, basisVectorLength,
     orthogonalityMarkerLength,
     updValues, uValues, uValuesLessThanPi, vValues,
@@ -4397,6 +4398,7 @@ Module[
   vContourText[value_] := Italicise["v"] == value // textStyleContour;
   basisVectorText[coord_] := Subscript[Embolden["a"], Italicise[coord]] // textStyleLabel;
   (* Styles *)
+  curvilinearStyle = GeneralStyle["DefaultThick"];
   basisVectorStyle = Directive[Thickness[0.008], Arrowheads[0.03]];
   basisVectorLength = 0.25 xMax;
   orthogonalityMarkerLength = basisVectorLength / 6.5;
@@ -4404,12 +4406,14 @@ Module[
   Show[
     EmptyAxes[{-xMax, xMax}, {-yMax, yMax}
       , AspectRatio -> Automatic
+      , AxesStyle -> curvilinearStyle
       , Ticks -> None
     ],
     (* v-contours *)
     vValues = {0.5, 1, 2};
     vValues = Flatten @ {-vValues // Reverse, vValues};
     Graphics @ {
+      curvilinearStyle,
       Table[
         {
           Circle[{Coth[v], 0}, Csch[v] // Abs],
@@ -4442,6 +4446,7 @@ Module[
     (* (avoid doubled u-contours) *)
     uValuesLessThanPi = uValues // Select[# < Pi &];
     Graphics @ {
+      curvilinearStyle,
       Table[
         Circle[{0, Cot[u]}, Csc[u] // Abs]
         , {u, uValuesLessThanPi}
