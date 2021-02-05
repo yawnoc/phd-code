@@ -4627,7 +4627,7 @@ Module[
         {}
       },
       (* Singularities *)
-      singularityLabelOffset = {0, If[u < Pi, +0.9, -1.4]};
+      singularityLabelOffset = If[u < Pi, {0.18, 1}, {0.22, -1.5}];
       Graphics @ {PointSize[Medium],
         Point @ {singularityNegative, singularityPositive},
         Text[
@@ -4645,7 +4645,7 @@ Module[
       {}
       , ImageSize -> 0.35 ImageSizeTextWidth
       , PlotRange -> {{-xMax, xMax}, {yMin, yMax}}
-      , PlotRangePadding -> {Scaled[0.1], {Scaled[0.15], Scaled[0.03]}}
+      , PlotRangePadding -> {{Scaled[0.12], Scaled[0.07]}, {Scaled[0.2], Scaled[0.03]}}
     ]
       // Ex @ FString["bipolar-u-{case}-than-pi.pdf"]
     , {case, {"less", "more"}}
