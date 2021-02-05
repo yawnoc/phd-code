@@ -4651,3 +4651,70 @@ Module[
     , {case, {"less", "more"}}
   ]
 ]
+
+
+(* ::Section:: *)
+(*Figure: critical terminal points & viable domain (bipolar-viable)*)
+
+
+Module[
+  {
+    regimeList, realA,
+    fakeCoshPlus, fakeCoshMinus, fakeQuartic,
+    vMinFake, vMaxFake, fakeA,
+    criticalPlot,
+    dummyForTrailingCommas
+  },
+  (* Five real regimes *)
+  regimeList = {"hot", "warm_hot", "warm", "cold_warm", "cold"};
+  realA = AssociationThread[regimeList ->
+    {aHot, aNatPi, aWarm, aNat0, aCold}
+  ];
+  (*
+    For the critical terminal points plot,
+    we use fake versions of cosh and v^4 because
+    the real versions are too bunched up to comprehend.
+  *)
+  fakeCoshPlus[v_] := v^4 + 1;
+  fakeCoshMinus[v_] := v^4 + 1/2;
+  fakeQuartic[a_][v_] := v / a;
+  {vMinFake, vMaxFake} = {0, 1.3};
+  (* Five fake regimes *)
+  fakeA["warm_hot"] =
+    Last @ FindRoot[
+      Function[{v, a},
+        {
+          fakeCoshPlus[v] - fakeQuartic[a][v],
+          fakeCoshPlus'[v] - fakeQuartic[a]'[v]
+        }
+      ],
+      {{0.75}, {0.55}}
+    ];
+  fakeA["cold_warm"] =
+    Last @ FindRoot[
+      Function[{v, a},
+        {
+          fakeCoshMinus[v] - fakeQuartic[a][v],
+          fakeCoshMinus'[v] - fakeQuartic[a]'[v]
+        }
+      ],
+      {{0.6}, {0.95}}
+    ];
+  (* Make all plots *)
+  Table[
+    (* BEGIN Table content *)
+    criticalPlot = Show[
+      Plot[
+        {fakeCoshPlus[v], fakeCoshMinus[v], fakeQuartic[fakeA[regime]][v]}
+        , {v, vMinFake, vMaxFake}
+        , AxesLabel -> {vIt, None}
+        , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+        , PlotRange -> {0, Automatic}
+        , Ticks -> None
+      ]
+    ];
+    criticalPlot
+    (* END Table content *)
+    , {regime, regimeList}
+  ]
+]
