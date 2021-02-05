@@ -4661,8 +4661,13 @@ Module[
   {
     regimeList, realA,
     fakeCoshPlus, fakeCoshMinus, fakeQuartic,
-    vMinFake, vMaxFake, fakeA,
+    vMinFake, vMaxFake, fMinFake, fMaxFake,
+    fakeV, fakeA,
+    textStyle,
+    terminalStyleFake, guideStyleFake,
     criticalPlot,
+      vFlat0Fake, vSharp0Fake,
+      vFlatPiFake, vSharpPiFake,
     dummyForTrailingCommas
   },
   (* Five real regimes *)
@@ -4679,9 +4684,10 @@ Module[
   fakeCoshMinus[v_] := v^4 + 1/2;
   fakeQuartic[a_][v_] := v / a;
   {vMinFake, vMaxFake} = {0, 1.3};
+  {fMinFake, fMaxFake} = {0, fakeCoshPlus[vMaxFake]};
   (* Five fake regimes *)
-  fakeA["warm_hot"] =
-    Last @ FindRoot[
+  {fakeV["warm_hot"], fakeA["warm_hot"]} =
+    FindRoot[
       Function[{v, a},
         {
           fakeCoshPlus[v] - fakeQuartic[a][v],
@@ -4690,8 +4696,8 @@ Module[
       ],
       {{0.75}, {0.55}}
     ];
-  fakeA["cold_warm"] =
-    Last @ FindRoot[
+  {fakeV["cold_warm"], fakeA["cold_warm"]} =
+    FindRoot[
       Function[{v, a},
         {
           fakeCoshMinus[v] - fakeQuartic[a][v],
@@ -4703,6 +4709,11 @@ Module[
   fakeA["hot"] = 0.8 fakeA["warm_hot"];
   fakeA["warm"] = Way[fakeA["warm_hot"], fakeA["cold_warm"], 1/3];
   fakeA["cold"] = 1.7 fakeA["cold_warm"];
+  (* Text functions *)
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  (* Styles *)
+  terminalStyleFake = PointSize[Medium];
+  guideStyleFake = BoundaryTracingStyle["Contour"];
   (* Make all plots *)
   Table[
     (* BEGIN Table content *)
@@ -4713,8 +4724,81 @@ Module[
         , {v, vMinFake, vMaxFake}
         , AxesLabel -> {vIt, None}
         , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
-        , PlotRange -> {0, fakeCoshPlus[vMaxFake]}
+        , PlotRange -> {fMinFake, fMaxFake}
+        , PlotRangeClipping -> False
+        , PlotRangePadding -> {Automatic, {Scaled[0.2], Automatic}}
         , Ticks -> None
+      ],
+      (* Critical terminal points along u == 0 *)
+      Which[
+        (* Two distinct terminal points *)
+        realA[regime] < realA["cold_warm"],
+        Graphics @ {
+          (* v_\[Flat]0 *)
+          vFlat0Fake = SeekRoot[
+            fakeCoshMinus[#] - fakeQuartic[fakeA[regime]][#] &,
+            {vMinFake, fakeV["cold_warm"]}, 4
+          ];
+          {terminalStyleFake,
+            Point @ {vFlat0Fake, fakeCoshMinus[vFlat0Fake]}
+          },
+          {guideStyleFake,
+            Line @ {
+              {vFlat0Fake, fakeCoshMinus[vFlat0Fake]},
+              {vFlat0Fake, fMinFake}
+            }
+          },
+          Text[
+            Subscript[vIt, "\[Flat]0"] // textStyle
+            , {vFlat0Fake, fMinFake}
+            , {0, 1}
+          ],
+          (* v_\[Sharp]0 *)
+          vSharp0Fake = SeekRoot[
+            fakeCoshMinus[#] - fakeQuartic[fakeA[regime]][#] &,
+            {fakeV["cold_warm"], vMaxFake}, 4
+          ];
+          {terminalStyleFake,
+            Point @ {vSharp0Fake, fakeCoshMinus[vSharp0Fake]}
+          },
+          {guideStyleFake,
+            Line @ {
+              {vSharp0Fake, fakeCoshMinus[vSharp0Fake]},
+              {vSharp0Fake, fMinFake}
+            }
+          },
+          Text[
+            Subscript[vIt, "\[Sharp]0"] // textStyle
+            , {vSharp0Fake, fMinFake}
+            , {0, 1}
+          ],
+          {}
+        },
+        (* One terminal point *)
+        realA[regime] == realA["cold_warm"],
+        Graphics @ {
+          (* v_\[Natural]0 *)
+          vFlat0Fake = SeekRoot[
+            fakeCoshMinus[#] - fakeQuartic[fakeA[regime]][#] &,
+            {vMinFake, fakeV["cold_warm"]}, 4
+          ];
+          {terminalStyleFake,
+            Point @ {vFlat0Fake, fakeCoshMinus[vFlat0Fake]}
+          },
+          {guideStyleFake,
+            Line @ {
+              {vFlat0Fake, fakeCoshMinus[vFlat0Fake]},
+              {vFlat0Fake, fMinFake}
+            }
+          },
+          Text[
+            Subscript[vIt, "\[Natural]0"] // textStyle
+            , {vFlat0Fake, fMinFake}
+            , {0, 1}
+          ],
+          {}
+        },
+        True, {}
       ],
       {}
     ];
