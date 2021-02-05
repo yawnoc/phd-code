@@ -4700,18 +4700,23 @@ Module[
       ],
       {{0.6}, {0.95}}
     ];
+  fakeA["hot"] = 0.8 fakeA["warm_hot"];
+  fakeA["warm"] = Way[fakeA["warm_hot"], fakeA["cold_warm"], 1/3];
+  fakeA["cold"] = 1.7 fakeA["cold_warm"];
   (* Make all plots *)
   Table[
     (* BEGIN Table content *)
     criticalPlot = Show[
+      (* Functions of v *)
       Plot[
         {fakeCoshPlus[v], fakeCoshMinus[v], fakeQuartic[fakeA[regime]][v]}
         , {v, vMinFake, vMaxFake}
         , AxesLabel -> {vIt, None}
         , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
-        , PlotRange -> {0, Automatic}
+        , PlotRange -> {0, fakeCoshPlus[vMaxFake]}
         , Ticks -> None
-      ]
+      ],
+      {}
     ];
     criticalPlot
     (* END Table content *)
