@@ -4543,3 +4543,111 @@ Module[
     , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
   ]
 ] // Ex["bipolar-coordinates.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: bipolar arcs of constant u (bipolar-u-*-than-pi)*)
+
+
+Module[
+  {
+    uValue,
+    singularityNegative, singularityPositive,
+    xMax, yMin, yMax,
+    textStyle, textStyleBracket, coordinatePairLabel,
+    curvilinearStyle,
+    u, arcCentre, arcRadius, angStart, angEnd,
+    vSign, v, chordVertex,
+    angleMarkerRadius, angStartMarker, angEndMarker,
+    angleMarkerOffset,
+    singularityLabelOffset,
+    dummyForTrailingCommas
+  },
+  (* Constants *)
+  uValue["less"] = 65 Degree;
+  uValue["more"] = 180 Degree + uValue["less"];
+  singularityNegative = {-1, 0};
+  singularityPositive = {+1, 0};
+  (* Plot range (assumes uValue["less"] < 90 Degree) *)
+  xMax = Csc @ uValue["less"] // Abs;
+  yMin = YBipolar[uValue["more"], 0];
+  yMax = YBipolar[uValue["less"], 0];
+  (* Text functions *)
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  textStyleBracket = Style[#, LabelSize["PointBracket"]] &;
+  coordinatePairLabel[x_, y_] :=
+    Row @ {
+      "(" // textStyleBracket,
+      "",
+      x,
+      ",\[ThinSpace]",
+      y,
+      ")" // textStyleBracket
+    } // textStyle;
+  (* Styles *)
+  curvilinearStyle = GeneralStyle["DefaultThick"];
+  (* Make plots *)
+  Table[
+    Show[
+      u = uValue[case];
+      (* u == constant arc *)
+      arcCentre = {0, Cot[u]};
+      arcRadius = Csc[u] // Abs;
+      angStart = PhiPolar @@ (singularityPositive - arcCentre);
+      angEnd = PhiPolar @@ (singularityNegative - arcCentre);
+        If[u < Pi, angEnd += 2 Pi];
+      Graphics @ {curvilinearStyle,
+        Circle[arcCentre, arcRadius, {angStart, angEnd}]
+      },
+      (* Vertex of chords *)
+      vSign = If[u < Pi, +1, -1];
+      v = 0.4 vSign;
+      chordVertex = XYBipolar[u, v];
+      Graphics @ {
+        Line @ {singularityNegative, chordVertex, singularityPositive}
+      },
+      (* Angle marker *)
+      angStartMarker = PhiPolar @@ (singularityNegative - chordVertex);
+      angEndMarker = PhiPolar @@ (singularityPositive - chordVertex);
+      If[u < Pi,
+        angleMarkerRadius = 0.3;
+        angleMarkerOffset = {0.8, 0.55};
+        ,
+        angleMarkerRadius = 0.2;
+        angEndMarker += 2 Pi;
+        angleMarkerOffset = {0.5, 0.5};
+      ];
+      Graphics @ {
+        Circle[chordVertex, angleMarkerRadius, {angStartMarker, angEndMarker}],
+        Text[
+          Italicise["u"] // textStyle
+          , chordVertex + XYPolar[angleMarkerRadius, Way[angStartMarker, angEndMarker]]
+          , angleMarkerOffset
+        ],
+        {}
+      },
+      (* Singularities *)
+      singularityLabelOffset = {0, If[u < Pi, +0.9, -1.4]};
+      Graphics @ {PointSize[Medium],
+        Point @ {singularityNegative, singularityPositive},
+        Text[
+          coordinatePairLabel[Row @ {"-", Italicise["a"]}, 0]
+          , singularityNegative
+          , singularityLabelOffset
+        ],
+        Text[
+          coordinatePairLabel[Row @ {"+", Italicise["a"]}, 0]
+          , singularityPositive
+          , singularityLabelOffset
+        ],
+        {}
+      },
+      {}
+      , ImageSize -> 0.35 ImageSizeTextWidth
+      , PlotRange -> {{-xMax, xMax}, {yMin, yMax}}
+      , PlotRangePadding -> {Scaled[0.1], {Scaled[0.15], Scaled[0.03]}}
+    ]
+      // Ex @ FString["bipolar-u-{case}-than-pi.pdf"]
+    , {case, {"less", "more"}}
+  ]
+]
