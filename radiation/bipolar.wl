@@ -4778,10 +4778,7 @@ Module[
         realA[regime] == realA["cold_warm"],
         Graphics @ {
           (* v_\[Natural]0 *)
-          vFlat0Fake = SeekRoot[
-            fakeCoshMinus[#] - fakeQuartic[fakeA[regime]][#] &,
-            {vMinFake, fakeV["cold_warm"]}, 4
-          ];
+          vFlat0Fake = fakeV["cold_warm"];
           {terminalStyleFake,
             Point @ {vFlat0Fake, fakeCoshMinus[vFlat0Fake]}
           },
@@ -4798,6 +4795,76 @@ Module[
           ],
           {}
         },
+        (* Zero terminal points *)
+        True, {}
+      ],
+      (* Critical terminal points along u == Pi *)
+      Which[
+        (* Two distinct terminal points *)
+        realA[regime] < realA["warm_hot"],
+        Graphics @ {
+          (* v_\[Flat]\[Pi] *)
+          vFlatPiFake = SeekRoot[
+            fakeCoshPlus[#] - fakeQuartic[fakeA[regime]][#] &,
+            {vMinFake, fakeV["warm_hot"]}, 4
+          ];
+          {terminalStyleFake,
+            Point @ {vFlatPiFake, fakeCoshPlus[vFlatPiFake]}
+          },
+          {guideStyleFake,
+            Line @ {
+              {vFlatPiFake, fakeCoshPlus[vFlatPiFake]},
+              {vFlatPiFake, fMinFake}
+            }
+          },
+          Text[
+            Subscript[vIt, "\[Flat]\[Pi]"] // textStyle
+            , {vFlatPiFake, fMinFake}
+            , {0, 1}
+          ],
+          (* v_\[Sharp]\[Pi] *)
+          vSharpPiFake = SeekRoot[
+            fakeCoshPlus[#] - fakeQuartic[fakeA[regime]][#] &,
+            {fakeV["warm_hot"], vMaxFake}, 4
+          ];
+          {terminalStyleFake,
+            Point @ {vSharpPiFake, fakeCoshPlus[vSharpPiFake]}
+          },
+          {guideStyleFake,
+            Line @ {
+              {vSharpPiFake, fakeCoshPlus[vSharpPiFake]},
+              {vSharpPiFake, fMinFake}
+            }
+          },
+          Text[
+            Subscript[vIt, "\[Sharp]\[Pi]"] // textStyle
+            , {vSharpPiFake, fMinFake}
+            , {0, 1}
+          ],
+          {}
+        },
+        (* One terminal point *)
+        realA[regime] == realA["warm_hot"],
+        Graphics @ {
+          (* v_\[Natural]\[Pi] *)
+          vFlatPiFake = fakeV["warm_hot"];
+          {terminalStyleFake,
+            Point @ {vFlatPiFake, fakeCoshMinus[vFlatPiFake]}
+          },
+          {guideStyleFake,
+            Line @ {
+              {vFlatPiFake, fakeCoshMinus[vFlatPiFake]},
+              {vFlatPiFake, fMinFake}
+            }
+          },
+          Text[
+            Subscript[vIt, "\[Natural]\[Pi]"] // textStyle
+            , {vFlatPiFake, fMinFake}
+            , {0, 1}
+          ],
+          {}
+        },
+        (* Zero terminal points *)
         True, {}
       ],
       {}
