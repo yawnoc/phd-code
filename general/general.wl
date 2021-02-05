@@ -269,8 +269,8 @@ Module[
     EdgeForm[Black],
     FaceForm[None]
   ];
-  basisVectorLength = 0.13;
-  basisVectorStyle = Directive[Thickness[0.012], Arrowheads[0.07]];
+  basisVectorLength = 0.15;
+  basisVectorStyle = Directive[AbsoluteThickness[2.75], Arrowheads[0.08]];
   textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   (* Coordinates of tips of vectors *)
   auTipXY = {x0, y0} + basisVectorLength au[u0, v0];
@@ -347,14 +347,14 @@ Module[
       Text[
         vectorText["u"] // textStyle,
         auTipXY,
-        {-0.4, -1.6}
+        {-0.3, -1.6}
       ],
       (* a_v *)
       Arrow @ {{x0, y0}, avTipXY},
       Text[
         vectorText["v"] // textStyle,
         avTipXY,
-        {-1, 1.3}
+        {-0.9, 1.6}
       ]
     },
     (* Displaced length labels *)
