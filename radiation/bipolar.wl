@@ -4849,11 +4849,11 @@ Module[
           (* v_\[Natural]\[Pi] *)
           vFlatPiFake = fakeV["warm_hot"];
           {terminalStyleFake,
-            Point @ {vFlatPiFake, fakeCoshMinus[vFlatPiFake]}
+            Point @ {vFlatPiFake, fakeCoshPlus[vFlatPiFake]}
           },
           {guideStyleFake,
             Line @ {
-              {vFlatPiFake, fakeCoshMinus[vFlatPiFake]},
+              {vFlatPiFake, fakeCoshPlus[vFlatPiFake]},
               {vFlatPiFake, fMinFake}
             }
           },
