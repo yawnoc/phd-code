@@ -4665,7 +4665,7 @@ Module[
     fakeCoshPlus, fakeCoshMinus, fakeQuartic,
     vMinFake, vMaxFake, fMinFake, fMaxFake,
     fakeV, fakeA,
-    textStyle,
+    textStyle, textStyleContour,
     terminalStyleFake, guideStyleFake,
     curvilinearStyle, terminalStyleReal,
     criticalPlot,
@@ -4723,6 +4723,7 @@ Module[
   fakeA["cold"] = 1.7 fakeA["cold_warm"];
   (* Text functions *)
   textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  textStyleContour = Style[#, LabelSize["Label"] - 2] & @* LaTeXStyle;
   (* Styles *)
   terminalStyleFake = PointSize[Medium];
   guideStyleFake = BoundaryTracingStyle["Contour"];
@@ -4998,6 +4999,72 @@ Module[
         },
         (* Zero terminal points *)
         True, {}
+      ],
+      (* u == const labels *)
+      (* (no point trying to automate this *)
+      If[realA[regime] == realA["cold"],
+        Graphics @ {Gray,
+          (* u == 0 *)
+          Text[
+            uIt == 0 // textStyleContour
+            , XYBipolar[0, 0.95 vFlat0 @ realA["warm"]]
+            , {0, -1}
+          ],
+          (* u == pi/4 *)
+          Text[
+            uIt == SeparatedRow["VeryThin"]["\[Pi]", "/", 4] // textStyleContour
+            , XYBipolar[Pi/4, vFlat0 @ realA["warm"]]
+            , {0, 0.9}
+            , -AVBipolar[Pi/4, vFlat0 @ realA["warm"]]
+          ],
+          (* u == pi/2 *)
+          Text[
+            uIt == SeparatedRow["VeryThin"]["\[Pi]", "/", 2] // textStyleContour
+            , XYBipolar[Pi/2, 0.95 vFlatPi @ realA["hot"]]
+            , {0, 0.9}
+            , -AVBipolar[Pi/2, 1.07 vFlatPi @ realA["hot"]]
+          ],
+          (* u == 3 pi/4 *)
+          Text[
+            uIt == Row @ {"3", SeparatedRow["VeryThin"]["\[Pi]", "/", 4]}
+              // textStyleContour
+            , XYBipolar[3 Pi/4, 1.03 vFlat0 @ realA["warm"]]
+            , {0, -1}
+            , AVBipolar[3 Pi/4, vFlat0 @ realA["warm"]]
+          ],
+          (* u == pi *)
+          Text[
+            uIt == "\[Pi]" // textStyleContour
+            , XYBipolar[Pi, 0.95 vFlatPi @ realA["hot"]]
+            , {0, -1}
+            , AVBipolar[Pi, vFlatPi @ realA["hot"]]
+          ],
+          (* u == 5 pi/4 *)
+          Text[
+            uIt == Row @ {"5", SeparatedRow["VeryThin"]["\[Pi]", "/", 4]}
+              // textStyleContour
+            , XYBipolar[5 Pi/4, 1.03 vFlat0 @ realA["warm"]]
+            , {0, -1}
+            , AVBipolar[5 Pi/4, vFlat0 @ realA["warm"]]
+          ],
+          (* u == 3 pi/2 *)
+          Text[
+            uIt == Row @ {"3", SeparatedRow["VeryThin"]["\[Pi]", "/", 2]} // textStyleContour
+            , XYBipolar[3 Pi/2, 0.95 vFlatPi @ realA["hot"]]
+            , {0, -1.1}
+            , -AVBipolar[3 Pi/2, vFlatPi @ realA["hot"]]
+          ],
+          (* u == 7 pi/4 *)
+          Text[
+            uIt == Row @ {"7", SeparatedRow["VeryThin"]["\[Pi]", "/", 4]}
+              // textStyleContour
+            , XYBipolar[7 Pi/4, 1.03 vFlat0 @ realA["warm"]]
+            , {0, -1}
+            , -AVBipolar[7 Pi/4, vFlat0 @ realA["warm"]]
+          ],
+          {}
+        },
+        {}
       ],
       {}
     ];
