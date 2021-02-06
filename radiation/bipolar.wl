@@ -4927,7 +4927,7 @@ Module[
           Text[
             Subscript[vIt, Row @ {"\[Flat]", 0}] // textStyle
             , XYBipolar[0, vFlat0 @ realA[regime]]
-            , {-1.5, -1.2}
+            , {-1.3, -1.1}
           ],
           (* v_\[Sharp]0 *)
           {terminalStyleReal,
@@ -4936,7 +4936,7 @@ Module[
           Text[
             Subscript[vIt, Row @ {"\[Sharp]", 0}] // textStyle
             , XYBipolar[0, vSharp0 @ realA[regime]]
-            , {-1.4, -0.9}
+            , {-1.2, -0.8}
           ],
           {}
         },
@@ -4951,6 +4951,48 @@ Module[
             Subscript[vIt, Row @ {"\[Natural]\[VeryThinSpace]", 0}] // textStyle
             , XYBipolar[0, vNat0]
             , {-0.7, -1.2}
+          ],
+          {}
+        },
+        (* Zero terminal points *)
+        True, {}
+      ],
+      (* Critical terminal points along u == pi *)
+      Which[
+        (* Two distinct terminal points *)
+        realA[regime] < realA["warm_hot"],
+        Graphics @ {
+          (* v_\[Flat]\[Pi] *)
+          {terminalStyleFake,
+            Point @ XYBipolar[Pi, vFlatPi @ realA[regime]]
+          },
+          Text[
+            Subscript[vIt, Row @ {"\[Flat]", "\[Pi]"}] // textStyle
+            , XYBipolar[Pi, vFlatPi @ realA[regime]]
+            , {1.2, -1.1}
+          ],
+          (* v_\[Sharp]\[Pi] *)
+          {terminalStyleFake,
+            Point @ XYBipolar[Pi, vSharpPi @ realA[regime]]
+          },
+          Text[
+            Subscript[vIt, Row @ {"\[Sharp]", "\[Pi]"}] // textStyle
+            , XYBipolar[Pi, vSharpPi @ realA[regime]]
+            , {-1.6, -0.7}
+          ],
+          {}
+        },
+        (* One terminal point *)
+        realA[regime] == realA["warm_hot"],
+        Graphics @ {
+          (* v_\[Natural]\[Pi] *)
+          {terminalStyleReal,
+            Point @ XYBipolar[Pi, vNatPi]
+          },
+          Text[
+            Subscript[vIt, Row @ {"\[Natural]", "\[Pi]"}] // textStyle
+            , XYBipolar[Pi, vNatPi]
+            , {1.3, -0.9}
           ],
           {}
         },
