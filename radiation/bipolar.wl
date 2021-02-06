@@ -4669,7 +4669,7 @@ Module[
     fakeCoshPlus, fakeCoshMinus, fakeQuartic,
     vMinFake, vMaxFake, fMinFake, fMaxFake,
     fakeV, fakeA,
-    textStyle, textStyleContour,
+    textStyle, textStyleAxis, textStyleContour,
     terminalStyleFake, guideStyleFake,
     coshStyleFake, quarticStyleFake,
     curvilinearStyle, terminalStyleReal,
@@ -4726,9 +4726,10 @@ Module[
     ];
   fakeA["hot"] = 0.8 fakeA["warm_hot"];
   fakeA["warm"] = Way[fakeA["warm_hot"], fakeA["cold_warm"], 1/3];
-  fakeA["cold"] = 1.7 fakeA["cold_warm"];
+  fakeA["cold"] = 2.2 fakeA["cold_warm"];
   (* Text functions *)
   textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  textStyleAxis = Style[#, LabelSize["Axis"]] & @* LaTeXStyle;
   textStyleContour = Style[#, LabelSize["Label"] - 2] & @* LaTeXStyle;
   (* Styles *)
   terminalStyleFake = PointSize[Medium];
@@ -4745,14 +4746,27 @@ Module[
       Plot[
         {fakeCoshPlus[v], fakeCoshMinus[v], fakeQuartic[fakeA[regime]][v]}
         , {v, vMinFake, vMaxFake}
-        , AxesLabel -> {vIt, None}
-        , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
-        , PlotRange -> {fMinFake, fMaxFake}
+        , Axes -> None
+        , PlotRange -> {All, {fMinFake, fMaxFake}}
         , PlotRangeClipping -> False
         , PlotRangePadding -> {Automatic, {Scaled[0.15], Automatic}}
         , PlotStyle -> {coshStyleFake, coshStyleFake, quarticStyleFake}
-        , Ticks -> None
       ],
+      (* Manual axes (for better spacing than Plot's axes) *)
+      Graphics @ {
+        Line @ {
+          {vMinFake, fMaxFake},
+          {vMinFake, fMinFake},
+          {vMaxFake, fMinFake},
+          Nothing
+        },
+        Text[
+          vIt // textStyleAxis
+          , {vMaxFake, fMinFake}
+          , {-3, -0.2}
+        ],
+        {}
+      },
       (* Critical terminal points along u == 0 *)
       fakeVLabelVerticalOffset = 0.55;
       Which[
@@ -4938,7 +4952,7 @@ Module[
           Text[
             Subscript[vIt, Row @ {"\[Flat]", 0}] // textStyle
             , XYBipolar[0, vFlat0 @ realA[regime]]
-            , {-1.3, -1.1}
+            , {-1.2, -0.85}
           ],
           (* v_\[Sharp]0 *)
           {terminalStyleReal,
@@ -4947,7 +4961,7 @@ Module[
           Text[
             Subscript[vIt, Row @ {"\[Sharp]", 0}] // textStyle
             , XYBipolar[0, vSharp0 @ realA[regime]]
-            , {-1.2, -0.8}
+            , {-1.1, -0.9}
           ],
           {}
         },
@@ -4961,7 +4975,7 @@ Module[
           Text[
             Subscript[vIt, Row @ {"\[Natural]\[VeryThinSpace]", 0}] // textStyle
             , XYBipolar[0, vNat0]
-            , {-0.7, -1.2}
+            , {-0.6, -1}
           ],
           {}
         },
@@ -4980,7 +4994,7 @@ Module[
           Text[
             Subscript[vIt, Row @ {"\[Flat]", "\[Pi]"}] // textStyle
             , XYBipolar[Pi, vFlatPi @ realA[regime]]
-            , {1.2, -1.1}
+            , {1.3, -0.9}
           ],
           (* v_\[Sharp]\[Pi] *)
           {terminalStyleFake,
@@ -4989,7 +5003,7 @@ Module[
           Text[
             Subscript[vIt, Row @ {"\[Sharp]", "\[Pi]"}] // textStyle
             , XYBipolar[Pi, vSharpPi @ realA[regime]]
-            , {-1.6, -0.7}
+            , {-1.5, -0.8}
           ],
           {}
         },
@@ -5003,7 +5017,7 @@ Module[
           Text[
             Subscript[vIt, Row @ {"\[Natural]", "\[Pi]"}] // textStyle
             , XYBipolar[Pi, vNatPi]
-            , {1.3, -0.9}
+            , {1.4, -1}
           ],
           {}
         },
@@ -5083,6 +5097,7 @@ Module[
     , {regime, regimeList}
   ]
     // GraphicsGrid[#
+      , Alignment -> Center
       , ImageSize -> 0.8 {1, 1.7} ImageSizeTextWidth
     ] &
     // Ex["bipolar-viable.pdf"]
