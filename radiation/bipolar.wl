@@ -5156,3 +5156,104 @@ Module[
   ]
     // Ex["bipolar-viable-legend.pdf"]
 ]
+
+
+(* ::Subsection:: *)
+(*Parameter arrow*)
+
+
+Module[
+  {
+    textStyle, arrowStyle,
+    width, height,
+    aTop, aBottom,
+    xWidth, proportionRight, xMin, xMax,
+    tickLength,
+    aWarmToHot, aColdToWarm,
+    dummyForTrailingCommas
+  },
+  (* Plot styles *)
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  arrowStyle = Directive[Thickness[0.053], Arrowheads[0.33], CapForm["Butt"]];
+  (* Fixed dimensions of exported PDF (to match "bipolar-viable.pdf") *)
+  width = 0.1 ImageSizeTextWidth;
+  height = 0.8 * 1.7 ImageSizeTextWidth;
+  (* Fake A values for vertical coordinates *)
+  aTop = 1;
+  aBottom = 0;
+  aWarmToHot = Way[aTop, aBottom, 1.44 / 5];
+  aColdToWarm = Way[aTop, aBottom, 3.46 / 5];
+  (* Horizontal coordinates *)
+  xWidth = width / height * (aTop - aBottom);
+  proportionRight = 0.8;
+  xMax = (proportionRight) xWidth;
+  xMin = -(1 - proportionRight) xWidth;
+  tickLength = 0.15 xWidth;
+  (* Make plot *)
+  Show[
+    (* Parameter (A) increase indicator arrow *)
+    Graphics @ {arrowStyle,
+      Arrow @ {{0, aTop}, {0, aBottom}}
+    },
+    Graphics @ {
+      Text[
+        aIt // textStyle
+        , {0, aBottom}
+        , {-3, -1}
+      ]
+    },
+    (* A < A_\[Natural]\[Pi] (hot regime) *)
+    Graphics @ {
+      Text[
+        "hot" // textStyle
+        , {tickLength, Way[aTop, aBottom, 0.43 / 5]}
+        , {0, -0.6}
+        , {0, -1.1}
+      ]
+    },
+    (* A == A_\[Natural]\[Pi] (warm-to-hot transition) *)
+    Graphics @ {arrowStyle,
+      Line @ {{0, aWarmToHot}, {tickLength, aWarmToHot}}
+    },
+    Graphics @ {
+      Text[
+        Subscript[aIt, Row @ {"\[VeryThinSpace]\[Natural]", "\[Pi]"}] // textStyle
+        , {tickLength, aWarmToHot}
+        , {-1.5, 0}
+      ]
+    },
+    (* A_\[Natural]\[Pi] < A < A_\[Natural]0 (warm regime) *)
+    Graphics @ {
+      Text[
+        "warm" // textStyle
+        , {tickLength, Way[aTop, aBottom, 2.43 / 5]}
+        , {0, -0.6}
+        , {0, -1}
+      ]
+    },
+    (* A == A_\[Natural]0 (cold-to-warm transition) *)
+    Graphics @ {arrowStyle,
+      Line @ {{0, aColdToWarm}, {tickLength, aColdToWarm}}
+    },
+    Graphics @ {
+      Text[
+        Subscript[aIt, Row @ {"\[VeryThinSpace]\[Natural]", 0}] // textStyle
+        , {tickLength, aColdToWarm}
+        , {-1.5, 0}
+      ]
+    },
+    (* A > A_\[Natural]0 (cold regime) *)
+    Graphics @ {
+      Text[
+        "cold" // textStyle
+        , {tickLength, Way[aTop, aBottom, 4.45 / 5]}
+        , {0, -0.6}
+        , {0, -1}
+      ]
+    },
+    {}
+    , ImageSize -> {width, height}
+    , PlotRange -> {{xMin, xMax}, {aBottom, aTop}}
+  ]
+    // Ex["bipolar-viable-arrow.pdf"]
+]
