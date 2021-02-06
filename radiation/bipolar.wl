@@ -4667,6 +4667,7 @@ Module[
     fakeV, fakeA,
     textStyle, textStyleContour,
     terminalStyleFake, guideStyleFake,
+    coshStyleFake, quarticStyleFake,
     curvilinearStyle, terminalStyleReal,
     criticalPlot,
       vFlat0Fake, vSharp0Fake,
@@ -4727,6 +4728,8 @@ Module[
   (* Styles *)
   terminalStyleFake = PointSize[Medium];
   guideStyleFake = BoundaryTracingStyle["Contour"];
+  coshStyleFake = Directive[Black, GeneralStyle["DefaultThick"]];
+  quarticStyleFake = Directive[Gray, GeneralStyle["DefaultThick"], GeneralStyle["Dashed"]];
   curvilinearStyle = BoundaryTracingStyle["Background"];
   terminalStyleReal = PointSize[0.03];
   (* Make all plots *)
@@ -4742,6 +4745,7 @@ Module[
         , PlotRange -> {fMinFake, fMaxFake}
         , PlotRangeClipping -> False
         , PlotRangePadding -> {Automatic, {Scaled[0.2], Automatic}}
+        , PlotStyle -> {coshStyleFake, coshStyleFake, quarticStyleFake}
         , Ticks -> None
       ],
       (* Critical terminal points along u == 0 *)
