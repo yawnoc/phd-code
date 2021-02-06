@@ -4788,7 +4788,7 @@ Module[
             Point @ {vFlat0Fake, fakeCoshMinus[vFlat0Fake]}
           },
           Text[
-            Subscript[vIt, Row @ {"\[Flat]", 0}] // textStyle
+            Subscript[vIt, Row @ {"\[Flat]\[VeryThinSpace]", 0}] // textStyle
             , {vFlat0Fake, fMinFake}
             , {0, fakeVLabelVerticalOffset}
           ],
@@ -4807,7 +4807,7 @@ Module[
             Point @ {vSharp0Fake, fakeCoshMinus[vSharp0Fake]}
           },
           Text[
-            Subscript[vIt, Row @ {"\[Sharp]", 0}] // textStyle
+            Subscript[vIt, Row @ {"\[Sharp]\[VeryThinSpace]", 0}] // textStyle
             , {vSharp0Fake, fMinFake}
             , {If[regime == "hot", -0.2, 0], fakeVLabelVerticalOffset}
           ],
@@ -4950,7 +4950,7 @@ Module[
             Point @ XYBipolar[0, vFlat0 @ realA[regime]]
           },
           Text[
-            Subscript[vIt, Row @ {"\[Flat]", 0}] // textStyle
+            Subscript[vIt, Row @ {"\[Flat]\[VeryThinSpace]", 0}] // textStyle
             , XYBipolar[0, vFlat0 @ realA[regime]]
             , {-1.2, -0.85}
           ],
@@ -4959,7 +4959,7 @@ Module[
             Point @ XYBipolar[0, vSharp0 @ realA[regime]]
           },
           Text[
-            Subscript[vIt, Row @ {"\[Sharp]", 0}] // textStyle
+            Subscript[vIt, Row @ {"\[Sharp]\[VeryThinSpace]", 0}] // textStyle
             , XYBipolar[0, vSharp0 @ realA[regime]]
             , {-1.1, -0.9}
           ],
@@ -5101,4 +5101,4 @@ Module[
       , ImageSize -> 0.8 {1, 1.7} ImageSizeTextWidth
     ] &
     // Ex["bipolar-viable.pdf"]
-];
+]
