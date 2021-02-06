@@ -4657,6 +4657,10 @@ Module[
 (*Figure: critical terminal points & viable domain (bipolar-viable)*)
 
 
+(* ::Subsection:: *)
+(*Main figure*)
+
+
 Module[
   {
     regimeList, realA,
@@ -4672,6 +4676,7 @@ Module[
     criticalPlot,
       vFlat0Fake, vSharp0Fake,
       vFlatPiFake, vSharpPiFake,
+      fakeVLabelVerticalOffset,
     viablePlot,
       viablePlotPoints,
     dummyForTrailingCommas
@@ -4727,7 +4732,7 @@ Module[
   textStyleContour = Style[#, LabelSize["Label"] - 2] & @* LaTeXStyle;
   (* Styles *)
   terminalStyleFake = PointSize[Medium];
-  guideStyleFake = BoundaryTracingStyle["Contour"];
+  guideStyleFake = Directive[Gray];
   coshStyleFake = Directive[Black, GeneralStyle["DefaultThick"]];
   quarticStyleFake = Directive[Gray, GeneralStyle["DefaultThick"], GeneralStyle["Dashed"]];
   curvilinearStyle = BoundaryTracingStyle["Background"];
@@ -4744,11 +4749,12 @@ Module[
         , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
         , PlotRange -> {fMinFake, fMaxFake}
         , PlotRangeClipping -> False
-        , PlotRangePadding -> {Automatic, {Scaled[0.2], Automatic}}
+        , PlotRangePadding -> {Automatic, {Scaled[0.15], Automatic}}
         , PlotStyle -> {coshStyleFake, coshStyleFake, quarticStyleFake}
         , Ticks -> None
       ],
       (* Critical terminal points along u == 0 *)
+      fakeVLabelVerticalOffset = 0.55;
       Which[
         (* Two distinct terminal points *)
         realA[regime] < realA["cold_warm"],
@@ -4770,7 +4776,7 @@ Module[
           Text[
             Subscript[vIt, Row @ {"\[Flat]", 0}] // textStyle
             , {vFlat0Fake, fMinFake}
-            , {0, 1}
+            , {0, fakeVLabelVerticalOffset}
           ],
           (* v_\[Sharp]0 *)
           vSharp0Fake = SeekRoot[
@@ -4789,7 +4795,7 @@ Module[
           Text[
             Subscript[vIt, Row @ {"\[Sharp]", 0}] // textStyle
             , {vSharp0Fake, fMinFake}
-            , {0, 1}
+            , {If[regime == "hot", -0.2, 0], fakeVLabelVerticalOffset}
           ],
           {}
         },
@@ -4810,7 +4816,7 @@ Module[
           Text[
             Subscript[vIt, Row @ {"\[Natural]\[VeryThinSpace]", 0}] // textStyle
             , {vFlat0Fake, fMinFake}
-            , {0, 1}
+            , {0, fakeVLabelVerticalOffset}
           ],
           {}
         },
@@ -4839,7 +4845,7 @@ Module[
           Text[
             Subscript[vIt, Row @ {"\[Flat]", "\[Pi]"}] // textStyle
             , {vFlatPiFake, fMinFake}
-            , {0, 1}
+            , {0, fakeVLabelVerticalOffset}
           ],
           (* v_\[Sharp]\[Pi] *)
           vSharpPiFake = SeekRoot[
@@ -4858,7 +4864,7 @@ Module[
           Text[
             Subscript[vIt, Row @ {"\[Sharp]", "\[Pi]"}] // textStyle
             , {vSharpPiFake, fMinFake}
-            , {0, 1}
+            , {0.2, fakeVLabelVerticalOffset}
           ],
           {}
         },
@@ -4879,7 +4885,7 @@ Module[
           Text[
             Subscript[vIt, Row @ {"\[Natural]", "\[Pi]"}] // textStyle
             , {vFlatPiFake, fMinFake}
-            , {0, 1}
+            , {0, fakeVLabelVerticalOffset}
           ],
           {}
         },
@@ -5077,6 +5083,7 @@ Module[
     , {regime, regimeList}
   ]
     // GraphicsGrid[#
-      , ImageSize -> 0.85 {1, 1.75} ImageSizeTextWidth
+      , ImageSize -> 0.8 {1, 1.7} ImageSizeTextWidth
     ] &
-]
+    // Ex["bipolar-viable.pdf"]
+];
