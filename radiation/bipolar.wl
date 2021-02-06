@@ -4789,7 +4789,7 @@ Module[
             }
           },
           Text[
-            Subscript[vIt, Row @ {"\[Natural]", 0}] // textStyle
+            Subscript[vIt, Row @ {"\[Natural]\[VeryThinSpace]", 0}] // textStyle
             , {vFlat0Fake, fMinFake}
             , {0, 1}
           ],
