@@ -4667,7 +4667,7 @@ Module[
     fakeV, fakeA,
     textStyle,
     terminalStyleFake, guideStyleFake,
-    curvilinearStyle,
+    curvilinearStyle, terminalStyleReal,
     criticalPlot,
       vFlat0Fake, vSharp0Fake,
       vFlatPiFake, vSharpPiFake,
@@ -4727,6 +4727,7 @@ Module[
   terminalStyleFake = PointSize[Medium];
   guideStyleFake = BoundaryTracingStyle["Contour"];
   curvilinearStyle = BoundaryTracingStyle["Background"];
+  terminalStyleReal = PointSize[0.03];
   (* Make all plots *)
   Table[
     (* BEGIN Table content *)
@@ -4913,6 +4914,48 @@ Module[
           , PlotStyle -> BoundaryTracingStyle["NonViable"]
         ],
         {}
+      ],
+      (* Critical terminal points along u == 0 *)
+      Which[
+        (* Two distinct terminal points *)
+        realA[regime] < realA["cold_warm"],
+        Graphics @ {
+          (* v_\[Flat]0 *)
+          {terminalStyleReal,
+            Point @ XYBipolar[0, vFlat0 @ realA[regime]]
+          },
+          Text[
+            Subscript[vIt, Row @ {"\[Flat]", 0}] // textStyle
+            , XYBipolar[0, vFlat0 @ realA[regime]]
+            , {-1.5, -1.2}
+          ],
+          (* v_\[Sharp]0 *)
+          {terminalStyleReal,
+            Point @ XYBipolar[0, vSharp0 @ realA[regime]]
+          },
+          Text[
+            Subscript[vIt, Row @ {"\[Sharp]", 0}] // textStyle
+            , XYBipolar[0, vSharp0 @ realA[regime]]
+            , {-1.4, -0.9}
+          ],
+          {}
+        },
+        (* One terminal point *)
+        realA[regime] == realA["cold_warm"],
+        Graphics @ {
+          (* v_\[Natural]0 *)
+          {terminalStyleReal,
+            Point @ XYBipolar[0, vNat0]
+          },
+          Text[
+            Subscript[vIt, Row @ {"\[Natural]\[VeryThinSpace]", 0}] // textStyle
+            , XYBipolar[0, vNat0]
+            , {-0.7, -1.2}
+          ],
+          {}
+        },
+        (* Zero terminal points *)
+        True, {}
       ],
       {}
     ];
