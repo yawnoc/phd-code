@@ -5102,3 +5102,57 @@ Module[
     ] &
     // Ex["bipolar-viable.pdf"]
 ]
+
+
+(* ::Subsection:: *)
+(*Legend*)
+
+
+Module[
+  {
+    textStyleLegend,
+    coshStyleFake, quarticStyleFake,
+    terminalLegend, viableLegend,
+    dummyForTrailingCommas
+  },
+  textStyleLegend = LatinModernLabelStyle @ LabelSize["Legend"];
+  (* Terminal points legend (first column) *)
+  coshStyleFake = Directive[Black, GeneralStyle["DefaultThick"]];
+  quarticStyleFake = Directive[Gray, GeneralStyle["DefaultThick"], GeneralStyle["Dashed"]];
+  terminalLegend =
+    CurveLegend[
+      {coshStyleFake, quarticStyleFake},
+      {
+        SeparatedRow["VeryThin"][
+          SeparatedRow["VeryThin"]["cosh", vIt],
+          Style["\[ThinSpace]\[PlusMinus]\[ThinSpace]", Magnification -> 1.4],
+          1
+        ],
+        SeparatedRow[][vIt^4, Style["/", Magnification -> 1.2], aIt]
+      }
+      , LabelStyle -> textStyleLegend
+    ];
+  (* Non-viable domain legend (second column) *)
+  viableLegend = Join[
+    CurveLegend[
+      {BoundaryTracingStyle["Terminal"]},
+      {"terminal curve"}
+      , LabelStyle -> textStyleLegend
+    ],
+    RegionLegend[
+      {BoundaryTracingStyle["NonViable"]},
+      {"non\[Hyphen]viable domain"}
+      , LabelStyle -> textStyleLegend
+    ],
+    {}
+  ];
+  (* Make legend *)
+  GraphicsGrid[
+    {terminalLegend, viableLegend} // Transpose
+    , Alignment -> {Left, Center}
+    , ImageSize -> 0.8 ImageSizeTextWidth
+    , ItemAspectRatio -> 0.12
+    , Spacings -> {0, -0.02 ImageSizeTextWidth}
+  ]
+    // Ex["bipolar-viable-legend.pdf"]
+]
