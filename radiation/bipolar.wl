@@ -5005,4 +5005,7 @@ Module[
     (* END Table content *)
     , {regime, regimeList}
   ]
+    // GraphicsGrid[#
+      , ImageSize -> 0.85 ImageSizeTextWidth
+    ] &
 ]
