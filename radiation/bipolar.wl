@@ -4674,6 +4674,7 @@ Module[
       vFlatPiFake, vSharpPiFake,
       fakeVLabelVerticalOffset,
     viablePlot,
+      xMinNon, xMaxNon, yMaxNon,
       viablePlotPoints,
     dummyForTrailingCommas
   },
@@ -4743,6 +4744,7 @@ Module[
         {fakeCoshPlus[v], fakeCoshMinus[v], fakeQuartic[fakeA[regime]][v]}
         , {v, vMinFake, vMaxFake}
         , Axes -> None
+        , PlotPoints -> 2
         , PlotRange -> {All, {fMinFake, fMaxFake}}
         , PlotRangeClipping -> False
         , PlotRangePadding -> {Automatic, {Scaled[0.15], Automatic}}
@@ -4925,11 +4927,32 @@ Module[
       ],
       (* Non-viable domain *)
       If[realA[regime] < realA["cold_warm"],
-        viablePlotPoints =
-          If[realA[regime] == realA["warm_hot"], 20, 13];
+        Which[
+          regime == "hot",
+            viablePlotPoints = 5;
+            xMinNon = vFlatPi @ realA[regime] // XBipolar[Pi, #] &;
+            xMaxNon = vFlat0 @ realA[regime] // XBipolar[0, #] &;
+            yMaxNon = 1.1 (xMaxNon - xMinNon) / 2;
+          ,
+          regime == "warm_hot",
+            viablePlotPoints = 15;
+            xMinNon = vNatPi // 0.97 XBipolar[Pi, #] &;
+            xMaxNon = vFlat0 @ realA[regime] // XBipolar[0, #] &;
+            yMaxNon = (xMaxNon - xMinNon) / 2;
+          ,
+          regime == "warm",
+            viablePlotPoints = 5;
+            xMinNon = vSharp0 @ realA[regime] // 0.97 XBipolar[0, #] &;
+            xMaxNon = vFlat0 @ realA[regime] // XBipolar[0, #] &;
+            yMaxNon = xMaxNon - xMinNon;
+          ,
+          True,
+            viablePlotPoints = Automatic;
+            {xMinNon, xMaxNon, yMaxNon} = {xMin, xMax, yMax};
+        ];
         RegionPlot[
           vi @ realA[regime] @@ UVBipolar[x, y] < 0
-          , {x, xMin, xMax}, {y, -yMax, yMax}
+          , {x, xMinNon, xMaxNon}, {y, -yMaxNon, yMaxNon}
           , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
           , PlotPoints -> viablePlotPoints
           , PlotStyle -> BoundaryTracingStyle["NonViable"]
