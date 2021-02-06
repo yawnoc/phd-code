@@ -4764,14 +4764,14 @@ Module[
             fakeCoshMinus[#] - fakeQuartic[fakeA[regime]][#] &,
             {vMinFake, fakeV["cold_warm"]}, 4
           ];
-          {terminalStyleFake,
-            Point @ {vFlat0Fake, fakeCoshMinus[vFlat0Fake]}
-          },
           {guideStyleFake,
             Line @ {
               {vFlat0Fake, fakeCoshMinus[vFlat0Fake]},
               {vFlat0Fake, fMinFake}
             }
+          },
+          {terminalStyleFake,
+            Point @ {vFlat0Fake, fakeCoshMinus[vFlat0Fake]}
           },
           Text[
             Subscript[vIt, Row @ {"\[Flat]", 0}] // textStyle
@@ -4783,14 +4783,14 @@ Module[
             fakeCoshMinus[#] - fakeQuartic[fakeA[regime]][#] &,
             {fakeV["cold_warm"], vMaxFake}, 4
           ];
-          {terminalStyleFake,
-            Point @ {vSharp0Fake, fakeCoshMinus[vSharp0Fake]}
-          },
           {guideStyleFake,
             Line @ {
               {vSharp0Fake, fakeCoshMinus[vSharp0Fake]},
               {vSharp0Fake, fMinFake}
             }
+          },
+          {terminalStyleFake,
+            Point @ {vSharp0Fake, fakeCoshMinus[vSharp0Fake]}
           },
           Text[
             Subscript[vIt, Row @ {"\[Sharp]", 0}] // textStyle
@@ -4804,14 +4804,14 @@ Module[
         Graphics @ {
           (* v_\[Natural]0 *)
           vFlat0Fake = fakeV["cold_warm"];
-          {terminalStyleFake,
-            Point @ {vFlat0Fake, fakeCoshMinus[vFlat0Fake]}
-          },
           {guideStyleFake,
             Line @ {
               {vFlat0Fake, fakeCoshMinus[vFlat0Fake]},
               {vFlat0Fake, fMinFake}
             }
+          },
+          {terminalStyleFake,
+            Point @ {vFlat0Fake, fakeCoshMinus[vFlat0Fake]}
           },
           Text[
             Subscript[vIt, Row @ {"\[Natural]\[VeryThinSpace]", 0}] // textStyle
@@ -4833,14 +4833,14 @@ Module[
             fakeCoshPlus[#] - fakeQuartic[fakeA[regime]][#] &,
             {vMinFake, fakeV["warm_hot"]}, 4
           ];
-          {terminalStyleFake,
-            Point @ {vFlatPiFake, fakeCoshPlus[vFlatPiFake]}
-          },
           {guideStyleFake,
             Line @ {
               {vFlatPiFake, fakeCoshPlus[vFlatPiFake]},
               {vFlatPiFake, fMinFake}
             }
+          },
+          {terminalStyleFake,
+            Point @ {vFlatPiFake, fakeCoshPlus[vFlatPiFake]}
           },
           Text[
             Subscript[vIt, Row @ {"\[Flat]", "\[Pi]"}] // textStyle
@@ -4852,14 +4852,14 @@ Module[
             fakeCoshPlus[#] - fakeQuartic[fakeA[regime]][#] &,
             {fakeV["warm_hot"], vMaxFake}, 4
           ];
-          {terminalStyleFake,
-            Point @ {vSharpPiFake, fakeCoshPlus[vSharpPiFake]}
-          },
           {guideStyleFake,
             Line @ {
               {vSharpPiFake, fakeCoshPlus[vSharpPiFake]},
               {vSharpPiFake, fMinFake}
             }
+          },
+          {terminalStyleFake,
+            Point @ {vSharpPiFake, fakeCoshPlus[vSharpPiFake]}
           },
           Text[
             Subscript[vIt, Row @ {"\[Sharp]", "\[Pi]"}] // textStyle
@@ -4873,14 +4873,14 @@ Module[
         Graphics @ {
           (* v_\[Natural]\[Pi] *)
           vFlatPiFake = fakeV["warm_hot"];
-          {terminalStyleFake,
-            Point @ {vFlatPiFake, fakeCoshPlus[vFlatPiFake]}
-          },
           {guideStyleFake,
             Line @ {
               {vFlatPiFake, fakeCoshPlus[vFlatPiFake]},
               {vFlatPiFake, fMinFake}
             }
+          },
+          {terminalStyleFake,
+            Point @ {vFlatPiFake, fakeCoshPlus[vFlatPiFake]}
           },
           Text[
             Subscript[vIt, Row @ {"\[Natural]", "\[Pi]"}] // textStyle
