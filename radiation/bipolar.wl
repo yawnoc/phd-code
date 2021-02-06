@@ -4749,7 +4749,7 @@ Module[
             }
           },
           Text[
-            Subscript[vIt, "\[Flat]0"] // textStyle
+            Subscript[vIt, Row @ {"\[Flat]", 0}] // textStyle
             , {vFlat0Fake, fMinFake}
             , {0, 1}
           ],
@@ -4768,7 +4768,7 @@ Module[
             }
           },
           Text[
-            Subscript[vIt, "\[Sharp]0"] // textStyle
+            Subscript[vIt, Row @ {"\[Sharp]", 0}] // textStyle
             , {vSharp0Fake, fMinFake}
             , {0, 1}
           ],
@@ -4789,7 +4789,7 @@ Module[
             }
           },
           Text[
-            Subscript[vIt, "\[Natural]0"] // textStyle
+            Subscript[vIt, Row @ {"\[Natural]", 0}] // textStyle
             , {vFlat0Fake, fMinFake}
             , {0, 1}
           ],
@@ -4818,7 +4818,7 @@ Module[
             }
           },
           Text[
-            Subscript[vIt, "\[Flat]\[Pi]"] // textStyle
+            Subscript[vIt, Row @ {"\[Flat]", "\[Pi]"}] // textStyle
             , {vFlatPiFake, fMinFake}
             , {0, 1}
           ],
@@ -4837,7 +4837,7 @@ Module[
             }
           },
           Text[
-            Subscript[vIt, "\[Sharp]\[Pi]"] // textStyle
+            Subscript[vIt, Row @ {"\[Sharp]", "\[Pi]"}] // textStyle
             , {vSharpPiFake, fMinFake}
             , {0, 1}
           ],
@@ -4858,7 +4858,7 @@ Module[
             }
           },
           Text[
-            Subscript[vIt, "\[Natural]\[Pi]"] // textStyle
+            Subscript[vIt, Row @ {"\[Natural]", "\[Pi]"}] // textStyle
             , {vFlatPiFake, fMinFake}
             , {0, 1}
           ],
