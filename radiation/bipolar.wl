@@ -4534,10 +4534,6 @@ Module[
       ],
       {}
     },
-    (* Singularities *)
-    Graphics @ {PointSize[Medium],
-      Point @ {{-1, 0}, {1, 0}}
-    },
     {}
     , ImageSize -> 0.87 ImageSizeTextWidth
     , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
