@@ -5006,6 +5006,6 @@ Module[
     , {regime, regimeList}
   ]
     // GraphicsGrid[#
-      , ImageSize -> 0.85 ImageSizeTextWidth
+      , ImageSize -> 0.85 {1, 1.75} ImageSizeTextWidth
     ] &
 ]
