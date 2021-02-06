@@ -4660,14 +4660,19 @@ Module[
 Module[
   {
     regimeList, realA,
+    xMinRaw, xMaxRaw, yMaxRaw,
+    xMin, xMax, yMax,
     fakeCoshPlus, fakeCoshMinus, fakeQuartic,
     vMinFake, vMaxFake, fMinFake, fMaxFake,
     fakeV, fakeA,
     textStyle,
     terminalStyleFake, guideStyleFake,
+    curvilinearStyle,
     criticalPlot,
       vFlat0Fake, vSharp0Fake,
       vFlatPiFake, vSharpPiFake,
+    viablePlot,
+      viablePlotPoints,
     dummyForTrailingCommas
   },
   (* Five real regimes *)
@@ -4675,6 +4680,13 @@ Module[
   realA = AssociationThread[regimeList ->
     {aHot, aNatPi, aWarm, aNat0, aCold}
   ];
+  (* Plot range for non-viable domain plot *)
+  xMinRaw = vFlatPi @ realA["hot"] // XBipolar[Pi, #] &;
+  xMaxRaw = vFlat0 @ realA["hot"] // XBipolar[0, #] &;
+  yMaxRaw = (xMaxRaw - xMinRaw) / 2;
+  xMin = Way[xMinRaw, xMaxRaw, -0.2];
+  xMax = Way[xMinRaw, xMaxRaw, +1.2];
+  yMax = 1.05 yMaxRaw;
   (*
     For the critical terminal points plot,
     we use fake versions of cosh and v^4 because
@@ -4714,6 +4726,7 @@ Module[
   (* Styles *)
   terminalStyleFake = PointSize[Medium];
   guideStyleFake = BoundaryTracingStyle["Contour"];
+  curvilinearStyle = BoundaryTracingStyle["Background"];
   (* Make all plots *)
   Table[
     (* BEGIN Table content *)
@@ -4869,7 +4882,41 @@ Module[
       ],
       {}
     ];
-    criticalPlot
+    viablePlot = Show[
+      EmptyFrame[{xMin, xMax}, {-yMax, yMax}
+        , Frame -> False
+      ],
+      (* Bipolar u-contours through positive singularity *)
+      Module[{updValues, uValues, uValuesLessThanPi},
+        updValues = Range[0, 360, 45] // Select[!Divisible[#, 180] &];
+        uValues = updValues * Degree;
+        uValuesLessThanPi = uValues // Select[# < Pi &];
+        Graphics @ {
+          curvilinearStyle,
+          Table[
+            Circle[{0, Cot[u]}, Csc[u] // Abs]
+            , {u, uValuesLessThanPi}
+          ],
+          Line @ {{0, 0}, {2 xMax, 0}},
+          {}
+        }
+      ],
+      (* Non-viable domain *)
+      If[realA[regime] < realA["cold_warm"],
+        viablePlotPoints =
+          If[realA[regime] == realA["warm_hot"], 20, 13];
+        RegionPlot[
+          vi @ realA[regime] @@ UVBipolar[x, y] < 0
+          , {x, xMin, xMax}, {y, -yMax, yMax}
+          , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
+          , PlotPoints -> viablePlotPoints
+          , PlotStyle -> BoundaryTracingStyle["NonViable"]
+        ],
+        {}
+      ],
+      {}
+    ];
+    {criticalPlot, viablePlot}
     (* END Table content *)
     , {regime, regimeList}
   ]
