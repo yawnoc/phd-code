@@ -5295,9 +5295,9 @@ Module[
     dummyForTrailingCommas
   },
   (* Five regimes *)
-  regimeList = {"hot", "warm_hot", "warm", "cold_warm", "cold"};
+  regimeList = {"hot", "warm", "cold"};
   aValue = AssociationThread[regimeList ->
-    {aHot, aNatPi, aWarm, aNat0, aCold}
+    {aHot, aWarm, aCold}
   ];
   (* Plot range *)
   xMinRaw = vFlatPi[aHot] // XBipolar[Pi, #] &;
@@ -5329,19 +5329,13 @@ Module[
           }
       ],
       (* Non-viable domain *)
-      If[aValue[regime] < aValue["cold_warm"],
+      If[a <= aWarm,
         Which[
           regime == "hot",
             viablePlotPoints = 5;
             xMinNon = vFlatPi[a] // XBipolar[Pi, #] &;
             xMaxNon = vFlat0[a] // XBipolar[0, #] &;
             yMaxNon = 1.1 (xMaxNon - xMinNon) / 2;
-          ,
-          regime == "warm_hot",
-            viablePlotPoints = 15;
-            xMinNon = vNatPi // 0.97 XBipolar[Pi, #] &;
-            xMaxNon = vFlat0[a] // XBipolar[0, #] &;
-            yMaxNon = (xMaxNon - xMinNon) / 2;
           ,
           regime == "warm",
             viablePlotPoints = 5;
@@ -5369,7 +5363,7 @@ Module[
         plottedCurvesSpan = Association[
           "outer" -> Join[{4}, Range[-8, -2]],
           "inner" -> {1, 5},
-          "axis" -> {1, 3, 5, 8},
+          "axis" -> {1, 4, 5, 8},
           "hyperbolic" -> {-1},
           Nothing
         ];
