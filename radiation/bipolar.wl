@@ -5321,7 +5321,7 @@ Module[
   yMaxRaw = (xMaxRaw - xMinRaw) / 2;
   xMin = Way[xMinRaw, xMaxRaw, -0.7];
   xMax = Way[xMinRaw, xMaxRaw, +1.7];
-  yMax = 0.9 (xMax - xMin) / 2;
+  yMax = 0.85 (xMax - xMin) / 2;
   (* Slightly less thick traced boundaries *)
   tracedStyle = (
     BoundaryTracingStyle["Traced"]
@@ -5418,6 +5418,28 @@ Module[
               , {v, vTraWarm[id][[plottedCurvesSpan @ id]]}
             ]
             , {id, {"terminal", "axis", "hyperbolic"}}
+          ],
+          {}
+        },
+        (* Cold regime *)
+        regime == "cold",
+        plottedCurvesSpan = Association[
+          "axis" -> {1, 2, 4, 16},
+          "contour" -> {6, 8, 10, 12, 16},
+          Nothing
+        ];
+        {
+          Table[
+            Table[
+              ParametricPlot[
+                XYBipolar[u, v[u]] // IncludeYReflection
+                , {u, DomainStart[v], DomainEnd[v]}
+                , PlotPoints -> 2
+                , PlotStyle -> tracedStyle
+              ]
+              , {v, vTraCold[id][[plottedCurvesSpan @ id]]}
+            ]
+            , {id, {"axis", "contour"}}
           ],
           {}
         },
