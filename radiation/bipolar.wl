@@ -5319,9 +5319,9 @@ Module[
   xMinRaw = vFlatPi[aHot] // XBipolar[Pi, #] &;
   xMaxRaw = vFlat0[aHot] // XBipolar[0, #] &;
   yMaxRaw = (xMaxRaw - xMinRaw) / 2;
-  xMin = Way[xMinRaw, xMaxRaw, -0.7];
-  xMax = Way[xMinRaw, xMaxRaw, +1.7];
-  yMax = 0.85 (xMax - xMin) / 2;
+  xMin = Way[xMinRaw, xMaxRaw, -0.75];
+  xMax = Way[xMinRaw, xMaxRaw, +1.75];
+  yMax = 0.8 (xMax - xMin) / 2;
   (* Slightly less thick traced boundaries *)
   tracedStyle = (
     BoundaryTracingStyle["Traced"]
@@ -5377,9 +5377,9 @@ Module[
         (* Hot regime *)
         regime == "hot",
         plottedCurvesSpan = Association[
-          "outer" -> Join[{4}, Range[-8, -2]],
+          "outer" -> Join[{4}, Range[-6, -3]],
           "inner" -> {1, 5},
-          "axis" -> {1, 4, 5, 8},
+          "axis" -> {2, 4, 5, 8},
           "hyperbolic" -> {-1},
           Nothing
         ];
@@ -5424,7 +5424,7 @@ Module[
         (* Cold regime *)
         regime == "cold",
         plottedCurvesSpan = Association[
-          "axis" -> {3},
+          "axis" -> {2, 3},
           "contour" -> {5, 7, 9, 13, 16},
           Nothing
         ];
@@ -5448,6 +5448,7 @@ Module[
       {}
       , ImageSize -> 0.45 ImageSizeTextWidth
     ]
+      // Ex @ FString["bipolar-traced-boundaries-{regime}.pdf"]
     , {regime, regimeList}
   ]
 ]
