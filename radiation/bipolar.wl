@@ -666,13 +666,29 @@ startUVColdWarm["axis"] =
 
 
 (* Starting points along axis *)
-
-
 startUVCold["axis"] =
   Module[{nmax, xValues},
     nmax = 16;
     xValues = Subdivide[1, 2, nmax] // Rest;
     Table[{0, VBipolar[x, 0]}, {x, xValues}]
+  ];
+
+
+(* Starting points along axis, left of the positive singularity *)
+startUVCold["left"] =
+  Module[{nmax, xValues},
+    nmax = 16;
+    xValues = Subdivide[0.6, 1, nmax] // Most;
+    Table[UVBipolar[x, 0], {x, xValues}]
+  ];
+
+
+(* Starting points along a v-contour *)
+startUVCold["contour"] =
+  Module[{uValues, v},
+    uValues = Subdivide[0, 2 Pi, 16] // Most;
+    v = 3;
+    Table[{u, v}, {u, uValues}]
   ];
 
 
@@ -806,11 +822,11 @@ With[{v = \[FormalV]},
               v'[u] == Re @ vTraDer[a][u, v[u]],
               v[uInit] == vInit,
               WhenEvent[vi[a][u, v[u]] < viTol, "StopIntegration"]
-            }, v, {u, uInit - 2 Pi, uInit + 2 Pi},
+            }, v, {u, uInit - 4 Pi, uInit + 4 Pi},
             NoExtrapolation
           ]
         , {uvInit, uvInitList}];
-    , {id, {"axis"}}]
+    , {id, {"axis", "left", "contour"}}]
   ];
 ];
 
@@ -3354,11 +3370,11 @@ Module[
  },
   a = aCold;
   (* Plot range *)
-  xMin = 1;
+  xMin = 0.6;
   xMax = 2;
   yMax = (xMax - xMin) / 2;
   (* Group names *)
-  idList = {"axis"};
+  idList = {"axis", "left", "contour"};
   (* Plot *)
   Show[
     EmptyFrame[{xMin, xMax}, {-yMax, yMax},
@@ -3375,7 +3391,7 @@ Module[
       , {id, idList}],
       LabelingFunction -> Function @ Placed[
         #2[[2]],
-        If[#2[[1]] == 2, Right, Center]
+        If[#2[[1]] == 2, Top, Bottom]
       ],
       PlotLegends -> idList,
       PlotStyle -> Directive[Opacity[0.7], pointStyle]
@@ -3425,7 +3441,7 @@ Module[
           PlotStyle -> {upperStyle, lowerStyle}
         ]
       , {v, vTraCold[id]}]
-    , {id, {"axis"}}]
+    , {id, {"axis", "left", "contour"}}]
   ]
 ] // Ex["bipolar-cold-traced-full.pdf"]
 
@@ -3436,7 +3452,7 @@ Module[
  },
   a = aCold;
   (* Plot range *)
-  xMin = 0.95;
+  xMin = 0.6;
   xMax = 1.25;
   yMax = (xMax - xMin) / 2;
   (* Plot *)
@@ -3456,7 +3472,7 @@ Module[
           PlotStyle -> {upperStyle, lowerStyle}
         ]
       , {v, vTraCold[id]}]
-    , {id, {"axis"}}]
+    , {id, {"axis", "left", "contour"}}]
   ]
 ] // Ex["bipolar-cold-traced-zoom.pdf"]
 
