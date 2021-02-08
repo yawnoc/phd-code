@@ -5381,6 +5381,28 @@ Module[
           ],
           {}
         },
+        (* Warm regime *)
+        regime == "warm",
+        plottedCurvesSpan = Association[
+          "terminal" -> Range[-6, -2],
+          "axis" -> {1, 2, 4, 5},
+          "hyperbolic" -> All,
+          Nothing
+        ];
+        {
+          Table[
+            Table[
+              ParametricPlot[
+                XYBipolar[u, v[u]] // IncludeYReflection,
+                {u, DomainStart[v], DomainEnd[v]},
+                PlotStyle -> tracedStyle
+              ]
+              , {v, vTraWarm[id][[plottedCurvesSpan @ id]]}
+            ]
+            , {id, {"terminal", "axis", "hyperbolic"}}
+          ],
+          {}
+        },
         True, {}
       ],
       {}
