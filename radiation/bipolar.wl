@@ -5371,9 +5371,10 @@ Module[
           Table[
             Table[
               ParametricPlot[
-                XYBipolar[u, v[u]] // IncludeYReflection,
-                {u, DomainStart[v], DomainEnd[v]},
-                PlotStyle -> tracedStyle
+                XYBipolar[u, v[u]] // IncludeYReflection
+                , {u, DomainStart[v], DomainEnd[v]}
+                , PlotPoints -> 2
+                , PlotStyle -> tracedStyle
               ]
               , {v, vTraHot[id][[plottedCurvesSpan @ id]]}
             ]
@@ -5393,9 +5394,10 @@ Module[
           Table[
             Table[
               ParametricPlot[
-                XYBipolar[u, v[u]] // IncludeYReflection,
-                {u, DomainStart[v], DomainEnd[v]},
-                PlotStyle -> tracedStyle
+                XYBipolar[u, v[u]] // IncludeYReflection
+                , {u, DomainStart[v], DomainEnd[v]}
+                , PlotPoints -> 2
+                , PlotStyle -> tracedStyle
               ]
               , {v, vTraWarm[id][[plottedCurvesSpan @ id]]}
             ]
