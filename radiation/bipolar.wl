@@ -5276,3 +5276,122 @@ Module[
   ]
     // Ex["bipolar-viable-arrow.pdf"]
 ]
+
+
+(* ::Section:: *)
+(*Figure: generic traced boundaries (bipolar-traced-boundaries)*)
+
+
+Module[
+  {
+    regimeList, aValue,
+    xMinRaw, xMaxRaw, yMaxRaw,
+    xMin, xMax, yMax,
+    tracedStyle,
+    a,
+      xMinNon, xMaxNon, yMaxNon,
+      viablePlotPoints,
+      plottedCurvesSpan,
+    dummyForTrailingCommas
+  },
+  (* Five regimes *)
+  regimeList = {"hot", "warm_hot", "warm", "cold_warm", "cold"};
+  aValue = AssociationThread[regimeList ->
+    {aHot, aNatPi, aWarm, aNat0, aCold}
+  ];
+  (* Plot range *)
+  xMinRaw = vFlatPi[aHot] // XBipolar[Pi, #] &;
+  xMaxRaw = vFlat0[aHot] // XBipolar[0, #] &;
+  yMaxRaw = (xMaxRaw - xMinRaw) / 2;
+  xMin = Way[xMinRaw, xMaxRaw, -0.7];
+  xMax = Way[xMinRaw, xMaxRaw, +1.7];
+  yMax = 0.9 (xMax - xMin) / 2;
+  (* Slightly less thick traced boundaries *)
+  tracedStyle = (
+    BoundaryTracingStyle["Traced"]
+      /. {AbsoluteThickness[d_] :> AbsoluteThickness[0.9 d]}
+  );
+  (* Make plots *)
+  Table[
+    a = aValue[regime];
+    Show[
+      EmptyFrame[{xMin, xMax}, {-yMax, yMax}
+        , FrameLabel -> {
+            Italicise["x"] // Margined @ {{0, 0}, {0, -20}},
+            Italicise["y"]
+          }
+        , FrameStyle -> LabelSize["Axis"]
+        , FrameTicksStyle -> LabelSize["Tick"]
+        , LabelStyle -> LatinModernLabelStyle[LabelSize["Label"] - 1]
+        , FrameTicks -> {
+            {Automatic, None},
+            {FindDivisions[{xMin, xMax}, 4] // N, None}
+          }
+      ],
+      (* Non-viable domain *)
+      If[aValue[regime] < aValue["cold_warm"],
+        Which[
+          regime == "hot",
+            viablePlotPoints = 5;
+            xMinNon = vFlatPi[a] // XBipolar[Pi, #] &;
+            xMaxNon = vFlat0[a] // XBipolar[0, #] &;
+            yMaxNon = 1.1 (xMaxNon - xMinNon) / 2;
+          ,
+          regime == "warm_hot",
+            viablePlotPoints = 15;
+            xMinNon = vNatPi // 0.97 XBipolar[Pi, #] &;
+            xMaxNon = vFlat0[a] // XBipolar[0, #] &;
+            yMaxNon = (xMaxNon - xMinNon) / 2;
+          ,
+          regime == "warm",
+            viablePlotPoints = 5;
+            xMinNon = vSharp0[a] // 0.97 XBipolar[0, #] &;
+            xMaxNon = vFlat0[a] // XBipolar[0, #] &;
+            yMaxNon = xMaxNon - xMinNon;
+          ,
+          True,
+            viablePlotPoints = Automatic;
+            {xMinNon, xMaxNon, yMaxNon} = {xMin, xMax, yMax};
+        ];
+        RegionPlot[
+          vi[a] @@ UVBipolar[x, y] < 0
+          , {x, xMinNon, xMaxNon}, {y, -yMaxNon, yMaxNon}
+          , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
+          , PlotPoints -> viablePlotPoints
+          , PlotStyle -> BoundaryTracingStyle["NonViable"]
+        ],
+        {}
+      ],
+      (* Traced boundaries *)
+      Which[
+        (* Hot regime *)
+        regime == "hot",
+        plottedCurvesSpan = Association[
+          "outer" -> Join[{4}, Range[-8, -2]],
+          "inner" -> {1, 5},
+          "axis" -> {1, 3, 5, 8},
+          "hyperbolic" -> {-1},
+          Nothing
+        ];
+        {
+          Table[
+            Table[
+              ParametricPlot[
+                XYBipolar[u, v[u]] // IncludeYReflection,
+                {u, DomainStart[v], DomainEnd[v]},
+                PlotStyle -> tracedStyle
+              ]
+              , {v, vTraHot[id][[plottedCurvesSpan @ id]]}
+            ]
+            , {id, {"outer", "inner", "axis", "hyperbolic"}}
+          ],
+          {}
+        },
+        True, {}
+      ],
+      {}
+      , ImageSize -> 0.45 ImageSizeTextWidth
+    ]
+    , {regime, regimeList}
+  ]
+]
