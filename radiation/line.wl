@@ -1672,18 +1672,24 @@ Module[
   {
     aStep, aValues, aMin,
     imageSize, rMaxShow,
+    tracedStyle,
     rMaxNon,
     inequality,
     regimeName,
     dummyForTrailingCommas
   },
   (* Values of A *)
-  aStep = 3/100;
+  aStep = 0.13;
   aValues = aNat + aStep * Range[-1, 1];
   aMin = Min[aValues];
   (* Plot range *)
   imageSize = 0.325 ImageSizeTextWidth;
-  rMaxShow = 1.7 rSharp[aMin];
+  rMaxShow = 1.35 rSharp[aMin];
+  (* Slightly less thick traced boundaries *)
+  tracedStyle = (
+    BoundaryTracingStyle["Traced"]
+      /. {AbsoluteThickness[d_] :> AbsoluteThickness[0.9 d]}
+  );
   (* Plots *)
   Table[
     rMaxNon = If[a < aNat, rSharp[a], rNat];
@@ -1702,13 +1708,13 @@ Module[
         , PlotLabel -> inequality[aIt, Subscript[aIt, "\[Natural]"]]
       ],
       (* Non-viable domain *)
-      RegionPlot[
-        vi[a] @ RPolar[x, y] < 0
-        , {x, -rMaxNon, rMaxNon}
-        , {y, -rMaxNon, rMaxNon}
-        , BoundaryStyle -> None
-        , PlotPoints -> 9
-        , PlotStyle -> BoundaryTracingStyle["NonViable"]
+      If[a < aNat,
+        Graphics @ {
+          EdgeForm @ BoundaryTracingStyle["Terminal"],
+          FaceForm @ BoundaryTracingStyle["NonViable"],
+          Annulus[{0, 0}, {rFlat[a], rSharp[a]}]
+        },
+        {}
       ],
       (* Traced boundaries *)
       Which[
@@ -1718,11 +1724,11 @@ Module[
           (* Inner viable island *)
           With[{r = \[FormalR]},
             Module[{eps, rMin, rMax, rInit, phiMin, phiMax, rTraced, phiOffsetValues},
-              eps = 10.^-6;
+              eps = 10.^-4;
               rMin = eps;
               rMax = (1 - eps) rFlat[a];
               rInit = Way[rMin, rMax];
-              phiMin = -10 Pi;
+              phiMin = -2 Pi;
               phiMax = 2 Pi;
               rTraced = NDSolveValue[
                 {
@@ -1741,8 +1747,8 @@ Module[
                     XYPolar[rTraced[phi], phi + phiOffset],
                     XYPolar[rTraced[phi], -phi + phiOffset]
                   } // Evaluate, {phi, phiMin, phiMax}
-                  , PlotPoints -> 7
-                  , PlotStyle -> BoundaryTracingStyle["Traced"]
+                  , PlotPoints -> 3
+                  , PlotStyle -> tracedStyle
                 ]
               , {phiOffset, phiOffsetValues}]
             ]
@@ -1750,12 +1756,12 @@ Module[
           (* Outer viable mainland *)
           With[{r = \[FormalR]},
             Module[{eps, rMin, rMax, rInit, phiMin, phiMax, rTraced, phiOffsetValues},
-              eps = 10.^-6;
+              eps = 10.^-4;
               rMin = (1 + eps) rSharp[a];
               rMax = 1.5 rMaxShow;
               rInit = Way[rMin, rMax];
-              phiMin = -10 Pi;
-              phiMax = 2 Pi;
+              phiMin = -Pi;
+              phiMax = 1.5 Pi;
               rTraced = NDSolveValue[
                 {
                   r'[phi] == 1 / phiTraDer[a][r[phi]],
@@ -1773,8 +1779,8 @@ Module[
                     XYPolar[rTraced[phi], phi + phiOffset],
                     XYPolar[rTraced[phi], -phi + phiOffset]
                   } // Evaluate, {phi, phiMin, phiMax}
-                  , PlotPoints -> 9
-                  , PlotStyle -> BoundaryTracingStyle["Traced"]
+                  , PlotPoints -> 3
+                  , PlotStyle -> tracedStyle
                 ]
               , {phiOffset, phiOffsetValues}]
             ]
@@ -1786,12 +1792,12 @@ Module[
         {
           With[{r = \[FormalR]},
             Module[{eps, rMin, rMax, rInit, phiMin, phiMax, rTraced, phiOffsetValues},
-              eps = 10.^-6;
+              eps = 10.^-4;
               rMin = eps;
               rMax = 1.5 rMaxShow;
               rInit = Way[rMin, rMax];
-              phiMin = -2 Pi;
-              phiMax = 10 Pi;
+              phiMin = -Pi;
+              phiMax = 2.5 Pi;
               rTraced = NDSolveValue[
                 {
                   r'[phi] == 1 / phiTraDer[a][r[phi]],
@@ -1809,8 +1815,8 @@ Module[
                     XYPolar[rTraced[phi], phi + phiOffset],
                     XYPolar[rTraced[phi], -phi + phiOffset]
                   } // Evaluate, {phi, phiMin, phiMax}
-                  , PlotPoints -> 8
-                  , PlotStyle -> BoundaryTracingStyle["Traced"]
+                  , PlotPoints -> 3
+                  , PlotStyle -> tracedStyle
                 ]
               , {phiOffset, phiOffsetValues}]
             ]
