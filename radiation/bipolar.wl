@@ -5424,8 +5424,8 @@ Module[
         (* Cold regime *)
         regime == "cold",
         plottedCurvesSpan = Association[
-          "axis" -> {1, 2, 4, 16},
-          "contour" -> {6, 8, 10, 12, 16},
+          "axis" -> {3},
+          "contour" -> {5, 7, 9, 13, 16},
           Nothing
         ];
         {
