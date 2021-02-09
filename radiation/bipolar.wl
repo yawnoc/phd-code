@@ -5452,3 +5452,194 @@ Module[
     , {regime, regimeList}
   ]
 ]
+
+
+(* ::Section:: *)
+(*Figure: critical terminal points (bipolar-critical-terminal-points)*)
+
+
+Module[
+  {
+    regimeList, aValue,
+    xMinRaw, xMaxRaw, yMaxRaw,
+    xMin, xMax, yMax,
+    contour,
+    a,
+      xMinNon, xMaxNon, yMaxNon,
+      viablePlotPoints,
+      plottedCurvesSpan,
+    textStyle,
+    terminalStyle, contourStyle,
+    dummyForTrailingCommas
+  },
+  (* Five regimes *)
+  regimeList = {"hot", "warm_hot", "warm", "cold_warm"};
+  aValue = AssociationThread[regimeList ->
+    {aHot, aWarmHot, aWarm, aColdWarm}
+  ];
+  (* Plot range *)
+  xMinRaw = vFlatPi[aHot] // XBipolar[Pi, #] &;
+  xMaxRaw = vFlat0[aHot] // XBipolar[0, #] &;
+  yMaxRaw = (xMaxRaw - xMinRaw) / 2;
+  xMin = Way[xMinRaw, xMaxRaw, -0.12];
+  xMax = Way[xMinRaw, xMaxRaw, +1.12];
+  yMax = 0.8 (xMax - xMin) / 2;
+  (* Centre and radius of a v-contour *)
+  contour[v_, phiRange_: Nothing] :=
+    Circle @@ {{Coth[v], 0}, Csch[v] // Abs, phiRange};
+  (* Text functions *)
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  (* Styles *)
+  terminalStyle = PointSize[Medium];
+  contourStyle = BoundaryTracingStyle["ContourPlain"];
+  (* Make plots *)
+  Table[
+    a = aValue[regime];
+    Show[
+      (* Non-viable domain *)
+      If[a <= aWarm,
+        Which[
+          regime == "hot",
+            viablePlotPoints = 5;
+            xMinNon = vFlatPi[a] // XBipolar[Pi, #] &;
+            xMaxNon = vFlat0[a] // XBipolar[0, #] &;
+            yMaxNon = 1.1 (xMaxNon - xMinNon) / 2;
+          ,
+          regime == "warm_hot",
+            viablePlotPoints = 15;
+            xMinNon = vNatPi // 0.97 XBipolar[Pi, #] &;
+            xMaxNon = vFlat0[a] // XBipolar[0, #] &;
+            yMaxNon = (xMaxNon - xMinNon) / 2;
+          ,
+          regime == "warm",
+            viablePlotPoints = 5;
+            xMinNon = vSharp0[a] // 0.97 XBipolar[0, #] &;
+            xMaxNon = vFlat0[a] // XBipolar[0, #] &;
+            yMaxNon = xMaxNon - xMinNon;
+          ,
+          True,
+            viablePlotPoints = Automatic;
+            {xMinNon, xMaxNon, yMaxNon} = {xMin, xMax, yMax};
+        ];
+        RegionPlot[
+          vi[a] @@ UVBipolar[x, y] < 0
+          , {x, xMinNon, xMaxNon}, {y, -yMaxNon, yMaxNon}
+          , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
+          , PlotPoints -> viablePlotPoints
+          , PlotStyle -> BoundaryTracingStyle["NonViable"]
+        ],
+        {}
+      ],
+      (* Critical terminal points along u == 0 *)
+      Which[
+        (* Two distinct terminal points *)
+        a < aColdWarm,
+        Graphics @ {
+          (* v_\[Flat]0 *)
+          {contourStyle,
+            contour[vFlat0[a], {-1, 1}]
+          },
+          {terminalStyle,
+            Point @ XYBipolar[0, vFlat0[a]]
+          },
+          Text[
+            Subscript[vIt, Row @ {"\[Flat]\[VeryThinSpace]", 0}] // textStyle
+            , XYBipolar[0, vFlat0[a]]
+            , {-1.5, -0.1}
+          ],
+          (* v_\[Sharp]0 *)
+          {contourStyle,
+            contour[vSharp0[a], If[regime == "hot", 2.4 {-1 ,1.03}, Nothing]]
+          },
+          {terminalStyle,
+            Point @ XYBipolar[0, vSharp0[a]]
+          },
+          Text[
+            Subscript[vIt, Row @ {"\[Sharp]\[VeryThinSpace]", 0}] // textStyle
+            , XYBipolar[0, vSharp0[a]]
+            , {-1.45, -0.15}
+          ],
+          {}
+        },
+        (* One terminal point *)
+        a == aColdWarm,
+        Graphics @ {
+          (* v_\[Natural]0 *)
+          {contourStyle,
+            contour[vSharp0[a]]
+          },
+          {terminalStyle,
+            Point @ XYBipolar[0, vNat0]
+          },
+          Text[
+            Subscript[vIt, Row @ {"\[Natural]\[VeryThinSpace]", 0}] // textStyle
+            , XYBipolar[0, vNat0]
+            , {-1.5, -0.1}
+          ],
+          {}
+        },
+        (* Zero terminal points *)
+        True, {}
+      ],
+      (* Critical terminal points along u == pi *)
+      Which[
+        (* Two distinct terminal points *)
+        a < aWarmHot,
+        Graphics @ {
+          (* v_\[Flat]\[Pi] *)
+          {contourStyle,
+            contour[vFlatPi[a], Pi + 2 {-1, 1}]
+          },
+          {terminalStyle,
+            Point @ XYBipolar[Pi, vFlatPi[a]]
+          },
+          Text[
+            Subscript[vIt, Row @ {"\[Flat]", "\[Pi]"}] // textStyle
+            , XYBipolar[Pi, vFlatPi[a]]
+            , {1.6, -0.2}
+          ],
+          (* v_\[Sharp]\[Pi] *)
+          {contourStyle,
+            contour[vSharpPi[a], Pi + 2 {-1, 1}]
+          },
+          {terminalStyle,
+            Point @ XYBipolar[Pi, vSharpPi[a]]
+          },
+          Text[
+            Subscript[vIt, Row @ {"\[Sharp]", "\[Pi]"}] // textStyle
+            , XYBipolar[Pi, vSharpPi[a]]
+            , {-1.5, -0.2}
+          ],
+          {}
+        },
+        (* One terminal point *)
+        a == aWarmHot,
+        Graphics @ {
+          (* v_\[Natural]\[Pi] *)
+          {contourStyle,
+            contour[vNatPi, Pi + 2 {-1, 1}]
+          },
+          {terminalStyle,
+            Point @ XYBipolar[Pi, vNatPi]
+          },
+          Text[
+            Subscript[vIt, Row @ {"\[Natural]", "\[Pi]"}] // textStyle
+            , XYBipolar[Pi, vNatPi]
+            , {1.5, -0.1}
+          ],
+          {}
+        },
+        (* Zero terminal points *)
+        True, {}
+      ],
+      {}
+      , AspectRatio -> Automatic
+      , Frame -> None
+      , ImageSize -> {1, 0.8} 0.35 ImageSizeTextWidth
+      , PlotRange -> {All, {-yMax, yMax}}
+      , PlotRangeClipping -> False
+    ]
+      // Ex @ FString["bipolar-critical-terminal-points-{regime}.pdf"]
+    , {regime, regimeList}
+  ]
+]
