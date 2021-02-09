@@ -1968,7 +1968,7 @@ Module[
           // Evaluate
         , {s, DomainStart[xy], DomainEnd[xy]}
         , PlotPoints -> 2
-        , PlotStyle -> BoundaryTracingStyle["Background"]
+        , PlotStyle -> BoundaryTracingStyle["ContourPlain"]
       ]
       , {xy, xyContourList}
     ],
@@ -2025,7 +2025,7 @@ Module[
   legendLabelStyle = LatinModernLabelStyle @ LabelSize["Legend"];
   legendCurves =
     CurveLegend[
-      BoundaryTracingStyle /@ {"Background", "Terminal"},
+      BoundaryTracingStyle /@ {"ContourPlain", "Terminal"},
       {Row @ {Italicise["T"], "\[Hyphen]contour"}, "terminal curve"}
       , LabelStyle -> legendLabelStyle
     ];
@@ -2611,7 +2611,7 @@ Module[
           xy[s] // Through
           , {s, DomainStart[xy], DomainEnd[xy]}
           , PlotPoints -> 2
-          , PlotStyle -> BoundaryTracingStyle["Background"]
+          , PlotStyle -> BoundaryTracingStyle["ContourPlain"]
         ]
         , {xy, xyContourList}
       ],

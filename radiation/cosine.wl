@@ -4957,7 +4957,7 @@ Module[
           ContourLabels -> None,
           Contours -> numTo1 + numBeyond1,
           ContourShading -> None,
-          ContourStyle -> BoundaryTracingStyle["Background"],
+          ContourStyle -> BoundaryTracingStyle["ContourPlain"],
           PlotPoints -> 5,
           PlotRange -> {0, 1 + (1 + numBeyond1) / numTo1}
         ],
@@ -5012,7 +5012,7 @@ Module[
     ];
   legendCurves =
     CurveLegend[
-      {BoundaryTracingStyle["Background"]},
+      {BoundaryTracingStyle["ContourPlain"]},
       {Row @ {Italicise["T"], "\[Hyphen]contour"}}
       , LabelStyle -> legendLabelStyle
     ];
@@ -5112,7 +5112,7 @@ Module[
           ContourLabels -> None,
           Contours -> numTo1 + numBeyond1,
           ContourShading -> None,
-          ContourStyle -> BoundaryTracingStyle["Background"],
+          ContourStyle -> BoundaryTracingStyle["ContourPlain"],
           PlotPoints -> 5,
           PlotRange -> {0, 1 + (1 + numBeyond1) / numTo1}
         ],
@@ -5174,7 +5174,7 @@ Module[
     ];
   legendCurves =
     CurveLegend[
-      BoundaryTracingStyle /@ {"Terminal", "Background"},
+      BoundaryTracingStyle /@ {"Terminal", "ContourPlain"},
       {"terminal curve", Row @ {Italicise["T"], "\[Hyphen]contour"}}
       , LabelStyle -> legendLabelStyle
     ];
@@ -5546,7 +5546,7 @@ Module[
       ContourLabels -> None,
       Contours -> tContValues,
       ContourShading -> None,
-      ContourStyle -> BoundaryTracingStyle["Background"],
+      ContourStyle -> BoundaryTracingStyle["ContourPlain"],
       PlotPoints -> 8
     ],
     (* Non-viable domain *)
@@ -5599,7 +5599,7 @@ Module[
   legendLabelStyle = LatinModernLabelStyle @ LabelSize["Legend"];
   legendCurves =
     CurveLegend[
-      BoundaryTracingStyle /@ {"Background", "Terminal"},
+      BoundaryTracingStyle /@ {"ContourPlain", "Terminal"},
       {Row @ {Italicise["T"], "\[Hyphen]contour"}, "terminal curve"}
       , LabelStyle -> legendLabelStyle
     ];

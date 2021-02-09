@@ -148,7 +148,7 @@ Module[
         (* Local T-contour *)
         ContourPlot[t == 0,
           {x, -xMaxLess, xMaxLess}, {y, -yMaxLess, yMaxLess},
-          ContourStyle -> BoundaryTracingStyle["Contour"],
+          ContourStyle -> BoundaryTracingStyle["ContourPlain"],
           PlotPoints -> 10
         ],
         (* Traced boundaries *)
@@ -182,7 +182,7 @@ Module[
   },
   curves =
     CurveLegend[
-      BoundaryTracingStyle /@ {"Terminal", "Contour", "Traced"},
+      BoundaryTracingStyle /@ {"Terminal", "ContourPlain", "Traced"},
       {"terminal curve", Row @ {Italicise["T"], "\[Hyphen]contour"}, "traced boundary"}
       , LabelStyle -> LatinModernLabelStyle @ LabelSize["Legend"]
     ];
@@ -263,7 +263,7 @@ Module[
   yBottom = 0.3;
   (* Styles *)
   originalStyle = Black;
-  displacedStyle = BoundaryTracingStyle["Contour"];
+  displacedStyle = BoundaryTracingStyle["ContourPlain"];
   orthogonalityMarkerLength = 0.02;
   orthogonalityMarkerStyle = Directive[
     EdgeForm[Black],
@@ -299,16 +299,17 @@ Module[
     (* Contours *)
     ContourPlot[
       {
-        u[x, y] == u0,
         u[x, y] == u0 + du,
+        v[x, y] == v0 + dv,
+        u[x, y] == u0,
         v[x, y] == v0,
-        v[x, y] == v0 + dv
+        Nothing
       },
       {x, x0 - xLeft, x0 + xRight},
       {y, y0 - yBottom, y0 + yTop},
       AspectRatio -> Automatic,
       ContourLabels -> None,
-      ContourStyle -> {originalStyle, displacedStyle},
+      ContourStyle -> {displacedStyle, displacedStyle, originalStyle, originalStyle},
       Frame -> None,
       ImageSize -> 0.4 ImageSizeTextWidth,
       PlotPoints -> 10
