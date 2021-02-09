@@ -5458,6 +5458,10 @@ Module[
 (*Figure: critical terminal points (bipolar-critical-terminal-points)*)
 
 
+(* ::Subsection:: *)
+(*Main*)
+
+
 Module[
   {
     regimeList, aValue,
@@ -5642,4 +5646,32 @@ Module[
       // Ex @ FString["bipolar-critical-terminal-points-{regime}.pdf"]
     , {regime, regimeList}
   ]
+]
+
+
+(* ::Subsection:: *)
+(*Legend*)
+
+
+Module[{legendLabelStyle},
+  legendLabelStyle = LatinModernLabelStyle @ LabelSize["Legend"];
+  GraphicsGrid[
+    List @ Join[
+      CurveLegend[
+        BoundaryTracingStyle /@ {"ContourPlain", "Terminal"},
+        {Row @ {Italicise["T"], "\[Hyphen]contour"}, "terminal curve"}
+        , LabelStyle -> legendLabelStyle
+      ],
+      RegionLegend[
+        BoundaryTracingStyle /@ {"NonViable"},
+        {"non\[Hyphen]viable domain"}
+        , LabelStyle -> legendLabelStyle
+      ],
+      {}
+    ]
+    , ImageSize -> ImageSizeTextWidth
+    , ItemAspectRatio -> 0.15
+    , Spacings -> {{0, -0.05} ImageSizeTextWidth, 0}
+  ]
+    // Ex["bipolar-critical-terminal-points-legend.pdf"]
 ]
