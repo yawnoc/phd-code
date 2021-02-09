@@ -7032,7 +7032,7 @@ Module[
   GraphicsGrid[{topRow, bottomRow}
     , Alignment -> Left
     , ImageSize -> ImageSizeTextWidth
-    , ItemAspectRatio -> 0.11
+    , ItemAspectRatio -> 0.115
     , Spacings -> {Automatic, 0}
   ]
 ] // Ex["cosine_general-asymmetric-construction-legend.pdf"]
