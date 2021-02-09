@@ -65,13 +65,13 @@ Module[
       , PlotRangeClipping -> False
     ],
     (* Contact angle *)
-    Graphics @ {Directive[Dashed, GeneralStyle["DefaultThick"]],
+    Graphics @ {
       Line @ {
         {xMin, tStart},
         {xMin, tStart} + XYPolar[tangentLineLength, -Pi/2 + gamma]
       }
     },
-    Graphics @ {GeneralStyle["DefaultThick"],
+    Graphics @ {
       Circle[
         {xMin, tStart},
         angleMarkerRadius,
