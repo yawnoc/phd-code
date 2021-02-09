@@ -90,8 +90,8 @@ BoundaryTracingStyle[type : (_String | Automatic) : Automatic] := Association[
     Gray
   ],
   "ContourPlain" -> Directive[
-    AbsoluteThickness[1],
-    Gray
+    GeneralStyle["DefaultThick"],
+    GrayLevel[0.6]
   ],
   "NonViable" -> Directive[
     GeneralStyle["Translucent"],
