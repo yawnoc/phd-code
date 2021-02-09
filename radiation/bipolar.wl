@@ -5494,7 +5494,7 @@ Module[
   (* Text functions *)
   textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   (* Styles *)
-  terminalStyle = PointSize[Medium];
+  terminalStyle = GeneralStyle["Point"];
   contourStyle = BoundaryTracingStyle["ContourPlain"];
   (* Make plots *)
   Table[
@@ -5549,7 +5549,7 @@ Module[
           Text[
             Subscript[vIt, Row @ {"\[Flat]\[VeryThinSpace]", 0}] // textStyle
             , XYBipolar[0, vFlat0[a]]
-            , {-1.5, -0.1}
+            , {-1.6, -0.1}
           ],
           (* v_\[Sharp]0 *)
           {contourStyle,
@@ -5561,7 +5561,7 @@ Module[
           Text[
             Subscript[vIt, Row @ {"\[Sharp]\[VeryThinSpace]", 0}] // textStyle
             , XYBipolar[0, vSharp0[a]]
-            , {-1.45, -0.15}
+            , {-1.6, -0.125}
           ],
           {}
         },
@@ -5578,7 +5578,7 @@ Module[
           Text[
             Subscript[vIt, Row @ {"\[Natural]\[VeryThinSpace]", 0}] // textStyle
             , XYBipolar[0, vNat0]
-            , {-1.5, -0.1}
+            , {-1.65, -0.15}
           ],
           {}
         },
@@ -5600,7 +5600,7 @@ Module[
           Text[
             Subscript[vIt, Row @ {"\[Flat]", "\[Pi]"}] // textStyle
             , XYBipolar[Pi, vFlatPi[a]]
-            , {1.6, -0.2}
+            , {1.7, -0.2}
           ],
           (* v_\[Sharp]\[Pi] *)
           {contourStyle,
@@ -5612,7 +5612,7 @@ Module[
           Text[
             Subscript[vIt, Row @ {"\[Sharp]", "\[Pi]"}] // textStyle
             , XYBipolar[Pi, vSharpPi[a]]
-            , {-1.5, -0.2}
+            , {-1.6, -0.2}
           ],
           {}
         },
@@ -5629,7 +5629,7 @@ Module[
           Text[
             Subscript[vIt, Row @ {"\[Natural]", "\[Pi]"}] // textStyle
             , XYBipolar[Pi, vNatPi]
-            , {1.5, -0.1}
+            , {1.65, -0.2}
           ],
           {}
         },

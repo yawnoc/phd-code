@@ -63,7 +63,7 @@ GeneralStyle[type_String : Automatic] := Association[
   "Dashed" -> AbsoluteDashing @ {5, 4},
   "DefaultThick" -> AbsoluteThickness[1.5],
   "Dotted" -> AbsoluteDashing @ {0.3, 4},
-  "Point" -> PointSize[Large],
+  "Point" -> AbsolutePointSize[6],
   "Thick" -> AbsoluteThickness[2.5],
   "Translucent" -> Opacity[0.7],
   "VeryThick" -> AbsoluteThickness[5],
