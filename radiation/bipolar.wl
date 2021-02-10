@@ -5685,19 +5685,27 @@ Module[
   {
     aValues, aMin, aMid, aMax,
     xMin, yMax,
+    textStyle,
+    terminalStyle,
     vInner, vOuter,
     closed, merged,
     dummyForTrailingCommas
   },
   (* A values *)
-  aValues = {aMin, aMid, aMax} = {0.99, 0.9995, 1} aNat0;
+  aValues = {aMin, aMid, aMax} = {0.99, 0.9992, 1} aNat0;
   (* Plot range *)
-  xMin = 0.7;
-  yMax = 0.14;
+  xMin = 0.8;
+  yMax = 0.12;
+  (* Text functions *)
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  (* Styles *)
+  terminalStyle = GeneralStyle["Point"];
   (* Make plots *)
   Table[
     (* Compute traced boundary portions *)
-    a = a // N // Rationalize[#, 0] &;
+    If[a < aMax,
+      a = a // N // Rationalize[#, 0] &;
+    ];
     With[{v = \[FormalV]},
       vInner =
         NDSolveValue[
@@ -5718,7 +5726,7 @@ Module[
           , PreciseOptions[]
         ];
     ];
-    (* Make plot *)
+    (* Make plots *)
     Show[
       closed = a > aMin;
       merged = a == aMax;
@@ -5733,10 +5741,46 @@ Module[
         ]
         , {v, {vInner, If[merged, Nothing, vOuter]}}
       ],
+      (* Critical terminal points *)
+      If[merged,
+        (* v_\[Natural]0 *)
+        Graphics @ {
+          {terminalStyle,
+            Point @ XYBipolar[0, vNat0]
+          },
+          Text[
+            Subscript[vIt, Row @ {"\[Natural]\[VeryThinSpace]", 0}] // textStyle
+            , XYBipolar[0, vNat0]
+            , {1.6, -0.15}
+          ],
+          {}
+        },
+        (* v_\[Flat]0 and v_\[Sharp]0 *)
+        Graphics @ {
+          {terminalStyle,
+            Point @ XYBipolar[0, vFlat0[a]]
+          },
+          Text[
+            Subscript[vIt, Row @ {"\[Flat]\[VeryThinSpace]", 0}] // textStyle
+            , XYBipolar[0, vFlat0[a]]
+            , {-1.6, -0.12}
+          ],
+          {terminalStyle,
+            Point @ XYBipolar[0, vSharp0[a]]
+          },
+          Text[
+            Subscript[vIt, Row @ {"\[Sharp]\[VeryThinSpace]", 0}] // textStyle
+            , XYBipolar[0, vSharp0[a]]
+            , {1.6, -0.13}
+          ],
+          {}
+        }
+      ],
       {}
       , Axes -> False
       , PlotRange -> {{If[closed, All, xMin], All}, {-yMax, yMax}}
       , ImageSize -> {Automatic, 0.25 ImageSizeTextWidth}
+      , PlotRangeClipping -> False
     ]
     , {a, aValues}
   ]
