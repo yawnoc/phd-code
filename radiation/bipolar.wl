@@ -5675,3 +5675,69 @@ Module[{legendLabelStyle},
   ]
     // Ex["bipolar-critical-terminal-points-legend.pdf"]
 ]
+
+
+(* ::Section:: *)
+(*Figure: candidate boundaries (bipolar-candidates)*)
+
+
+Module[
+  {
+    aValues, aMin, aMid, aMax,
+    xMin, yMax,
+    vInner, vOuter,
+    closed, merged,
+    dummyForTrailingCommas
+  },
+  (* A values *)
+  aValues = {aMin, aMid, aMax} = {0.99, 0.9995, 1} aNat0;
+  (* Plot range *)
+  xMin = 0.7;
+  yMax = 0.14;
+  (* Make plots *)
+  Table[
+    (* Compute traced boundary portions *)
+    a = a // N // Rationalize[#, 0] &;
+    With[{v = \[FormalV]},
+      vInner =
+        NDSolveValue[
+          {
+            v'[u] == Re @ vTraDer[a][u, v[u]],
+            v[0] == vSharp0[a]
+          }, v, {u, -Pi, 0}
+          , NoExtrapolation
+          , PreciseOptions[]
+        ];
+      vOuter =
+        NDSolveValue[
+          {
+            v'[u] == Re @ vTraDer[a][u, v[u]],
+            v[0] == vFlat0[a]
+          }, v, {u, -Pi, 0}
+          , NoExtrapolation
+          , PreciseOptions[]
+        ];
+    ];
+    (* Make plot *)
+    Show[
+      closed = a > aMin;
+      merged = a == aMax;
+      (* Candidate boundaries *)
+      Table[
+        ParametricPlot[
+          XYBipolar[u, v[u]]
+            // IncludeYReflection
+            // Evaluate
+          , {u, DomainStart[v], DomainEnd[v]}
+          , PlotStyle -> Directive[Black, GeneralStyle["Thick"]]
+        ]
+        , {v, {vInner, If[merged, Nothing, vOuter]}}
+      ],
+      {}
+      , Axes -> False
+      , PlotRange -> {{If[closed, All, xMin], All}, {-yMax, yMax}}
+      , ImageSize -> {Automatic, 0.25 ImageSizeTextWidth}
+    ]
+    , {a, aValues}
+  ]
+]
