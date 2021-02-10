@@ -5692,10 +5692,10 @@ Module[
     dummyForTrailingCommas
   },
   (* A values *)
-  aValues = {aMin, aMid, aMax} = {0.99, 0.9992, 1} aNat0;
+  aValues = {aMin, aMid, aMax} = {0.993, 0.9992, 1} aNat0;
   (* Plot range *)
-  xMin = 0.8;
-  yMax = 0.12;
+  xMin = 0.75;
+  yMax = 0.102;
   (* Text functions *)
   textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   (* Styles *)
@@ -5751,7 +5751,7 @@ Module[
           Text[
             Subscript[vIt, Row @ {"\[Natural]\[VeryThinSpace]", 0}] // textStyle
             , XYBipolar[0, vNat0]
-            , {1.6, -0.15}
+            , {1.6, -0.13}
           ],
           {}
         },
@@ -5763,7 +5763,7 @@ Module[
           Text[
             Subscript[vIt, Row @ {"\[Flat]\[VeryThinSpace]", 0}] // textStyle
             , XYBipolar[0, vFlat0[a]]
-            , {-1.6, -0.12}
+            , {-1.65, -0.13}
           ],
           {terminalStyle,
             Point @ XYBipolar[0, vSharp0[a]]
@@ -5778,10 +5778,18 @@ Module[
       ],
       {}
       , Axes -> False
-      , PlotRange -> {{If[closed, All, xMin], All}, {-yMax, yMax}}
       , ImageSize -> {Automatic, 0.25 ImageSizeTextWidth}
+      , PlotRange -> {{If[closed, All, xMin], All}, {-yMax, yMax}}
+      , PlotRangePadding -> {None, Scaled[0.01]}
       , PlotRangeClipping -> False
     ]
     , {a, aValues}
   ]
+    // Quiet
+    //
+      GraphicsGrid[# // List
+        , ImageSize -> ImageSizeTextWidth
+        , Spacings -> {{0, 0, -0.035} ImageSizeTextWidth, 0}
+      ] &
+    // Ex["bipolar-candidates.pdf"]
 ]
