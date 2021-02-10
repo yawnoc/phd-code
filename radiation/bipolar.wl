@@ -5681,6 +5681,10 @@ Module[{legendLabelStyle},
 (*Figure: candidate boundaries (bipolar-candidates)*)
 
 
+(* ::Subsection:: *)
+(*Main*)
+
+
 Module[
   {
     aValues, aMin, aMid, aMax,
@@ -5792,4 +5796,57 @@ Module[
         , Spacings -> {{0, 0, -0.035} ImageSizeTextWidth, 0}
       ] &
     // Ex["bipolar-candidates.pdf"]
+]
+
+
+(* ::Subsection:: *)
+(*Parameter arrow*)
+
+
+Module[
+  {
+    textStyle, arrowStyle,
+    aLeft, aRight, aTransition,
+    tickLength,
+    dummyForTrailingCommas
+  },
+  (* Plot styles *)
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  arrowStyle = Directive[Thickness[0.005], Arrowheads[0.04]];
+  (* Fake A values for horizontal coordinate *)
+  aLeft = 0;
+  aRight = 1;
+  aTransition = 0.91;
+  (* Make parameter arrow *)
+  tickLength = 0.01;
+  Show[
+    (* A-axis *)
+    Graphics @ {arrowStyle,
+      Arrow @ {{aLeft, 0}, {aRight, 0}}
+    },
+    Graphics @ {
+      Text[
+        aIt // textStyle,
+        {1, 0},
+        {-2, 0}
+      ]
+    },
+    (* A_\[Natural]0 *)
+    Graphics @ {arrowStyle,
+      Line @ {
+        {aTransition, 0},
+        {aTransition, -tickLength}
+      }
+    },
+    Graphics @ {
+      Text[
+        Subscript[aIt, Row @ {"\[Natural]\[VeryThinSpace]", 0}] // textStyle
+        , {aTransition, -tickLength}
+        , {0, 1}
+      ]
+    },
+    {}
+    , ImageSize -> ImageSizeTextWidth
+    , PlotRangePadding -> {{None, Automatic}, Automatic}
+  ] // Ex["bipolar-candidates-arrow.pdf"]
 ]
