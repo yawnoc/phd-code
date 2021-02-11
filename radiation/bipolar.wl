@@ -5885,3 +5885,145 @@ Module[
     , PlotRangePadding -> {{None, Automatic}, Automatic}
   ] // Ex["bipolar-candidates-arrow.pdf"]
 ]
+
+
+(* ::Section:: *)
+(*Figure: inner candidate boundary (bipolar-inner-candidate)*)
+
+
+Module[
+  {
+    a,
+    textStyle, textStyleContour,
+    textStyleBracket, coordinatePairLabel,
+    curvilinearStyle, terminalStyle,
+    vInner, vEnd,
+    xMinRaw, xMaxRaw,
+    xMin, xMax, yMax,
+    dummyForTrailingCommas
+  },
+  (* Value of A *)
+  a = 9992/10000 aNat0;
+  (* Text functions *)
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  textStyleContour = Style[#, LabelSize["Label"] - 2] & @* LaTeXStyle;
+  textStyleBracket = Style[#, LabelSize["PointBracket"]] &;
+  coordinatePairLabel[u_, v_] :=
+    Row @ {
+      "(" // textStyleBracket,
+      "",
+      u,
+      ",\[ThinSpace]",
+      v,
+      "\[NegativeVeryThinSpace])" // textStyleBracket
+    } // textStyle;
+  (* Styles *)
+  curvilinearStyle = BoundaryTracingStyle["Background"];
+  terminalStyle = GeneralStyle["Point"];
+  (* Compute traced boundary portions *)
+  With[{v = \[FormalV]},
+    vInner =
+      NDSolveValue[
+        {
+          v'[u] == Re @ vTraDer[a][u, v[u]],
+          v[0] == vSharp0[a]
+        }, v, {u, -Pi, 0}
+        , NoExtrapolation
+        , PreciseOptions[]
+      ];
+    vEnd = vInner[-Pi];
+  ];
+  (* Plot range *)
+  xMinRaw = XBipolar[-Pi, vEnd];
+  xMaxRaw = XBipolar[0, vSharp0[a]];
+  xMin = Way[xMinRaw, xMaxRaw, -0.43];
+  xMax = Way[xMinRaw, xMaxRaw, +1.4];
+  yMax = 0.23 (xMax - xMin);
+  (* Make plot *)
+  Show[
+    (* Bipolar u-contours through positive singularity *)
+    Module[{updValues, uValues, uValuesLessThanPi},
+      updValues = Range[0, 360, 45] // Select[!Divisible[#, 180] &];
+      uValues = updValues * Degree;
+      uValuesLessThanPi = uValues // Select[# < Pi &];
+      Graphics @ {
+        curvilinearStyle,
+        Table[
+          Circle[{0, Cot[u]}, Csc[u] // Abs]
+          , {u, uValuesLessThanPi}
+        ],
+        Line @ {{0, 0}, {2, 0}},
+        {}
+      }
+    ],
+    Graphics @ {Gray,
+      (* u == 0 *)
+      Text[
+        uIt == 0 // textStyleContour
+        , {Way[XBipolar[0, vSharp0[a]], xMax, 0.55], 0}
+        , {0, -1}
+      ],
+      (* u == pi *)
+      Text[
+        uIt == "\[Pi]" // textStyleContour
+        , {Way[xMinRaw, 1], 0}
+        , {0, -1}
+      ],
+      (* u == -pi *)
+      Text[
+        uIt == Row @ {-"\[NegativeVeryThinSpace]", "\[Pi]"} // textStyleContour
+        , {Way[xMinRaw, 1], 0}
+        , {0, +0.4}
+      ],
+      {}
+    },
+    (* Candidate boundaries *)
+    Table[
+      ParametricPlot[
+        XYBipolar[u, v[u]]
+          // IncludeYReflection
+          // Evaluate
+        , {u, DomainStart[v], DomainEnd[v]}
+        , PlotPoints -> 2
+        , PlotStyle -> Directive[Black, GeneralStyle["Thick"]]
+      ]
+      , {v, {vInner}}
+    ],
+    (* Right-hand end (critical terminal point) *)
+    Graphics @ {
+      {GeneralStyle["Point"],
+        Point @ XYBipolar[0, vSharp0[a] // N]
+      },
+      Text[
+        coordinatePairLabel[
+          0,
+          Subscript[vIt, Row @ {"\[Sharp]\[VeryThinSpace]", 0}]
+        ] // textStyle
+        , XYBipolar[0, vSharp0[a]]
+        , {-1.2, +0.75}
+      ],
+      {}
+    },
+    (* Left-hand end (corner/tip) *)
+    Graphics @ {
+      {GeneralStyle["Point"],
+        Point @ XYBipolar[-Pi, vEnd]
+      },
+      Text[
+        coordinatePairLabel[
+          \[MinusPlus] Row @ {"\[NegativeVeryThinSpace]","\[Pi]"},
+          Subscript[vIt, "e\[ThinSpace]"]
+        ] // textStyle
+        , XYBipolar[-Pi, vEnd]
+        , {1.15, +0.75}
+      ],
+      {}
+    },
+    {}
+    , AspectRatio -> Automatic
+    , Axes -> None
+    , ImageSize -> 0.45 ImageSizeTextWidth
+    , PlotRange -> {{xMin, xMax}, {-yMax, yMax}}
+  ]
+    // Ex["bipolar-inner-candidate.pdf"]
+]
