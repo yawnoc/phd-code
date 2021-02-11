@@ -238,6 +238,27 @@ curTra[a_] := Function[{u, v},
 ] // Evaluate;
 
 
+(* Version for lower branch *)
+curTraLower[a_] := Function[{u, v},
+  Module[{d, dd, h, cur, vDer, vDer2},
+    (* Abbreviation for u-derivative *)
+    d = Dt[#, u, Constants -> a] &;
+    (* Abbreviations *)
+    h = HBipolar[u, v];
+    dd = Sinh[v] - d[v] Sin[u];
+    (* Curvature *)
+    cur = h^3 (dd (1 + d[v]^2) + d @ d[v] / h);
+    (* v' and v'' *)
+    vDer = -vTraDer[a][u, v];
+    vDer2 = d[vDer];
+    (* Curvature evaluated *)
+    cur
+      /. {d @ d[v] -> vDer2}
+      /. {d[v] -> vDer}
+  ] // Evaluate
+] // Evaluate;
+
+
 (* ::Subsubsection:: *)
 (*v_i (inflection hyperbolic coordinate along u = -\[Pi])*)
 
@@ -3631,6 +3652,20 @@ With[{v = \[FormalV], a = \[FormalCapitalA]},
     }
   } // TableForm
 ] // Ex["bipolar-curvature-corner.pdf"]
+
+
+(* Verify same result for lower branch too *)
+With[{v = \[FormalV], a = \[FormalCapitalA]},
+  Module[{upper, lower, equal},
+    upper = curTra[a][-Pi, v] // FullSimplify;
+    lower = curTraLower[a][Pi, v] // FullSimplify;
+    equal = upper == lower;
+    {
+      {"Upper", "Lower", "Equal"},
+      {upper, lower, equal}
+    } // Transpose // TableForm
+  ]
+] // Ex["bipolar-curvature-corner-branches.pdf"]
 
 
 (* ::Subsection:: *)
