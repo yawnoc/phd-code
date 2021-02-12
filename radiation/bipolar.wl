@@ -4717,9 +4717,9 @@ Module[
     vMinFake, vMaxFake, fMinFake, fMaxFake,
     fakeV, fakeA,
     textStyle, textStyleAxis, textStyleContour,
-    terminalStyleFake, guideStyleFake,
+    terminalStyle, guideStyleFake,
     coshStyleFake, quarticStyleFake,
-    curvilinearStyle, terminalStyleReal,
+    curvilinearStyle,
     criticalPlot,
       vFlat0Fake, vSharp0Fake,
       vFlatPiFake, vSharpPiFake,
@@ -4780,12 +4780,11 @@ Module[
   textStyleAxis = Style[#, LabelSize["Axis"]] & @* LaTeXStyle;
   textStyleContour = Style[#, LabelSize["Label"] - 2] & @* LaTeXStyle;
   (* Styles *)
-  terminalStyleFake = PointSize[Medium];
+  terminalStyle = AbsolutePointSize[6];
   guideStyleFake = Directive[Gray];
   coshStyleFake = Directive[Black, GeneralStyle["DefaultThick"]];
   quarticStyleFake = Directive[Gray, GeneralStyle["DefaultThick"], GeneralStyle["Dashed"]];
   curvilinearStyle = BoundaryTracingStyle["Background"];
-  terminalStyleReal = PointSize[0.03];
   (* Make all plots *)
   Table[
     (* BEGIN Table content *)
@@ -4833,7 +4832,7 @@ Module[
               {vFlat0Fake, fMinFake}
             }
           },
-          {terminalStyleFake,
+          {terminalStyle,
             Point @ {vFlat0Fake, fakeCoshMinus[vFlat0Fake]}
           },
           Text[
@@ -4852,7 +4851,7 @@ Module[
               {vSharp0Fake, fMinFake}
             }
           },
-          {terminalStyleFake,
+          {terminalStyle,
             Point @ {vSharp0Fake, fakeCoshMinus[vSharp0Fake]}
           },
           Text[
@@ -4873,7 +4872,7 @@ Module[
               {vFlat0Fake, fMinFake}
             }
           },
-          {terminalStyleFake,
+          {terminalStyle,
             Point @ {vFlat0Fake, fakeCoshMinus[vFlat0Fake]}
           },
           Text[
@@ -4902,7 +4901,7 @@ Module[
               {vFlatPiFake, fMinFake}
             }
           },
-          {terminalStyleFake,
+          {terminalStyle,
             Point @ {vFlatPiFake, fakeCoshPlus[vFlatPiFake]}
           },
           Text[
@@ -4921,7 +4920,7 @@ Module[
               {vSharpPiFake, fMinFake}
             }
           },
-          {terminalStyleFake,
+          {terminalStyle,
             Point @ {vSharpPiFake, fakeCoshPlus[vSharpPiFake]}
           },
           Text[
@@ -4942,7 +4941,7 @@ Module[
               {vFlatPiFake, fMinFake}
             }
           },
-          {terminalStyleFake,
+          {terminalStyle,
             Point @ {vFlatPiFake, fakeCoshPlus[vFlatPiFake]}
           },
           Text[
@@ -5016,7 +5015,7 @@ Module[
         realA[regime] < realA["cold_warm"],
         Graphics @ {
           (* v_\[Flat]0 *)
-          {terminalStyleReal,
+          {terminalStyle,
             Point @ XYBipolar[0, vFlat0 @ realA[regime]]
           },
           Text[
@@ -5025,7 +5024,7 @@ Module[
             , {-1.2, -0.85}
           ],
           (* v_\[Sharp]0 *)
-          {terminalStyleReal,
+          {terminalStyle,
             Point @ XYBipolar[0, vSharp0 @ realA[regime]]
           },
           Text[
@@ -5039,13 +5038,13 @@ Module[
         realA[regime] == realA["cold_warm"],
         Graphics @ {
           (* v_\[Natural]0 *)
-          {terminalStyleReal,
+          {terminalStyle,
             Point @ XYBipolar[0, vNat0]
           },
           Text[
             Subscript[vIt, Row @ {"\[Natural]\[VeryThinSpace]", 0}] // textStyle
             , XYBipolar[0, vNat0]
-            , {-0.6, -1}
+            , {-0.85, -1}
           ],
           {}
         },
@@ -5058,7 +5057,7 @@ Module[
         realA[regime] < realA["warm_hot"],
         Graphics @ {
           (* v_\[Flat]\[Pi] *)
-          {terminalStyleFake,
+          {terminalStyle,
             Point @ XYBipolar[Pi, vFlatPi @ realA[regime]]
           },
           Text[
@@ -5067,13 +5066,13 @@ Module[
             , {1.3, -0.9}
           ],
           (* v_\[Sharp]\[Pi] *)
-          {terminalStyleFake,
+          {terminalStyle,
             Point @ XYBipolar[Pi, vSharpPi @ realA[regime]]
           },
           Text[
             Subscript[vIt, Row @ {"\[Sharp]", "\[Pi]"}] // textStyle
             , XYBipolar[Pi, vSharpPi @ realA[regime]]
-            , {-1.5, -0.8}
+            , {-1.5, -0.75}
           ],
           {}
         },
@@ -5081,7 +5080,7 @@ Module[
         realA[regime] == realA["warm_hot"],
         Graphics @ {
           (* v_\[Natural]\[Pi] *)
-          {terminalStyleReal,
+          {terminalStyle,
             Point @ XYBipolar[Pi, vNatPi]
           },
           Text[
