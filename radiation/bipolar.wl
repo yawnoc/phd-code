@@ -1376,6 +1376,40 @@ Module[{dest},
 
 
 (* ::Subsubsection:: *)
+(*Solve BVP for nice case*)
+
+
+Module[{dest},
+  dest = "bipolar-nice-verification-solution.txt";
+  If[Not @ FileExistsQ[dest],
+    Module[
+     {source,
+      a, vBath, mesh, prExt, prInt,
+      tSol
+     },
+      (* Import mesh *)
+      source = "bipolar-nice-verification-mesh.txt";
+      {a, vBath, mesh, prExt, prInt} = Import[source] // Uncompress;
+      (* Solve boundary value problem *)
+      With[{x = \[FormalX], y = \[FormalY], t = \[FormalCapitalT]},
+        tSol = NDSolveValue[
+          {
+            (* Steady state heat equation *)
+            -Laplacian[t[x, y], {x, y}] ==
+              (* External (radiation) boundary condition *)
+              NeumannValue[(-1 / a) t[x, y]^4, prExt[x, y]],
+            (* Internal (heat bath) boundary condition *)
+            DirichletCondition[t[x, y] == vBath, prInt[x, y]]
+          }, t, Element[{x, y}, mesh]
+        ]
+      ];
+      tSol // Compress // Ex[dest]
+    ]
+  ]
+]
+
+
+(* ::Subsubsection:: *)
 (*Solve BVP for hot regime A < A_\[Natural]\[Pi]*)
 
 
