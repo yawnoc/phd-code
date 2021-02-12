@@ -40,8 +40,13 @@ and some are complete dead ends.
 This will not be very illuminating,
 not to mention time-consuming since you will end up
 doing computations which needn't be redone.
-Usually you want to run *only* the initialisation section,
-and after that, run a visualisation cell and then do some new exploration.
+Usually you want to run *only* the initialisation section.
+This is the section I have called
+"Initialisation section (always run this first)";
+select its cell bracket and evaluate.
+**Do NOT use "Evaluate Initialization Cells".**
+(Cells in a `.wl` file are automatically styled as Code cells,
+which are Initialization Cells by default.)
 
 Timings referred to in the comments are for an
 Intel(R) Core(TM) i7-7700 CPU @ 3.60 GHz (8 GB RAM)
