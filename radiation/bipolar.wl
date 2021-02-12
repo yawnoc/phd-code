@@ -938,8 +938,8 @@ Module[{dest},
       (* Heat bath coordinate *)
       vBath = 1.1 vSh0;
       (* Spacing of boundary points *)
-      (* (roughly 1 boundary point every 5 degrees along v == vSh0) *)
-      sSpacing = Csch[vSh0] * 5 Degree;
+      (* (roughly 1 boundary point every 7.5 degrees along v == vSh0) *)
+      sSpacing = Csch[vSh0] * 7.5 Degree;
       (* External (radiation) boundary points *)
       sValues = UniformRange[-sMax, 0, sSpacing];
       reflect[{x_, y_}] := {x, -y};
