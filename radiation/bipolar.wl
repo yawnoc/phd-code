@@ -4124,6 +4124,39 @@ Module[
 
 
 (* ::Subsubsection:: *)
+(*Nice case*)
+
+
+Module[
+  {
+    source,
+    a, vBath, mesh, prExt, prInt,
+    bCoords, bCoordsExt, bCoordsInt,
+    dummyForTrailingCommas
+  },
+  (* Import mesh *)
+  source = "bipolar-nice-verification-mesh.txt";
+  {a, vBath, mesh, prExt, prInt} = Import[source] // Uncompress;
+  (* Boundary coordinates *)
+  bCoords = Part[
+    mesh["Coordinates"],
+    List @@ First @ mesh["BoundaryElements"] // Flatten // DeleteDuplicates
+  ];
+  bCoordsExt = Select[bCoords, prExt @@ # &];
+  bCoordsInt = Select[bCoords, prInt @@ # &];
+  (* Plot *)
+  Show[
+    mesh["Wireframe"],
+    ListPlot[{bCoordsExt, bCoordsInt}
+      , PlotStyle -> {Blue, Red}
+    ],
+    {}
+    , ImageSize -> 480
+  ]
+] // Ex["bipolar-nice-verification-mesh.pdf"]
+
+
+(* ::Subsubsection:: *)
 (*Hot regime A < A_\[Natural]\[Pi]*)
 
 
