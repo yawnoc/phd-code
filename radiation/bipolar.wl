@@ -896,6 +896,101 @@ uvTraSystem[a_] :=
 
 
 (* ::Subsubsection:: *)
+(*Generate mesh for nice case*)
+
+
+aNice = aInfl // Floor[#, 1/100] &
+
+
+Module[{dest},
+  dest = "bipolar-nice-verification-mesh.txt";
+  If[Not @ FileExistsQ[dest],
+    Module[
+     {a, vSh0,
+      sMax, uv,
+      vBath,
+      radSh0, sSpacing,
+      sValues, reflect, extPointList,
+      cenBath, radBath, intPointList,
+      nExt, nInt, mod,
+      bMesh, mesh,
+      prExt, prInt
+     },
+      (* Dimensionless group *)
+      a = aNice;
+      (* Hyperbolic critical terminal point *)
+      vSh0 = vSharp0[a];
+      (* Upper bound for arc length traversed *)
+      sMax = Pi (1 - XBipolar[-Pi, vTraCandCorn[a]]);
+      (* Traced boundaries *)
+      uv = With[{u = \[FormalU], v = \[FormalV], s = \[FormalS]},
+        NDSolveValue[
+          {
+            uvTraSystem[a],
+            u[0] == 0, v[0] == vSh0,
+            WhenEvent[u[s] == -Pi, "StopIntegration"]
+          }, {u, v}, {s, -sMax, 0},
+          NoExtrapolation
+        ]
+      ];
+      (* Actual arc length traversed *)
+      sMax = -DomainStart[uv];
+      (* Heat bath coordinate *)
+      vBath = 1.1 vSh0;
+      (* Spacing of boundary points *)
+      (* (roughly 1 boundary point every 5 degrees along v == vSh0) *)
+      sSpacing = Csch[vSh0] * 5 Degree;
+      (* External (radiation) boundary points *)
+      sValues = UniformRange[-sMax, 0, sSpacing];
+      reflect[{x_, y_}] := {x, -y};
+      extPointList = Join[
+        Table[
+          XYBipolar @@ Through @ uv[s] // reflect
+        , {s, sValues}] // Reverse // Most,
+        Table[
+          XYBipolar @@ Through @ uv[s]
+        , {s, sValues}] // Most
+      ];
+      (* Internal (heat bath) boundary *)
+      cenBath = {Coth[vBath], 0};
+      radBath = Csch[vBath];
+      intPointList = Table[
+        cenBath + XYPolar[radBath, ph]
+      , {ph, UniformRange[0, 2 Pi, sSpacing / radBath]}] // Most;
+      (* Numbering *)
+      nExt = Length[extPointList];
+      nInt = Length[intPointList];
+      mod[n_] := Mod[#, n, 1] &;
+      (* Build boundary element mesh *)
+      bMesh = ToBoundaryMesh[
+        "Coordinates" -> Join[extPointList, intPointList],
+        "BoundaryElements" -> {
+          (* External *)
+          LineElement[
+            Table[{n, n + 1}, {n, nExt}] // mod[nExt]
+          ],
+          (* Internal *)
+          LineElement[
+            nExt + (Table[{n, n + 1}, {n, nInt}] // mod[nInt])
+          ]
+        }
+      ];
+      (* Build mesh *)
+      mesh = ToElementMesh[bMesh,
+        "ImproveBoundaryPosition" -> True,
+        "RegionHoles" -> {1, 0}
+      ];
+      (* Predicate functions for exterior and interior boundaries *)
+      prExt = Function[{x, y}, VBipolar[x, y] < Way[vSh0, vBath] // Evaluate];
+      prInt = Function[{x, y}, VBipolar[x, y] > Way[vSh0, vBath] // Evaluate];
+      {a, vBath, mesh, prExt, prInt}
+        // Compress // Ex[dest]
+    ]
+  ]
+]
+
+
+(* ::Subsubsection:: *)
 (*Generate mesh for hot regime A < A_\[Natural]\[Pi]*)
 
 
