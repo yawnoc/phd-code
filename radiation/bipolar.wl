@@ -4315,6 +4315,27 @@ Module[
 
 
 (* ::Subsubsection:: *)
+(*Nice case*)
+
+
+Module[{source, tSol, mesh},
+  (* Import solution *)
+  source = "bipolar-nice-verification-solution.txt";
+  tSol = Import[source] // Uncompress;
+  mesh = tSol["ElementMesh"];
+  (* Plot *)
+  With[{x = \[FormalX], y = \[FormalY]},
+    Plot3D[tSol[x, y], Element[{x, y}, mesh]
+      , AxesLabel -> Italicise /@ {"x", "y", "T"}
+      , PlotLabel -> "Numerical solution"
+      , PlotRange -> Full
+      , PlotOptions[Axes] // Evaluate
+    ]
+  ]
+] // Ex["bipolar-nice-verification-solution.png"]
+
+
+(* ::Subsubsection:: *)
 (*Hot regime A < A_\[Natural]\[Pi]*)
 
 
