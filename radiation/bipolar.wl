@@ -6278,7 +6278,7 @@ Module[{a, vi, ve},
 
 
 (* ::Section:: *)
-(*Figure: verification mesh (bipolar-verification-mesh)*)
+(*Figure: verification domain and mesh (bipolar-verification-domain-mesh)*)
 
 
 Module[
@@ -6289,6 +6289,8 @@ Module[
     sMax, uvTraced,
     radBath, cenBath,
     textStyle,
+    plotRangePadding,
+    meshGraphic, domainGraphic,
     dummyForTrailingCommas
   },
   (* Import mesh *)
@@ -6310,11 +6312,15 @@ Module[
   (* Internal (heat bath) boundary *)
   cenBath = {Coth[vBath], 0};
   radBath = Csch[vBath];
-  (* Make plot *)
+  (* Make graphics *)
   textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
-  Show[
-    (* Mesh *)
+  plotRangePadding = Scaled[0.01];
+  meshGraphic = Show[
     mesh["Wireframe"],
+    {}
+    , PlotRangePadding -> plotRangePadding
+  ];
+  domainGraphic = Show[
     (* Radiation (traced) boundary *)
     ParametricPlot[
       XYBipolar @@ EvaluatePair[uvTraced, s]
@@ -6323,12 +6329,10 @@ Module[
       , PlotStyle -> BoundaryTracingStyle["Traced"]
     ],
     (* Internal (heat bath) boundary *)
-    (*
     Graphics @ {
       BoundaryTracingStyle["Contour"],
       Circle[cenBath, radBath]
     },
-    *)
     Graphics @ {
       Text[
         Italicise["T"] == Subscript[Italicise["T"], "\[NegativeThinSpace]d"] // textStyle
@@ -6340,13 +6344,20 @@ Module[
       Text[
         Italicise["v"] == Subscript[Italicise["v"], "\[VeryThinSpace]d"] // textStyle
         , cenBath + {0, -radBath}
-        , {0, -1.6}
+        , {0, -1.7}
       ]
     },
     {}
-    , ImageSize -> 0.6 ImageSizeTextWidth
+    , Axes -> None
+    , PlotRangePadding -> plotRangePadding
+  ];
+  (* Export *)
+  GraphicsRow[
+    {domainGraphic, meshGraphic}
+    , ImageSize -> 0.968 ImageSizeTextWidth
+    , Spacings -> Scaled[0.05]
   ]
-    // Ex["bipolar-verification-mesh.pdf"]
+    // Ex["bipolar-verification-domain-mesh.pdf"]
 ]
 
 
