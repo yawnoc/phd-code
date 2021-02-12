@@ -6275,3 +6275,102 @@ Module[{a, vi, ve},
    // N
    // TableForm
 ] // Ex["bipolar-comparing-v-values-cold_warm.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: verification mesh (bipolar-verification-mesh)*)
+
+
+Module[
+  {
+    source,
+    a, vBath, mesh, prExt, prInt,
+    vSh0,
+    sMax, uvTraced,
+    radBath, cenBath,
+    textStyle,
+    dummyForTrailingCommas
+  },
+  (* Import mesh *)
+  source = "bipolar-nice-verification-mesh.txt";
+  {a, vBath, mesh, prExt, prInt} = Import[source] // Uncompress;
+  (* Radiation (traced) boundary *)
+  vSh0 = vSharp0[a];
+  sMax = Pi (1 - XBipolar[-Pi, vTraCandCorn[a]]);
+  uvTraced = With[{u = \[FormalU], v = \[FormalV], s = \[FormalS]},
+    NDSolveValue[
+      {
+        uvTraSystem[a],
+        u[0] == 0, v[0] == vSh0,
+        WhenEvent[u[s] == -Pi, "StopIntegration"]
+      }, {u, v}, {s, -sMax, 0},
+      NoExtrapolation
+    ]
+  ];
+  (* Internal (heat bath) boundary *)
+  cenBath = {Coth[vBath], 0};
+  radBath = Csch[vBath];
+  (* Make plot *)
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  Show[
+    (* Mesh *)
+    mesh["Wireframe"],
+    (* Radiation (traced) boundary *)
+    ParametricPlot[
+      XYBipolar @@ EvaluatePair[uvTraced, s]
+        // IncludeYReflection
+      , {s, DomainStart[uvTraced], DomainEnd[uvTraced]}
+      , PlotStyle -> BoundaryTracingStyle["Traced"]
+    ],
+    (* Internal (heat bath) boundary *)
+    (*
+    Graphics @ {
+      BoundaryTracingStyle["Contour"],
+      Circle[cenBath, radBath]
+    },
+    *)
+    Graphics @ {
+      Text[
+        Italicise["T"] == Subscript[Italicise["T"], "\[NegativeThinSpace]d"] // textStyle
+        , cenBath + {0, radBath}
+        , {0, 1.6}
+      ]
+    },
+    Graphics @ {
+      Text[
+        Italicise["v"] == Subscript[Italicise["v"], "\[VeryThinSpace]d"] // textStyle
+        , cenBath + {0, -radBath}
+        , {0, -1.6}
+      ]
+    },
+    {}
+    , ImageSize -> 0.6 ImageSizeTextWidth
+  ]
+    // Ex["bipolar-verification-mesh.pdf"]
+]
+
+
+(* ::Subsection:: *)
+(*Number of mesh elements*)
+
+
+Module[{mesh},
+  mesh = Import["bipolar-nice-verification-mesh.txt"] // Uncompress // #[[3]] &;
+  mesh
+]
+
+
+(* ::Subsection:: *)
+(*Maximum relative error throughout mesh*)
+
+
+Module[{source, tSol, mesh, tExact, relError},
+  (* Import solution *)
+  source = "bipolar-nice-verification-solution.txt";
+  tSol = Import[source] // Uncompress;
+  mesh = tSol["ElementMesh"];
+  (* Known exact solution *)
+  tExact[x_, y_] := VBipolar[x, y];
+  relError[x_, y_] := tSol[x, y] / tExact[x, y] - 1;
+  relError @@@ mesh["Coordinates"] // Abs // Max // PercentForm
+]
