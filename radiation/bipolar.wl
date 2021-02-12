@@ -6026,3 +6026,24 @@ Module[
   ]
     // Ex["bipolar-inner-candidate.pdf"]
 ]
+
+
+(* ::Section:: *)
+(*Comparing v values for A = A_\[Natural]0*)
+
+
+Module[{a, vi, ve},
+  a = aNat0;
+  vi = vInfl;
+  ve = vTraCandCorn[aNat0];
+  {
+    {"A_\[Natural]0", a},
+    {"v_i", vi},
+    {"v_e at A = A_\[Natural]0", ve},
+    {"absolute difference", ve - vi},
+    {"curvature", 2 a^2 / ve^9 (-2 + ve Tanh[ve/2])},
+    Nothing
+  }
+   // N
+   // TableForm
+] // Ex["bipolar-comparing-v-values-cold_warm.pdf"]
