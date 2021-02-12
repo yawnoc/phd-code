@@ -6362,6 +6362,34 @@ Module[
 
 
 (* ::Subsection:: *)
+(*Domain details*)
+
+
+Module[
+  {
+    source,
+    a, vBath, mesh, prExt, prInt,
+    radBath, cenBath,
+    dummyForTrailingCommas
+  },
+  (* Import mesh *)
+  source = "bipolar-nice-verification-mesh.txt";
+  {a, vBath, mesh, prExt, prInt} = Import[source] // Uncompress;
+  (* Internal (heat bath) boundary *)
+  cenBath = {Coth[vBath], 0};
+  radBath = Csch[vBath];
+  (* Return *)
+  {
+    {"A", a // N},
+    {"v_d", vBath},
+    {"v_d / v_\[Sharp]0", vBath / vSharp0[a]},
+    {"radius_d", radBath},
+    Nothing
+  } // TableForm
+]
+
+
+(* ::Subsection:: *)
 (*Number of mesh elements*)
 
 
