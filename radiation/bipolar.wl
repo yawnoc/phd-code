@@ -4424,6 +4424,51 @@ Module[{source, tSol, mesh},
 
 
 (* ::Subsubsection:: *)
+(*Nice case*)
+
+
+Module[{source, tSol, mesh, tExact},
+  (* Import solution *)
+  source = "bipolar-nice-verification-solution.txt";
+  tSol = Import[source] // Uncompress;
+  mesh = tSol["ElementMesh"];
+  (* Known exact solution *)
+  tExact[x_, y_] := VBipolar[x, y];
+  (* Plot *)
+  With[{x = \[FormalX], y = \[FormalY]},
+    Plot3D[tSol[x, y] / tExact[x, y] - 1, Element[{x, y}, mesh],
+      PlotLabel -> "Relative error of numerical solution",
+      PlotRange -> Full,
+      PlotOptions[Axes] // Evaluate
+    ]
+  ]
+] // Ex["bipolar-nice-verification-rel_error-3d.png"]
+
+
+Module[{source, tSol, mesh, tExact},
+  (* Import solution *)
+  source = "bipolar-nice-verification-solution.txt";
+  tSol = Import[source] // Uncompress;
+  mesh = tSol["ElementMesh"];
+  (* Known exact solution *)
+  tExact[x_, y_] := VBipolar[x, y];
+  (* Plot *)
+  With[{x = \[FormalX], y = \[FormalY]},
+    Show[
+      DensityPlot[tSol[x, y] / tExact[x, y] - 1, Element[{x, y}, mesh],
+        ColorFunction -> "Rainbow",
+        PlotLabel -> "Relative error of numerical solution",
+        PlotRange -> Full,
+        PlotLegends -> Automatic,
+        PlotOptions[Frame] // Evaluate
+      ],
+      mesh["Wireframe"]
+    ]
+  ]
+] // Ex["bipolar-nice-verification-rel_error-2d.png"]
+
+
+(* ::Subsubsection:: *)
 (*Hot regime A < A_\[Natural]\[Pi]*)
 
 
