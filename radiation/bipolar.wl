@@ -6535,3 +6535,111 @@ Module[
     , PlotOptions[Axes] // Evaluate
   ]
 ] // Ex["bipolar-inner-candidate-asymmetry.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: inner candidate boundary with v_\[Sharp]0 circle (bipolar-inner-candidate-with-circle)*)
+
+
+Module[
+  {
+    a,
+    textStyle, textStyleContour,
+    textStyleBracket, coordinatePairLabel,
+    curvilinearStyle, terminalStyle,
+    vInner,
+      cenCircle, radCircle,
+      phiRadiusMarker,
+    dummyForTrailingCommas
+  },
+  (* Value of A *)
+  a = Floor[aNat0, 1/100];
+  (* Text functions *)
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  textStyleContour = Style[#, LabelSize["Label"] - 2] & @* LaTeXStyle;
+  textStyleBracket = Style[#, LabelSize["PointBracket"]] &;
+  coordinatePairLabel[u_, v_] :=
+    Row @ {
+      "(" // textStyleBracket,
+      "",
+      u,
+      ",\[ThinSpace]",
+      v,
+      "\[NegativeVeryThinSpace])" // textStyleBracket
+    } // textStyle;
+  (* Styles *)
+  curvilinearStyle = BoundaryTracingStyle["Background"];
+  terminalStyle = GeneralStyle["Point"];
+  (* Compute traced boundary portions *)
+  With[{v = \[FormalV]},
+    vInner =
+      NDSolveValue[
+        {
+          v'[u] == Re @ vTraDer[a][u, v[u]],
+          v[0] == vSharp0[a]
+        }, v, {u, -Pi, 0}
+        , NoExtrapolation
+        , PreciseOptions[]
+      ];
+  ];
+  (* Make plot *)
+  Show[
+    (* Circle (v-contour for v_\[Sharp]0) *)
+    cenCircle = {Coth[vSharp0[a]], 0};
+    radCircle = Csch[vSharp0[a]];
+    phiRadiusMarker = 135 Degree;
+    Graphics @ {
+      BoundaryTracingStyle["ContourPlain"],
+        Circle[cenCircle, radCircle],
+        Line @ {cenCircle, cenCircle + XYPolar[radCircle, phiRadiusMarker]},
+      Darker[Gray],
+        (* v == v_\[Sharp]0 *)
+        Text[
+          vIt == Subscript[vIt, Row @ {"\[Sharp]\[VeryThinSpace]", 0}] // textStyle
+          , cenCircle + {0, -radCircle}
+          , {0.1, -1.55}
+        ],
+        (* r_\[Sharp]0 *)
+        Text[
+          Subscript[Italicise["r"], Row @ {"\[NegativeVeryThinSpace]\[Sharp]\[VeryThinSpace]", 0}] // textStyle
+          , cenCircle + 1/2 XYPolar[radCircle, phiRadiusMarker]
+          , {-1.3, -0.57}
+        ],
+      {}
+    },
+    (* Candidate boundaries *)
+    Table[
+      ParametricPlot[
+        XYBipolar[u, v[u]]
+          // IncludeYReflection
+          // Evaluate
+        , {u, DomainStart[v], DomainEnd[v]}
+        , PlotPoints -> 2
+        , PlotStyle -> Directive[Black, GeneralStyle["Thick"]]
+      ]
+      , {v, {vInner}}
+    ],
+    (* Right-hand end (critical terminal point) *)
+    Graphics @ {
+      {GeneralStyle["Point"],
+        Point @ XYBipolar[0, vSharp0[a] // N]
+      },
+      Text[
+        coordinatePairLabel[
+          0,
+          Subscript[vIt, Row @ {"\[Sharp]\[VeryThinSpace]", 0}]
+        ] // textStyle
+        , XYBipolar[0, vSharp0[a]]
+        , {-1.35, -0.2}
+      ],
+      {}
+    },
+    {}
+    , AspectRatio -> Automatic
+    , Axes -> None
+    , ImageSize -> 0.56 ImageSizeTextWidth
+    , PlotRange -> All
+    , PlotRangeClipping -> False
+  ]
+    // Ex["bipolar-inner-candidate-with-circle.pdf"]
+]
