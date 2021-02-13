@@ -6643,3 +6643,52 @@ Module[
   ]
     // Ex["bipolar-inner-candidate-with-circle.pdf"]
 ]
+
+
+(* ::Section:: *)
+(*Figure: auxiliary function (bipolar-auxiliary-function)*)
+
+
+Module[
+  {
+    vSpecial, omegaSpecial,
+    textStyle,
+    dummyForTrailingCommas
+  },
+  (* Special values *)
+  vSpecial = vNat0;
+  omegaSpecial = omega[vSpecial];
+  (* Make plot *)
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  Plot[omega[v], {v, 0, 20}
+    , AxesLabel -> {
+        vIt // Margined @ {{-2, 0}, {3, 0}},
+        "\[Omega]" // LaTeXStyle // Margined @ {{0, 0}, {-2, 0}}
+      }
+    , Epilog -> {
+        {BoundaryTracingStyle["Contour"],
+          Line @ {{0, omegaSpecial}, {vSpecial, omegaSpecial}},
+          Line @ {{vSpecial, 0}, {vSpecial, omegaSpecial}}
+        },
+        Text[
+          SeparatedRow["VeryThin"][1, "/", 4] // textStyle
+          , {0, omegaSpecial}
+          , {1.4, -0.07}
+        ],
+        Text[
+          Subscript[vIt, Row @ {"\[Natural]\[VeryThinSpace]", 0}] // textStyle
+          , {vSpecial, 0}
+          , {0.25, 1}
+        ],
+        {}
+      }
+    , ImagePadding -> {Scaled /@ {0.04, 0.04}, Scaled /@ {0.04, 0.04}}
+    , ImageSize -> 0.55 ImageSizeTextWidth
+    , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+    , PlotRange -> {0, All}
+    , PlotRangeClipping -> False
+    , PlotStyle -> Directive[Black, GeneralStyle["Thick"]]
+    , TicksStyle -> LabelSize["Tick"]
+    , PlotOptions[Axes] // Evaluate
+  ]
+] // Ex["bipolar-auxiliary-function.pdf"]
