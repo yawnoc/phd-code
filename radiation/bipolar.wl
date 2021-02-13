@@ -6413,3 +6413,125 @@ Module[{source, tSol, mesh, tExact, relError},
   relError[x_, y_] := tSol[x, y] / tExact[x, y] - 1;
   relError @@@ mesh["Coordinates"] // Abs // Max // PercentForm
 ]
+
+
+(* ::Section:: *)
+(*Figure: inner candidate boundary asymmetry (bipolar-inner-candidate-asymmetry)*)
+
+
+Module[
+  {
+    aAsymmTable, asymmNatPi, asymmNat0,
+    aMinTable, asymmMinTable,
+    aMin, aMax, asymmMin,
+    asymmInterpolation,
+    textStyle, textStyleTick,
+      aTicks, tickProcess,
+      asymmLabelHorizontalOffset,
+      aLabelVerticalOffset,
+      aHotLabel, asymmHotLabel,
+      aWarmLabel, asymmWarmLabel,
+      aColdLabel, asymmColdLabel,
+    dummyForTrailingCommas
+  },
+  (* Import pre-computed asymmetries *)
+  {aAsymmTable, asymmNatPi, asymmNat0} =
+    Import["bipolar-candidate-asymmetry.txt"] // Uncompress;
+  aAsymmTable = aAsymmTable // DeleteCases[{_, Indeterminate}];
+  asymmInterpolation = Interpolation[aAsymmTable] @* N;
+  (* Axis ranges *)
+  {aMinTable, asymmMinTable} = aAsymmTable // First;
+  aMin = aMinTable;
+  aMax = aNat0 + (aNatPi - aMin);
+  asymmMin = 0;
+  (* Text functions *)
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  textStyleTick = Style[#, LabelSize["Tick"]] & @* LaTeXStyle;
+  (* Make plot *)
+  tickProcess[value_] := If[IntegerQ[value], value, N[value]];
+  SetAttributes[tickProcess, Listable];
+  aTicks = (
+    FindDivisions[{aMin, aMax}, 6]
+      // DeleteCases[9] (* prevent clash with A_\[Natural]\[Pi] *)
+      // tickProcess (* make non-integers numeric *)
+  );
+  asymmLabelHorizontalOffset = 1.25;
+  aLabelVerticalOffset = 1.2;
+  ListPlot[
+    aAsymmTable
+    , AspectRatio -> 0.55
+    , AxesLabel -> {
+        aIt // Margined @ {{-3, 1}, {5, 0}},
+        "Asymmetry" // Margined @ {{0, 0}, {-5, 0}}
+      }
+    , Epilog -> {
+        (* Hot regime *)
+        aHotLabel = Way[aMin, aNatPi];
+        asymmHotLabel = 1/2 asymmInterpolation[aHotLabel];
+        Text[
+          "hot" // textStyle
+          , {aHotLabel, asymmHotLabel}
+        ],
+        (* Hot-to-warm transition *)
+        {BoundaryTracingStyle["Contour"],
+          Line @ {{aMin, asymmNatPi}, {aNatPi, asymmNatPi}},
+          Line @ {{aNatPi, asymmMin}, {aNatPi, asymmNatPi}}
+        },
+        Text[
+          asymmNatPi // SignificantFiguresForm[5] // textStyleTick
+          , {aMin, asymmNatPi}
+          , {asymmLabelHorizontalOffset, -0.2}
+        ],
+        Text[
+           Subscript[aIt, Row @ {"\[VeryThinSpace]\[Natural]", "\[Pi]"}] // textStyle
+          , {aNatPi, asymmMin}
+          , {0, aLabelVerticalOffset}
+        ],
+        (* Warm regime *)
+        aWarmLabel = Way[aNatPi, aNat0];
+        asymmWarmLabel = 1/2 asymmInterpolation[aWarmLabel];
+        Text[
+          "warm" // textStyle
+          , {aWarmLabel, asymmWarmLabel}
+        ],
+        (* Warm-to-cold transition *)
+        {BoundaryTracingStyle["Contour"],
+          Line @ {{aMin, asymmNat0}, {aNat0, asymmNat0}},
+          Line @ {{aNat0, asymmMin}, {aNat0, asymmNat0}}
+        },
+        Text[
+          asymmNat0 // SignificantFiguresForm[5] // textStyleTick
+          , {aMin, asymmNat0}
+          , {asymmLabelHorizontalOffset, 0}
+        ],
+        Text[
+          Subscript[aIt, Row @ {"\[Natural]\[VeryThinSpace]", 0}] // textStyle
+          , {aNat0, asymmMin}
+          , {0, aLabelVerticalOffset}
+        ],
+        (* Cold regime *)
+        {aColdLabel, asymmColdLabel} =
+          Way[
+            {aHotLabel, asymmHotLabel},
+            {aWarmLabel, asymmWarmLabel}
+            , 2
+          ];
+        Text[
+          "cold" // textStyle
+          , {aColdLabel, asymmColdLabel}
+        ],
+        {}
+      }
+    , ImagePadding -> {Scaled /@ {0.075, 0.04}, Scaled /@ {0.05, 0.05}}
+    , ImageSize -> 0.6 ImageSizeTextWidth
+    , Joined -> True
+    , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+    , PlotRange -> {{aMin, aMax}, {asymmMin, All}}
+    , PlotRangeClipping -> False
+    , PlotRangePadding -> {{Automatic, Scaled[0.02]}, {0, Automatic}}
+    , PlotStyle -> Directive[Black, GeneralStyle["Thick"]]
+    , Ticks -> {aTicks, Automatic}
+    , TicksStyle -> LabelSize["Tick"]
+    , PlotOptions[Axes] // Evaluate
+  ]
+] // Ex["bipolar-inner-candidate-asymmetry.pdf"]
