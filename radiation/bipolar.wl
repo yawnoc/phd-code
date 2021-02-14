@@ -6692,3 +6692,36 @@ Module[
     , PlotOptions[Axes] // Evaluate
   ]
 ] // Ex["bipolar-auxiliary-function.pdf"]
+
+
+(* ::Section:: *)
+(*Physical range*)
+
+
+Module[
+  {
+    r, eps, k, sigma,
+    tMax, pMax,
+    dummyForTrailingCommas
+  },
+  (* Values taken from "Physical range" in line.wl. *)
+  r = Quantity[4, "Centimeters"];
+  eps = 0.93;
+  k = Quantity[0.18, "Watts" / "Meters" / "Kelvins"];
+  sigma = Quantity[5.67 10^-8, "Watts" / "Meters"^2 / "Kelvins"^4];
+  (* Temperature range *)
+  tMax = 1/2^(2/3) * (k / (eps sigma r))^(1/3);
+  (* Power per length *)
+  pMax = 2^(1/3) / vNat0 * Pi k^(4/3) / (eps sigma r)^(1/3);
+  (* Pretty table *)
+  {
+    {"Terminal radius", r},
+    {"Emissivity", eps},
+    {"Conductivity", k},
+    {"Temperature", tMax},
+    {"Power per length", pMax},
+    {"Bipolar prefactor (2^(1/3) / v_\[Natural]0)", 2^(1/3) / vNat0 // N},
+    {"Line prefactor (1 / 2^(5/3))", 1 / 2^(5/3) // N},
+    Nothing
+  } // TableForm
+] // Ex["bipolar-physical-range.pdf"]
