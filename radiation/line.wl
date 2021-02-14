@@ -2707,11 +2707,11 @@ Module[
   (* Stefan--Boltzmann constant *)
   sigma = Quantity[5.67 10^-8, "Watts" / "Meters"^2 / "Kelvins"^4];
   (* Temperature range *)
-  tMin = (k / (4 eps sigma r)) ^ (1/3);
-  tMax = (k / (2 eps sigma r)) ^ (1/3);
+  tMin = 1/2^(2/3) * (k / (eps sigma r))^(1/3);
+  tMax = 1/2^(1/3) * (k / (eps sigma r))^(1/3);
   (* Power per length *)
-  pMin = 2 Pi k^(4/3) / (256 eps sigma r) ^ (1/3);
-  pMax = 2 Pi k^(4/3) / (16 eps sigma r) ^ (1/3);
+  pMin = Pi k^(4/3) / (2^(5/3) (eps sigma r)^(1/3));
+  pMax = Pi k^(4/3) / (2^(1/3) (eps sigma r)^(1/3));
   (* Pretty table *)
   {
     {"Inradius", r},
