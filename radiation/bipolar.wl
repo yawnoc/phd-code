@@ -6702,6 +6702,7 @@ Module[
   {
     r, eps, k, sigma,
     tMax, pMax,
+    bipolarPrefactor, linePrefactor,
     dummyForTrailingCommas
   },
   (* Values taken from "Physical range" in line.wl. *)
@@ -6720,8 +6721,18 @@ Module[
     {"Conductivity", k},
     {"Temperature", tMax},
     {"Power per length", pMax},
-    {"Bipolar prefactor (2^(1/3) / v_\[Natural]0)", 2^(1/3) / vNat0 // N},
-    {"Line prefactor (1 / 2^(5/3))", 1 / 2^(5/3) // N},
+    {"Bipolar prefactor (2^(1/3) / v_\[Natural]0)",
+      bipolarPrefactor = 2^(1/3) / vNat0;
+      bipolarPrefactor // N
+    },
+    {"Line prefactor (1 / 2^(5/3))",
+      linePrefactor = 1 / 2^(5/3);
+      linePrefactor // N
+    },
+    {"Prefactor discrepancy",
+      bipolarPrefactor / linePrefactor - 1
+        // N // PercentForm
+    },
     Nothing
   } // TableForm
 ] // Ex["bipolar-physical-range.pdf"]
