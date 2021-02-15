@@ -321,6 +321,26 @@ exampleY2 = exampleYTraced[exampleX2];
 
 
 (* ::Subsubsection:: *)
+(*Tip temperature T_1*)
+
+
+With[
+  {
+    c = exampleConstant,
+    x1Hat = exampleX1,
+    x2Hat = exampleX2,
+    dummyForTrailingCommas = Null
+  },
+  exampleT1[length_] :=
+    x1Hat
+    Divide[
+      x2Hat - x1Hat,
+      c * length
+    ]^(1/3);
+];
+
+
+(* ::Subsubsection:: *)
 (*Base temperature T_2*)
 
 
@@ -1327,9 +1347,11 @@ Module[
 (*Figure: example fin base temperature (plane-fin-base-temperature)*)
 
 
+Module[{textStyle},
+textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;;
 Plot[
-  exampleT2[l12] - celsiusOffset
-  , {l12, 0, 6}
+  {exampleT1[l12], exampleT2[l12]} - celsiusOffset
+  , {l12, 0, 4}
   , AxesLabel -> {
       (* L / m *)
       SeparatedRow["VeryThin"][
@@ -1337,18 +1359,32 @@ Plot[
         Style["/", Magnification -> 1.25],
         "m"
       ] // Margined @ {{-2, 0}, {2, 0}},
-      (* t_2 / \[Degree]C *)
+      (* t / \[Degree]C *)
       SeparatedRow["VeryThin"][
-        Subscript[Italicise["t"], "2"],
+        Italicise["t"],
         Style["/", Magnification -> 1.25],
         SeparatedRow[][Style["\[Degree]", Magnification -> 1.25], "C"]
-      ] // Margined @ {{0, 0}, {-3, -5}}
+      ] // Margined @ {{0, 0}, {-5, -5}}
+    }
+  , Epilog -> {
+      Text[
+        "base" // textStyle
+        , {#, exampleT2[#] - celsiusOffset} & [1]
+        , {-1, -1}
+      ],
+      Text[
+        "tip" // textStyle
+        , {#, exampleT1[#] - celsiusOffset} & [0.9]
+        , {1.3, 0.4}
+      ],
+      {}
     }
   , ImageSize -> 0.5 ImageSizeTextWidth
   , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
   , PlotStyle -> Black
   , TicksStyle -> LabelSize["Tick"]
-] // Ex["plane-fin-base-temperature.pdf"]
+]
+] // Ex["plane-fin-temperature.pdf"]
 
 
 (* ::Section:: *)
