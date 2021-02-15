@@ -1331,9 +1331,9 @@ Plot[
   exampleT2[l12] - celsiusOffset
   , {l12, 0, 6}
   , AxesLabel -> {
-      (* L_12 / m *)
+      (* L / m *)
       SeparatedRow["VeryThin"][
-        Subscript[Italicise["L"], "12"],
+        Italicise["L"],
         Style["/", Magnification -> 1.25],
         "m"
       ] // Margined @ {{-2, 0}, {2, 0}},
@@ -1359,9 +1359,9 @@ Plot[
   exampleP[l12] / 10^3
   , {l12, 0, 6}
   , AxesLabel -> {
-      (* L_12 / m *)
+      (* L / m *)
       SeparatedRow["VeryThin"][
-        Subscript[Italicise["L"], "12"],
+        Italicise["L"],
         Style["/", Magnification -> 1.25],
         "m"
       ] // Margined @ {{-2, 0}, {2, 0}},
