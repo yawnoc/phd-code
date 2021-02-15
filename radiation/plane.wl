@@ -1321,3 +1321,31 @@ Module[
     , TicksStyle -> LabelSize["Tick"]
   ]
 ] // Ex["plane-self-viewing-ratio.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: example fin base temperature (plane-fin-base-temperature)*)
+
+
+Plot[
+  exampleT2[l12] - celsiusOffset
+  , {l12, 0, 6}
+  , AxesLabel -> {
+      (* L_12 / m *)
+      SeparatedRow["VeryThin"][
+        Subscript[Italicise["L"], "12"],
+        Style["/", Magnification -> 1.25],
+        "m"
+      ] // Margined @ {{-2, 0}, {2, 0}},
+      (* t_2 / \[Degree]C *)
+      SeparatedRow["VeryThin"][
+        Subscript[Italicise["t"], "2"],
+        Style["/", Magnification -> 1.25],
+        SeparatedRow[][Style["\[Degree]", Magnification -> 1.25], "C"]
+      ] // Margined @ {{0, 0}, {-3, -5}}
+    }
+  , ImageSize -> 0.5 ImageSizeTextWidth
+  , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+  , PlotStyle -> Black
+  , TicksStyle -> LabelSize["Tick"]
+] // Ex["plane-fin-base-temperature.pdf"]
