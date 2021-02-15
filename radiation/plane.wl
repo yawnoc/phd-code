@@ -256,6 +256,119 @@ domainXBathList["irregular"] = {
 };
 
 
+(* ::Subsection:: *)
+(*Fin example*)
+
+
+(* ::Subsubsection:: *)
+(*Physical constants*)
+
+
+stefanBoltzmann = 5.67 * 10^-8 (* W /m^2 /K^4 *);
+
+
+(*
+  ## Emissivity ##
+  Figure 4, in:
+  Wade & Preedy (2003).
+  Fujihokka: A high-emissivity approach to aluminum anodizing.
+  Metal Finishing, 101(12), 8--13.
+  <https://doi.org/10.1016/S0026-0576(03)90093-6>
+*)
+exampleEmissivity = 0.9;
+
+
+(*
+  ## Conductivity ##
+  Figure 1, in:
+  Cook, Moore, Matsumura, & Van der Meer. (1975)
+  The Thermal and Electrical Conductivity of Aluminum.
+  ORNL-5079.
+  Oak Ridge National Lab.
+  <https://doi.org/10.2172/5066461>
+*)
+exampleConductivity = 236 (* W /m /K *);
+
+
+(*
+  ## Radiation constant ##
+  c == \[Epsilon] \[Sigma] / k
+*)
+With[
+  {
+    eps = exampleEmissivity,
+    sigma = stefanBoltzmann,
+    k = exampleConductivity,
+    dummyForTrailingCommas = Null
+  },
+  exampleConstant = eps sigma / k (* /m /K^3 *);
+];
+
+
+(* ::Subsubsection:: *)
+(*Interval*)
+
+
+{exampleX1, exampleX2} = {0.5, 0.6};
+
+
+(* ::Subsubsection:: *)
+(*Profile*)
+
+
+exampleYTraced[x_] := yTraLower[0][x] - yTraLower[0][exampleX1] // Evaluate;
+exampleY2 = exampleYTraced[exampleX2];
+
+
+(* ::Subsubsection:: *)
+(*Base temperature T_2*)
+
+
+With[
+  {
+    c = exampleConstant,
+    x1Hat = exampleX1,
+    x2Hat = exampleX2,
+    dummyForTrailingCommas = Null
+  },
+  exampleT2[length_] :=
+    x2Hat
+    Divide[
+      x2Hat - x1Hat,
+      c * length
+    ]^(1/3);
+];
+
+
+(* ::Subsubsection:: *)
+(*Power per length p*)
+
+
+With[
+  {
+    k = exampleConductivity,
+    c = exampleConstant,
+    x1Hat = exampleX1,
+    x2Hat = exampleX2,
+    y2Hat = exampleY2,
+    dummyForTrailingCommas = Null
+  },
+  exampleP[length_] :=
+    2 y2Hat k
+    Divide[
+      x2Hat - x1Hat,
+      c * length
+    ]^(1/3);
+];
+
+
+(* ::Subsubsection:: *)
+(*Celsius, ugh*)
+
+
+celsiusOffset = 273.15 (* K *);
+
+
 (* ::Section:: *)
 (*Traced boundary algebra*)
 
@@ -463,6 +576,55 @@ Module[
     , {interval, intervalList}
   ] // Quiet
 ]
+
+
+(* ::Section:: *)
+(*Fin example (length = 1 metre)*)
+
+
+Module[
+  {
+    k, c, x1Hat, x2Hat, y2Hat,
+    l12, w2, temp1, temp2, p,
+    dummyForTrailingCommas
+  },
+  (* Abbreviations *)
+  k = exampleConductivity;
+  c = exampleConstant;
+  {x1Hat, x2Hat} = {exampleX1, exampleX2};
+  y2Hat = exampleY2;
+  (* Computed quantities *)
+  l12 = 1;
+  w2 = 2 y2Hat l12 / (x2Hat - x1Hat);
+  temp1 = x1Hat ((x2Hat - x1Hat) / (c l12))^(1/3);
+  temp2 = x2Hat ((x2Hat - x1Hat) / (c l12))^(1/3);
+  p = 2 y2Hat k ((x2Hat - x1Hat) / (c l12))^(1/3);
+  (* Make table *)
+  {
+    {"Fin length", "L_12",
+      l12 // Quantity[#, "Meters"] &
+    },
+    {"Fin width at base", "W_2",
+      w2 // Quantity[#, "Meters"] &
+    },
+    {"Temperature at tip", "T_1",
+      temp1 // Quantity[#, "Kelvins"] &,
+      temp1 - celsiusOffset // Quantity[#, "DegreesCelsius"] &,
+      {}
+    },
+    {"Temperature at base", "T_2",
+      temp2 // Quantity[#, "Kelvins"] &,
+      temp2 - celsiusOffset // Quantity[#, "DegreesCelsius"] &,
+      temp2 == exampleT2[l12] (* Check *)
+    },
+    {"Power per length", "p",
+      p // Quantity[#, "Watts" / "Meters"] &,
+      {},
+      p == exampleP[l12] (* Check *)
+    },
+    Nothing
+  } // TableForm
+] // Ex["plane-fin-1-metre.pdf"]
 
 
 (* ::Section:: *)
