@@ -1349,3 +1349,45 @@ Plot[
   , PlotStyle -> Black
   , TicksStyle -> LabelSize["Tick"]
 ] // Ex["plane-fin-base-temperature.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: example fin power per length (plane-fin-power-per-length)*)
+
+
+Plot[
+  exampleP[l12] / 10^3
+  , {l12, 0, 6}
+  , AxesLabel -> {
+      (* L_12 / m *)
+      SeparatedRow["VeryThin"][
+        Subscript[Italicise["L"], "12"],
+        Style["/", Magnification -> 1.25],
+        "m"
+      ] // Margined @ {{-2, 0}, {2, 0}},
+      (* p / (W/m) *)
+      SeparatedRow["VeryThin"][
+        Italicise["p"],
+        Style["/", Magnification -> 1.25],
+        Row @ {
+          Style["(", Magnification -> 1.4],
+          SeparatedRow["Thin"][
+            "k\[NegativeThinSpace]\[VeryThinSpace]W",
+            Superscript[
+              "m",
+              RowBox @ List @ AdjustmentBox[
+                Row @ {"-", Style[1, Magnification -> 0.9]}
+                , BoxBaselineShift -> 0.12
+              ] // DisplayForm
+            ]
+          ],
+          Style[")", Magnification -> 1.4]
+        }
+      ] // Margined @ {{0, 0}, {-3, -5}}
+    }
+  , ImageSize -> 0.5 ImageSizeTextWidth
+  , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+  , PlotRange -> {0, Automatic}
+  , PlotStyle -> Black
+  , TicksStyle -> LabelSize["Tick"]
+] // Ex["plane-fin-power-per-length.pdf"]
