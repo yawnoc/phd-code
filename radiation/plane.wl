@@ -1358,7 +1358,7 @@ Module[
     x1, x2, y, y2,
     dimensionMarkerStyle,
     lengthMarkerY, thicknessMarkerX,
-    textStyle,
+    textStyle, textStyleBracket,
     dummyForTrailingCommas
   },
   (* Abbreviations *)
@@ -1370,6 +1370,7 @@ Module[
   lengthMarkerY = -1.5 y2;
   thicknessMarkerX = Way[x1, x2, 1.06];
   textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  textStyleBracket = Style[#, LabelSize["PointBracket"]] & @* LaTeXStyle;
   (* Make diagram *)
   Show[
     (* Radiation boundaries *)
@@ -1405,10 +1406,40 @@ Module[
         , {-1.8, -0.15}
       ]
     },
+    (* Tip coordinate *)
+    Graphics @ {
+      Text[
+        Row @ {
+          "(" // textStyleBracket,
+          "\[NegativeVeryThinSpace]",
+          Subscript[Italicise["x"], 1],
+          ",\[ThinSpace]",
+          0,
+          ")" // textStyleBracket
+        } // textStyle
+        , {x1, 0}
+        , {1.5, -0.15}
+      ]
+    },
+    (* Base coordinate *)
+    Graphics @ {
+      Text[
+        Row @ {
+          "(" // textStyleBracket,
+          "\[NegativeVeryThinSpace]",
+          Subscript[Italicise["x"], 2],
+          ",\[VeryThinSpace]\[VeryThinSpace]",
+          Subscript[Italicise["y"], 2],
+          ")" // textStyleBracket
+        } // textStyle
+        , {x2, y2}
+        , {0, -1.4}
+      ]
+    },
     {}
     , AspectRatio -> Automatic
     , Axes -> False
-    , ImageSize -> 0.5 ImageSizeTextWidth
+    , ImageSize -> 0.6 ImageSizeTextWidth
     , PlotRange -> All
     , PlotRangeClipping -> False
   ]
