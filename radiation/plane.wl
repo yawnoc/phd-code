@@ -1451,10 +1451,10 @@ Module[
 
 
 Module[{textStyle},
-textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;;
+textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
 Plot[
-  {exampleT1[l12], exampleT2[l12]} - celsiusOffset
-  , {l12, 0, 4}
+  {exampleT1[l], exampleT2[l]} - celsiusOffset
+  , {l, 0, 4}
   , AxesLabel -> {
       (* L / m *)
       SeparatedRow["VeryThin"][
@@ -1482,7 +1482,7 @@ Plot[
       ],
       {}
     }
-  , ImageSize -> 0.5 ImageSizeTextWidth
+  , ImageSize -> 0.48 ImageSizeTextWidth
   , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
   , PlotStyle -> Black
   , TicksStyle -> LabelSize["Tick"]
@@ -1495,8 +1495,8 @@ Plot[
 
 
 Plot[
-  exampleP[l12] / 10^3
-  , {l12, 0, 6}
+  exampleP[l] / 10^3
+  , {l, 0, 6}
   , AxesLabel -> {
       (* L / m *)
       SeparatedRow["VeryThin"][
@@ -1524,7 +1524,7 @@ Plot[
         }
       ] // Margined @ {{0, 0}, {-3, -5}}
     }
-  , ImageSize -> 0.5 ImageSizeTextWidth
+  , ImageSize -> 0.48 ImageSizeTextWidth
   , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
   , PlotRange -> {0, Automatic}
   , PlotStyle -> Black
