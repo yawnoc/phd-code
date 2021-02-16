@@ -1350,6 +1350,72 @@ Module[
 
 
 (* ::Section:: *)
+(*Figure: example fin dimensions (plane-fin-dimensions)*)
+
+
+Module[
+  {
+    x1, x2, y, y2,
+    dimensionMarkerStyle,
+    lengthMarkerY, thicknessMarkerX,
+    textStyle,
+    dummyForTrailingCommas
+  },
+  (* Abbreviations *)
+  {x1, x2} = {exampleX1, exampleX2};
+  y = exampleYTraced;
+  y2 = exampleY2;
+  (* Dimension markers *)
+  dimensionMarkerStyle = Arrowheads @ {-Small, Small};
+  lengthMarkerY = -1.5 y2;
+  thicknessMarkerX = Way[x1, x2, 1.06];
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  (* Make diagram *)
+  Show[
+    (* Radiation boundaries *)
+    Plot[{-1, 1} y[x], {x, x1, x2}
+      , PlotPoints -> 2
+      , PlotStyle -> BoundaryTracingStyle["Traced"]
+    ],
+    (* Constant-temperature boundary *)
+    Graphics @ {BoundaryTracingStyle["Contour"],
+      Line @ {{x2, -y2}, {x2, +y2}}
+    },
+    (* Length L marker *)
+    Graphics @ {dimensionMarkerStyle,
+      Arrow @ {
+        {x1, lengthMarkerY},
+        {x2, lengthMarkerY}
+      },
+      Text[
+        Italicise["L"] // textStyle
+        , {Way[x1, x2], lengthMarkerY}
+        , {0, 1}
+      ]
+    },
+    (* Thickness H marker *)
+    Graphics @ {dimensionMarkerStyle,
+      Arrow @ {
+        {thicknessMarkerX, -y2},
+        {thicknessMarkerX, y2}
+      },
+      Text[
+        Italicise["H"] // textStyle
+        , {thicknessMarkerX, 0}
+        , {-1.8, -0.15}
+      ]
+    },
+    {}
+    , AspectRatio -> Automatic
+    , Axes -> False
+    , ImageSize -> 0.5 ImageSizeTextWidth
+    , PlotRange -> All
+    , PlotRangeClipping -> False
+  ]
+] // Ex["plane-fin-dimensions.pdf"]
+
+
+(* ::Section:: *)
 (*Figure: example fin base temperature (plane-fin-base-temperature)*)
 
 
