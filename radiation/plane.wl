@@ -642,6 +642,12 @@ Module[
       {},
       p == exampleP[l] (* Check *)
     },
+    {"Max self-viewing ratio", "R",
+      Table[
+        boundaryRatio[x1Hat, x2Hat][xHat]
+        , {xHat, Subdivide[x1Hat, x2Hat, 10]}
+      ] // Max // ScientificForm
+    },
     Nothing
   } // TableForm
 ] // Ex["plane-fin-1-metre.pdf"]
