@@ -605,7 +605,7 @@ Module[
 Module[
   {
     k, c, x1Hat, x2Hat, y2Hat,
-    l12, w2, temp1, temp2, p,
+    l, h, temp1, temp2, p,
     dummyForTrailingCommas
   },
   (* Abbreviations *)
@@ -614,18 +614,18 @@ Module[
   {x1Hat, x2Hat} = {exampleX1, exampleX2};
   y2Hat = exampleY2;
   (* Computed quantities *)
-  l12 = 1;
-  w2 = 2 y2Hat l12 / (x2Hat - x1Hat);
-  temp1 = x1Hat ((x2Hat - x1Hat) / (c l12))^(1/3);
-  temp2 = x2Hat ((x2Hat - x1Hat) / (c l12))^(1/3);
-  p = 2 y2Hat k ((x2Hat - x1Hat) / (c l12))^(1/3);
+  l = 1;
+  h = 2 y2Hat l / (x2Hat - x1Hat);
+  temp1 = x1Hat ((x2Hat - x1Hat) / (c l))^(1/3);
+  temp2 = x2Hat ((x2Hat - x1Hat) / (c l))^(1/3);
+  p = 2 y2Hat k ((x2Hat - x1Hat) / (c l))^(1/3);
   (* Make table *)
   {
-    {"Fin length", "L_12",
-      l12 // Quantity[#, "Meters"] &
+    {"Fin length", "L",
+      l // Quantity[#, "Meters"] &
     },
-    {"Fin width at base", "W_2",
-      w2 // Quantity[#, "Meters"] &
+    {"Fin thickness at base", "H",
+      h // Quantity[#, "Meters"] &
     },
     {"Temperature at tip", "T_1",
       temp1 // Quantity[#, "Kelvins"] &,
@@ -635,12 +635,12 @@ Module[
     {"Temperature at base", "T_2",
       temp2 // Quantity[#, "Kelvins"] &,
       temp2 - celsiusOffset // Quantity[#, "DegreesCelsius"] &,
-      temp2 == exampleT2[l12] (* Check *)
+      temp2 == exampleT2[l] (* Check *)
     },
     {"Power per length", "p",
       p // Quantity[#, "Watts" / "Meters"] &,
       {},
-      p == exampleP[l12] (* Check *)
+      p == exampleP[l] (* Check *)
     },
     Nothing
   } // TableForm
