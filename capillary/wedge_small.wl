@@ -457,6 +457,103 @@ ExportIfNotExists["modification/wedge_small-modification-contours.txt",
 ]
 
 
+(* ::Subsubsection:: *)
+(*Finite element meshes*)
+
+
+(* (This is not slow, nevertheless compute once and store.) *)
+(* (Delete the file manually to compute from scratch.) *)
+ExportIfNotExists["modification/wedge_small-modification-meshes.txt",
+  Module[
+    {
+      rMax, alpha,
+      rCentreValues, heightValues, rphiContourList,
+      fineLengthScale,
+      coarseLengthScale,
+        sContourUpper, sContourLower, sContourValues,
+        xyContourPoints, rphiContourPoints,
+        rUpper1, phiUpper1, rUpper2, phiUpper2, rUpperJoin,
+        rLower1, phiLower1, rLower2, phiLower2, rLowerJoin,
+        boundaryPoints, numBoundaryPoints, boundaryElements,
+        boundaryMesh, mesh,
+        predicateWet,
+      dummyForTrailingCommas
+    },
+    (* Geometry *)
+    rMax = 10;
+    alpha = apdMod * Degree;
+    (* Import contours *)
+    {rCentreValues, heightValues, rphiContourList} =
+      Import["modification/wedge_small-modification-contours.txt"] // Uncompress;
+    (* Mesh length scales *)
+    fineLengthScale = 0.01;
+    coarseLengthScale = 0.5;
+    (* For each contour *)
+    Table[
+      (* Raw T-contour points *)
+      sContourUpper = DomainEnd[rphi];
+      sContourLower = DomainStart[rphi];
+      sContourValues = Join[
+        UniformRange[sContourUpper, 0, -fineLengthScale],
+        UniformRange[0, sContourLower, -fineLengthScale] // Rest,
+        {}
+      ];
+      rphiContourPoints = Table[EvaluatePair[rphi, s], {s, sContourValues}];
+      xyContourPoints = Table[XYPolar @@ pair, {pair, rphiContourPoints}];
+      (* Interpolate linearly in polar coordinates unto upper wall *)
+      {rUpper1, phiUpper1} = rphiContourPoints[[1]];
+      {rUpper2, phiUpper2} = rphiContourPoints[[2]];
+      rUpperJoin = Rescale[alpha, {phiUpper2, phiUpper1}, {rUpper2, rUpper1}];
+      (* Interpolate linearly in polar coordinates unto lower wall *)
+      {rLower1, phiLower1} = rphiContourPoints[[-1]];
+      {rLower2, phiLower2} = rphiContourPoints[[-2]];
+      rLowerJoin = Rescale[-alpha, {phiLower2, phiLower1}, {rLower2, rLower1}];
+      (* Boundary points and elements *)
+      boundaryPoints =
+        Join[
+          (* T-contour portion *)
+          xyContourPoints // Rest // Most,
+          (* Lower straight wall *)
+          Table[
+            XYPolar[r, -alpha]
+            , {r, UniformRange[rLowerJoin, rMax, fineLengthScale]}
+          ] // Most,
+          (* Far arc (numerical infinity) *)
+          Table[
+            XYPolar[rMax, phi]
+            , {phi, UniformRange[-alpha, alpha, coarseLengthScale / rMax]}
+          ] // Most,
+          (* Upper straight wall *)
+          Table[
+            XYPolar[r, +alpha]
+            , {r, UniformRange[rMax, rUpperJoin, -fineLengthScale]}
+          ],
+          {}
+        ];
+      numBoundaryPoints = Length[boundaryPoints];
+      boundaryElements =
+        LineElement /@ {
+          Table[{n, n + 1}, {n, numBoundaryPoints}]
+            // Mod[#, numBoundaryPoints, 1] &
+        };
+      (* Build mesh *)
+      boundaryMesh =
+        ToBoundaryMesh[
+          "Coordinates" -> boundaryPoints,
+          "BoundaryElements" -> boundaryElements,
+          {}
+        ];
+      mesh = ToElementMesh[boundaryMesh, "ImproveBoundaryPosition" -> True];
+      (* Predicate function for wetting boundaries *)
+      predicateWet = Function[{x, y}, x <= rMax Cos[alpha] // Evaluate];
+      (* Return mesh *)
+      {mesh, predicateWet, rUpperJoin, rLowerJoin}
+      , {rphi, rphiContourList}
+    ] // Compress
+  ]
+]
+
+
 (* ::Section:: *)
 (*Finite element mesh check*)
 
