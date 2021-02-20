@@ -389,6 +389,74 @@ contour[derList_][{r0_, phi0_}, s0_, {sStart_, sEnd_}
   ]
 
 
+(* ::Subsection:: *)
+(*Modifications (viable contours)*)
+
+
+(* ::Subsubsection:: *)
+(*Angular parameters*)
+
+
+{apdMod, gpdMod} = {45, 30};
+
+
+(* ::Subsubsection:: *)
+(*Contours*)
+
+
+(* (This is not slow, nevertheless compute once and store.) *)
+(* (Delete the file manually to compute from scratch.) *)
+(*ExportIfNotExists["modification/wedge_small-modification-contours.txt",*)
+  Module[
+    {
+      gamma, hNumerical, derList, tNumerical,
+      rCritical,
+      hWall, rCentreWall,
+      numberUpToCritical, rStep, numberUpToWall,
+      rCentreValues, heightValues,
+      sMax, xyContourList,
+      dummyForTrailingCommas
+    },
+    (* Numerical solution *)
+    gamma = gpdMod * Degree;
+    hNumerical =
+      Import @ FString["solution/wedge_small-solution-apd-{apdMod}-gpd-{gpdMod}.txt"]
+        // Uncompress // First;
+    derList = tracingDerivativeList[hNumerical, gamma];
+    tNumerical[r_, phi_] := hNumerical[r, phi] / r // Evaluate;
+    (* Critical terminal point r_0 *)
+    rCritical = r0[derList // First, gamma];
+    (* Point along centreline which has wall height *)
+    hWall = HHalfPlane[gamma];
+    rCentreWall =
+      SeekRoot[
+        tNumerical[#, 0] - hWall &,
+        {0, 10}
+        , 5
+      ];
+    (* Centreline r-values and height rises for contours *)
+    numberUpToCritical = 4;
+    rStep = rCritical / numberUpToCritical;
+    numberUpToWall = Floor[rCentreWall / rStep];
+    rCentreValues = rCritical * Range[numberUpToWall] / numberUpToCritical;
+    rCentreValues = Take[rCentreValues, UpTo[7]];
+    heightValues = Table[tNumerical[r, 0], {r, rCentreValues}];
+    (* Compute T-contours *)
+    sMax = 4; (* probably enough *)
+    xyContourList =
+      Table[
+        Quiet[
+          contour[derList][{r, 0}, 0, sMax {-1, 1}]
+          , {InterpolatingFunction::femdmval, NDSolveValue::nlnum}
+        ]
+        , {r, rCentreValues}
+      ];
+    (* Return lists to export *)
+    {rCentreValues, heightValues, xyContourList} (*// Compress*)
+  ]
+(*]*)
+
+
 (* ::Section:: *)
 (*Finite element mesh check*)
 
