@@ -999,6 +999,51 @@ Module[
 ]
 
 
+(* ::Subsection:: *)
+(*Height comparison*)
+
+
+Module[
+  {
+    heightValues,
+    profilesStuff, profiles,
+      xyList, heightList, yList,
+    dummyForTrailingCommas
+  },
+  (* Import contours *)
+  heightValues =
+    Import["modification/wedge_small-modification-contours.txt"]
+      // Uncompress // #[[2]] &;
+  (* Import profiles *)
+  profilesStuff =
+    Import["modification/wedge_small-modification-profiles.txt"]
+      // Uncompress;
+  (* Convert to (y, T) pairs *)
+  profiles = Table[
+    {xyList, heightList} = coordinatesAndHeights;
+    yList = xyList[[All, 2]];
+    {yList, heightList} // Transpose
+    , {coordinatesAndHeights, profilesStuff}
+  ];
+  (* Make plot *)
+  Show[
+    (* Contour heights *)
+    Plot[heightValues, {y, -2, 2}
+      , PlotStyle -> Dashed
+    ],
+    (* Profile heights *)
+    ListPlot[profiles
+      , Joined -> True
+    ],
+    {}
+    , AxesLabel -> {Italicise["y"], "Height"}
+    , AxesOrigin -> {-2, 1}
+    , PlotRange -> Full
+    , PlotOptions[Axes] // Evaluate
+  ]
+] // Ex["modification/wedge_small-modification-contours-comparison.pdf"]
+
+
 (* ::Section:: *)
 (*Figure: original wedge & formal rectangle (wedge_small-domain-*)*)
 
