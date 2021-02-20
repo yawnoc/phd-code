@@ -353,6 +353,42 @@ tracedBoundary[derList_][{r0_, phi0_}, s0_, {sStart_, sEnd_}
   ];
 
 
+(* ::Subsubsection:: *)
+(*Contour (arc-length parametrisation)*)
+
+
+contour[derList_][{r0_, phi0_}, s0_, {sStart_, sEnd_}
+  , sSign_: 1
+  , terminationFunction_: (False &)
+] :=
+  Module[{pTilde, qTilde, slopeTilde, rDerivative, phiDerivative},
+    (* Derivatives *)
+    {pTilde, qTilde} = derList[[1 ;; 2]];
+    slopeTilde = Function[{r, phi}, Sqrt[pTilde[r, phi]^2 + qTilde[r, phi]^2] // Evaluate];
+    (* Right hand sides of contour system of ODEs *)
+    rDerivative[r_, phi_] := +qTilde[r, phi] / slopeTilde[r, phi];
+    phiDerivative[r_, phi_] := -pTilde[r, phi] / slopeTilde[r, phi] / r;
+    (* Solve contour system of ODEs *)
+    With[{r = \[FormalR], phi = \[FormalF], s = \[FormalS]},
+      NDSolveValue[
+        {
+          r'[s] == sSign * rDerivative[r[s], phi[s]],
+          phi'[s] == sSign * phiDerivative[r[s], phi[s]],
+          r[s0] == r0,
+          phi[s0] == phi0,
+          WhenEvent[
+            terminationFunction[r[s], phi[s]],
+            "StopIntegration"
+          ]
+        }
+        , {r, phi}
+        , {s, sStart, sEnd}
+        , NoExtrapolation
+      ]
+    ]
+  ]
+
+
 (* ::Section:: *)
 (*Finite element mesh check*)
 
