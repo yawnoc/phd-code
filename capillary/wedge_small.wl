@@ -696,6 +696,68 @@ Module[
 
 
 (* ::Section:: *)
+(*Modifications (viable contours)*)
+
+
+(* ::Subsection:: *)
+(*Visualise contours*)
+
+
+Module[
+  {
+    alpha, gamma,
+    rCentreValues, heightValues, rphiContourList,
+    hNumerical, derList, tNumerical, phiTilde,
+    dummyForTrailingCommas
+  },
+  (* Angular parameters *)
+  {alpha, gamma} = {apdMod, gpdMod} Degree;
+  (* Import contours *)
+  {rCentreValues, heightValues, rphiContourList} =
+    Import["modification/wedge_small-modification-contours.txt"] // Uncompress;
+  (* Import numerical solution *)
+  hNumerical =
+    Import @ FString["solution/wedge_small-solution-apd-{apdMod}-gpd-{gpdMod}.txt"]
+      // Uncompress // First;
+  derList = tracingDerivativeList[hNumerical, gamma];
+  tNumerical[r_, phi_] := hNumerical[r, phi] / r // Evaluate;
+  phiTilde = Last @ tracingDerivativeList[hNumerical, gamma];
+  (* Make plot *)
+  Show[
+    (* Wedge walls *)
+    Graphics @ {Purple,
+      HalfLine[{0, 0}, XYPolar[1, alpha]],
+      HalfLine[{0, 0}, XYPolar[1, -alpha]]
+    },
+    (* Non-viable domain *)
+    RegionPlot[
+      phiTilde @@ RPhiPolar[x, y] < 0
+      , {x, 0, 1.5}
+      , {y, -1.5, 1.5}
+      , BoundaryStyle -> Pink
+      , PlotStyle -> Directive[Opacity[0.7], LightGray]
+    ],
+    (* Contours *)
+    Table[
+      ParametricPlot[
+        XYPolar @@ EvaluatePair[rphi, s] // Evaluate
+        , {s, DomainStart[rphi], DomainEnd[rphi]}
+        , PlotStyle -> Black
+      ]
+      , {rphi, rphiContourList}
+    ],
+    (* Centreline starting points *)
+    ListPlot[
+      Table[{r, 0}, {r, rCentreValues}]
+    ],
+    {}
+    , Frame -> True
+    , PlotRange -> {{0, 1.4}, {-1.4, 1.4}}
+  ]
+] // Ex["modification/wedge_small-modification-contours.pdf"]
+
+
+(* ::Section:: *)
 (*Figure: original wedge & formal rectangle (wedge_small-domain-*)*)
 
 
