@@ -703,7 +703,7 @@ ExportIfNotExists["wedge_acute-radius-height-rise-tracing.csv",
 (*Angular parameters*)
 
 
-{apdMod, gpdMod} = {40, 60};
+{apdMod, gpdMod} = {45, 60};
 
 
 (* ::Subsubsection:: *)
