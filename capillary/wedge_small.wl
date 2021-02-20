@@ -854,6 +854,53 @@ Module[
 ] // Ex["modification/wedge_small-modification-contours.pdf"]
 
 
+(* ::Subsection:: *)
+(*Check contours are actually contours*)
+
+
+Module[
+  {
+    alpha, gamma,
+    rCentreValues, heightValues, rphiContourList,
+    hNumerical, tNumerical,
+    dummyForTrailingCommas
+  },
+  (* Angular parameters *)
+  {alpha, gamma} = {apdMod, gpdMod} Degree;
+  (* Import contours *)
+  {rCentreValues, heightValues, rphiContourList} =
+    Import["modification/wedge_small-modification-contours.txt"] // Uncompress;
+  (* Import numerical solution *)
+  hNumerical =
+    Import @ FString["solution/wedge_small-solution-apd-{apdMod}-gpd-{gpdMod}.txt"]
+      // Uncompress // First;
+  tNumerical[r_, phi_] := hNumerical[r, phi] / r // Evaluate;
+  (* Make plot *)
+  Show[
+    (* Pre-computed heights *)
+    Plot[
+      heightValues
+      , {s, -2, 2}
+      , PlotStyle -> Black
+      , PlotOptions[Axes] // Evaluate
+    ],
+    (* Evaluated heights along curves *)
+    Table[
+      Plot[
+        tNumerical @@ EvaluatePair[rphi, s]
+        , {s, DomainStart[rphi], DomainEnd[rphi]}
+        , PlotStyle -> Directive[Dotted, Green]
+      ]
+      , {rphi, rphiContourList}
+    ],
+    {}
+    , AxesLabel -> {Italicise["s"], "Height"}
+    , AxesOrigin -> {0, 0}
+    , PlotRange -> Full
+  ]
+] // Ex["modification/wedge_small-modification-contours-check.pdf"]
+
+
 (* ::Section:: *)
 (*Figure: original wedge & formal rectangle (wedge_small-domain-*)*)
 
