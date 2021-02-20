@@ -406,7 +406,7 @@ contour[derList_][{r0_, phi0_}, s0_, {sStart_, sEnd_}
 
 (* (This is not slow, nevertheless compute once and store.) *)
 (* (Delete the file manually to compute from scratch.) *)
-(*ExportIfNotExists["modification/wedge_small-modification-contours.txt",*)
+ExportIfNotExists["modification/wedge_small-modification-contours.txt",
   Module[
     {
       gamma, hNumerical, derList, tNumerical,
@@ -414,7 +414,7 @@ contour[derList_][{r0_, phi0_}, s0_, {sStart_, sEnd_}
       hWall, rCentreWall,
       numberUpToCritical, rStep, numberUpToWall,
       rCentreValues, heightValues,
-      sMax, xyContourList,
+      sMax, rphiContourList,
       dummyForTrailingCommas
     },
     (* Numerical solution *)
@@ -443,7 +443,7 @@ contour[derList_][{r0_, phi0_}, s0_, {sStart_, sEnd_}
     heightValues = Table[tNumerical[r, 0], {r, rCentreValues}];
     (* Compute T-contours *)
     sMax = 4; (* probably enough *)
-    xyContourList =
+    rphiContourList =
       Table[
         Quiet[
           contour[derList][{r, 0}, 0, sMax {-1, 1}]
@@ -452,9 +452,9 @@ contour[derList_][{r0_, phi0_}, s0_, {sStart_, sEnd_}
         , {r, rCentreValues}
       ];
     (* Return lists to export *)
-    {rCentreValues, heightValues, xyContourList} (*// Compress*)
+    {rCentreValues, heightValues, rphiContourList} // Compress
   ]
-(*]*)
+]
 
 
 (* ::Section:: *)
