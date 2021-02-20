@@ -710,8 +710,8 @@ ExportIfNotExists["wedge_acute-radius-height-rise-tracing.csv",
 (*Contours*)
 
 
-(* (These are not slow, nevertheless compute once and store.) *)
-(* (Delete the files manually to compute from scratch.) *)
+(* (This is not slow, nevertheless compute once and store.) *)
+(* (Delete the file manually to compute from scratch.) *)
 ExportIfNotExists["modification/wedge_acute-modification-contours.txt",
   Module[
     {
