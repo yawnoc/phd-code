@@ -1198,6 +1198,66 @@ Module[
 
 
 (* ::Section:: *)
+(*Modifications (viable contours)*)
+
+
+(* ::Subsection:: *)
+(*Visualise contours*)
+
+
+Module[
+  {
+    alpha, gamma,
+    xCentreValues, hValues, xyContourList,
+    tNumerical, vi,
+    dummyForTrailingCommas
+  },
+  (* Angular parameters *)
+  {alpha, gamma} = {apdMod, gpdMod} Degree;
+  (* Import contours *)
+  {xCentreValues, hValues, xyContourList} =
+    Import["modification/wedge_acute-modification-contours.txt"] // Uncompress;
+  (* Import numerical solution *)
+  tNumerical =
+    Import @ FString["solution/wedge_acute-solution-apd-{apdMod}-gpd-{gpdMod}.txt"]
+      // Uncompress // First;
+  vi = Last @ ContactDerivativeList[tNumerical, gamma];
+  (* Make plot *)
+  Show[
+    (* Wedge walls *)
+    Graphics @ {wallStyle,
+      HalfLine[{0, 0}, XYPolar[1, alpha]],
+      HalfLine[{0, 0}, XYPolar[1, -alpha]]
+    },
+    (* Non-viable domain *)
+    RegionPlot[
+      vi[x, y] < 0
+      , {x, 0, 3}
+      , {y, -3, 3}
+      , BoundaryStyle -> termStyle
+      , PlotStyle -> nonStyle
+    ],
+    (* Contours *)
+    Table[
+      ParametricPlot[
+        EvaluatePair[xy, s]
+        , {s, DomainStart[xy], DomainEnd[xy]}
+        , PlotStyle -> contStyle
+      ]
+      , {xy, xyContourList}
+    ],
+    (* Centreline starting points *)
+    ListPlot[
+      Table[{x, 0}, {x, xCentreValues}]
+    ],
+    {}
+    , Frame -> True
+    , PlotRange -> {{0, 2.5}, {-2, 2}}
+  ]
+] // Ex["modification/wedge_acute-modification-contours.pdf"]
+
+
+(* ::Section:: *)
 (*Figure: finite element mesh (wedge_acute-mesh-*)*)
 
 
