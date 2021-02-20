@@ -855,6 +855,53 @@ ExportIfNotExists["modification/wedge_acute-modification-meshes.txt",
 ]
 
 
+(* ::Subsubsection:: *)
+(*Solve capillary BVP and extract height rise profiles*)
+
+
+(* (This is slow (~15 sec), so compute once and store.) *)
+(* (Delete the file manually to compute from scratch.) *)
+ExportIfNotExists["modification/wedge_acute-modification-profiles.txt",
+  Module[
+    {
+      alpha, gamma,
+      meshStuffList,
+      mesh, predicateWet, rUpperJoin, rLowerJoin,
+      meshCoordinates, boundaryElements, boundaryCoordinates,
+      tNumerical, heightValues,
+      dummyForTrailingCommas
+    },
+    (* Chosen parameters *)
+    {alpha, gamma} = {apdMod, gpdMod} Degree;
+    (* Import meshes *)
+    meshStuffList = Import["modification/wedge_acute-modification-meshes.txt"] // Uncompress;
+    (* For each mesh: *)
+    Table[
+      (* Mesh stuff *)
+      {mesh, predicateWet, rUpperJoin, rLowerJoin} = meshStuff;
+      (* Extract T-contour boundary coordinates, sorted by y *)
+      meshCoordinates = mesh["Coordinates"];
+      boundaryElements = List @@ First @ mesh["BoundaryElements"] // Flatten;
+      boundaryCoordinates = meshCoordinates[[boundaryElements]];
+      boundaryCoordinates = boundaryCoordinates // Select[
+        Function[
+          rLowerJoin Sin[-alpha] <= #[[2]] <= rUpperJoin Sin[alpha]
+            && predicateWet[#[[1]], #[[2]]]
+        ]
+      ];
+      boundaryCoordinates = boundaryCoordinates // SortBy[Last];
+      (* Solve capillary BVP *)
+      tNumerical = SolveLaplaceYoung[gamma, mesh, predicateWet];
+      (* Compute height values *)
+      heightValues = tNumerical @@@ boundaryCoordinates;
+      (* Return *)
+      {boundaryCoordinates, heightValues}
+      , {meshStuff, meshStuffList}
+    ] // Compress
+  ]
+]
+
+
 (* ::Subsection:: *)
 (*Geometric regions*)
 
