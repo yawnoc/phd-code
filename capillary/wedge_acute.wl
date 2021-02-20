@@ -1257,6 +1257,52 @@ Module[
 ] // Ex["modification/wedge_acute-modification-contours.pdf"]
 
 
+(* ::Subsection:: *)
+(*Check contours are actually contours*)
+
+
+Module[
+  {
+    alpha, gamma,
+    xCentreValues, hValues, xyContourList,
+    tNumerical,
+    dummyForTrailingCommas
+  },
+  (* Angular parameters *)
+  {alpha, gamma} = {apdMod, gpdMod} Degree;
+  (* Import contours *)
+  {xCentreValues, hValues, xyContourList} =
+    Import["modification/wedge_acute-modification-contours.txt"] // Uncompress;
+  (* Import numerical solution *)
+  tNumerical =
+    Import @ FString["solution/wedge_acute-solution-apd-{apdMod}-gpd-{gpdMod}.txt"]
+      // Uncompress // First;
+  (* Make plot *)
+  Show[
+    (* Pre-computed heights *)
+    Plot[
+      hValues
+      , {s, -2, 2}
+      , PlotStyle -> Black
+      , PlotOptions[Axes] // Evaluate
+    ],
+    (* Evaluated heights along curves *)
+    Table[
+      Plot[
+        tNumerical @@ EvaluatePair[xy, s]
+        , {s, DomainStart[xy], DomainEnd[xy]}
+        , PlotStyle -> Directive[Dotted, Green]
+      ]
+      , {xy, xyContourList}
+    ],
+    {}
+    , AxesLabel -> {Italicise["s"], "Height"}
+    , AxesOrigin -> {0, 0}
+    , PlotRange -> Full
+  ]
+] // Ex["modification/wedge_acute-modification-contours-check.pdf"]
+
+
 (* ::Section:: *)
 (*Figure: finite element mesh (wedge_acute-mesh-*)*)
 
