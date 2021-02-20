@@ -700,11 +700,19 @@ ExportIfNotExists["wedge_acute-radius-height-rise-tracing.csv",
 
 
 (* ::Subsubsection:: *)
-(*Contours*)
+(*Angular parameters*)
 
 
 {apdMod, gpdMod} = {40, 60};
-(*ExportIfNotExists["modification/wedge_acute-modification-contours.txt",*)
+
+
+(* ::Subsubsection:: *)
+(*Contours*)
+
+
+(* (These are not slow, nevertheless compute once and store.) *)
+(* (Delete the files manually to compute from scratch.) *)
+ExportIfNotExists["modification/wedge_acute-modification-contours.txt",
   Module[
     {
       gamma, tNumerical,
@@ -712,6 +720,7 @@ ExportIfNotExists["wedge_acute-radius-height-rise-tracing.csv",
       hWall, xCentreWall,
       numberUpToCritical, xStep, numberUpToWall,
       xCentreValues, hValues,
+      sMax, xyContourList,
       dummyForTrailingCommas
     },
     (* Numerical solution *)
@@ -733,11 +742,22 @@ ExportIfNotExists["wedge_acute-radius-height-rise-tracing.csv",
     numberUpToCritical = 4;
     xStep = xCritical / numberUpToCritical;
     numberUpToWall = Floor[xCentreWall / xStep];
-    xCentreValues = xCritical * Range[0, numberUpToWall] / numberUpToCritical;
+    xCentreValues = xCritical * Range[numberUpToWall] / numberUpToCritical;
     hValues = Table[tNumerical[x, 0], {x, xCentreValues}];
+    (* Compute T-contours *)
+    sMax = 4; (* probably enough *)
+    xyContourList =
+      Table[
+        Quiet[
+          ContourByArcLength[tNumerical][{x, 0}, 0, sMax {-1, 1}]
+          , {InterpolatingFunction::femdmval, NDSolveValue::nlnum}
+        ]
+        , {x, xCentreValues}
+      ];
+    (* Return lists to export *)
+    {xCentreValues, hValues, xyContourList} // Compress
   ]
-(*]*)
-(* XXX *)
+]
 
 
 (* ::Subsection:: *)
