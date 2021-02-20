@@ -1398,6 +1398,57 @@ Module[
 ] // Ex["modification/wedge_acute-modification-contours-check.pdf"]
 
 
+(* ::Subsection:: *)
+(*Visualise finite element meshes*)
+
+
+Module[
+  {
+    xCentreValues, hValues, xyContourList,
+    numContours,
+    meshes,
+      xy, mesh,
+      rUpperJoin, rLowerJoin,
+    dummyForTrailingCommas
+  },
+  (* Import contours *)
+  {xCentreValues, hValues, xyContourList} =
+    Import["modification/wedge_acute-modification-contours.txt"] // Uncompress;
+  numContours = Length[xyContourList];
+  (* Import meshes *)
+  meshes = Import["modification/wedge_acute-modification-meshes.txt"] // Uncompress;
+  (* For each contour: *)
+  Table[
+    (* Make plot *)
+    Show[
+      (* Mesh *)
+      mesh = meshes[[n, 1]];
+      mesh["Wireframe"],
+      (* Contour *)
+      xy = xyContourList[[n]];
+      ParametricPlot[
+        EvaluatePair[xy, s]
+        , {s, DomainStart[xy], DomainEnd[xy]}
+        , PlotStyle -> Directive[Red, Opacity[0.5], AbsoluteThickness[3]]
+      ],
+      (* Joining points *)
+      {rUpperJoin, rLowerJoin} = meshes[[n, {3, 4}]];
+      ListPlot[
+        {
+          XYPolar[rUpperJoin, apdMod * Degree],
+          XYPolar[rLowerJoin, -apdMod * Degree]
+        }
+        (*, PlotMarkers -> {Automatic, Medium}*)
+      ],
+      {}
+      , ImageSize -> 480
+    ]
+      // Ex @ FString["modification/wedge_acute-modification-mesh-{n}.png"]
+    , {n, numContours}
+  ]
+]
+
+
 (* ::Section:: *)
 (*Figure: finite element mesh (wedge_acute-mesh-*)*)
 
