@@ -696,6 +696,51 @@ ExportIfNotExists["wedge_acute-radius-height-rise-tracing.csv",
 
 
 (* ::Subsection:: *)
+(*Modifications (viable contours)*)
+
+
+(* ::Subsubsection:: *)
+(*Contours*)
+
+
+{apdMod, gpdMod} = {40, 60};
+(*ExportIfNotExists["modification/wedge_acute-modification-contours.txt",*)
+  Module[
+    {
+      gamma, tNumerical,
+      xCritical,
+      hWall, xCentreWall,
+      numberUpToCritical, xStep, numberUpToWall,
+      xCentreValues, hValues,
+      dummyForTrailingCommas
+    },
+    (* Numerical solution *)
+    gamma = gpdMod * Degree;
+    tNumerical =
+      Import @ FString["solution/wedge_acute-solution-apd-{apdMod}-gpd-{gpdMod}.txt"]
+        // Uncompress // First;
+    (* Critical terminal point x_0 *)
+    xCritical = x0[tNumerical, gamma];
+    (* Point along centreline which has wall height *)
+    hWall = HHalfPlane[gamma];
+    xCentreWall =
+      SeekRoot[
+        tNumerical[#, 0] - hWall &,
+        {0, 10}
+        , 5
+      ];
+    (* Centreline x-values and height rises for contours *)
+    numberUpToCritical = 4;
+    xStep = xCritical / numberUpToCritical;
+    numberUpToWall = Floor[xCentreWall / xStep];
+    xCentreValues = xCritical * Range[0, numberUpToWall] / numberUpToCritical;
+    hValues = Table[tNumerical[x, 0], {x, xCentreValues}];
+  ]
+(*]*)
+(* XXX *)
+
+
+(* ::Subsection:: *)
 (*Geometric regions*)
 
 
