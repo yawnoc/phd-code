@@ -901,6 +901,57 @@ Module[
 ] // Ex["modification/wedge_small-modification-contours-check.pdf"]
 
 
+(* ::Subsection:: *)
+(*Visualise finite element meshes*)
+
+
+Module[
+  {
+    rCentreValues, heightValues, rphiContourList,
+    numContours,
+    meshes,
+      rphi, mesh,
+      rUpperJoin, rLowerJoin,
+    dummyForTrailingCommas
+  },
+  (* Import contours *)
+  {rCentreValues, heightValues, rphiContourList} =
+    Import["modification/wedge_small-modification-contours.txt"] // Uncompress;
+  numContours = Length[rphiContourList];
+  (* Import meshes *)
+  meshes = Import["modification/wedge_small-modification-meshes.txt"] // Uncompress;
+  (* For each contour: *)
+  Table[
+    (* Make plot *)
+    Show[
+      (* Mesh *)
+      mesh = meshes[[n, 1]];
+      mesh["Wireframe"],
+      (* Contour *)
+      rphi = rphiContourList[[n]];
+      ParametricPlot[
+        XYPolar @@ EvaluatePair[rphi, s] // Evaluate
+        , {s, DomainStart[rphi], DomainEnd[rphi]}
+        , PlotStyle -> Directive[Red, Opacity[0.5], AbsoluteThickness[3]]
+      ],
+      (* Joining points *)
+      {rUpperJoin, rLowerJoin} = meshes[[n, {3, 4}]];
+      ListPlot[
+        {
+          XYPolar[rUpperJoin, apdMod * Degree],
+          XYPolar[rLowerJoin, -apdMod * Degree]
+        }
+        (*, PlotMarkers -> {Automatic, Medium}*)
+      ],
+      {}
+      , ImageSize -> 480
+    ]
+      // Ex @ FString["modification/wedge_small-modification-mesh-{n}.png"]
+    , {n, numContours}
+  ]
+]
+
+
 (* ::Section:: *)
 (*Figure: original wedge & formal rectangle (wedge_small-domain-*)*)
 
