@@ -1496,6 +1496,51 @@ Module[
 ]
 
 
+(* ::Subsection:: *)
+(*Height comparison*)
+
+
+Module[
+  {
+    xCentreValues, hValues, xyContourList,
+    profilesStuff, profiles,
+      xyList, heightList, yList,
+    dummyForTrailingCommas
+  },
+  (* Import contours *)
+  hValues =
+    Import["modification/wedge_acute-modification-contours.txt"]
+      // Uncompress // #[[2]] &;
+  (* Import profiles *)
+  profilesStuff =
+    Import["modification/wedge_acute-modification-profiles.txt"]
+      // Uncompress;
+  (* Convert to (y, T) pairs *)
+  profiles = Table[
+    {xyList, heightList} = coordinatesAndHeights;
+    yList = xyList[[All, 2]];
+    {yList, heightList} // Transpose
+    , {coordinatesAndHeights, profilesStuff}
+  ];
+  (* Make plot *)
+  Show[
+    (* Contour heights *)
+    Plot[hValues, {y, -2, 2}
+      , PlotStyle -> Dashed
+    ],
+    (* Profile heights *)
+    ListPlot[profiles
+      , Joined -> True
+    ],
+    {}
+    , AxesLabel -> {Italicise["y"], "Height"}
+    , AxesOrigin -> {-2, 0.5}
+    , PlotRange -> Full
+    , PlotOptions[Axes] // Evaluate
+  ]
+] // Ex["modification/wedge_acute-modification-contours-comparison.pdf"]
+
+
 (* ::Section:: *)
 (*Figure: finite element mesh (wedge_acute-mesh-*)*)
 
