@@ -4285,3 +4285,99 @@ Module[
     , PlotOptions[Axes] // Evaluate
   ]
 ] // Ex["wedge_acute-radius-height-rise-comparison.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: modified boundary contours*)
+
+
+Module[
+  {
+    alpha, gamma,
+    xCentreValues, hValues, xyContourList,
+    numContours,
+    tNumerical, vi,
+    meshes, rUpperLowerJoinPairs,
+    xMax, yMax,
+    xMaxWall, yMaxWall, rMaxWall,
+    style,
+      xy,
+      rUpperJoin, rLowerJoin,
+    dummyForTrailingCommas
+  },
+  (* Angular parameters *)
+  {alpha, gamma} = {apdMod, gpdMod} Degree;
+  (* Import contours *)
+  {xCentreValues, hValues, xyContourList} =
+    Import["modification/wedge_acute-modification-contours.txt"] // Uncompress;
+  numContours = Length[xyContourList] - 1;
+  (* Import numerical solution *)
+  tNumerical =
+    Import @ FString["solution/wedge_acute-solution-apd-{apdMod}-gpd-{gpdMod}.txt"]
+      // Uncompress // First;
+  vi = Last @ ContactDerivativeList[tNumerical, gamma];
+  (* Import meshes *)
+  rUpperLowerJoinPairs =
+    Import["modification/wedge_acute-modification-meshes.txt"]
+      // Uncompress // #[[All, 3 ;; 4]] &;
+  (* Make plot *)
+  xMax = 1.2 Max[xCentreValues];
+  yMax = xMax Tan[alpha];
+  {xMaxWall, yMaxWall} = 1.1 {xMax, yMax};
+  rMaxWall = RPolar[xMaxWall, yMaxWall];
+  style[n_] := If[
+    n > numContoursViable,
+    BoundaryTracingStyle["ContourPlain"],
+    Black
+  ];
+  Show[
+    EmptyFrame[{0, xMax}, {-yMax, yMax}
+    ],
+    (* Wedge walls *)
+    Graphics @ {BoundaryTracingStyle["Wall"],
+      Line @ {
+        {xMaxWall, +yMaxWall},
+        {0, 0},
+        {xMaxWall, -yMaxWall}
+      }
+    },
+    (* Non-viable domain *)
+    RegionPlot[
+      vi[x, y] < 0
+      , {x, 0, xMaxWall}
+      , {y, -yMaxWall, yMaxWall}
+      , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
+      , PlotPoints -> 5
+      , PlotStyle -> BoundaryTracingStyle["NonViable"]
+    ],
+    (* Contours *)
+    Table[
+      {
+        xy = xyContourList[[n]];
+        ParametricPlot[
+          EvaluatePair[xy, s] // Evaluate
+          , {s, DomainStart[xy], DomainEnd[xy]}
+          , PlotPoints -> 2
+          , PlotStyle -> style[n]
+        ],
+        {rUpperJoin, rLowerJoin} = rUpperLowerJoinPairs[[n]];
+        Graphics @ {
+          style[n], GeneralStyle["DefaultThick"],
+          Line @ {XYPolar[rUpperJoin, +alpha], XYPolar[rMaxWall, +alpha]},
+          Line @ {XYPolar[rLowerJoin, -alpha], XYPolar[rMaxWall, -alpha]},
+          {}
+        },
+        {}
+      }
+      , {n, numContours}
+    ],
+    {}
+    , FrameLabel -> {
+        Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
+        Italicise["y"]
+      }
+    , ImageSize -> 0.45 * 0.7 ImageSizeTextWidth
+    , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+    , FrameTicksStyle -> LabelSize["Tick"]
+  ]
+] // Ex["wedge_acute-modification-contours.pdf"]
