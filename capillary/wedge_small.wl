@@ -2832,3 +2832,106 @@ Module[
     , {apd, apdValues}
   ] // Column
 ] // Ex["wedge_small-moderate-candidates-offset-log.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: modified boundary height rise profiles*)
+
+
+Module[
+  {
+    contourHeightValues,
+    profilesStuff,
+    numContours,
+      xyList, heightList,
+      yList, yMin, yMax,
+      profilePointsList,
+    yMaxPlot, heightMin,
+    style,
+      textStyle,
+      yBracket, bracketWidth,
+      heightMinBracket, heightMaxBracket,
+    dummyForTrailingCommas
+  },
+  (* Import contours *)
+  contourHeightValues =
+    Import["modification/wedge_small-modification-contours.txt"]
+      // Uncompress // #[[2]] &;
+  (* Import profiles *)
+  profilesStuff =
+    Import["modification/wedge_small-modification-profiles.txt"]
+      // Uncompress;
+  (* Process contours to be shown *)
+  numContours = Length[profilesStuff] - 1;
+  Table[
+    {xyList, heightList} = profilesStuff[[n]];
+    yList = xyList[[All, 2]];
+    {yMin[n], yMax[n]} = MinMax[yList];
+    profilePointsList[n] = {yList, heightList} // Transpose;
+    , {n, numContours}
+  ];
+  (* Make plot *)
+  yMaxPlot = 1;
+  heightMin = 1;
+  style[n_] := If[
+    n > numContoursViable,
+    BoundaryTracingStyle["ContourPlain"],
+    Black
+  ];
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  Show[
+    (* Main *)
+    Table[
+      {
+        (* Contour heights *)
+        Plot[contourHeightValues[[n]], {y, yMin[n], yMax[n]}
+          , PlotStyle -> Directive[style[n], Dotted]
+        ],
+        (* Profiles *)
+        ListPlot[profilePointsList[n]
+          , Joined -> True
+          , PlotRange -> All
+          , PlotStyle -> style[n]
+        ],
+        {}
+      }
+      , {n, numContours}
+    ],
+    (* Viable bracket label *)
+    yBracket = Way[
+      yMax[numContoursViable],
+      yMax[numContoursViable + 1]
+      , 2/3
+    ];
+    bracketWidth = 2/3 yMax[1];
+    heightMinBracket = Way[
+      contourHeightValues[[numContoursViable]],
+      contourHeightValues[[numContoursViable + 1]]
+      , 1/2
+    ];
+    heightMaxBracket = contourHeightValues[[1]] + 2/3 bracketWidth;
+    Graphics @ {
+      Line @ {
+        {yBracket - bracketWidth, heightMinBracket},
+        {yBracket, heightMinBracket},
+        {yBracket, heightMaxBracket},
+        {yBracket - bracketWidth, heightMaxBracket},
+        Nothing
+      },
+      Text["viable" // textStyle
+        , {yBracket, Way[heightMinBracket, heightMaxBracket]}
+        , {-1.3, 0}
+      ],
+      {}
+    },
+    {}
+    , AspectRatio -> Automatic
+    , AxesLabel -> {Italicise["y"], "Height"}
+    , AxesOrigin -> {-yMaxPlot, heightMin}
+    , ImageSize -> 0.45 ImageSizeTextWidth
+    , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+    , PlotRange -> {{-yMaxPlot, yMaxPlot}, {heightMin, Full}}
+    , PlotRangeClipping -> False
+    , TicksStyle -> LabelSize["Tick"]
+  ]
+] // Ex["wedge_small-modification-height-rise-profiles.pdf"]
