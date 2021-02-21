@@ -400,3 +400,143 @@ Module[
     , PlotRange -> {{-0.3 sigma, 2.8 sigma + lambda}, {All, 1.7 yMaxGroove}}
   ]
 ] // Ex["capillary-wall-with-grooves.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: modification of a wedge (capillary-wedge-modification-*)*)
+
+
+Module[
+  {
+    rMaxWall, alpha,
+    xMaxWall, yMaxWall,
+    rJoin, rCentreLine, rTruncation, xyTruncation,
+      truncationPhi, truncationR,
+    orthogonalityMarkerLength, thicknessCorrection,
+    normalVectorLength, normalVector,
+    textStyle,
+    options,
+    dummyForTrailingCommas
+  },
+  (* Geometry *)
+  rMaxWall = 3;
+  alpha = 30 Degree;
+  {xMaxWall, yMaxWall} = XYPolar[rMaxWall, alpha];
+  (* Truncation boundary *)
+  rJoin = 0.4 rMaxWall;
+  rCentreLine = 0.3 rMaxWall;
+  rTruncation = Interpolation[
+    {
+      {alpha, rJoin},
+      {0, rCentreLine},
+      {-alpha, rJoin},
+      Nothing
+    }
+    , InterpolationOrder -> 2
+  ];
+  xyTruncation[phi_] := XYPolar[rTruncation[phi], phi];
+    truncationPhi = 1/3 alpha;
+    truncationR = rTruncation[truncationPhi];
+  (* Normal vector *)
+  orthogonalityMarkerLength = 0.04 rMaxWall;
+  thicknessCorrection = 1.07;
+  normalVectorLength = 0.3 rMaxWall;
+  normalVector[position_, direction_, text_, offset_] := {
+    (* Orthogonality marker *)
+    Line[orthogonalityMarkerLength {
+      {1, 0},
+      {1, thicknessCorrection},
+      {0, thicknessCorrection}
+    }]
+      // RotationTransform[ArcTan @@ direction, {0, 0}]
+      // TranslationTransform[position]
+    ,
+    (* Arrow *)
+    Directive[GeneralStyle["Thick"], Arrowheads[Medium]],
+    Arrow @ {{position, position + normalVectorLength * Normalize[direction]}},
+    Text[
+      text // textStyle
+      , position + normalVectorLength * Normalize[direction]
+      , offset
+    ]
+  };
+  (* Text functions *)
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  (* Options *)
+  options = {Nothing
+    , ImageSize -> 0.4 * 0.7 ImageSizeTextWidth
+    , PlotRange -> {{0, All}, All}
+    , PlotRangePadding -> Scaled[0.02]
+  };
+  (* Make diagrams *)
+  {
+    (* Original *)
+    Show[
+      (* Unit normal *)
+      Graphics @ {
+        normalVector[
+          1/4 {xMaxWall, yMaxWall},
+          XYPolar[1, Pi/2 + alpha],
+          Embolden["n"]
+          , {-2.5, -0.5}
+        ]
+      },
+      (* Wedge walls *)
+      Graphics @ {BoundaryTracingStyle["Wall"],
+        Line @ {
+          {xMaxWall, +yMaxWall},
+          {0, 0},
+          {xMaxWall, -yMaxWall}
+        }
+      },
+      (* Solution *)
+      Graphics @ {
+        Text[
+          Italicise["T"] // textStyle
+          , {0.6 xMaxWall, 0}
+        ]
+      },
+      {}
+      , options
+    ]
+      // Ex["capillary-wedge-modification-original.pdf"]
+    ,
+    (* Modified *)
+    Show[
+      (* Unit normal *)
+      Graphics @ {
+        normalVector[
+          xyTruncation[truncationPhi],
+          Plus[
+            rTruncation'[truncationPhi] ARPolar[truncationR, truncationPhi],
+            truncationR APhiPolar[truncationR, truncationPhi]
+          ] // Cross,
+          Subscript[Embolden["n"], "m"]
+          , {-1, -1.15}
+        ]
+      },
+      (* Wedge walls *)
+      Graphics @ {BoundaryTracingStyle["Wall"],
+        Line @ {XYPolar[rJoin, +alpha], {xMaxWall, +yMaxWall}},
+        Line @ {XYPolar[rJoin, -alpha], {xMaxWall, -yMaxWall}},
+        {}
+      },
+      ParametricPlot[
+        xyTruncation[phi]
+        , {phi, alpha, -alpha}
+        , PlotPoints -> 2
+        , PlotStyle -> BoundaryTracingStyle["Wall"]
+      ],
+      (* Solution *)
+      Graphics @ {
+        Text[
+          Subscript[Italicise["T"], "\[NegativeThinSpace]\[NegativeVeryThinSpace]m"] // textStyle
+          , {Way[rCentreLine, xMaxWall, 0.55], 0}
+        ]
+      },
+      {}
+      , options
+    ]
+      // Ex["capillary-wedge-modification-modified.pdf"]
+  }
+]
