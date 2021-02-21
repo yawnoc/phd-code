@@ -398,6 +398,7 @@ contour[derList_][{r0_, phi0_}, s0_, {sStart_, sEnd_}
 
 
 {apdMod, gpdMod} = {45, 30};
+numContoursViable = 4;
 
 
 (* ::Subsubsection:: *)
@@ -435,7 +436,7 @@ ExportIfNotExists["modification/wedge_small-modification-contours.txt",
         , 5
       ];
     (* Centreline r-values and height rises for contours *)
-    numberUpToCritical = 4;
+    numberUpToCritical = numContoursViable;
     rStep = rCritical / numberUpToCritical;
     numberUpToWall = Floor[rCentreWall / rStep];
     rCentreValues = rCritical * Range[numberUpToWall] / numberUpToCritical;
