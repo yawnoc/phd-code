@@ -2844,12 +2844,10 @@ Module[
     rCentreValues, heightValues, rphiContourList,
     numContours,
     hNumerical, derList, tNumerical, phiTilde,
-    meshes, rUpperLowerJoinPairs,
     xMax, yMax,
     xMaxWall, yMaxWall, rMaxWall,
     style,
       rphi,
-      rUpperJoin, rLowerJoin,
     dummyForTrailingCommas
   },
   (* Angular parameters *)
@@ -2865,10 +2863,6 @@ Module[
   derList = tracingDerivativeList[hNumerical, gamma];
   tNumerical[r_, phi_] := hNumerical[r, phi] / r // Evaluate;
   phiTilde = Last @ tracingDerivativeList[hNumerical, gamma];
-  (* Import meshes *)
-  rUpperLowerJoinPairs =
-    Import["modification/wedge_small-modification-meshes.txt"]
-      // Uncompress // #[[All, 3 ;; 4]] &;
   (* Make plot *)
   xMax = 1.4 Max[rCentreValues];
   yMax = xMax Tan[alpha];
@@ -2909,13 +2903,6 @@ Module[
           , PlotPoints -> 2
           , PlotStyle -> style[n]
         ],
-        {rUpperJoin, rLowerJoin} = rUpperLowerJoinPairs[[n]];
-        Graphics @ {
-          style[n], GeneralStyle["DefaultThick"],
-          Line @ {XYPolar[rUpperJoin, +alpha], XYPolar[rMaxWall, +alpha]},
-          Line @ {XYPolar[rLowerJoin, -alpha], XYPolar[rMaxWall, -alpha]},
-          {}
-        },
         {}
       }
       , {n, numContours}
