@@ -696,6 +696,214 @@ ExportIfNotExists["wedge_acute-radius-height-rise-tracing.csv",
 
 
 (* ::Subsection:: *)
+(*Modifications (viable contours)*)
+
+
+(* ::Subsubsection:: *)
+(*Angular parameters*)
+
+
+{apdMod, gpdMod} = {45, 60};
+numContoursViable = 4;
+
+
+(* ::Subsubsection:: *)
+(*Contours*)
+
+
+(* (This is not slow, nevertheless compute once and store.) *)
+(* (Delete the file manually to compute from scratch.) *)
+ExportIfNotExists["modification/wedge_acute-modification-contours.txt",
+  Module[
+    {
+      gamma, tNumerical,
+      xCritical,
+      hWall, xCentreWall,
+      numberUpToCritical, xStep, numberUpToWall,
+      xCentreValues, hValues,
+      sMax, xyContourList,
+      dummyForTrailingCommas
+    },
+    (* Numerical solution *)
+    gamma = gpdMod * Degree;
+    tNumerical =
+      Import @ FString["solution/wedge_acute-solution-apd-{apdMod}-gpd-{gpdMod}.txt"]
+        // Uncompress // First;
+    (* Critical terminal point x_0 *)
+    xCritical = x0[tNumerical, gamma];
+    (* Point along centreline which has wall height *)
+    hWall = HHalfPlane[gamma];
+    xCentreWall =
+      SeekRoot[
+        tNumerical[#, 0] - hWall &,
+        {0, 10}
+        , 5
+      ];
+    (* Centreline x-values and height rises for contours *)
+    numberUpToCritical = numContoursViable;
+    xStep = xCritical / numberUpToCritical;
+    numberUpToWall = Floor[xCentreWall / xStep];
+    xCentreValues = xCritical * Range[numberUpToWall] / numberUpToCritical;
+    hValues = Table[tNumerical[x, 0], {x, xCentreValues}];
+    (* Compute T-contours *)
+    sMax = 4; (* probably enough *)
+    xyContourList =
+      Table[
+        Quiet[
+          ContourByArcLength[tNumerical][{x, 0}, 0, sMax {-1, 1}]
+          , {InterpolatingFunction::femdmval, NDSolveValue::nlnum}
+        ]
+        , {x, xCentreValues}
+      ];
+    (* Return lists to export *)
+    {xCentreValues, hValues, xyContourList} // Compress
+  ]
+]
+
+
+(* ::Subsubsection:: *)
+(*Finite element meshes*)
+
+
+(* (This is not slow, nevertheless compute once and store.) *)
+(* (Delete the file manually to compute from scratch.) *)
+ExportIfNotExists["modification/wedge_acute-modification-meshes.txt",
+  Module[
+    {
+      rMax, alpha,
+      xCentreValues, hValues, xyContourList,
+      fineLengthScale,
+      coarseLengthScale,
+        sContourUpper, sContourLower, sContourValues, xyContourPoints,
+        rUpper1, phiUpper1, rUpper2, phiUpper2, rUpperJoin,
+        rLower1, phiLower1, rLower2, phiLower2, rLowerJoin,
+        boundaryPoints, numBoundaryPoints, boundaryElements,
+        boundaryMesh, mesh,
+        predicateWet,
+      dummyForTrailingCommas
+    },
+    (* Geometry *)
+    rMax = 10;
+    alpha = apdMod * Degree;
+    (* Import contours *)
+    {xCentreValues, hValues, xyContourList} =
+      Import["modification/wedge_acute-modification-contours.txt"] // Uncompress;
+    (* Mesh length scales *)
+    fineLengthScale = 0.01;
+    coarseLengthScale = 0.5;
+    (* For each contour *)
+    Table[
+      (* Raw T-contour points *)
+      sContourUpper = DomainEnd[xy];
+      sContourLower = DomainStart[xy];
+      sContourValues = Join[
+        UniformRange[sContourUpper, 0, -fineLengthScale],
+        UniformRange[0, sContourLower, -fineLengthScale] // Rest,
+        {}
+      ];
+      xyContourPoints = Table[EvaluatePair[xy, s], {s, sContourValues}];
+      (* Interpolate linearly in polar coordinates unto upper wall *)
+      {rUpper1, phiUpper1} = RPhiPolar @@ xyContourPoints[[1]];
+      {rUpper2, phiUpper2} = RPhiPolar @@ xyContourPoints[[2]];
+      rUpperJoin = Rescale[alpha, {phiUpper2, phiUpper1}, {rUpper2, rUpper1}];
+      (* Interpolate linearly in polar coordinates unto lower wall *)
+      {rLower1, phiLower1} = RPhiPolar @@ xyContourPoints[[-1]];
+      {rLower2, phiLower2} = RPhiPolar @@ xyContourPoints[[-2]];
+      rLowerJoin = Rescale[-alpha, {phiLower2, phiLower1}, {rLower2, rLower1}];
+      (* Boundary points and elements *)
+      boundaryPoints =
+        Join[
+          (* T-contour portion *)
+          xyContourPoints // Rest // Most,
+          (* Lower straight wall *)
+          Table[
+            XYPolar[r, -alpha]
+            , {r, UniformRange[rLowerJoin, rMax, fineLengthScale]}
+          ] // Most,
+          (* Far arc (numerical infinity) *)
+          Table[
+            XYPolar[rMax, phi]
+            , {phi, UniformRange[-alpha, alpha, coarseLengthScale / rMax]}
+          ] // Most,
+          (* Upper straight wall *)
+          Table[
+            XYPolar[r, +alpha]
+            , {r, UniformRange[rMax, rUpperJoin, -fineLengthScale]}
+          ],
+          {}
+        ];
+      numBoundaryPoints = Length[boundaryPoints];
+      boundaryElements =
+        LineElement /@ {
+          Table[{n, n + 1}, {n, numBoundaryPoints}]
+            // Mod[#, numBoundaryPoints, 1] &
+        };
+      (* Build mesh *)
+      boundaryMesh =
+        ToBoundaryMesh[
+          "Coordinates" -> boundaryPoints,
+          "BoundaryElements" -> boundaryElements,
+          {}
+        ];
+      mesh = ToElementMesh[boundaryMesh, "ImproveBoundaryPosition" -> True];
+      (* Predicate function for wetting boundaries *)
+      predicateWet = Function[{x, y}, x <= rMax Cos[alpha] // Evaluate];
+      (* Return mesh *)
+      {mesh, predicateWet, rUpperJoin, rLowerJoin}
+      , {xy, xyContourList}
+    ] // Compress
+  ]
+]
+
+
+(* ::Subsubsection:: *)
+(*Solve capillary BVP and extract height rise profiles*)
+
+
+(* (This is slow (~15 sec), so compute once and store.) *)
+(* (Delete the file manually to compute from scratch.) *)
+ExportIfNotExists["modification/wedge_acute-modification-profiles.txt",
+  Module[
+    {
+      alpha, gamma,
+      meshStuffList,
+      mesh, predicateWet, rUpperJoin, rLowerJoin,
+      meshCoordinates, boundaryElements, boundaryCoordinates,
+      tNumerical, heightValues,
+      dummyForTrailingCommas
+    },
+    (* Chosen parameters *)
+    {alpha, gamma} = {apdMod, gpdMod} Degree;
+    (* Import meshes *)
+    meshStuffList = Import["modification/wedge_acute-modification-meshes.txt"] // Uncompress;
+    (* For each mesh: *)
+    Table[
+      (* Mesh stuff *)
+      {mesh, predicateWet, rUpperJoin, rLowerJoin} = meshStuff;
+      (* Extract T-contour boundary coordinates, sorted by y *)
+      meshCoordinates = mesh["Coordinates"];
+      boundaryElements = List @@ First @ mesh["BoundaryElements"] // Flatten;
+      boundaryCoordinates = meshCoordinates[[boundaryElements]];
+      boundaryCoordinates = boundaryCoordinates // Select[
+        Function[
+          rLowerJoin Sin[-alpha] <= #[[2]] <= rUpperJoin Sin[alpha]
+            && predicateWet[#[[1]], #[[2]]]
+        ]
+      ];
+      boundaryCoordinates = boundaryCoordinates // SortBy[Last];
+      (* Solve capillary BVP *)
+      tNumerical = SolveLaplaceYoung[gamma, mesh, predicateWet];
+      (* Compute height values *)
+      heightValues = tNumerical @@@ boundaryCoordinates;
+      (* Return *)
+      {boundaryCoordinates, heightValues}
+      , {meshStuff, meshStuffList}
+    ] // Compress
+  ]
+]
+
+
+(* ::Subsection:: *)
 (*Geometric regions*)
 
 
@@ -1130,6 +1338,208 @@ Module[
   "same/wedge_acute_same-traced-general",
   "-apd-{apdRep}-gpd-{gpdRep}-gpdt-{gpdRep}.pdf"
 ]
+
+
+(* ::Section:: *)
+(*Modifications (viable contours)*)
+
+
+(* ::Subsection:: *)
+(*Visualise contours*)
+
+
+Module[
+  {
+    alpha, gamma,
+    xCentreValues, hValues, xyContourList,
+    tNumerical, vi,
+    dummyForTrailingCommas
+  },
+  (* Angular parameters *)
+  {alpha, gamma} = {apdMod, gpdMod} Degree;
+  (* Import contours *)
+  {xCentreValues, hValues, xyContourList} =
+    Import["modification/wedge_acute-modification-contours.txt"] // Uncompress;
+  (* Import numerical solution *)
+  tNumerical =
+    Import @ FString["solution/wedge_acute-solution-apd-{apdMod}-gpd-{gpdMod}.txt"]
+      // Uncompress // First;
+  vi = Last @ ContactDerivativeList[tNumerical, gamma];
+  (* Make plot *)
+  Show[
+    (* Wedge walls *)
+    Graphics @ {wallStyle,
+      HalfLine[{0, 0}, XYPolar[1, alpha]],
+      HalfLine[{0, 0}, XYPolar[1, -alpha]]
+    },
+    (* Non-viable domain *)
+    RegionPlot[
+      vi[x, y] < 0
+      , {x, 0, 3}
+      , {y, -3, 3}
+      , BoundaryStyle -> termStyle
+      , PlotStyle -> nonStyle
+    ],
+    (* Contours *)
+    Table[
+      ParametricPlot[
+        EvaluatePair[xy, s]
+        , {s, DomainStart[xy], DomainEnd[xy]}
+        , PlotStyle -> contStyle
+      ]
+      , {xy, xyContourList}
+    ],
+    (* Centreline starting points *)
+    ListPlot[
+      Table[{x, 0}, {x, xCentreValues}]
+    ],
+    {}
+    , Frame -> True
+    , PlotRange -> {{0, 2.5}, {-2, 2}}
+  ]
+] // Ex["modification/wedge_acute-modification-contours.pdf"]
+
+
+(* ::Subsection:: *)
+(*Check contours are actually contours*)
+
+
+Module[
+  {
+    alpha, gamma,
+    xCentreValues, hValues, xyContourList,
+    tNumerical,
+    dummyForTrailingCommas
+  },
+  (* Angular parameters *)
+  {alpha, gamma} = {apdMod, gpdMod} Degree;
+  (* Import contours *)
+  {xCentreValues, hValues, xyContourList} =
+    Import["modification/wedge_acute-modification-contours.txt"] // Uncompress;
+  (* Import numerical solution *)
+  tNumerical =
+    Import @ FString["solution/wedge_acute-solution-apd-{apdMod}-gpd-{gpdMod}.txt"]
+      // Uncompress // First;
+  (* Make plot *)
+  Show[
+    (* Pre-computed heights *)
+    Plot[
+      hValues
+      , {s, -2, 2}
+      , PlotStyle -> Black
+      , PlotOptions[Axes] // Evaluate
+    ],
+    (* Evaluated heights along curves *)
+    Table[
+      Plot[
+        tNumerical @@ EvaluatePair[xy, s]
+        , {s, DomainStart[xy], DomainEnd[xy]}
+        , PlotStyle -> Directive[Dotted, Green]
+      ]
+      , {xy, xyContourList}
+    ],
+    {}
+    , AxesLabel -> {Italicise["s"], "Height"}
+    , AxesOrigin -> {0, 0}
+    , PlotRange -> Full
+  ]
+] // Ex["modification/wedge_acute-modification-contours-check.pdf"]
+
+
+(* ::Subsection:: *)
+(*Visualise finite element meshes*)
+
+
+Module[
+  {
+    xCentreValues, hValues, xyContourList,
+    numContours,
+    meshes,
+      xy, mesh,
+      rUpperJoin, rLowerJoin,
+    dummyForTrailingCommas
+  },
+  (* Import contours *)
+  {xCentreValues, hValues, xyContourList} =
+    Import["modification/wedge_acute-modification-contours.txt"] // Uncompress;
+  numContours = Length[xyContourList];
+  (* Import meshes *)
+  meshes = Import["modification/wedge_acute-modification-meshes.txt"] // Uncompress;
+  (* For each contour: *)
+  Table[
+    (* Make plot *)
+    Show[
+      (* Mesh *)
+      mesh = meshes[[n, 1]];
+      mesh["Wireframe"],
+      (* Contour *)
+      xy = xyContourList[[n]];
+      ParametricPlot[
+        EvaluatePair[xy, s]
+        , {s, DomainStart[xy], DomainEnd[xy]}
+        , PlotStyle -> Directive[Red, Opacity[0.5], AbsoluteThickness[3]]
+      ],
+      (* Joining points *)
+      {rUpperJoin, rLowerJoin} = meshes[[n, {3, 4}]];
+      ListPlot[
+        {
+          XYPolar[rUpperJoin, apdMod * Degree],
+          XYPolar[rLowerJoin, -apdMod * Degree]
+        }
+        (*, PlotMarkers -> {Automatic, Medium}*)
+      ],
+      {}
+      , ImageSize -> 480
+    ]
+      // Ex @ FString["modification/wedge_acute-modification-mesh-{n}.png"]
+    , {n, numContours}
+  ]
+]
+
+
+(* ::Subsection:: *)
+(*Height comparison*)
+
+
+Module[
+  {
+    xCentreValues, hValues, xyContourList,
+    profilesStuff, profiles,
+      xyList, heightList, yList,
+    dummyForTrailingCommas
+  },
+  (* Import contours *)
+  hValues =
+    Import["modification/wedge_acute-modification-contours.txt"]
+      // Uncompress // #[[2]] &;
+  (* Import profiles *)
+  profilesStuff =
+    Import["modification/wedge_acute-modification-profiles.txt"]
+      // Uncompress;
+  (* Convert to (y, T) pairs *)
+  profiles = Table[
+    {xyList, heightList} = coordinatesAndHeights;
+    yList = xyList[[All, 2]];
+    {yList, heightList} // Transpose
+    , {coordinatesAndHeights, profilesStuff}
+  ];
+  (* Make plot *)
+  Show[
+    (* Contour heights *)
+    Plot[hValues, {y, -2, 2}
+      , PlotStyle -> Dashed
+    ],
+    (* Profile heights *)
+    ListPlot[profiles
+      , Joined -> True
+    ],
+    {}
+    , AxesLabel -> {Italicise["y"], "Height"}
+    , AxesOrigin -> {-2, 0.5}
+    , PlotRange -> Full
+    , PlotOptions[Axes] // Evaluate
+  ]
+] // Ex["modification/wedge_acute-modification-contours-comparison.pdf"]
 
 
 (* ::Section:: *)
@@ -3875,3 +4285,99 @@ Module[
     , PlotOptions[Axes] // Evaluate
   ]
 ] // Ex["wedge_acute-radius-height-rise-comparison.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: modified boundary contours*)
+
+
+Module[
+  {
+    alpha, gamma,
+    xCentreValues, hValues, xyContourList,
+    numContours,
+    tNumerical, vi,
+    meshes, rUpperLowerJoinPairs,
+    xMax, yMax,
+    xMaxWall, yMaxWall, rMaxWall,
+    style,
+      xy,
+      rUpperJoin, rLowerJoin,
+    dummyForTrailingCommas
+  },
+  (* Angular parameters *)
+  {alpha, gamma} = {apdMod, gpdMod} Degree;
+  (* Import contours *)
+  {xCentreValues, hValues, xyContourList} =
+    Import["modification/wedge_acute-modification-contours.txt"] // Uncompress;
+  numContours = Length[xyContourList] - 1;
+  (* Import numerical solution *)
+  tNumerical =
+    Import @ FString["solution/wedge_acute-solution-apd-{apdMod}-gpd-{gpdMod}.txt"]
+      // Uncompress // First;
+  vi = Last @ ContactDerivativeList[tNumerical, gamma];
+  (* Import meshes *)
+  rUpperLowerJoinPairs =
+    Import["modification/wedge_acute-modification-meshes.txt"]
+      // Uncompress // #[[All, 3 ;; 4]] &;
+  (* Make plot *)
+  xMax = 1.2 Max[xCentreValues];
+  yMax = xMax Tan[alpha];
+  {xMaxWall, yMaxWall} = 1.1 {xMax, yMax};
+  rMaxWall = RPolar[xMaxWall, yMaxWall];
+  style[n_] := If[
+    n > numContoursViable,
+    BoundaryTracingStyle["ContourPlain"],
+    Black
+  ];
+  Show[
+    EmptyFrame[{0, xMax}, {-yMax, yMax}
+    ],
+    (* Wedge walls *)
+    Graphics @ {BoundaryTracingStyle["Wall"],
+      Line @ {
+        {xMaxWall, +yMaxWall},
+        {0, 0},
+        {xMaxWall, -yMaxWall}
+      }
+    },
+    (* Non-viable domain *)
+    RegionPlot[
+      vi[x, y] < 0
+      , {x, 0, xMaxWall}
+      , {y, -yMaxWall, yMaxWall}
+      , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
+      , PlotPoints -> 5
+      , PlotStyle -> BoundaryTracingStyle["NonViable"]
+    ],
+    (* Contours *)
+    Table[
+      {
+        xy = xyContourList[[n]];
+        ParametricPlot[
+          EvaluatePair[xy, s] // Evaluate
+          , {s, DomainStart[xy], DomainEnd[xy]}
+          , PlotPoints -> 2
+          , PlotStyle -> style[n]
+        ],
+        {rUpperJoin, rLowerJoin} = rUpperLowerJoinPairs[[n]];
+        Graphics @ {
+          style[n], GeneralStyle["DefaultThick"],
+          Line @ {XYPolar[rUpperJoin, +alpha], XYPolar[rMaxWall, +alpha]},
+          Line @ {XYPolar[rLowerJoin, -alpha], XYPolar[rMaxWall, -alpha]},
+          {}
+        },
+        {}
+      }
+      , {n, numContours}
+    ],
+    {}
+    , FrameLabel -> {
+        Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
+        Italicise["y"]
+      }
+    , ImageSize -> 0.45 * 0.7 ImageSizeTextWidth
+    , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+    , FrameTicksStyle -> LabelSize["Tick"]
+  ]
+] // Ex["wedge_acute-modification-contours.pdf"]

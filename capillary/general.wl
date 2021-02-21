@@ -400,3 +400,360 @@ Module[
     , PlotRange -> {{-0.3 sigma, 2.8 sigma + lambda}, {All, 1.7 yMaxGroove}}
   ]
 ] // Ex["capillary-wall-with-grooves.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: modification of a wedge (capillary-wedge-modification-*)*)
+
+
+Module[
+  {
+    rMaxWall, alpha,
+    xMaxWall, yMaxWall,
+    rJoin, rCentreLine, rTruncation, xyTruncation,
+      truncationPhi, truncationR,
+    orthogonalityMarkerLength, thicknessCorrection,
+    normalVectorLength, normalVector,
+    textStyle,
+    options,
+    dummyForTrailingCommas
+  },
+  (* Geometry *)
+  rMaxWall = 3;
+  alpha = 30 Degree;
+  {xMaxWall, yMaxWall} = XYPolar[rMaxWall, alpha];
+  (* Truncation boundary *)
+  rJoin = 0.4 rMaxWall;
+  rCentreLine = 0.3 rMaxWall;
+  rTruncation = Interpolation[
+    {
+      {alpha, rJoin},
+      {0, rCentreLine},
+      {-alpha, rJoin},
+      Nothing
+    }
+    , InterpolationOrder -> 2
+  ];
+  xyTruncation[phi_] := XYPolar[rTruncation[phi], phi];
+    truncationPhi = 1/3 alpha;
+    truncationR = rTruncation[truncationPhi];
+  (* Normal vector *)
+  orthogonalityMarkerLength = 0.04 rMaxWall;
+  thicknessCorrection = 1.07;
+  normalVectorLength = 0.3 rMaxWall;
+  normalVector[position_, direction_, text_, offset_] := {
+    (* Orthogonality marker *)
+    Line[orthogonalityMarkerLength {
+      {1, 0},
+      {1, thicknessCorrection},
+      {0, thicknessCorrection}
+    }]
+      // RotationTransform[ArcTan @@ direction, {0, 0}]
+      // TranslationTransform[position]
+    ,
+    (* Arrow *)
+    Directive[GeneralStyle["Thick"], Arrowheads[Medium]],
+    Arrow @ {{position, position + normalVectorLength * Normalize[direction]}},
+    Text[
+      text // textStyle
+      , position + normalVectorLength * Normalize[direction]
+      , offset
+    ]
+  };
+  (* Text functions *)
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  (* Options *)
+  options = {Nothing
+    , ImageSize -> 0.4 * 0.7 ImageSizeTextWidth
+    , PlotRange -> {{0, All}, All}
+    , PlotRangePadding -> Scaled[0.02]
+  };
+  (* Make diagrams *)
+  {
+    (* Original *)
+    Show[
+      (* Unit normal *)
+      Graphics @ {
+        normalVector[
+          1/4 {xMaxWall, yMaxWall},
+          XYPolar[1, Pi/2 + alpha],
+          Embolden["n"]
+          , {-2.5, -0.5}
+        ]
+      },
+      (* Wedge walls *)
+      Graphics @ {BoundaryTracingStyle["Wall"],
+        Line @ {
+          {xMaxWall, +yMaxWall},
+          {0, 0},
+          {xMaxWall, -yMaxWall}
+        }
+      },
+      (* Solution *)
+      Graphics @ {
+        Text[
+          Italicise["T"] // textStyle
+          , {0.6 xMaxWall, 0}
+        ]
+      },
+      {}
+      , options
+    ]
+      // Ex["capillary-wedge-modification-original.pdf"]
+    ,
+    (* Modified *)
+    Show[
+      (* Unit normal *)
+      Graphics @ {
+        normalVector[
+          xyTruncation[truncationPhi],
+          Plus[
+            rTruncation'[truncationPhi] ARPolar[truncationR, truncationPhi],
+            truncationR APhiPolar[truncationR, truncationPhi]
+          ] // Cross,
+          Subscript[Embolden["n"], "m"]
+          , {-1, -1.15}
+        ]
+      },
+      (* Wedge walls *)
+      Graphics @ {BoundaryTracingStyle["Wall"],
+        Line @ {XYPolar[rJoin, +alpha], {xMaxWall, +yMaxWall}},
+        Line @ {XYPolar[rJoin, -alpha], {xMaxWall, -yMaxWall}},
+        {}
+      },
+      ParametricPlot[
+        xyTruncation[phi]
+        , {phi, alpha, -alpha}
+        , PlotPoints -> 2
+        , PlotStyle -> BoundaryTracingStyle["Wall"]
+      ],
+      (* Solution *)
+      Graphics @ {
+        Text[
+          Subscript[Italicise["T"], "\[NegativeThinSpace]\[NegativeVeryThinSpace]m"] // textStyle
+          , {Way[rCentreLine, xMaxWall, 0.55], 0}
+        ]
+      },
+      {}
+      , options
+    ]
+      // Ex["capillary-wedge-modification-modified.pdf"]
+  }
+]
+
+
+(* ::Section:: *)
+(*Figure: serrated approximation geometry for a modified boundary (capillary-serrated-approximation-geometry-modified)*)
+
+
+Module[
+  {
+    theta,
+    tracedLongLength, tracedShortLength,
+    tracedLongDisplacement, tracedShortDisplacement,
+    tracedXPeriod,
+    origin,
+    contourAnchor,
+    thetaM,
+    angleMarkerRadiusThetaLeft,
+    angleMarkerRadiusThetaRight,
+    angleMarkerRadiusThetaM,
+    gradientVectorLength, normalVectorLength,
+    arrowStyle,
+    orthogonalityMarkerLength, orthogonalityMarker,
+    textStyleStraight, textStyleLabel, textStyleLabelBigger,
+      normalAnchor, normalVector, normalTip,
+      normalMAnchor, normalMVector, normalMTip,
+      thetaAnchor,
+      thetaMAnchor,
+      modifiedAnchorLeft, modifiedAnchorRight,
+      modifiedStart, modifiedEnd,
+      contourStart, contourEnd,
+      gradientAnchor, gradientTip,
+    dummyForTrailingCommas
+  },
+  (* Geometry *)
+  theta = 50 Degree;
+  {tracedLongLength, tracedShortLength} = {2, 0.9};
+  tracedLongDisplacement = XYPolar[tracedLongLength, theta];
+  tracedShortDisplacement = XYPolar[tracedShortLength, -theta];
+  tracedXPeriod = tracedLongDisplacement + tracedShortDisplacement // First;
+  origin = {0, 0};
+  contourAnchor = origin + tracedLongDisplacement + tracedShortDisplacement;
+  thetaM = ArcTan @@ (tracedLongDisplacement + tracedShortDisplacement);
+  (* Etc. *)
+  angleMarkerRadiusThetaLeft = 0.23 tracedXPeriod;
+  angleMarkerRadiusThetaRight = 0.12 tracedXPeriod;
+  angleMarkerRadiusThetaM = 0.23 tracedXPeriod;
+  gradientVectorLength = 0.45 tracedXPeriod;
+  normalVectorLength = 0.4 tracedXPeriod;
+  arrowStyle = Directive[GeneralStyle["Thick"], Arrowheads[0.04]];
+  orthogonalityMarkerLength = 0.13 normalVectorLength;
+  orthogonalityMarker[position_, angle_] := {
+    Line[orthogonalityMarkerLength {{1, 0}, {1, 1}, {0, 1}}]
+      // RotationTransform[angle, {0, 0}]
+      // TranslationTransform[position]
+  };
+  (* Text styles *)
+  textStyleStraight = Style[#, LabelSize["Straight"]] & @* LaTeXStyle;
+  textStyleLabel = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  textStyleLabelBigger = Style[#, LabelSize["Label"] + 1] & @* LaTeXStyle;
+  (* Make diagram *)
+  Show[
+    thetaAnchor = contourAnchor - 2 {First[tracedShortDisplacement], 0};
+    (* Angle between traced boundaries and contour *)
+    Graphics @ {
+      Circle[thetaAnchor, angleMarkerRadiusThetaLeft, {0, theta}],
+      Circle[contourAnchor, angleMarkerRadiusThetaRight, {Pi, Pi - theta}],
+      {}
+    },
+    Graphics @ {
+      Text[
+        "\[Theta]" // textStyleLabelBigger (* optical illusion *)
+        , thetaAnchor + XYPolar[angleMarkerRadiusThetaLeft, Way[thetaM, theta]]
+        , {-2, -0.2}
+      ]
+    },
+    Graphics @ {
+      Text[
+        "\[Theta]" // textStyleLabelBigger (* optical illusion *)
+        , contourAnchor + XYPolar[angleMarkerRadiusThetaRight, Pi - theta/2]
+        , {1.4, -0.2}
+      ]
+    },
+    (* Serrated path normal vector *)
+    normalAnchor = origin + 0.85 tracedLongDisplacement;
+    normalVector = XYPolar[normalVectorLength, theta + Pi/2];
+    normalTip = normalAnchor + normalVector;
+    Graphics @ {
+      orthogonalityMarker[normalAnchor, theta]
+    },
+    Graphics @ {arrowStyle,
+      Arrow @ {normalAnchor, normalTip}
+    },
+    Graphics @ {
+      Text[
+        Embolden["n"] // textStyleLabel
+        , normalTip
+        , {1, -0.9}
+      ]
+    },
+    (* Modified boundary normal vector *)
+    normalMAnchor = (
+      contourAnchor
+      - 1/2 tracedShortDisplacement
+      + 0.3 tracedXPeriod XYPolar[1, thetaM]
+    );
+    normalMVector = XYPolar[normalVectorLength, thetaM + Pi/2];
+    normalMTip = normalMAnchor + normalMVector;
+    Graphics @ {
+      orthogonalityMarker[normalMAnchor, thetaM]
+    },
+    Graphics @ {arrowStyle,
+      Arrow @ {normalMAnchor, normalMTip}
+    },
+    Graphics @ {
+      Text[
+        Subscript[Embolden["n"], "m"] // textStyleLabel
+        , normalMTip
+        , {-0.35, -0.9}
+      ]
+    },
+    (* Angle between modified boundary and contour *)
+    thetaMAnchor = (
+      contourAnchor
+      - 1/2 tracedShortDisplacement
+      + {Cot[thetaM], 1} 1/2 Last[tracedShortDisplacement]
+    );
+    Graphics @ {
+      Circle[thetaMAnchor, angleMarkerRadiusThetaM, {0, thetaM}]
+    },
+    Graphics @ {
+      Text[
+        Subscript["\[Theta]", "\[NegativeVeryThinSpace]\[NegativeVeryThinSpace]m"] // textStyleLabel
+        , thetaMAnchor + XYPolar[angleMarkerRadiusThetaM, thetaM/2]
+        , {-1.4, -0.25}
+      ]
+    },
+    (* Modified boundary *)
+    modifiedAnchorLeft = origin - tracedShortDisplacement / 2;
+    modifiedAnchorRight = origin + 2 tracedLongDisplacement + 3/2 tracedShortDisplacement;
+    modifiedStart = Way[modifiedAnchorLeft, modifiedAnchorRight, -0.15];
+    modifiedEnd = Way[modifiedAnchorLeft, modifiedAnchorRight, +1.15];
+    Graphics @ {BoundaryTracingStyle["Wall"],
+      Line @ {modifiedStart, modifiedEnd}
+    },
+    Graphics @ {Darker @ Darker[Gray],
+      Text[
+        "modified boundary" // textStyleStraight
+        , modifiedEnd
+        , {0.95, 0.8}
+        , XYPolar[1, thetaM]
+      ]
+    },
+    (* Serrated path *)
+    Graphics @ {BoundaryTracingStyle["Traced"],
+      Line @ {
+        origin - tracedShortDisplacement,
+        origin,
+        origin + tracedLongDisplacement,
+        origin + tracedLongDisplacement + tracedShortDisplacement,
+        origin + 2 tracedLongDisplacement + tracedShortDisplacement,
+        origin + 2 tracedLongDisplacement + 2 tracedShortDisplacement,
+        Nothing
+      }
+    },
+    Graphics @ {
+      Text[
+        "serrated path" // textStyleStraight
+        , origin
+        , {-1.27, -0.6}
+      ]
+    },
+    (* T-contour *)
+    contourStart = contourAnchor + tracedXPeriod {-1.4, 0};
+    contourEnd = contourAnchor + tracedXPeriod {1.2, 0};
+    Graphics @ {BoundaryTracingStyle["Contour"],
+      Line @ {contourStart, contourEnd}
+    },
+    Graphics @ {
+      Text[
+        Row @ {Italicise["T"], "\[Hyphen]contour"} // textStyleStraight
+        , contourEnd
+        , {1.4, -1.1}
+      ]
+    },
+    (* Gradient vector *)
+    gradientAnchor = thetaAnchor - 0.5 {tracedXPeriod, 0};
+    gradientTip = gradientAnchor + {0, gradientVectorLength};
+    Graphics @ {
+      orthogonalityMarker[gradientAnchor, 0]
+    },
+    Graphics @ {arrowStyle,
+      Arrow @ {gradientAnchor, gradientTip}
+    },
+    Graphics @ {
+      (* Fake Del *)
+      {
+        RegularPolygon[3]
+          // Scale[#, 0.095 * 0.77] &
+          // Rotate[#, Pi] &
+          // Translate[#, gradientVectorLength {-0.336, 1.843}] &
+      },
+      {White,
+        RegularPolygon[3]
+          // Scale[#, 0.045 * 0.77] &
+          // Rotate[#, Pi] &
+          // Translate[#, gradientVectorLength {-0.329, 1.847}] &
+      },
+      Text[
+        Italicise["T"] // textStyleLabel
+        , gradientTip
+        , {-1, -1}
+      ],
+      {}
+    },
+    {}
+    , ImageSize -> 0.9 ImageSizeTextWidth
+  ]
+] // Ex["capillary-serrated-approximation-geometry-modified.pdf"]

@@ -353,6 +353,255 @@ tracedBoundary[derList_][{r0_, phi0_}, s0_, {sStart_, sEnd_}
   ];
 
 
+(* ::Subsubsection:: *)
+(*Contour (arc-length parametrisation)*)
+
+
+contour[derList_][{r0_, phi0_}, s0_, {sStart_, sEnd_}
+  , sSign_: 1
+  , terminationFunction_: (False &)
+] :=
+  Module[{pTilde, qTilde, slopeTilde, rDerivative, phiDerivative},
+    (* Derivatives *)
+    {pTilde, qTilde} = derList[[1 ;; 2]];
+    slopeTilde = Function[{r, phi}, Sqrt[pTilde[r, phi]^2 + qTilde[r, phi]^2] // Evaluate];
+    (* Right hand sides of contour system of ODEs *)
+    rDerivative[r_, phi_] := +qTilde[r, phi] / slopeTilde[r, phi];
+    phiDerivative[r_, phi_] := -pTilde[r, phi] / slopeTilde[r, phi] / r;
+    (* Solve contour system of ODEs *)
+    With[{r = \[FormalR], phi = \[FormalF], s = \[FormalS]},
+      NDSolveValue[
+        {
+          r'[s] == sSign * rDerivative[r[s], phi[s]],
+          phi'[s] == sSign * phiDerivative[r[s], phi[s]],
+          r[s0] == r0,
+          phi[s0] == phi0,
+          WhenEvent[
+            terminationFunction[r[s], phi[s]],
+            "StopIntegration"
+          ]
+        }
+        , {r, phi}
+        , {s, sStart, sEnd}
+        , NoExtrapolation
+      ]
+    ]
+  ]
+
+
+(* ::Subsection:: *)
+(*Modifications (viable contours)*)
+
+
+(* ::Subsubsection:: *)
+(*Angular parameters*)
+
+
+{apdMod, gpdMod} = {45, 30};
+numContoursViable = 4;
+
+
+(* ::Subsubsection:: *)
+(*Contours*)
+
+
+(* (This is not slow, nevertheless compute once and store.) *)
+(* (Delete the file manually to compute from scratch.) *)
+ExportIfNotExists["modification/wedge_small-modification-contours.txt",
+  Module[
+    {
+      gamma, hNumerical, derList, tNumerical,
+      rCritical,
+      hWall, rCentreWall,
+      numberUpToCritical, rStep, numberUpToWall,
+      rCentreValues, heightValues,
+      sMax, rphiContourList,
+      dummyForTrailingCommas
+    },
+    (* Numerical solution *)
+    gamma = gpdMod * Degree;
+    hNumerical =
+      Import @ FString["solution/wedge_small-solution-apd-{apdMod}-gpd-{gpdMod}.txt"]
+        // Uncompress // First;
+    derList = tracingDerivativeList[hNumerical, gamma];
+    tNumerical[r_, phi_] := hNumerical[r, phi] / r // Evaluate;
+    (* Critical terminal point r_0 *)
+    rCritical = r0[derList // First, gamma];
+    (* Point along centreline which has wall height *)
+    hWall = HHalfPlane[gamma];
+    rCentreWall =
+      SeekRoot[
+        tNumerical[#, 0] - hWall &,
+        {0, 10}
+        , 5
+      ];
+    (* Centreline r-values and height rises for contours *)
+    numberUpToCritical = numContoursViable;
+    rStep = rCritical / numberUpToCritical;
+    numberUpToWall = Floor[rCentreWall / rStep];
+    rCentreValues = rCritical * Range[numberUpToWall] / numberUpToCritical;
+    rCentreValues = Take[rCentreValues, UpTo[7]];
+    heightValues = Table[tNumerical[r, 0], {r, rCentreValues}];
+    (* Compute T-contours *)
+    sMax = 4; (* probably enough *)
+    rphiContourList =
+      Table[
+        Quiet[
+          contour[derList][{r, 0}, 0, sMax {-1, 1}]
+          , {InterpolatingFunction::femdmval, NDSolveValue::nlnum}
+        ]
+        , {r, rCentreValues}
+      ];
+    (* Return lists to export *)
+    {rCentreValues, heightValues, rphiContourList} // Compress
+  ]
+]
+
+
+(* ::Subsubsection:: *)
+(*Finite element meshes*)
+
+
+(* (This is not slow, nevertheless compute once and store.) *)
+(* (Delete the file manually to compute from scratch.) *)
+ExportIfNotExists["modification/wedge_small-modification-meshes.txt",
+  Module[
+    {
+      rMax, alpha,
+      rCentreValues, heightValues, rphiContourList,
+      fineLengthScale,
+      coarseLengthScale,
+        sContourUpper, sContourLower, sContourValues,
+        xyContourPoints, rphiContourPoints,
+        rUpper1, phiUpper1, rUpper2, phiUpper2, rUpperJoin,
+        rLower1, phiLower1, rLower2, phiLower2, rLowerJoin,
+        boundaryPoints, numBoundaryPoints, boundaryElements,
+        boundaryMesh, mesh,
+        predicateWet,
+      dummyForTrailingCommas
+    },
+    (* Geometry *)
+    rMax = 10;
+    alpha = apdMod * Degree;
+    (* Import contours *)
+    {rCentreValues, heightValues, rphiContourList} =
+      Import["modification/wedge_small-modification-contours.txt"] // Uncompress;
+    (* Mesh length scales *)
+    fineLengthScale = 0.01;
+    coarseLengthScale = 0.5;
+    (* For each contour *)
+    Table[
+      (* Raw T-contour points *)
+      sContourUpper = DomainEnd[rphi];
+      sContourLower = DomainStart[rphi];
+      sContourValues = Join[
+        UniformRange[sContourUpper, 0, -fineLengthScale],
+        UniformRange[0, sContourLower, -fineLengthScale] // Rest,
+        {}
+      ];
+      rphiContourPoints = Table[EvaluatePair[rphi, s], {s, sContourValues}];
+      xyContourPoints = Table[XYPolar @@ pair, {pair, rphiContourPoints}];
+      (* Interpolate linearly in polar coordinates unto upper wall *)
+      {rUpper1, phiUpper1} = rphiContourPoints[[1]];
+      {rUpper2, phiUpper2} = rphiContourPoints[[2]];
+      rUpperJoin = Rescale[alpha, {phiUpper2, phiUpper1}, {rUpper2, rUpper1}];
+      (* Interpolate linearly in polar coordinates unto lower wall *)
+      {rLower1, phiLower1} = rphiContourPoints[[-1]];
+      {rLower2, phiLower2} = rphiContourPoints[[-2]];
+      rLowerJoin = Rescale[-alpha, {phiLower2, phiLower1}, {rLower2, rLower1}];
+      (* Boundary points and elements *)
+      boundaryPoints =
+        Join[
+          (* T-contour portion *)
+          xyContourPoints // Rest // Most,
+          (* Lower straight wall *)
+          Table[
+            XYPolar[r, -alpha]
+            , {r, UniformRange[rLowerJoin, rMax, fineLengthScale]}
+          ] // Most,
+          (* Far arc (numerical infinity) *)
+          Table[
+            XYPolar[rMax, phi]
+            , {phi, UniformRange[-alpha, alpha, coarseLengthScale / rMax]}
+          ] // Most,
+          (* Upper straight wall *)
+          Table[
+            XYPolar[r, +alpha]
+            , {r, UniformRange[rMax, rUpperJoin, -fineLengthScale]}
+          ],
+          {}
+        ];
+      numBoundaryPoints = Length[boundaryPoints];
+      boundaryElements =
+        LineElement /@ {
+          Table[{n, n + 1}, {n, numBoundaryPoints}]
+            // Mod[#, numBoundaryPoints, 1] &
+        };
+      (* Build mesh *)
+      boundaryMesh =
+        ToBoundaryMesh[
+          "Coordinates" -> boundaryPoints,
+          "BoundaryElements" -> boundaryElements,
+          {}
+        ];
+      mesh = ToElementMesh[boundaryMesh, "ImproveBoundaryPosition" -> True];
+      (* Predicate function for wetting boundaries *)
+      predicateWet = Function[{x, y}, x <= rMax Cos[alpha] // Evaluate];
+      (* Return mesh *)
+      {mesh, predicateWet, rUpperJoin, rLowerJoin}
+      , {rphi, rphiContourList}
+    ] // Compress
+  ]
+]
+
+
+(* ::Subsubsection:: *)
+(*Solve capillary BVP and extract height rise profiles*)
+
+
+(* (This is slow (~40 sec), so compute once and store.) *)
+(* (Delete the file manually to compute from scratch.) *)
+ExportIfNotExists["modification/wedge_small-modification-profiles.txt",
+  Module[
+    {
+      alpha, gamma,
+      meshStuffList,
+      mesh, predicateWet, rUpperJoin, rLowerJoin,
+      meshCoordinates, boundaryElements, boundaryCoordinates,
+      tNumerical, heightValues,
+      dummyForTrailingCommas
+    },
+    (* Chosen parameters *)
+    {alpha, gamma} = {apdMod, gpdMod} Degree;
+    (* Import meshes *)
+    meshStuffList = Import["modification/wedge_small-modification-meshes.txt"] // Uncompress;
+    (* For each mesh: *)
+    Table[
+      (* Mesh stuff *)
+      {mesh, predicateWet, rUpperJoin, rLowerJoin} = meshStuff;
+      (* Extract T-contour boundary coordinates, sorted by y *)
+      meshCoordinates = mesh["Coordinates"];
+      boundaryElements = List @@ First @ mesh["BoundaryElements"] // Flatten;
+      boundaryCoordinates = meshCoordinates[[boundaryElements]];
+      boundaryCoordinates = boundaryCoordinates // Select[
+        Function[
+          rLowerJoin Sin[-alpha] <= #[[2]] <= rUpperJoin Sin[alpha]
+            && predicateWet[#[[1]], #[[2]]]
+        ]
+      ];
+      boundaryCoordinates = boundaryCoordinates // SortBy[Last];
+      (* Solve capillary BVP *)
+      tNumerical = SolveLaplaceYoung[gamma, mesh, predicateWet];
+      (* Compute height values *)
+      heightValues = tNumerical @@@ boundaryCoordinates;
+      (* Return *)
+      {boundaryCoordinates, heightValues}
+      , {meshStuff, meshStuffList}
+    ] // Compress
+  ]
+] // AbsoluteTiming
+
+
 (* ::Section:: *)
 (*Finite element mesh check*)
 
@@ -589,6 +838,211 @@ Module[
     , {apd, apdMeshValues}
   ]
 ]
+
+
+(* ::Section:: *)
+(*Modifications (viable contours)*)
+
+
+(* ::Subsection:: *)
+(*Visualise contours*)
+
+
+Module[
+  {
+    alpha, gamma,
+    rCentreValues, heightValues, rphiContourList,
+    hNumerical, derList, tNumerical, phiTilde,
+    dummyForTrailingCommas
+  },
+  (* Angular parameters *)
+  {alpha, gamma} = {apdMod, gpdMod} Degree;
+  (* Import contours *)
+  {rCentreValues, heightValues, rphiContourList} =
+    Import["modification/wedge_small-modification-contours.txt"] // Uncompress;
+  (* Import numerical solution *)
+  hNumerical =
+    Import @ FString["solution/wedge_small-solution-apd-{apdMod}-gpd-{gpdMod}.txt"]
+      // Uncompress // First;
+  derList = tracingDerivativeList[hNumerical, gamma];
+  tNumerical[r_, phi_] := hNumerical[r, phi] / r // Evaluate;
+  phiTilde = Last @ tracingDerivativeList[hNumerical, gamma];
+  (* Make plot *)
+  Show[
+    (* Wedge walls *)
+    Graphics @ {Purple,
+      HalfLine[{0, 0}, XYPolar[1, alpha]],
+      HalfLine[{0, 0}, XYPolar[1, -alpha]]
+    },
+    (* Non-viable domain *)
+    RegionPlot[
+      phiTilde @@ RPhiPolar[x, y] < 0
+      , {x, 0, 1.5}
+      , {y, -1.5, 1.5}
+      , BoundaryStyle -> Pink
+      , PlotStyle -> Directive[Opacity[0.7], LightGray]
+    ],
+    (* Contours *)
+    Table[
+      ParametricPlot[
+        XYPolar @@ EvaluatePair[rphi, s] // Evaluate
+        , {s, DomainStart[rphi], DomainEnd[rphi]}
+        , PlotStyle -> Black
+      ]
+      , {rphi, rphiContourList}
+    ],
+    (* Centreline starting points *)
+    ListPlot[
+      Table[{r, 0}, {r, rCentreValues}]
+    ],
+    {}
+    , Frame -> True
+    , PlotRange -> {{0, 1.4}, {-1.4, 1.4}}
+  ]
+] // Ex["modification/wedge_small-modification-contours.pdf"]
+
+
+(* ::Subsection:: *)
+(*Check contours are actually contours*)
+
+
+Module[
+  {
+    alpha, gamma,
+    rCentreValues, heightValues, rphiContourList,
+    hNumerical, tNumerical,
+    dummyForTrailingCommas
+  },
+  (* Angular parameters *)
+  {alpha, gamma} = {apdMod, gpdMod} Degree;
+  (* Import contours *)
+  {rCentreValues, heightValues, rphiContourList} =
+    Import["modification/wedge_small-modification-contours.txt"] // Uncompress;
+  (* Import numerical solution *)
+  hNumerical =
+    Import @ FString["solution/wedge_small-solution-apd-{apdMod}-gpd-{gpdMod}.txt"]
+      // Uncompress // First;
+  tNumerical[r_, phi_] := hNumerical[r, phi] / r // Evaluate;
+  (* Make plot *)
+  Show[
+    (* Pre-computed heights *)
+    Plot[
+      heightValues
+      , {s, -2, 2}
+      , PlotStyle -> Black
+      , PlotOptions[Axes] // Evaluate
+    ],
+    (* Evaluated heights along curves *)
+    Table[
+      Plot[
+        tNumerical @@ EvaluatePair[rphi, s]
+        , {s, DomainStart[rphi], DomainEnd[rphi]}
+        , PlotStyle -> Directive[Dotted, Green]
+      ]
+      , {rphi, rphiContourList}
+    ],
+    {}
+    , AxesLabel -> {Italicise["s"], "Height"}
+    , AxesOrigin -> {0, 0}
+    , PlotRange -> Full
+  ]
+] // Ex["modification/wedge_small-modification-contours-check.pdf"]
+
+
+(* ::Subsection:: *)
+(*Visualise finite element meshes*)
+
+
+Module[
+  {
+    rCentreValues, heightValues, rphiContourList,
+    numContours,
+    meshes,
+      rphi, mesh,
+      rUpperJoin, rLowerJoin,
+    dummyForTrailingCommas
+  },
+  (* Import contours *)
+  {rCentreValues, heightValues, rphiContourList} =
+    Import["modification/wedge_small-modification-contours.txt"] // Uncompress;
+  numContours = Length[rphiContourList];
+  (* Import meshes *)
+  meshes = Import["modification/wedge_small-modification-meshes.txt"] // Uncompress;
+  (* For each contour: *)
+  Table[
+    (* Make plot *)
+    Show[
+      (* Mesh *)
+      mesh = meshes[[n, 1]];
+      mesh["Wireframe"],
+      (* Contour *)
+      rphi = rphiContourList[[n]];
+      ParametricPlot[
+        XYPolar @@ EvaluatePair[rphi, s] // Evaluate
+        , {s, DomainStart[rphi], DomainEnd[rphi]}
+        , PlotStyle -> Directive[Red, Opacity[0.5], AbsoluteThickness[3]]
+      ],
+      (* Joining points *)
+      {rUpperJoin, rLowerJoin} = meshes[[n, {3, 4}]];
+      ListPlot[
+        {
+          XYPolar[rUpperJoin, apdMod * Degree],
+          XYPolar[rLowerJoin, -apdMod * Degree]
+        }
+        (*, PlotMarkers -> {Automatic, Medium}*)
+      ],
+      {}
+      , ImageSize -> 480
+    ]
+      // Ex @ FString["modification/wedge_small-modification-mesh-{n}.png"]
+    , {n, numContours}
+  ]
+]
+
+
+(* ::Subsection:: *)
+(*Height comparison*)
+
+
+Module[
+  {
+    heightValues,
+    profilesStuff, profiles,
+      xyList, heightList, yList,
+    dummyForTrailingCommas
+  },
+  (* Import contours *)
+  heightValues =
+    Import["modification/wedge_small-modification-contours.txt"]
+      // Uncompress // #[[2]] &;
+  (* Import profiles *)
+  profilesStuff =
+    Import["modification/wedge_small-modification-profiles.txt"]
+      // Uncompress;
+  (* Convert to (y, T) pairs *)
+  profiles = Table[
+    {xyList, heightList} = coordinatesAndHeights;
+    yList = xyList[[All, 2]];
+    {yList, heightList} // Transpose
+    , {coordinatesAndHeights, profilesStuff}
+  ];
+  (* Make plot *)
+  Show[
+    (* Contour heights *)
+    Plot[heightValues, {y, -2, 2}
+      , PlotStyle -> Dashed
+    ],
+    (* Profile heights *)
+    ListPlot[profiles
+      , Joined -> True
+    ],
+    {}
+    , AxesLabel -> {Italicise["y"], "Height"}
+    , AxesOrigin -> {-2, 1}
+    , PlotRange -> Full
+    , PlotOptions[Axes] // Evaluate
+  ]
+] // Ex["modification/wedge_small-modification-contours-comparison.pdf"]
 
 
 (* ::Section:: *)
@@ -2378,3 +2832,191 @@ Module[
     , {apd, apdValues}
   ] // Column
 ] // Ex["wedge_small-moderate-candidates-offset-log.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: modified boundary contours*)
+
+
+Module[
+  {
+    alpha, gamma,
+    rCentreValues, heightValues, rphiContourList,
+    numContours,
+    hNumerical, derList, tNumerical, phiTilde,
+    xMax, yMax,
+    xMaxWall, yMaxWall, rMaxWall,
+    style,
+      rphi,
+    dummyForTrailingCommas
+  },
+  (* Angular parameters *)
+  {alpha, gamma} = {apdMod, gpdMod} Degree;
+  (* Import contours *)
+  {rCentreValues, heightValues, rphiContourList} =
+    Import["modification/wedge_small-modification-contours.txt"] // Uncompress;
+  numContours = Length[rphiContourList] - 1;
+  (* Import numerical solution *)
+  hNumerical =
+    Import @ FString["solution/wedge_small-solution-apd-{apdMod}-gpd-{gpdMod}.txt"]
+      // Uncompress // First;
+  derList = tracingDerivativeList[hNumerical, gamma];
+  tNumerical[r_, phi_] := hNumerical[r, phi] / r // Evaluate;
+  phiTilde = Last @ tracingDerivativeList[hNumerical, gamma];
+  (* Make plot *)
+  xMax = 1.4 Max[rCentreValues];
+  yMax = xMax Tan[alpha];
+  {xMaxWall, yMaxWall} = 1.1 {xMax, yMax};
+  rMaxWall = RPolar[xMaxWall, yMaxWall];
+  style[n_] := If[
+    n > numContoursViable,
+    BoundaryTracingStyle["ContourPlain"],
+    Black
+  ];
+  Show[
+    EmptyFrame[{0, xMax}, {-yMax, yMax}
+    ],
+    (* Wedge walls *)
+    Graphics @ {BoundaryTracingStyle["Wall"],
+      Line @ {
+        {xMaxWall, +yMaxWall},
+        {0, 0},
+        {xMaxWall, -yMaxWall}
+      }
+    },
+    (* Non-viable domain *)
+    RegionPlot[
+      phiTilde @@ RPhiPolar[x, y] < 0
+      , {x, 0, xMaxWall}
+      , {y, -yMaxWall, yMaxWall}
+      , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
+      , PlotPoints -> 5
+      , PlotStyle -> BoundaryTracingStyle["NonViable"]
+    ],
+    (* Contours *)
+    Table[
+      {
+        rphi = rphiContourList[[n]];
+        ParametricPlot[
+          XYPolar @@ EvaluatePair[rphi, s] // Evaluate
+          , {s, DomainStart[rphi], DomainEnd[rphi]}
+          , PlotPoints -> 2
+          , PlotStyle -> style[n]
+        ],
+        {}
+      }
+      , {n, numContours}
+    ],
+    {}
+    , FrameLabel -> {
+        Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
+        Italicise["y"]
+      }
+    , ImageSize -> 0.45 * 0.7 ImageSizeTextWidth
+    , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+    , FrameTicksStyle -> LabelSize["Tick"]
+  ]
+] // Ex["wedge_small-modification-contours.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: modified boundary height rise profiles*)
+
+
+Module[
+  {
+    contourHeightValues,
+    profilesStuff,
+    numContours,
+      xyList, heightList,
+      yList, yMin, yMax,
+      profilePointsList,
+    yMaxPlot, heightMin,
+    style,
+      textStyle,
+      yBracket, bracketWidth,
+      heightMinBracket, heightMaxBracket,
+    dummyForTrailingCommas
+  },
+  (* Import contours *)
+  contourHeightValues =
+    Import["modification/wedge_small-modification-contours.txt"]
+      // Uncompress // #[[2]] &;
+  (* Import profiles *)
+  profilesStuff =
+    Import["modification/wedge_small-modification-profiles.txt"]
+      // Uncompress;
+  (* Process contours to be shown *)
+  numContours = Length[profilesStuff] - 1;
+  Table[
+    {xyList, heightList} = profilesStuff[[n]];
+    yList = xyList[[All, 2]];
+    {yMin[n], yMax[n]} = MinMax[yList];
+    profilePointsList[n] = {yList, heightList} // Transpose;
+    , {n, numContours}
+  ];
+  (* Make plot *)
+  yMaxPlot = 1;
+  heightMin = 1;
+  style[n_] := If[
+    n > numContoursViable,
+    BoundaryTracingStyle["ContourPlain"],
+    Black
+  ];
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  Show[
+    (* Main *)
+    Table[
+      {
+        (* Contour heights *)
+        Plot[contourHeightValues[[n]], {y, yMin[n], yMax[n]}
+          , PlotStyle -> Directive[style[n], Dotted]
+        ],
+        (* Profiles *)
+        ListPlot[profilePointsList[n]
+          , Joined -> True
+          , PlotRange -> All
+          , PlotStyle -> style[n]
+        ],
+        {}
+      }
+      , {n, numContours}
+    ],
+    (* Viable bracket label *)
+    yBracket = Way[
+      yMax[numContoursViable],
+      yMax[numContoursViable + 1]
+      , 2/3
+    ];
+    bracketWidth = 2/3 yMax[1];
+    heightMinBracket = Way[
+      contourHeightValues[[numContoursViable]],
+      contourHeightValues[[numContoursViable + 1]]
+      , 1/2
+    ];
+    heightMaxBracket = contourHeightValues[[1]] + 2/3 bracketWidth;
+    Graphics @ {
+      Line @ {
+        {yBracket - bracketWidth, heightMinBracket},
+        {yBracket, heightMinBracket},
+        {yBracket, heightMaxBracket},
+        {yBracket - bracketWidth, heightMaxBracket},
+        Nothing
+      },
+      Text["viable" // textStyle
+        , {yBracket, Way[heightMinBracket, heightMaxBracket]}
+        , {-1.3, 0}
+      ],
+      {}
+    },
+    {}
+    , AspectRatio -> Automatic
+    , AxesLabel -> {Italicise["y"], "Height"}
+    , AxesOrigin -> {-yMaxPlot, heightMin}
+    , ImageSize -> 0.5 * 0.9 ImageSizeTextWidth
+    , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+    , PlotRange -> {{-yMaxPlot, yMaxPlot}, {heightMin, Full}}
+    , PlotRangeClipping -> False
+    , TicksStyle -> LabelSize["Tick"]
+  ]
+] // Ex["wedge_small-modification-height-rise-profiles.pdf"]
