@@ -2925,7 +2925,7 @@ Module[
         Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
         Italicise["y"]
       }
-    , ImageSize -> 0.3 ImageSizeTextWidth
+    , ImageSize -> 0.45 * 0.7 ImageSizeTextWidth
     , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
     , FrameTicksStyle -> LabelSize["Tick"]
   ]
@@ -3026,7 +3026,7 @@ Module[
     , AspectRatio -> Automatic
     , AxesLabel -> {Italicise["y"], "Height"}
     , AxesOrigin -> {-yMaxPlot, heightMin}
-    , ImageSize -> 0.45 ImageSizeTextWidth
+    , ImageSize -> 0.5 * 0.9 ImageSizeTextWidth
     , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
     , PlotRange -> {{-yMaxPlot, yMaxPlot}, {heightMin, Full}}
     , PlotRangeClipping -> False
