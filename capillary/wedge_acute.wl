@@ -704,6 +704,7 @@ ExportIfNotExists["wedge_acute-radius-height-rise-tracing.csv",
 
 
 {apdMod, gpdMod} = {45, 60};
+numContoursViable = 4;
 
 
 (* ::Subsubsection:: *)
@@ -739,7 +740,7 @@ ExportIfNotExists["modification/wedge_acute-modification-contours.txt",
         , 5
       ];
     (* Centreline x-values and height rises for contours *)
-    numberUpToCritical = 4;
+    numberUpToCritical = numContoursViable;
     xStep = xCritical / numberUpToCritical;
     numberUpToWall = Floor[xCentreWall / xStep];
     xCentreValues = xCritical * Range[numberUpToWall] / numberUpToCritical;
