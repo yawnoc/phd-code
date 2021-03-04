@@ -215,6 +215,7 @@ With[{x = \[FormalX], y = \[FormalY]},
 (*Figure: wedge domain (helmholtz-wedge-domain)*)
 
 
+(* RUN ON WINDOWS FOR ITALICISED OMEGA *)
 Module[
   {
     wedgeXMax, wedgeYMax,
@@ -224,6 +225,7 @@ Module[
     orthogonalityMarkerLength, orthogonalityMarkerStyle,
     normalThicknessCorrection,
     textStyle, testStyleOmega,
+    fixSpacing,
     dummyForTrailingCommas
   },
   (* Wedge dimensions *)
@@ -246,6 +248,12 @@ Module[
   (* Diagram *)
   textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   testStyleOmega = Style[#, LabelSize["LabelOmega"]] & @* LaTeXStyle;
+  fixSpacing[string_, number_, extra_: ""] :=
+    Row @ {
+      string,
+      If[$OperatingSystem == "Windows", StringRepeat["\[NegativeThickSpace]", number] <> extra, ""]
+    };
+  (* Windows spacing fix *)
   Show[
     EmptyAxes[{xMin, xMax}, {-yMax, yMax}
       , AspectRatio -> Automatic
@@ -261,9 +269,16 @@ Module[
     },
     Graphics @ {
       Text[
-        "\[Alpha]" == SeparatedRow["/"]["\[Pi]", 4] // textStyle
+        Equal[
+          fixSpacing["\[Alpha]" // textStyle, 7],
+          SeparatedRow[Style["\[NegativeVeryThinSpace]/\[NegativeVeryThinSpace]", Magnification -> 1]][
+            fixSpacing["\[Pi]" // textStyle, 7],
+            4
+          ]
+        ]
+          // textStyle
         , XYPolar[angleMarkerRadius, alpha / 2]
-        , {-1.2, -0.45}
+        , {-1.2, -0.5}
       ]
     },
     (* Normal vector *)
@@ -290,9 +305,9 @@ Module[
     (* Wedge domain *)
     Graphics @ {
       Text[
-        "\[CapitalOmega]" // testStyleOmega
+        Italicise["\[CapitalOmega]"] // testStyleOmega
         , {3/4 wedgeXMax, 1/3 wedgeYMax}
-        , {-1.2, -0.5}
+        , If[$OperatingSystem == "Windows", {-0.7, -0.1}, {-1.2, -0.5}]
       ]
     },
     (* Wedge domain boundary *)
@@ -301,9 +316,17 @@ Module[
     },
     Graphics @ {
       Text[
-        "\[PartialD]\[CapitalOmega]" // testStyleOmega
+        SeparatedRow[
+          If[$OperatingSystem == "Windows",
+            StringRepeat["\[NegativeThickSpace]", 9] <> "\[NegativeVeryThinSpace]" // textStyle,
+            ""
+          ]
+        ] @@ {
+          "\[PartialD]" // testStyleOmega,
+          Italicise["\[CapitalOmega]"] // testStyleOmega
+        }
         , 4/5 {wedgeXMax, wedgeYMax}
-        , {1, -1}
+        , If[$OperatingSystem == "Windows", {0.5, -1}, {1, -1}]
       ]
     },
     {}

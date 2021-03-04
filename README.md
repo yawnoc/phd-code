@@ -19,7 +19,7 @@ This approach only requires the installation of the following fonts:
 * "Latin Modern Math" `latinmodern-math.otf` <br>
   <http://www.gust.org.pl/projects/e-foundry/lm-math/download>
 
-* "LM Roman 10" `lmroman10-regular.otf` <br>
+* "LM Roman 10" `lmroman10-*.otf` <br>
   <http://www.gust.org.pl/projects/e-foundry/latin-modern/download>
 
 On Windows there are some [issues with spacing around Greek characters][greek]

@@ -25,6 +25,7 @@ ClearAll["Global`*"];
 (*Figure: radiation--conduction BVP (radiation-conduction-bvp)*)
 
 
+(* RUN ON WINDOWS FOR ITALICISED OMEGA *)
 Module[
   {
     conductionA, conductionB, conductionPhi,
@@ -55,9 +56,9 @@ Module[
     },
     Graphics @ {
       Text[
-        SeparatedRow["\[ThinSpace]" // textStyle] @@ {
+        SeparatedRow["\[VeryThinSpace]" // textStyle] @@ {
           "conduction" // textStyle,
-          "\[CapitalOmega]" // textStyleGreek
+          Italicise["\[CapitalOmega]"] // textStyleGreek
         }
         , -{0.3 bathX, 0.8bathY}
       ]
@@ -80,13 +81,21 @@ Module[
         Column[
           {
             "radiation" // textStyle,
-            "\[PartialD]\[CapitalOmega]" // textStyleGreek
+            SeparatedRow[
+              If[$OperatingSystem == "Windows",
+                StringRepeat["\[NegativeThickSpace]", 9] <> "\[NegativeVeryThinSpace]" // textStyle,
+                ""
+              ]
+            ] @@ {
+              "\[PartialD]" // textStyleGreek,
+              Italicise["\[CapitalOmega]"] // textStyleGreek
+            }
           }
           , Alignment -> Right
-          , Spacings -> 0.3
+          , Spacings -> If[$OperatingSystem == "Windows", 0, 0.3]
         ]
         , conductionXY[5/8 Pi] // RotationTransform[conductionPhi]
-        , {1.1, -1.15}
+        , {1.1, If[$OperatingSystem == "Windows", -1, -1.15]}
       ]
     },
     (* Heat bath ellipse *)
@@ -97,7 +106,7 @@ Module[
       Text[
         "heat" // textStyle
         , {bathX, bathY}
-        , {0, -0.1}
+        , {0, If[$OperatingSystem == "Windows", -0.15, -0.1]}
       ]
     },
     {}

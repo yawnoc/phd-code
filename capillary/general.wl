@@ -27,6 +27,7 @@ ClearAll["Global`*"];
 (*Figure: contact angle against a wall (capillary-contact-angle)*)
 
 
+(* RUN ON WINDOWS FOR ITALICISED OMEGA *)
 Module[
   {
     gamma,
@@ -62,7 +63,7 @@ Module[
       , Frame -> None
       , ImageSize -> 0.6 ImageSizeTextWidth
       , PlotRange -> All
-      , PlotRangeClipping -> False
+      , PlotRangePadding -> {Automatic, Scaled[0.13]}
     ],
     (* Contact angle *)
     Graphics @ {
@@ -82,7 +83,7 @@ Module[
       Text[
         "\[Gamma]" // textStyle
         , {xMin, tStart} + XYPolar[angleMarkerRadius, -Pi/2 + gamma/2]
-        , {-0.4, 0.7}
+        , If[$OperatingSystem == "Windows", {-0.85, 0.2}, {-0.4, 0.7}]
       ]
     },
     (* Liquid *)
@@ -102,9 +103,9 @@ Module[
     },
     Graphics @ {
       Text[
-        "\[CapitalOmega]" // textStyleGreek
+        Italicise["\[CapitalOmega]"] // textStyleGreek
         , {Way[xMin - wallThickness/2, xMax], tMin}
-        , {0, 0.8}
+        , If[$OperatingSystem == "Windows", {0, 0.235}, {0.8}]
       ]
     },
     (* Outward normal *)
@@ -134,9 +135,17 @@ Module[
     },
     Graphics @ {
       Text[
-        "\[PartialD]\[CapitalOmega]" // textStyleGreek
+        SeparatedRow[
+          If[$OperatingSystem == "Windows",
+            StringRepeat["\[NegativeThickSpace]", 9] <> "\[NegativeVeryThinSpace]" // textStyle,
+            ""
+          ]
+        ] @@ {
+          "\[PartialD]" // textStyleGreek,
+          Italicise["\[CapitalOmega]"] // textStyleGreek
+        }
         , {xMin - wallThickness/2, tMin}
-        , {0, 0.7}
+        , If[$OperatingSystem == "Windows", {0, 0.9}, {0, 0.7}]
       ]
     },
     (* Air *)
