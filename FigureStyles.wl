@@ -143,7 +143,7 @@ ImageSizeTextWidth =
 LabelSize[type_String : Automatic] := Association[
   "Axis" -> 12,
   "Label" -> 12,
-  "LabelOmega" -> 15,
+  "LabelOmega" -> If[$OperatingSystem == "Windows", 13, 15],
   "Legend" -> 10,
   "Point" -> 11,
   "PointBracket" -> 15,
