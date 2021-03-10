@@ -389,6 +389,21 @@ With[
 celsiusOffset = 273.15 (* K *);
 
 
+(* ::Subsection:: *)
+(*Directional dependence of output*)
+
+
+directionalDependenceIntegrand[xx_][phi_] :=
+  Module[{yDer},
+    yDer = -yTraDer[#] &;
+    xx^4 * (yDer[xx] Cos[phi] + Sin[phi])
+  ] // Evaluate;
+
+
+directionalDependence[x1_, x2_][phi_?NumericQ] :=
+  NIntegrate[directionalDependenceIntegrand[xx][phi], {xx, x1, x2}];
+
+
 (* ::Section:: *)
 (*Traced boundary algebra*)
 
@@ -1532,3 +1547,76 @@ Plot[
   , PlotStyle -> Black
   , TicksStyle -> LabelSize["Tick"]
 ] // Ex["plane-fin-power-per-length.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: example fin directional dependence (plane-fin-directional-dependence)*)
+
+
+Module[
+  {
+    x1, x2,
+    yDer,
+    yDerMaxFin, phiMaxFin,
+    finDependence, finConstant, finDependenceNormalised,
+    stripDependence, stripConstant, stripDependenceNormalised,
+    textStyle,
+    horizontalTicks, verticalTicks,
+    dummyForTrailingCommas
+  },
+  (* Abbreviations *)
+  {x1, x2} = {exampleX1, exampleX2};
+  (* Fin angular range *)
+  yDer = -yTraDer[#] &;
+  yDerMaxFin = yDer[x2];
+  phiMaxFin = Pi - ArcTan[yDerMaxFin];
+  (* Fin directional dependence *)
+  finDependence[phi_] := directionalDependence[x1, x2] @ Abs[phi];
+  finConstant = NIntegrate[finDependence[phi], {phi, -phiMaxFin, phiMaxFin}];
+  finDependenceNormalised[phi_] := finDependence[phi] / finConstant;
+  (* Strip directional dependence *)
+  stripDependence[phi_] := Cos[phi];
+  stripConstant = Integrate[stripDependence[phi], {phi, -Pi/2, Pi/2}];
+  stripDependenceNormalised[phi_] := stripDependence[phi] / stripConstant;
+  (* Etc. *)
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  horizontalTicks =
+    Table[
+      {
+        gpd * Degree,
+        SeparatedRow["VeryThin"][gpd, Style["\[Degree]", Magnification -> 1.2]]
+          // Margined @ {{0, 0}, {0, -7}}
+      }
+      , {gpd, -180, 180, 90}
+    ];
+  verticalTicks = Automatic;
+  (* Make plot *)
+  Plot[
+    {finDependenceNormalised[phi], stripDependenceNormalised[phi]}
+    , {phi, -Pi, Pi}
+    , AxesLabel -> {
+        "\[CurlyPhi]" // LaTeXStyle // Margined @ {{0, 0}, {4, 0}},
+        "\[Psi]" // LaTeXStyle // Margined @ {{0, 0}, {-2, 0}}
+      }
+    , Epilog -> {
+        Text[
+          "fin" // textStyle
+          , {#, finDependenceNormalised[#]} & [Pi/2]
+          , {-2.5, -0.3}
+        ],
+        Text[
+          "strip" // textStyle
+          , {#, stripDependenceNormalised[#]} & [0]
+          , {-2.1, 0.2}
+        ],
+        {}
+      }
+    , ImageSize -> 0.4 ImageSizeTextWidth
+    , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+    , PlotPoints -> 2
+    , PlotRange -> {0, Automatic}
+    , PlotStyle -> Black
+    , Ticks -> {horizontalTicks, verticalTicks}
+    , TicksStyle -> LabelSize["Tick"]
+  ]
+] // Ex["plane-fin-directional-dependence.pdf"]
