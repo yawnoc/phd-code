@@ -1551,7 +1551,7 @@ Plot[
 
 
 (* ::Section:: *)
-(*Figure: example fin directional dependence (plane-fin-directional-dependence)*)
+(*Figure: directional dependence example fin vs strip (plane-directional-dependence-fin-strip)*)
 
 
 Module[
@@ -1593,22 +1593,25 @@ Module[
   verticalTicks = Automatic;
   (* Make plot *)
   Plot[
-    {finDependenceNormalised[phi], stripDependenceNormalised[phi]}
+    {stripDependenceNormalised, finDependenceNormalised}[phi]
+      // Through
+      // Evaluate
     , {phi, -Pi, Pi}
     , AxesLabel -> {
         "\[CurlyPhi]" // LaTeXStyle // Margined @ {{0, 0}, {4, 0}},
-        "\[Psi]" // LaTeXStyle // Margined @ {{0, 0}, {-2, 0}}
+        SeparatedRow["Thick"]["Normalised", Italicise["I"]]
+          // Margined @ {{0, 0}, {-4, 0}}
       }
     , Epilog -> {
         Text[
           "fin" // textStyle
-          , {#, finDependenceNormalised[#]} & [Pi/2]
-          , {-2.5, -0.3}
+          , {#, finDependenceNormalised[#]} & [-125 Degree]
+          , {1.9, 0}
         ],
         Text[
           "strip" // textStyle
-          , {#, stripDependenceNormalised[#]} & [0]
-          , {-2.1, 0.2}
+          , {#, stripDependenceNormalised[#]} & [25 Degree]
+          , {-1.5, 0}
         ],
         {}
       }
@@ -1620,7 +1623,7 @@ Module[
     , Ticks -> {horizontalTicks, verticalTicks}
     , TicksStyle -> LabelSize["Tick"]
   ]
-] // Ex["plane-fin-directional-dependence.pdf"]
+] // Ex["plane-directional-dependence-fin-strip.pdf"]
 
 
 (* ::Section:: *)
