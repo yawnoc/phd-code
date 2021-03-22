@@ -830,3 +830,228 @@ Module[
     , {regime, regimeNames}
   ]
 ]
+
+
+(* ::Section:: *)
+(*Figure: wedge corner discontinuity (capillary-wedge-corner-discontinuity)*)
+
+
+(* NOTE: using RegionDifference doesn't work for small gaps. *)
+Module[
+  {
+    rMax, alpha,
+    channelGap, wallThickness,
+    channelSideNearCorner, otherSideNearCorner,
+    channelSideWallPosition, otherSideWallPosition,
+    shortEdgeWallPosition,
+    channelSideFarCornerSMax, otherSideFarCornerSMax,
+    channelSideFarCorner, otherSideFarCorner,
+    channelSideFarCornerPhi, otherSideFarCornerPhi,
+    wallFineLengthScale, globalCoarseLengthScale,
+    globalCoarsePhiScale,
+    boundaryPoints, numBoundaryPoints, boundaryElements,
+    boundaryMesh, mesh, predicateWet,
+    gamma, tSolution,
+    plotRadius, wallHeight,
+    verticalEdge, verticalEdgeFull, thirdWallStyle,
+    makePoint3D,
+    channelSidePlotCornerSMax, otherSidePlotCornerSMax,
+    channelSidePlotCorner, otherSidePlotCorner,
+    x, y,
+    dummyForTrailingCommas
+  },
+  (* Re-entrant wedge *)
+  rMax = 5;
+  alpha = 135 Degree;
+  (* Third wall *)
+  channelGap = 1/2;
+  wallThickness = 3/2;
+  (* Near corners of the third wall *)
+  channelSideNearCorner = XYPolar[channelGap, alpha - Pi/2];
+  otherSideNearCorner = XYPolar[channelGap + wallThickness, alpha - Pi/2];
+  (* Generic position along the two long edges *)
+  channelSideWallPosition[s_] := channelSideNearCorner + XYPolar[s, alpha];
+  otherSideWallPosition[s_] := otherSideNearCorner + XYPolar[s, alpha];
+  (* Generic position along short edge *)
+  shortEdgeWallPosition[s_] := channelSideNearCorner + XYPolar[s, alpha - Pi/2];
+  (* Far corners of the third wall *)
+  With[{s = \[FormalS]},
+    channelSideFarCornerSMax = s /.
+      First @ Solve[RPolar @@ channelSideWallPosition[s] == rMax && s > 0, s];
+    otherSideFarCornerSMax = s /.
+      First @ Solve[RPolar @@ otherSideWallPosition[s] == rMax && s > 0, s];
+  ];
+  channelSideFarCorner = channelSideWallPosition[channelSideFarCornerSMax];
+  otherSideFarCorner = otherSideWallPosition[otherSideFarCornerSMax];
+  channelSideFarCornerPhi = PhiPolar @@ channelSideFarCorner;
+  otherSideFarCornerPhi = PhiPolar @@ otherSideFarCorner;
+  (* Mesh length scales *)
+  wallFineLengthScale = 0.05;
+  globalCoarseLengthScale = 1;
+  globalCoarsePhiScale = globalCoarseLengthScale / rMax;
+  (* Mesh boundary points *)
+  boundaryPoints = Join[
+    (* Re-entrant wedge upper wall *)
+    Table[
+      XYPolar[r, +alpha]
+      , {r, UniformRange[rMax, 0, -wallFineLengthScale]}
+    ] // Most,
+    (* Re-entrant wedge lower wall *)
+    Table[
+      XYPolar[r, -alpha]
+      , {r, UniformRange[0, rMax, +wallFineLengthScale]}
+    ] // Most,
+    (* Far arc at infinity *)
+    Table[
+      XYPolar[rMax, phi]
+      , {phi, UniformRange[-alpha, otherSideFarCornerPhi, globalCoarsePhiScale]}
+    ] // Most,
+    (* Other-side long edge of the third wall *)
+    Table[
+      otherSideWallPosition[s]
+      , {s, UniformRange[otherSideFarCornerSMax, 0, -wallFineLengthScale]}
+    ] // Most,
+    (* Short edge of the third wall *)
+    Table[
+      shortEdgeWallPosition[s]
+      , {s, UniformRange[wallThickness, 0, -wallFineLengthScale]}
+    ] // Most,
+    (* Channel-side long edge of the third wall *)
+    Table[
+      channelSideWallPosition[s]
+      , {s, UniformRange[0, channelSideFarCornerSMax, +wallFineLengthScale]}
+    ] // Most,
+    (* Far arc of the channel *)
+    Table[
+      XYPolar[rMax, phi]
+      , {phi, UniformRange[channelSideFarCornerPhi, +alpha, globalCoarsePhiScale]}
+    ] // Most,
+    {}
+  ];
+  (* Build mesh *)
+  numBoundaryPoints = Length[boundaryPoints];
+  boundaryElements =
+    LineElement /@ {
+      Table[{n, n + 1}, {n, numBoundaryPoints}]
+        // Mod[#, numBoundaryPoints, 1] &
+    };
+  boundaryMesh =
+    ToBoundaryMesh[
+      "Coordinates" -> boundaryPoints,
+      "BoundaryElements" -> boundaryElements,
+      {}
+    ];
+  mesh = ToElementMesh[boundaryMesh
+    , "ImproveBoundaryPosition" -> True
+  ];
+  predicateWet = Function[{x, y}, RPolar[x, y] < rMax // Evaluate];
+  (* Solve capillary problem numerically *)
+  gamma = 5 Degree;
+  tSolution = Quiet[
+    SolveLaplaceYoung[gamma, mesh, predicateWet]
+    , {Power::infy}
+  ];
+  (* Make plot *)
+  plotRadius = 2 (channelGap + wallThickness);
+  With[{s = \[FormalS]},
+    channelSidePlotCornerSMax = s /.
+      First @ Solve[RPolar @@ channelSideWallPosition[s] == plotRadius && s > 0, s];
+    otherSidePlotCornerSMax = s /.
+      First @ Solve[RPolar @@ otherSideWallPosition[s] == plotRadius && s > 0, s];
+  ];
+  channelSidePlotCorner = channelSideWallPosition[channelSidePlotCornerSMax];
+  otherSidePlotCorner = otherSideWallPosition[otherSidePlotCornerSMax];
+  wallHeight = 1.15 tSolution @@ channelSidePlotCorner;
+  verticalEdge @ {x_, y_} := Line @ {{x, y, tSolution[x, y]}, {x, y, wallHeight}};
+  verticalEdgeFull @ {x_, y_} := Line @ {{x, y, 0}, {x, y, wallHeight}};
+  thirdWallStyle = Opacity[0.5];
+  makePoint3D @ {x_, y_} := {x, y, 0};
+  Show[
+    (* Numerical solution *)
+    Plot3D[
+      tSolution[x, y], Element[{x, y}, mesh]
+      , Axes -> False
+      , Boxed -> False
+      , BoxRatios -> Automatic
+      , Filling -> 0
+      , FillingStyle -> BoundaryTracingStyle["Solution3D"]
+      , Lighting -> GeneralStyle["AmbientLighting"]
+      , PlotPoints -> 50
+      , PlotRange -> Full
+      , PlotStyle -> BoundaryTracingStyle["Solution3D"]
+      , RegionFunction -> Function[{x, y}, RPolar[x, y] < plotRadius]
+      , ViewPoint -> {2.8, -0.3, 1.8}
+    ],
+    (* Re-entrant wedge *)
+    Plot3D[
+      wallHeight
+      , {x, -plotRadius, plotRadius}
+      , {y, -plotRadius, plotRadius}
+      , Filling -> 0
+      , FillingStyle -> BoundaryTracingStyle["Wall3D"]
+      , Lighting -> GeneralStyle["AmbientLighting"]
+      , Mesh -> None
+      , PlotPoints -> 50
+      , PlotStyle -> BoundaryTracingStyle["Wall3D"]
+      , RegionFunction -> Function[{x, y},
+          And[
+            Abs[y] < x Tan[alpha],
+            x > plotRadius Cos[alpha]
+          ] // Evaluate
+        ]
+    ],
+    Graphics3D @ {
+      verticalEdge /@ {
+        XYPolar[plotRadius, -alpha],
+        {0, 0},
+        XYPolar[plotRadius, +alpha],
+        Nothing
+      }
+    },
+    (* Third wall *)
+    Plot3D[
+      wallHeight
+      , {x, channelSidePlotCorner[[1]], otherSideNearCorner[[1]]}
+      , {y, channelSideNearCorner[[2]], otherSidePlotCorner[[2]]}
+      , Filling -> 0
+      , FillingStyle -> Directive[thirdWallStyle, BoundaryTracingStyle["Wall3D"]]
+      , Lighting -> GeneralStyle["AmbientLighting"]
+      , Mesh -> None
+      , PlotPoints -> 100
+      , PlotStyle -> Directive[thirdWallStyle, BoundaryTracingStyle["Wall3D"]]
+      , RegionFunction -> Function[{x, y},
+          And[
+            channelGap < x Sin[alpha] - y Cos[alpha] < channelGap + wallThickness,
+            x Cos[alpha] + y Sin[alpha] > 0,
+            RPolar[x, y] < plotRadius
+          ] // Evaluate
+        ]
+    ],
+    Graphics3D @ {thirdWallStyle,
+      verticalEdge /@ {
+        channelSideNearCorner,
+        otherSideNearCorner,
+        otherSidePlotCorner,
+        Nothing
+      },
+      verticalEdgeFull /@ {
+        channelSidePlotCorner
+      },
+      {}
+    },
+    Graphics3D @ {thirdWallStyle,
+      Line @ {
+        makePoint3D[channelSideNearCorner],
+        makePoint3D[channelSidePlotCorner],
+        makePoint3D[otherSidePlotCorner],
+        Nothing
+      },
+      {}
+    },
+    {}
+    , ImageSize -> 0.55 ImageSizeTextWidth
+  ]
+] // Ex["capillary-wedge-corner-discontinuity.png"
+  , Background -> None
+  , ImageResolution -> 4 BasicImageResolution
+]
