@@ -766,3 +766,67 @@ Module[
     , ImageSize -> 0.9 ImageSizeTextWidth
   ]
 ] // Ex["capillary-serrated-approximation-geometry-modified.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: capillary wedge domain (capillary-wedge-domain-*)*)
+
+
+Module[
+  {
+    regimeNames, alphaValues, alphaFromRegime,
+    symmetryMarkerScaleFromRegime, angleMarkerScaleFromRegime,
+    labelOffsetFromRegime,
+    xMin, xMax, yMax, rMaxWall,
+    textStyleLabel,
+      alpha,
+      symmetryMarkerLength, angleMarkerRadius,
+    dummyForTrailingCommas
+  },
+  (* Regimes and corresponding wedge half-angles *)
+  regimeNames = {"small", "moderate", "obtuse"};
+  alphaValues = {30, 60, 125} Degree;
+  alphaFromRegime = AssociationThread[regimeNames -> alphaValues];
+  symmetryMarkerScaleFromRegime = AssociationThread[regimeNames -> {1, 0.8, 0.6}];
+  angleMarkerScaleFromRegime = AssociationThread[regimeNames -> {0.5, 0.4, 0.4}];
+  labelOffsetFromRegime = AssociationThread[regimeNames -> {{-2.5, -0.35}, {-2.25, -0.4}, {-1.7, -0.7}}];
+  (* Plot range *)
+  xMin = -0.7;
+  yMax = xMin Tan @ Max[alphaValues];
+  xMax = yMax Cot @ Min[alphaValues];
+  rMaxWall = 2 RPolar[xMax, yMax];
+  (* Make plots *)
+  textStyleLabel = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  Table[
+    alpha = alphaFromRegime[regime];
+    Show[
+      (* Wall *)
+      Graphics @ {BoundaryTracingStyle["Wall"],
+        Disk[{0, 0}, rMaxWall, {alpha, 2 Pi - alpha}]
+      },
+      (* Line of symmetry as reference for half-angle *)
+      symmetryMarkerLength = 0.5 symmetryMarkerScaleFromRegime[regime] xMax;
+      Graphics @ {
+        Line @ {{0, 0}, {symmetryMarkerLength, 0}}
+      },
+      (* Half-angle marker *)
+      angleMarkerRadius = angleMarkerScaleFromRegime[regime] symmetryMarkerLength;
+      Graphics @ {
+        Circle[{0, 0}, angleMarkerRadius, {0, alpha}]
+      },
+      (* Half-angle label *)
+      Graphics @ {
+        Text[
+          "\[Alpha]" // textStyleLabel
+          , XYPolar[angleMarkerRadius, alpha/2]
+          , labelOffsetFromRegime[regime]
+        ]
+      },
+      {}
+      , ImageSize -> 0.27 ImageSizeTextWidth
+      , PlotRange -> {{xMin, xMax}, {-yMax, yMax}}
+    ]
+      // Ex @ FString["capillary-wedge-domain-{regime}.pdf"]
+    , {regime, regimeNames}
+  ]
+]
