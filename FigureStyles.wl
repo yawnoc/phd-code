@@ -93,6 +93,7 @@ BoundaryTracingStyle[type : (_String | Automatic) : Automatic] := Association[
     GeneralStyle["DefaultThick"],
     GrayLevel[0.6]
   ],
+  "Edge3D" -> Thick,
   "NonViable" -> Directive[
     GeneralStyle["Translucent"],
     LightGray
