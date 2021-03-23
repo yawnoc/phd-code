@@ -1810,12 +1810,14 @@ Module[
             Italicise["y"],
             Italicise["T"] // Margined[{{0, 0.2}, {0, 1}} ImageSizeCentimetre]
           }
+        , BoundaryStyle -> BoundaryTracingStyle["Edge3D"]
         , Boxed -> {Back, Bottom, Left}
         , BoxRatios -> Automatic
         , Filling -> 0
         , FillingStyle -> BoundaryTracingStyle["Solution3D"]
         , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
         , Lighting -> GeneralStyle["AmbientLighting"]
+        , MeshStyle -> BoundaryTracingStyle["Edge3D"]
         , PlotPoints -> 20
         , PlotRange -> {0, 2.2}
         , PlotStyle -> BoundaryTracingStyle["Solution3D"]
@@ -1827,16 +1829,18 @@ Module[
       ],
       (* Manually drawn solution base edges *)
       Graphics3D @ {
+        BoundaryTracingStyle["Edge3D"],
         Line @ {{0, 0, 0}, {xArcCorner, -yArcCorner, 0}},
         {}
       },
       ParametricPlot3D[
         rMax {Cos[phi], Sin[phi], 0}
         , {phi, -alpha, alpha}
-        , PlotStyle -> Directive[Black, Thickness[0]]
+        , PlotStyle -> Directive[Black, BoundaryTracingStyle["Edge3D"]]
       ],
       (* Manually drawn solution vertical edges *)
       Graphics3D @ {
+        BoundaryTracingStyle["Edge3D"],
         Line @ {
           {0, 0, tNumerical[0, 0]},
           {0, 0, 0}
