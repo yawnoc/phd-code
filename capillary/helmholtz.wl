@@ -378,12 +378,14 @@ Module[
       uKnown[x, y], {x, xMinWall, xMax}, {y, -yMaxWall, yMaxWall}
       , AxesEdge -> {{-1, -1}, {+1, -1}, {-1, -1}}
       , AxesLabel -> Italicise @ {"x", "y", "U"}
+      , BoundaryStyle -> BoundaryTracingStyle["Edge3D"]
       , Boxed -> {Back, Bottom, Left}
       , BoxRatios -> Automatic
       , Filling -> 0
       , FillingStyle -> BoundaryTracingStyle["Solution3D"]
       , LabelStyle -> LatinModernLabelStyle @ LabelSize["Label"]
       , Lighting -> GeneralStyle["AmbientLighting"]
+      , MeshStyle -> BoundaryTracingStyle["Edge3D"]
       , PlotPoints -> 20
       , PlotStyle -> BoundaryTracingStyle["Solution3D"]
       , RegionFunction -> Function[{x, y},
@@ -398,6 +400,7 @@ Module[
     (* Wedge walls *)
     Plot3D[
       wallHeight, {x, xMinWall, xMax}, {y, -yMaxWall, yMaxWall}
+      , BoundaryStyle -> BoundaryTracingStyle["Edge3D"]
       , Filling -> 0
       , FillingStyle -> BoundaryTracingStyle["Wall3D"]
       , Lighting -> GeneralStyle["AmbientLighting"]
@@ -413,6 +416,7 @@ Module[
     ],
     (* Manually drawn wedge wall edges *)
     Graphics3D @ {
+      BoundaryTracingStyle["Edge3D"],
       verticalEdge /@ wedgeBaseVertices,
       Line[makeBaseVertex3D /@ wedgeBaseVertices[[{1, 2}]]],
       Line[makeBaseVertex3D /@ wedgeBaseVertices[[{-1, -2}]]],
@@ -421,6 +425,7 @@ Module[
     },
     (* Manually drawn solution bounding box edges *)
     Graphics3D @ {
+      BoundaryTracingStyle["Edge3D"],
       Line[makeBaseVertex3D /@ solutionBoundingBoxVertices],
       Line @ {{xMax, 0, 0}, {xMax, 0, uKnown[xMax, 0]}},
       {}
