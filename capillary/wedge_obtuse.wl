@@ -1998,11 +1998,13 @@ Module[
           Italicise["y"],
           Italicise["T"] // Margined @ {{0, 5}, {0, 0}}
         }
+      , BoundaryStyle -> BoundaryTracingStyle["Edge3D"]
       , Boxed -> {Back, Bottom, Left}
       , Filling -> 0
       , FillingStyle -> BoundaryTracingStyle["Solution3D"]
       , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
       , Lighting -> GeneralStyle["AmbientLighting"]
+      , MeshStyle -> BoundaryTracingStyle["Edge3D"]
       , PlotPoints -> 20
       , PlotRange -> {0, wallHeight}
       , PlotRangePadding -> {{Scaled[0.125], Automatic}, Automatic, None}
@@ -2016,6 +2018,7 @@ Module[
     (* Wedge walls *)
     Plot3D[
       wallHeight, {x, xArcCorner, 0}, {y, -yArcCorner, yArcCorner}
+      , BoundaryStyle -> BoundaryTracingStyle["Edge3D"]
       , Filling -> 0
       , FillingStyle -> BoundaryTracingStyle["Wall3D"]
       , Lighting -> GeneralStyle["AmbientLighting"]
@@ -2027,17 +2030,14 @@ Module[
         ]
     ],
     (* Manually drawn solution base edges *)
-    Graphics3D @ {
-      Line @ {{0, 0, 0}, {xArcCorner, -yArcCorner, 0}},
-      {}
-    },
     ParametricPlot3D[
       rMax {Cos[phi], Sin[phi], 0}
       , {phi, -alpha, alpha}
-      , PlotStyle -> Directive[Black, Thickness[0]]
+      , PlotStyle -> Directive[Black, BoundaryTracingStyle["Edge3D"]]
     ],
     (* Manually drawn wedge wall vertical edges *)
     Graphics3D @ {
+      BoundaryTracingStyle["Edge3D"],
       verticalEdge /@ {
         {xArcCorner, -yArcCorner},
         {xArcCorner, +yArcCorner},
