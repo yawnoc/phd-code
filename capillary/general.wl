@@ -865,7 +865,7 @@ Module[
   alpha = 135 Degree;
   (* Third wall *)
   channelGap = 1/2;
-  wallThickness = 1;
+  wallThickness = 1 + 1/10;
   (* Near corners of the third wall *)
   channelSideNearCorner = XYPolar[channelGap, alpha - Pi/2];
   otherSideNearCorner = XYPolar[channelGap + wallThickness, alpha - Pi/2];
@@ -961,10 +961,10 @@ Module[
   ];
   channelSidePlotCorner = channelSideWallPosition[channelSidePlotCornerSMax];
   otherSidePlotCorner = otherSideWallPosition[otherSidePlotCornerSMax];
-  wallHeight = 1.15 tSolution @@ channelSidePlotCorner;
+  wallHeight = 1.17 tSolution @@ channelSidePlotCorner;
   verticalEdge @ {x_, y_} := Line @ {{x, y, tSolution[x, y]}, {x, y, wallHeight}};
   verticalEdgeFull @ {x_, y_} := Line @ {{x, y, 0}, {x, y, wallHeight}};
-  thirdWallStyle = Directive[Opacity[0.5]];
+  thirdWallStyle = Directive[Opacity[0.13]];
   makePoint3D @ {x_, y_} := {x, y, 0};
   Show[
     (* Numerical solution *)
@@ -978,11 +978,12 @@ Module[
       , FillingStyle -> BoundaryTracingStyle["Solution3D"]
       , Lighting -> GeneralStyle["AmbientLighting"]
       , MeshStyle -> BoundaryTracingStyle["Edge3D"]
-      , PlotPoints -> 50
+      , PlotPoints -> 100
       , PlotRange -> Full
+      , PlotRangePadding -> None
       , PlotStyle -> BoundaryTracingStyle["Solution3D"]
       , RegionFunction -> Function[{x, y}, RPolar[x, y] < plotRadius]
-      , ViewPoint -> {2.8, -0.6, 1.8}
+      , ViewPoint -> {2.8, -0.6, 1.85}
     ],
     (* Re-entrant wedge *)
     Plot3D[
@@ -1032,7 +1033,7 @@ Module[
           ] // Evaluate
         ]
     ],
-    Graphics3D @ {thirdWallStyle,
+    Graphics3D @ {
       BoundaryTracingStyle["Edge3D"],
       verticalEdge /@ {
         channelSideNearCorner,
@@ -1045,7 +1046,7 @@ Module[
       },
       {}
     },
-    Graphics3D @ {thirdWallStyle,
+    Graphics3D @ {
       BoundaryTracingStyle["Edge3D"],
       Line @ {
         makePoint3D[channelSideNearCorner],
@@ -1056,7 +1057,7 @@ Module[
       {}
     },
     {}
-    , ImageSize -> 0.55 ImageSizeTextWidth
+    , ImageSize -> 0.5 ImageSizeTextWidth
   ]
 ] // Ex["capillary-wedge-corner-discontinuity.png"
   , Background -> None
