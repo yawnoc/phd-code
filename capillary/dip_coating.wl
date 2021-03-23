@@ -196,6 +196,7 @@ Module[
   globalLighting = {{"Ambient"}, White};
   coatingOffset = 0.001;
   coatingOptions = {
+    BoundaryStyle -> BoundaryTracingStyle["Edge3D"],
     Lighting -> globalLighting,
     Mesh -> None,
     PlotPoints -> 50,
@@ -211,6 +212,7 @@ Module[
       (* Prism *)
       Graphics3D @ {
         BoundaryTracingStyle["Wall3D"],
+        EdgeForm @ BoundaryTracingStyle["Edge3D"],
         Cuboid[
           {-prismXMax, -prismYMax, zMin},
           {+prismXMax, +prismYMax, zMax}
