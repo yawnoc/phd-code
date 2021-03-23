@@ -865,7 +865,7 @@ Module[
   alpha = 135 Degree;
   (* Third wall *)
   channelGap = 1/2;
-  wallThickness = 3/2;
+  wallThickness = 1;
   (* Near corners of the third wall *)
   channelSideNearCorner = XYPolar[channelGap, alpha - Pi/2];
   otherSideNearCorner = XYPolar[channelGap + wallThickness, alpha - Pi/2];
@@ -952,7 +952,7 @@ Module[
     , {Power::infy}
   ];
   (* Make plot *)
-  plotRadius = 2 (channelGap + wallThickness);
+  plotRadius = (2 + 1/3) (channelGap + wallThickness);
   With[{s = \[FormalS]},
     channelSidePlotCornerSMax = s /.
       First @ Solve[RPolar @@ channelSideWallPosition[s] == plotRadius && s > 0, s];
@@ -964,29 +964,32 @@ Module[
   wallHeight = 1.15 tSolution @@ channelSidePlotCorner;
   verticalEdge @ {x_, y_} := Line @ {{x, y, tSolution[x, y]}, {x, y, wallHeight}};
   verticalEdgeFull @ {x_, y_} := Line @ {{x, y, 0}, {x, y, wallHeight}};
-  thirdWallStyle = Opacity[0.5];
+  thirdWallStyle = Directive[Opacity[0.5]];
   makePoint3D @ {x_, y_} := {x, y, 0};
   Show[
     (* Numerical solution *)
     Plot3D[
       tSolution[x, y], Element[{x, y}, mesh]
       , Axes -> False
+      , BoundaryStyle -> BoundaryTracingStyle["Edge3D"]
       , Boxed -> False
       , BoxRatios -> Automatic
       , Filling -> 0
       , FillingStyle -> BoundaryTracingStyle["Solution3D"]
       , Lighting -> GeneralStyle["AmbientLighting"]
+      , MeshStyle -> BoundaryTracingStyle["Edge3D"]
       , PlotPoints -> 50
       , PlotRange -> Full
       , PlotStyle -> BoundaryTracingStyle["Solution3D"]
       , RegionFunction -> Function[{x, y}, RPolar[x, y] < plotRadius]
-      , ViewPoint -> {2.8, -0.3, 1.8}
+      , ViewPoint -> {2.8, -0.6, 1.8}
     ],
     (* Re-entrant wedge *)
     Plot3D[
       wallHeight
       , {x, -plotRadius, plotRadius}
       , {y, -plotRadius, plotRadius}
+      , BoundaryStyle -> BoundaryTracingStyle["Edge3D"]
       , Filling -> 0
       , FillingStyle -> BoundaryTracingStyle["Wall3D"]
       , Lighting -> GeneralStyle["AmbientLighting"]
@@ -1001,6 +1004,7 @@ Module[
         ]
     ],
     Graphics3D @ {
+      BoundaryTracingStyle["Edge3D"],
       verticalEdge /@ {
         XYPolar[plotRadius, -alpha],
         {0, 0},
@@ -1013,6 +1017,7 @@ Module[
       wallHeight
       , {x, channelSidePlotCorner[[1]], otherSideNearCorner[[1]]}
       , {y, channelSideNearCorner[[2]], otherSidePlotCorner[[2]]}
+      , BoundaryStyle -> BoundaryTracingStyle["Edge3D"]
       , Filling -> 0
       , FillingStyle -> Directive[thirdWallStyle, BoundaryTracingStyle["Wall3D"]]
       , Lighting -> GeneralStyle["AmbientLighting"]
@@ -1028,6 +1033,7 @@ Module[
         ]
     ],
     Graphics3D @ {thirdWallStyle,
+      BoundaryTracingStyle["Edge3D"],
       verticalEdge /@ {
         channelSideNearCorner,
         otherSideNearCorner,
@@ -1040,6 +1046,7 @@ Module[
       {}
     },
     Graphics3D @ {thirdWallStyle,
+      BoundaryTracingStyle["Edge3D"],
       Line @ {
         makePoint3D[channelSideNearCorner],
         makePoint3D[channelSidePlotCorner],
