@@ -7428,3 +7428,102 @@ Module[
   , Background -> None
   , ImageResolution -> 4 BasicImageResolution
 ]
+
+
+(* ::Section:: *)
+(*Figure: Verification relative error histogram (cosine-verification-*-relative-error-histogram)*)
+
+
+(* ::Subsection:: *)
+(*Simple case: lens-shaped domain*)
+
+
+Module[
+  {
+    a, b,
+    nameSuffix, name, tSol, mesh,
+    relError, relErrorValues,
+    dummyForTrailingCommas
+  },
+  (* Values of A and B *)
+  a = aValuesSimpConvex // First;
+  b = 1;
+  (* Import numerical solution *)
+  nameSuffix = aNamesSimpConvex[a];
+  name = FString @ "cosine_simple-verification-solution-{nameSuffix}.txt";
+  tSol = Import[name] // Uncompress;
+  mesh = tSol["ElementMesh"];
+  (* Relative error *)
+  relError[x_, y_] := tSol[x, y] / tKnown[b][x, y] - 1;
+  relErrorValues = relError @@@ mesh["Coordinates"] // Abs;
+  Histogram[relErrorValues, {"Log", 13}, "LogCount"
+    , ChartStyle -> LightGray
+    , Frame -> {{True, False}, {True, False}}
+    , FrameLabel -> {
+        Style["Relative error", Smaller] // Margined @ {{0, 0}, {0, -20}},
+        None
+      }
+    , FrameTicks -> {
+        Table[
+          {
+            10^p,
+            Superscript[10, p] // Margined @ {{0, 0}, {0, -7}},
+            {0, 0.02}
+          }
+          , {p, -16, -4, 4}
+        ],
+        Automatic
+      }
+    , FrameTicksStyle -> LabelSize["Tick"]
+    , ImageSize -> 0.36 ImageSizeTextWidth
+    , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+    , PlotRange -> All
+  ]
+] // Ex["cosine-verification-lens-relative-error-histogram.pdf"]
+
+
+(* ::Subsection:: *)
+(*General case: asymmetric domain*)
+
+
+Module[
+  {
+    a, b,
+    name, tSol, mesh,
+    relError, relErrorValues,
+    dummyForTrailingCommas
+  },
+  (* Values of A and B *)
+  a = aAsymm;
+  b = bAsymm;
+  (* Import numerical solution *)
+  name = "cosine_general-verification-solution-asymmetric.txt";
+  tSol = Import[name] // Uncompress;
+  mesh = tSol["ElementMesh"];
+  (* Relative error *)
+  relError[x_, y_] := tSol[x, y] / tKnown[b][x, y] - 1;
+  relErrorValues = relError @@@ mesh["Coordinates"] // Abs;
+  Histogram[relErrorValues, {"Log", 13}, "LogCount"
+    , ChartStyle -> LightGray
+    , Frame -> {{True, False}, {True, False}}
+    , FrameLabel -> {
+        Style["Relative error", Smaller] // Margined @ {{0, 0}, {0, -20}},
+        None
+      }
+    , FrameTicks -> {
+        Table[
+          {
+            10^p,
+            Superscript[10, p] // Margined @ {{0, 0}, {0, -7}},
+            {0, 0.02}
+          }
+          , {p, -16, -4, 4}
+        ],
+        Automatic
+      }
+    , FrameTicksStyle -> LabelSize["Tick"]
+    , ImageSize -> 0.36 ImageSizeTextWidth
+    , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+    , PlotRange -> All
+  ]
+] // Ex["cosine-verification-asymmetric-relative-error-histogram.pdf"]
