@@ -7360,7 +7360,7 @@ Module[
       , Lighting -> GeneralStyle["AmbientLighting"]
       , Mesh -> {meshXDensity, meshYDensity}
       , MeshStyle -> BoundaryTracingStyle["Edge3D"]
-      , PlotLabel -> (Style["Relative error", LabelSize["Axis"]] // Margined @ {{0, 25}, {0, 0}})
+      , PlotLabel -> (Style["Relative error", LabelSize["Axis"] - 1] // Margined @ {{0, 25}, {0, 0}})
       , PlotRange -> Full
       , PlotRangePadding -> {Scaled /@ {0.22, 0.27}, Scaled[0.02], Scaled[0.01]}
       , PlotStyle -> BoundaryTracingStyle["Solution3D"]
@@ -7416,7 +7416,7 @@ Module[
       , Lighting -> GeneralStyle["AmbientLighting"]
       , Mesh -> {meshXDensity, meshYDensity}
       , MeshStyle -> BoundaryTracingStyle["Edge3D"]
-      , PlotLabel -> (Style["Relative error", LabelSize["Axis"]] // Margined @ {{0, 25}, {0, 0}})
+      , PlotLabel -> (Style["Relative error", LabelSize["Axis"] - 1] // Margined @ {{0, 25}, {0, 0}})
       , PlotRange -> Full
       , PlotRangePadding -> {Scaled /@ {0.15, 0.07}, Scaled[0.01], Scaled[0.05]}
       , PlotStyle -> BoundaryTracingStyle["Solution3D"]
