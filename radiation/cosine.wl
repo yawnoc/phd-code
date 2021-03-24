@@ -7311,3 +7311,120 @@ Module[
   relError[x_, y_] := tSol[x, y] / tKnown[b][x, y] - 1;
   relError @@@ mesh["Coordinates"] // Abs // Max // PercentForm
 ]
+
+
+(* ::Section:: *)
+(*Figure: Verification relative error (cosine-verification-*-relative-error)*)
+
+
+(* ::Subsection:: *)
+(*Simple case: lens-shaped domain*)
+
+
+Module[
+  {
+    a, b,
+    nameSuffix, name, tSol, mesh,
+    xMin, xMax, yMin, yMax,
+    meshXDensity, meshYDensity,
+    relError,
+    dummyForTrailingCommas1
+  },
+  (* Values of A and B *)
+  a = aValuesSimpConvex // First;
+  b = 1;
+  (* Import numerical solution *)
+  nameSuffix = aNamesSimpConvex[a];
+  name = FString @ "cosine_simple-verification-solution-{nameSuffix}.txt";
+  tSol = Import[name] // Uncompress;
+  mesh = tSol["ElementMesh"];
+  (* Mesh density *)
+  {{xMin, xMax}, {yMin, yMax}} = mesh["Bounds"];
+  meshXDensity = 2;
+  meshYDensity = 0.3 (yMax - yMin) / (xMax - xMin) * meshXDensity // Floor;
+  (* Relative error *)
+  relError[x_, y_] := tSol[x, y] / tKnown[b][x, y] - 1;
+  (* Make plot *)
+  Module[{x, y},
+    Plot3D[relError[x, y], Element[{x, y}, mesh]
+      , AxesEdge -> {{-1, -1}, {+1, -1}, {-1, -1}}
+      , AxesLabel -> {
+          Italicise["x"] // Margined @ {{0, 5}, {0, -10}},
+          Italicise["y"] // Margined @ {{20, 0}, {0, -20}},
+          None
+        }
+      , BoundaryStyle -> BoundaryTracingStyle["Edge3D"]
+      , BoxRatios -> {Automatic, Automatic, 0.08}
+      , ImageSize -> {0.45, 0.37} ImageSizeTextWidth
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+      , Lighting -> GeneralStyle["AmbientLighting"]
+      , Mesh -> {meshXDensity, meshYDensity}
+      , MeshStyle -> BoundaryTracingStyle["Edge3D"]
+      , PlotLabel -> ("Relative error" // Margined @ {{0, 25}, {5, 0}})
+      , PlotRange -> Full
+      , PlotRangePadding -> {Scaled /@ {0.22, 0.27}, Scaled[0.02], Scaled[0.01]}
+      , PlotStyle -> BoundaryTracingStyle["Solution3D"]
+      , TicksStyle -> LabelSize["Tick"]
+      , ViewPoint -> {+0.8, -4, 0.4}
+    ]
+  ]
+] // Ex["cosine-verification-lens-relative-error.png"
+  , Background -> None
+  , ImageResolution -> 4 BasicImageResolution
+]
+
+
+(* ::Subsection:: *)
+(*General case: asymmetric domain*)
+
+
+Module[
+  {
+    a, b,
+    name, tSol, mesh,
+    xMin, xMax, yMin, yMax,
+    meshXDensity, meshYDensity,
+    relError,
+    dummyForTrailingCommas1
+  },
+  (* Values of A and B *)
+  a = aAsymm;
+  b = bAsymm;
+  (* Import numerical solution *)
+  name = "cosine_general-verification-solution-asymmetric.txt";
+  tSol = Import[name] // Uncompress;
+  mesh = tSol["ElementMesh"];
+  (* Mesh density *)
+  {{xMin, xMax}, {yMin, yMax}} = mesh["Bounds"];
+  meshXDensity = 5;
+  meshYDensity = 2/3 (yMax - yMin) / (xMax - xMin) * meshXDensity // Floor;
+  (* Relative error *)
+  relError[x_, y_] := tSol[x, y] / tKnown[b][x, y] - 1;
+  (* Make plot *)
+  Module[{x, y},
+    Plot3D[relError[x, y], Element[{x, y}, mesh]
+      , AxesEdge -> {{-1, -1}, {+1, -1}, {-1, -1}}
+      , AxesLabel -> {
+          Italicise["x"] // Margined @ {{0, 5}, {0, -10}},
+          Italicise["y"] // Margined @ {{20, 0}, {0, -20}},
+          None
+        }
+      , BoundaryStyle -> BoundaryTracingStyle["Edge3D"]
+      , BoxRatios -> {Automatic, Automatic, 0.27}
+      , ImageSize -> {0.45, 0.37} ImageSizeTextWidth
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+      , Lighting -> GeneralStyle["AmbientLighting"]
+      , Mesh -> {meshXDensity, meshYDensity}
+      , MeshStyle -> BoundaryTracingStyle["Edge3D"]
+      , PlotLabel -> ("Relative error" // Margined @ {{0, 20}, {5, 0}})
+      , PlotRange -> Full
+      , PlotRangePadding -> {Scaled /@ {0.15, 0.07}, Scaled[0.01], Scaled[0.05]}
+      , PlotStyle -> BoundaryTracingStyle["Solution3D"]
+      , TicksStyle -> LabelSize["Tick"]
+      , ViewPoint -> {+1, -2.7, 0.7}
+    ]
+  ]
+] // Ex["cosine-verification-asymmetric-relative-error.png"
+  , Background -> None
+  , ImageResolution -> 4 BasicImageResolution
+]
