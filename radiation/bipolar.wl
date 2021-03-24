@@ -6416,6 +6416,88 @@ Module[{source, tSol, mesh, tExact, relError},
 
 
 (* ::Section:: *)
+(*Figure: verification solution and relative error (bipolar-verification-*)*)
+
+
+(* ::Subsection:: *)
+(*Solution*)
+
+
+Module[{source, tSol, mesh},
+  (* Import solution *)
+  source = "bipolar-nice-verification-solution.txt";
+  tSol = Import[source] // Uncompress;
+  mesh = tSol["ElementMesh"];
+  (* Known exact solution *)
+  Module[{x, y},
+    Plot3D[tSol[x, y], Element[{x, y}, mesh]
+      , AxesEdge -> {{-1, -1}, {+1, -1}, {-1, -1}}
+      , AxesLabel -> {
+          Italicise["x"] // Margined @ {{0, 25}, {0, -20}},
+          Italicise["y"],
+          None
+        }
+      , BoundaryStyle -> BoundaryTracingStyle["Edge3D"]
+      , BoxRatios -> {Automatic, Automatic, 0.07}
+      , ImageSize -> 0.42 ImageSizeTextWidth
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+      , Lighting -> GeneralStyle["AmbientLighting"]
+      , MeshStyle -> BoundaryTracingStyle["Edge3D"]
+      , PlotLabel -> (Style["Numerical solution", LabelSize["Axis"] - 1] // Margined @ {{0, 0}, {0, 0}})
+      , PlotRange -> Full
+      , PlotStyle -> Directive[GeneralStyle["Translucent"], BoundaryTracingStyle["Solution3D"]]
+      , TicksStyle -> LabelSize["Tick"]
+      , ViewPoint -> {1.6, -2.4, 1.5}
+    ]
+  ]
+] // Ex["bipolar-verification-solution.png"
+  , Background -> None
+  , ImageResolution -> 4 BasicImageResolution
+]
+
+
+(* ::Subsection:: *)
+(*Relative error*)
+
+
+Module[{source, tSol, mesh, tExact, relError},
+  (* Import solution *)
+  source = "bipolar-nice-verification-solution.txt";
+  tSol = Import[source] // Uncompress;
+  mesh = tSol["ElementMesh"];
+  (* Known exact solution *)
+  tExact[x_, y_] := VBipolar[x, y];
+  (* Relative error *)
+  relError[x_, y_] := tSol[x, y] / tExact[x, y] - 1;
+  Module[{x, y},
+    Plot3D[relError[x, y], Element[{x, y}, mesh]
+      , AxesEdge -> {{-1, -1}, {+1, -1}, {-1, -1}}
+      , AxesLabel -> {
+          Italicise["x"] // Margined @ {{0, 25}, {0, -20}},
+          Italicise["y"],
+          None
+        }
+      , BoundaryStyle -> BoundaryTracingStyle["Edge3D"]
+      , BoxRatios -> {Automatic, Automatic, 0.09}
+      , ImageSize -> 0.42 ImageSizeTextWidth
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+      , Lighting -> GeneralStyle["AmbientLighting"]
+      , MeshStyle -> BoundaryTracingStyle["Edge3D"]
+      , PlotLabel -> (Style["Relative error", LabelSize["Axis"] - 1] // Margined @ {{0, 20}, {0, 0}})
+      , PlotRange -> Full
+      , PlotRangePadding -> {Scaled /@ {0.04, 0.01}, Scaled[0.05], Scaled /@ {0.25, 0}}
+      , PlotStyle -> Directive[GeneralStyle["Translucent"], BoundaryTracingStyle["Solution3D"]]
+      , TicksStyle -> LabelSize["Tick"]
+      , ViewPoint -> {1.6, -2.4, 1.5}
+    ]
+  ]
+] // Ex["bipolar-verification-relative-error.png"
+  , Background -> None
+  , ImageResolution -> 4 BasicImageResolution
+]
+
+
+(* ::Section:: *)
 (*Figure: inner candidate boundary asymmetry (bipolar-inner-candidate-asymmetry)*)
 
 
