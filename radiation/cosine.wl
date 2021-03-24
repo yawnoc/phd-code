@@ -7355,12 +7355,12 @@ Module[
         }
       , BoundaryStyle -> BoundaryTracingStyle["Edge3D"]
       , BoxRatios -> {Automatic, Automatic, 0.08}
-      , ImageSize -> {0.45, 0.37} ImageSizeTextWidth
+      , ImageSize -> 0.42 ImageSizeTextWidth
       , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
       , Lighting -> GeneralStyle["AmbientLighting"]
       , Mesh -> {meshXDensity, meshYDensity}
       , MeshStyle -> BoundaryTracingStyle["Edge3D"]
-      , PlotLabel -> ("Relative error" // Margined @ {{0, 25}, {5, 0}})
+      , PlotLabel -> (Style["Relative error", LabelSize["Axis"]] // Margined @ {{0, 25}, {0, 0}})
       , PlotRange -> Full
       , PlotRangePadding -> {Scaled /@ {0.22, 0.27}, Scaled[0.02], Scaled[0.01]}
       , PlotStyle -> BoundaryTracingStyle["Solution3D"]
@@ -7410,13 +7410,13 @@ Module[
           None
         }
       , BoundaryStyle -> BoundaryTracingStyle["Edge3D"]
-      , BoxRatios -> {Automatic, Automatic, 0.27}
-      , ImageSize -> {0.45, 0.37} ImageSizeTextWidth
+      , BoxRatios -> {Automatic, Automatic, 0.21}
+      , ImageSize -> 0.42 ImageSizeTextWidth
       , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
       , Lighting -> GeneralStyle["AmbientLighting"]
       , Mesh -> {meshXDensity, meshYDensity}
       , MeshStyle -> BoundaryTracingStyle["Edge3D"]
-      , PlotLabel -> ("Relative error" // Margined @ {{0, 20}, {5, 0}})
+      , PlotLabel -> (Style["Relative error", LabelSize["Axis"]] // Margined @ {{0, 25}, {0, 0}})
       , PlotRange -> Full
       , PlotRangePadding -> {Scaled /@ {0.15, 0.07}, Scaled[0.01], Scaled[0.05]}
       , PlotStyle -> BoundaryTracingStyle["Solution3D"]
