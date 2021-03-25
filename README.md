@@ -8,8 +8,7 @@ For the thesis, see [phd-thesis](https://github.com/yawnoc/phd-thesis).
 
 LaTeX fonts in the figures were produced ***without*** Szabolcs's [MaTeX][].
 While MaTeX is an excellent package outputting vector text labels,
-those labels cannot be selected and copied;
-also one needs a TeX system and Ghostscript.
+one needs a TeX system and Ghostscript.
 Instead I used a simple character mapping
 along with Mathematica's own string formatting capabilities
 (see the functions `LatinModernFont`, `LatinModernLabelStyle`,
