@@ -24,7 +24,15 @@ This approach only requires the installation of the following fonts:
 On Windows there are some [issues with spacing around Greek characters][greek]
 due to a bug ... the solution is to use Linux instead.
 
+Nevertheless, Linux appears to have a bug where
+capital Greek letters fail to be italicised when exporting to PDF.
+Therefore use Windows for [radiation-conduction-bvp.pdf],
+[capillary-contact-angle.pdf], and [helmholtz-wedge-domain.pdf].
+
 [greek]: https://mathematica.stackexchange.com/q/219745
+[radiation-conduction-bvp.pdf]: radiation/general/radiation-conduction-bvp.pdf
+[capillary-contact-angle.pdf]: capillary/general/capillary-contact-angle.pdf
+[helmholtz-wedge-domain.pdf]: capillary/helmholtz/helmholtz-wedge-domain.pdf
 
 ## Workflow
 
