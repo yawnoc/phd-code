@@ -3521,6 +3521,100 @@ Module[
 
 
 (* ::Section:: *)
+(*Table: pseudo-rounding corner angles (wedge_obtuse-pseudo-rounding-corner-angle-table)*)
+
+
+(* (This is slow (~6 sec).) *)
+Module[
+  {
+    apd, gpd,
+    alpha, gamma,
+    tNumerical,
+    gpdTracingValues,
+    xCriticalMin, xCriticalMax,
+    xMin, xMax, yMax,
+    more, xMinMore,
+    gammaTracing, d,
+    xInitial, yInitial,
+    p, q, grad2, f, vi, derList,
+    xyTraced, sCorner,
+    xDerivative, yDerivative,
+    cornerAngle, cornerAngleDeviation,
+    dummyForTrailingCommas
+  },
+  (* Known solution angles *)
+  apd = 135;
+  gpd = 60;
+  alpha = apd * Degree;
+  gamma = gpd * Degree;
+  (* Import numerical solution *)
+  tNumerical =
+    Import @ FString["solution/wedge_obtuse-solution-apd-{apd}-gpd-{gpd}.txt"]
+      // Uncompress // First;
+  (* Tracing contact angles *)
+  gpdTracingValues = Range[gpd + 5, 85, 5];
+  (* Plot range *)
+  xCriticalMin = x0[tNumerical, Min[gpdTracingValues] Degree];
+  xCriticalMax = x0[tNumerical, Max[gpdTracingValues] Degree];
+  xMin = -2 xCriticalMax;
+  xMax = 1.5 xCriticalMax;
+  yMax = 1.2 xMin Tan[alpha];
+  (* Plot range but more *)
+  more = 0.05;
+  xMinMore = xMin - more;
+  (* Compute pseudo-roundings *)
+  Table[
+    (* Tracing contact angle *)
+    gammaTracing = gpdTracing * Degree;
+    (* Half-plane offset distance *)
+    d = DHalfPlane[gamma, gammaTracing];
+    (* Initial point *)
+    {xInitial, yInitial} = 1.5 xMin {1, Tan[alpha]} + XYPolar[d, alpha - Pi/2];
+    (* Derivative list for boundary tracing *)
+    {p, q, grad2, f, vi} = derList = ContactDerivativeList[tNumerical, gammaTracing];
+    (* Compute traced boundary (LOWER branch, which be physically higher) *)
+    xyTraced[gpdTracing] =
+      Quiet[
+        ContactTracedBoundary[derList][
+          {xInitial, yInitial}, 0, {0, 2 yInitial}
+          , 1, -1
+          , -Infinity
+        ]
+        , {InterpolatingFunction::femdmval, NDSolveValue::nlnum}
+      ];
+    (* Corner point (y == 0) *)
+    sCorner[gpdTracing] =
+      SeekRoot[
+        xyTraced[gpdTracing][[2]],
+        {DomainStart @ xyTraced[gpdTracing], DomainEnd @ xyTraced[gpdTracing]}
+        , 20
+      ];
+    (* Corner angle *)
+    xDerivative = xyTraced[gpdTracing][[1]]' @ sCorner[gpdTracing];
+    yDerivative = xyTraced[gpdTracing][[2]]' @ sCorner[gpdTracing];
+    cornerAngle = 2 ArcTan[yDerivative / xDerivative // Abs];
+    (* Deviation from a straight angle *)
+    cornerAngleDeviation = cornerAngle - Pi;
+    (* Return table row *)
+    {
+      gpdTracing,
+      cornerAngle / Degree // SignificantFiguresForm[4],
+      cornerAngleDeviation / Degree // DecimalPlacesForm[1],
+      Nothing
+    }
+    , {gpdTracing, gpdTracingValues}
+  ]
+    // TableForm[#
+      , TableHeadings -> {
+          None,
+          {"tracing angle / \[Degree]", "corner angle / \[Degree]", "deviation"}
+        }
+    ] &
+    // Column @ {FString["contact angle: {gpd}\[Degree]"], #} &
+] // Ex["wedge_obtuse-pseudo-rounding-corner-angle-table.pdf"]
+
+
+(* ::Section:: *)
 (*Figure: family of pseudo-roundings (wedge_obtuse-pseudo-roundings)*)
 
 
