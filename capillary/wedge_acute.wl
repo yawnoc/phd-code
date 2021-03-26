@@ -3373,19 +3373,19 @@ Module[
     d, h, hTracing,
     xiEnd, tStart, tEnd,
     xiMax, tMin, tMaxWall, tMaxAxis,
-    wallThickness, angleMarkerRadius,
+    wallThickness, angleMarkerRadius, angleMarkerRadiusTracing,
     textStyleLabel, textStylePointBracket,
     dummyForTrailingCommas
   },
   (* Constants *)
-  gamma = 60 Degree;
-  gammaTracing = 70 Degree;
+  gamma = 25 Degree;
+  gammaTracing = 60 Degree;
   (* Half-plane offset distance & wall-height *)
   d = DHalfPlane[gamma, gammaTracing];
   h = HHalfPlane[gamma];
   hTracing = HHalfPlane[gammaTracing];
   (* Endpoints for parameter T *)
-  xiEnd = 1.8 d;
+  xiEnd = 2.8 d;
   tStart = h;
   tEnd = SeekRoot[XHalfPlane[gamma][#] - xiEnd &, {0, tStart}, 10] // Quiet;
   (* Plot range *)
@@ -3394,8 +3394,9 @@ Module[
   tMaxWall = 1.2 tStart;
   tMaxAxis = 1.08 tMaxWall;
   (* Plotting constants *)
-  wallThickness = 0.015 d;
-  angleMarkerRadius = 0.13 h;
+  wallThickness = 0.03 d;
+  angleMarkerRadius = 0.18 h;
+  angleMarkerRadiusTracing = 0.13 h;
   (* Text style *)
   textStyleLabel = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   textStylePointBracket = Style[#, LabelSize["PointBracket"]] &;
@@ -3421,7 +3422,7 @@ Module[
       Text[
         "\[Gamma]" // textStyleLabel
         , {0, h} + XYPolar[angleMarkerRadius, -Pi/2 + gamma/2]
-        , {-0.8, 0.7}
+        , {-0.6, 0.7}
       ],
       {}
     },
@@ -3429,14 +3430,14 @@ Module[
     Graphics @ {
       Circle[
         {d, hTracing},
-        angleMarkerRadius,
+        angleMarkerRadiusTracing,
         {-Pi/2, -Pi/2 + gammaTracing}
       ],
       Text[
         Subscript["\[Gamma]", Style["\[NegativeVeryThinSpace]\[Bullet]", Magnification -> 1.8]]
           // textStyleLabel
         , {d, hTracing} + XYPolar[angleMarkerRadius, -Pi/2 + gammaTracing/2]
-        , {-1, 0.7}
+        , {-0.6, 0.1}
       ],
       {}
     },
@@ -3444,8 +3445,11 @@ Module[
     Graphics @ {BoundaryTracingStyle["Contour"],
       Line @ {
         {-wallThickness/2, hTracing},
-        {d, hTracing},
-        {d, 0}
+        {d, hTracing}
+      },
+      Line @ {
+        {d, 0},
+        {d, hTracing}
       },
       {}
     },
