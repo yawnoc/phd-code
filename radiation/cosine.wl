@@ -7354,6 +7354,7 @@ Module[
           None
         }
       , BoundaryStyle -> BoundaryTracingStyle["Edge3D"]
+      , Boxed -> {Back, Bottom, Left}
       , BoxRatios -> {Automatic, Automatic, 0.08}
       , ImageSize -> 0.42 ImageSizeTextWidth
       , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
@@ -7410,6 +7411,7 @@ Module[
           None
         }
       , BoundaryStyle -> BoundaryTracingStyle["Edge3D"]
+      , Boxed -> {Back, Bottom, Left}
       , BoxRatios -> {Automatic, Automatic, 0.21}
       , ImageSize -> 0.42 ImageSizeTextWidth
       , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]

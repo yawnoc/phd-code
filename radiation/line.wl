@@ -2700,6 +2700,7 @@ Module[{source, tSol, mesh},
           None
         }
       , BoundaryStyle -> BoundaryTracingStyle["Edge3D"]
+      , Boxed -> {Back, Bottom, Left}
       , BoxRatios -> {Automatic, Automatic, 0.11}
       , ImageSize -> 0.42 ImageSizeTextWidth
       , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
@@ -2741,6 +2742,7 @@ Module[{source, tSol, mesh, tExact, relError},
           None
         }
       , BoundaryStyle -> BoundaryTracingStyle["Edge3D"]
+      , Boxed -> {Back, Bottom, Left}
       , BoxRatios -> {Automatic, Automatic, 0.13}
       , ImageSize -> 0.42 ImageSizeTextWidth
       , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
