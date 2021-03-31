@@ -21,33 +21,6 @@ ClearAll["Global`*"];
 
 
 (* ::Subsection:: *)
-(*Summary*)
-
-
-(*
-  Here we consider a simple example as proof of concept
-  for conformal mappings techniques with boundary tracing:
-    n . grad T == -T  (convection)
-             T == x   (one-dimensional solution)
-  This gives "fins" in the shape of circular arcs:
-    y == const \[PlusMinus] sqrt(1 - x^2).
-  The steps as given in the thesis appendix are as follows:
-    1. Choose a conformal mapping z == z(\[Xi])
-    2. Choose an analytic function W == W(\[Xi])
-       > We simply choose W(\[Zeta]) == \[Zeta], one-dimensional in \[Zeta]-space.
-    3. Write F and \[CapitalPhi] in terms of \[Zeta]
-       > We have
-       >   F == -T == -Re{\[Zeta]}
-       > and
-       >   \[CapitalPhi] == |d\[Zeta]/dz|^2 - Re^2{\[Zeta]}.
-    4. Compute traced boundaries in \[Zeta]-space
-       > We have
-       >   d\[Zeta]/ds == -i Re{\[Zeta]} \[PlusMinus] sqrt(|d\[Zeta]/dz|^2 - Re^2{\[Zeta]}).
-    5. Map the resulting curves back to z-space
-*)
-
-
-(* ::Subsection:: *)
 (*Conformal map visualisation*)
 
 
@@ -126,7 +99,65 @@ conformalVisualise[zOfZeta_] :=
   ]
 
 
-(* ::Section:: *)
+(* ::Subsection:: *)
+(*Choose cosh (effectively elliptic coordinates)*)
+
+
+(*
+  We consider a simple example as proof of concept
+  for conformal mappings techniques with boundary tracing:
+    n . grad T == -T^4  (i.e. radiation with A == 1)
+  The steps as given in the thesis appendix are as follows:
+    1. Choose a conformal mapping z == z(\[Xi])
+       > Pick z(\[Zeta]) == cosh(1 - \[Zeta])
+    2. Choose an analytic function W == W(\[Xi])
+       > We simply choose W(\[Zeta]) == \[Zeta], one-dimensional in \[Zeta]-space.
+    3. Write F and \[CapitalPhi] in terms of \[Zeta]
+       > We have
+       >   F == -T == -Re^4{\[Zeta]}
+       > and
+       >   \[CapitalPhi] == |csch(1 - \[Zeta])|^2 - Re^8{\[Zeta]}.
+    4. Compute traced boundaries in \[Zeta]-space
+       > We have
+       >   d\[Zeta]/ds == -i Re{\[Zeta]} \[PlusMinus] sqrt(|sech(1 - \[Zeta])|^2 - Re^8{\[Zeta]}).
+    5. Map the resulting curves back to z-space
+*)
+
+
+(* ::Subsubsection:: *)
+(*Transformation*)
+
+
+zOfZeta[zeta_] := Cosh[1 - zeta];
+zetaOfZ[z_] := 1 - ArcCosh[z];
+
+
+(* Check *)
+zOfZeta @ zetaOfZ[\[FormalZ]] == \[FormalZ]
+
+
+(* ::Subsubsection:: *)
+(*Flux*)
+
+
+flux[zeta_] := -Re[zeta]^4;
+
+
+(* ::Subsubsection:: *)
+(*Gradient squared*)
+
+
+gradSquared[zeta_] := 1 / zOfZeta'[zeta] // Abs[#]^2 & // Evaluate;
+
+
+(* ::Subsubsection:: *)
+(*Viability*)
+
+
+viability[zeta_] := gradSquared[zeta] - flux[zeta]^2 // Evaluate;
+
+
+(* ::Section::Closed:: *)
 (*Conformal map exploration*)
 
 
@@ -142,4 +173,22 @@ Module[{funList},
     conformalVisualise[fun]
     , {fun, funList}
   ]
+]
+
+
+(* ::Section:: *)
+(*Choose cosh (effectively elliptic coordinates)*)
+
+
+(* ::Subsection:: *)
+(*Known solution*)
+
+
+Plot3D[
+  Re @ zetaOfZ[x + I y]
+  , {x, -2, 2}
+  , {y, -2, 2}
+  , BoxRatios -> Automatic
+  , Exclusions -> None
+  , PlotRange -> {0, Full}
 ]
