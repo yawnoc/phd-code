@@ -10,6 +10,7 @@
 
 SetDirectory @ ParentDirectory @ NotebookDirectory[];
 << Conway`
+<< FigureStyles`
 SetDirectory @ NotebookDirectory[];
 
 
@@ -191,4 +192,69 @@ Plot3D[
   , BoxRatios -> Automatic
   , Exclusions -> None
   , PlotRange -> {0, Full}
+]
+
+
+(* ::Subsection:: *)
+(*Viability*)
+
+
+Plot3D[
+  viability @ zetaOfZ[x + I y]
+  , {x, -2, 2}
+  , {y, -2, 2}
+  , Exclusions -> None
+  , PlotRange -> {0, Automatic}
+]
+
+
+(* ::Subsection:: *)
+(*Viable domain*)
+
+
+Module[
+  {
+    xMin, xMax, yMin, yMax,
+    xMinMore, xMaxMore, yMinMore, yMaxMore,
+    dummyForTrailingCommas
+  },
+  (* Plot range *)
+  {xMin, xMax} = {-2, 2};
+  {yMin, yMax} = {-1.5, 1.5};
+  (* Plot range but more *)
+  {xMinMore, xMaxMore, yMinMore, yMaxMore} =
+    1.2 {xMin, xMax, yMin, yMax};
+  (* Make plot *)
+  Show[
+    EmptyFrame[{xMin, xMax}, {yMin, yMax}
+    ],
+    (* Unphysical region *)
+    RegionPlot[
+      Re @ zetaOfZ[x + I y] < 0
+      , {x, xMinMore, xMaxMore}
+      , {y, yMinMore, yMaxMore}
+      , BoundaryStyle -> None
+      , PlotStyle -> BoundaryTracingStyle["Unphysical"]
+    ],
+    (* T-contours *)
+    ContourPlot[
+      Re @ zetaOfZ[x + I y]
+      , {x, xMinMore, xMaxMore}
+      , {y, yMinMore, yMaxMore}
+      , Contours -> Subdivide[0, 1, 4]
+      , ContourShading -> None
+      , ContourStyle -> Blue
+      , Exclusions -> None
+      , PlotRange -> {0, 1}
+    ],
+    (* Non-viable domain (nowhere) *)
+    RegionPlot[
+      viability @ zetaOfZ[x + I y] < 0
+      , {x, xMinMore, xMaxMore}
+      , {y, yMinMore, yMaxMore}
+      , BoundaryStyle -> None
+      , PlotStyle -> BoundaryTracingStyle["NonViable"]
+    ],
+    {}
+  ]
 ]
