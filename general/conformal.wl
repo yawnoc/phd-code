@@ -158,6 +158,42 @@ gradSquared[zeta_] := 1 / zOfZeta'[zeta] // Abs[#]^2 & // Evaluate;
 viability[zeta_] := gradSquared[zeta] - flux[zeta]^2 // Evaluate;
 
 
+(* ::Subsubsection:: *)
+(*Traced boundaries*)
+
+
+rhsUpper[zeta_] := -I flux[zeta] + Sqrt @ viability[zeta] // Evaluate;
+rhsLower[zeta_] := -I flux[zeta] - Sqrt @ viability[zeta] // Evaluate;
+
+
+tracedUpper[zeta0_] :=
+  Module[{zeta},
+    NDSolveValue[
+      {
+        zeta'[s] == rhsUpper[zeta[s]],
+        zeta[0] == zeta0,
+        WhenEvent[{Re @ zeta[s] < 0, Re @ zeta[s] > 1}, "StopIntegration"]
+      },
+      zeta, {s, -1, 1}
+      , NoExtrapolation
+    ]
+  ]
+
+
+tracedLower[zeta0_] :=
+  Module[{zeta},
+    NDSolveValue[
+      {
+        zeta'[s] == rhsLower[zeta[s]],
+        zeta[0] == zeta0,
+        WhenEvent[{Re @ zeta[s] < 0, Re @ zeta[s] > 1}, "StopIntegration"]
+      },
+      zeta, {s, -1, 1}
+      , NoExtrapolation
+    ]
+  ]
+
+
 (* ::Section::Closed:: *)
 (*Conformal map exploration*)
 
@@ -209,13 +245,14 @@ Plot3D[
 
 
 (* ::Subsection:: *)
-(*Viable domain*)
+(*Traced boundaries*)
 
 
 Module[
   {
     xMin, xMax, yMin, yMax,
     xMinMore, xMaxMore, yMinMore, yMaxMore,
+    zeta0List, tracedUpperList, tracedLowerList,
     dummyForTrailingCommas
   },
   (* Plot range *)
@@ -224,6 +261,10 @@ Module[
   (* Plot range but more *)
   {xMinMore, xMaxMore, yMinMore, yMaxMore} =
     1.2 {xMin, xMax, yMin, yMax};
+  (* Traced boundaries *)
+  zeta0List = Table[1/4 + I im, {im, Subdivide[0, 2 Pi, 16] // Most}];
+  tracedUpperList = tracedUpper /@ zeta0List;
+  tracedLowerList = tracedLower /@ zeta0List;
   (* Make plot *)
   Show[
     EmptyFrame[{xMin, xMax}, {yMin, yMax}
@@ -243,7 +284,7 @@ Module[
       , {y, yMinMore, yMaxMore}
       , Contours -> Subdivide[0, 1, 4]
       , ContourShading -> None
-      , ContourStyle -> Blue
+      , ContourStyle -> Black
       , Exclusions -> None
       , PlotRange -> {0, 1}
     ],
@@ -255,6 +296,25 @@ Module[
       , BoundaryStyle -> None
       , PlotStyle -> BoundaryTracingStyle["NonViable"]
     ],
+    (* Traced boundaries (upper branch) *)
+    Table[
+      ParametricPlot[
+        zOfZeta @ zeta[s] // ReIm // Evaluate
+        , {s, DomainStart[zeta], DomainEnd[zeta]}
+        , PlotStyle -> Blue
+      ]
+      , {zeta, tracedUpperList}
+    ],
+    (* Traced boundaries (lower branch) *)
+    Table[
+      ParametricPlot[
+        zOfZeta @ zeta[s] // ReIm // Evaluate
+        , {s, DomainStart[zeta], DomainEnd[zeta]}
+        , PlotStyle -> Red
+      ]
+      , {zeta, tracedLowerList}
+    ],
     {}
+    , ImageSize -> 480
   ]
 ]
