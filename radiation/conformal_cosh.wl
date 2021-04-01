@@ -11,7 +11,7 @@
 SetDirectory @ ParentDirectory @ NotebookDirectory[];
 << Conway`
 << FigureStyles`
-SetDirectory @ NotebookDirectory[];
+SetDirectory @ FileNameJoin @ {NotebookDirectory[], "conformal_cosh"};
 
 
 (* ::Subsection:: *)
@@ -21,8 +21,8 @@ SetDirectory @ NotebookDirectory[];
 ClearAll["Global`*"];
 
 
-(* ::Subsection:: *)
-(*Conformal map visualisation*)
+(* ::Subsection::Closed:: *)
+(*Conformal map exploration*)
 
 
 conformalVisualise[zOfZeta_] :=
@@ -106,31 +106,44 @@ conformalVisualise[zOfZeta_] :=
 
 (*
   We consider a simple example as proof of concept
-  for conformal mappings techniques with boundary tracing:
-    n . grad T == -T^4  (i.e. radiation with A == 1)
+  for conformal mappings techniques with boundary tracing,
+    n . grad T == -T^4/A,
+  where A == 1.
   The steps as given in the thesis appendix are as follows:
     1. Choose a conformal mapping z == z(\[Xi])
-       > Pick z(\[Zeta]) == cosh(1 - \[Zeta])
+       > Pick z(\[Zeta]) == cosh(\[Zeta]),
+       > corresponding to elliptic coordinates.
     2. Choose an analytic function W == W(\[Xi])
-       > We simply choose W(\[Zeta]) == \[Zeta], one-dimensional in \[Zeta]-space.
+       > We pick W(\[Zeta]) == B - \[Zeta], where B == 2.
+       > Thus T == Re{W} == B - Re{\[Zeta]}.
     3. Write F and \[CapitalPhi] in terms of \[Zeta]
        > We have
-       >   F == -T == -Re^4{\[Zeta]}
+       >   F == -T == -Re^4{B - \[Zeta]}
        > and
-       >   \[CapitalPhi] == |csch(1 - \[Zeta])|^2 - Re^8{\[Zeta]}.
+       >   \[CapitalPhi] == |csch(\[Zeta])|^2 - Re^8{B - \[Zeta]}.
     4. Compute traced boundaries in \[Zeta]-space
        > We have
-       >   d\[Zeta]/ds == -i Re{\[Zeta]} \[PlusMinus] sqrt(|sech(1 - \[Zeta])|^2 - Re^8{\[Zeta]}).
+       >   d\[Zeta]/ds == (-i Re{\[Zeta]} \[PlusMinus] sqrt(|csch(\[Zeta])|^2 - Re^8{B - \[Zeta]})) / (-1).
     5. Map the resulting curves back to z-space
 *)
+
+
+(* ::Subsubsection:: *)
+(*Dimensionless constants*)
+
+
+(* Scaled radiation constant *)
+a = 1;
+(* Scaled maximum temperature *)
+b = 2;
 
 
 (* ::Subsubsection:: *)
 (*Transformation*)
 
 
-zOfZeta[zeta_] := Cosh[1 - zeta];
-zetaOfZ[z_] := 1 - ArcCosh[z];
+zOfZeta = Cosh;
+zetaOfZ = ArcCosh;
 
 
 (* Check *)
@@ -138,17 +151,31 @@ zOfZeta @ zetaOfZ[\[FormalZ]] == \[FormalZ]
 
 
 (* ::Subsubsection:: *)
+(*Analytic function*)
+
+
+w[zeta_] := b - zeta // Evaluate;
+
+
+(* ::Subsubsection:: *)
+(*Known solution*)
+
+
+temperature[zeta_] := Re @ w[zeta] // Evaluate;
+
+
+(* ::Subsubsection:: *)
 (*Flux*)
 
 
-flux[zeta_] := -Re[zeta]^4;
+flux[zeta_] := -Re[temperature[zeta]]^4 // Evaluate;
 
 
 (* ::Subsubsection:: *)
 (*Gradient squared*)
 
 
-gradSquared[zeta_] := 1 / zOfZeta'[zeta] // Abs[#]^2 & // Evaluate;
+gradSquared[zeta_] := w'[zeta] / zOfZeta'[zeta] // Abs[#]^2 & // Evaluate;
 
 
 (* ::Subsubsection:: *)
@@ -162,8 +189,8 @@ viability[zeta_] := gradSquared[zeta] - flux[zeta]^2 // Evaluate;
 (*Traced boundaries*)
 
 
-rhsUpper[zeta_] := -I flux[zeta] + Sqrt @ viability[zeta] // Evaluate;
-rhsLower[zeta_] := -I flux[zeta] - Sqrt @ viability[zeta] // Evaluate;
+rhsUpper[zeta_] := (I flux[zeta] + Sqrt @ viability[zeta]) / w'[zeta] // Evaluate;
+rhsLower[zeta_] := (I flux[zeta] - Sqrt @ viability[zeta]) / w'[zeta] // Evaluate;
 
 
 tracedUpper[zeta0_] :=
@@ -172,9 +199,16 @@ tracedUpper[zeta0_] :=
       {
         zeta'[s] == rhsUpper[zeta[s]],
         zeta[0] == zeta0,
-        WhenEvent[{Re @ zeta[s] < 0, Re @ zeta[s] > 1}, "StopIntegration"]
+        WhenEvent[
+          {
+            temperature @ zeta[s] < 0,
+            temperature @ zeta[s] > b,
+            viability @ zeta[s] < 0
+          },
+          "StopIntegration"
+        ]
       },
-      zeta, {s, -1, 1}
+      zeta, {s, -4, 4}
       , NoExtrapolation
     ]
   ]
@@ -186,9 +220,16 @@ tracedLower[zeta0_] :=
       {
         zeta'[s] == rhsLower[zeta[s]],
         zeta[0] == zeta0,
-        WhenEvent[{Re @ zeta[s] < 0, Re @ zeta[s] > 1}, "StopIntegration"]
+        WhenEvent[
+          {
+            temperature @ zeta[s] < 0,
+            temperature @ zeta[s] > b,
+            viability @ zeta[s] < 0
+          },
+          "StopIntegration"
+        ]
       },
-      zeta, {s, -1, 1}
+      zeta, {s, -4, 4}
       , NoExtrapolation
     ]
   ]
@@ -222,11 +263,12 @@ Module[{funList},
 
 
 Plot3D[
-  Re @ zetaOfZ[x + I y]
-  , {x, -2, 2}
-  , {y, -2, 2}
+  temperature @ zetaOfZ[x + I y]
+  , {x, -4, 4}
+  , {y, -4, 4}
   , BoxRatios -> Automatic
   , Exclusions -> None
+  , MeshFunctions -> (#3 &)
   , PlotRange -> {0, Full}
 ]
 
@@ -237,8 +279,8 @@ Plot3D[
 
 Plot3D[
   viability @ zetaOfZ[x + I y]
-  , {x, -2, 2}
-  , {y, -2, 2}
+  , {x, -4, 4}
+  , {y, -4, 4}
   , Exclusions -> None
   , PlotRange -> {0, Automatic}
 ]
@@ -256,13 +298,13 @@ Module[
     dummyForTrailingCommas
   },
   (* Plot range *)
-  {xMin, xMax} = {-2, 2};
-  {yMin, yMax} = {-1.5, 1.5};
+  {xMin, xMax} = {-4, 4};
+  {yMin, yMax} = {-3, 3};
   (* Plot range but more *)
   {xMinMore, xMaxMore, yMinMore, yMaxMore} =
     1.2 {xMin, xMax, yMin, yMax};
   (* Traced boundaries *)
-  zeta0List = Table[1/4 + I im, {im, Subdivide[0, 2 Pi, 16] // Most}];
+  zeta0List = Table[1.5 + I im, {im, Subdivide[0, 2 Pi, 16] // Most}];
   tracedUpperList = tracedUpper /@ zeta0List;
   tracedLowerList = tracedLower /@ zeta0List;
   (* Make plot *)
@@ -271,7 +313,7 @@ Module[
     ],
     (* Unphysical region *)
     RegionPlot[
-      Re @ zetaOfZ[x + I y] < 0
+      temperature @ zetaOfZ[x + I y] < 0
       , {x, xMinMore, xMaxMore}
       , {y, yMinMore, yMaxMore}
       , BoundaryStyle -> None
@@ -282,11 +324,11 @@ Module[
       Re @ zetaOfZ[x + I y]
       , {x, xMinMore, xMaxMore}
       , {y, yMinMore, yMaxMore}
-      , Contours -> Subdivide[0, 1, 4]
+      , Contours -> Subdivide[0, 2, 4]
       , ContourShading -> None
       , ContourStyle -> Black
       , Exclusions -> None
-      , PlotRange -> {0, 1}
+      , PlotRange -> {0, 2}
     ],
     (* Non-viable domain (nowhere) *)
     RegionPlot[
