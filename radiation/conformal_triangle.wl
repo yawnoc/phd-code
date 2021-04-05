@@ -65,6 +65,25 @@ zOfZeta[1] == 1
 zOfZeta'[\[FormalZeta]] == zOfZetaDerivative[\[FormalZeta]] // FullSimplify
 
 
+(* ::Subsection:: *)
+(*Known solution*)
+
+
+(* ::Subsubsection:: *)
+(*W(\[Zeta])*)
+
+
+rho0 = 1/5;
+w[zeta_] := Log[zeta / rho0] // Evaluate;
+
+
+(* ::Subsubsection:: *)
+(*Physical temperature*)
+
+
+temperature[zeta_] := Re @ w[zeta] // Evaluate;
+
+
 (* ::Section:: *)
 (*Visualise transformation*)
 
@@ -103,5 +122,34 @@ Module[
       , PlotRange -> Full
     ],
     {}
+  ]
+]
+
+
+(* ::Section:: *)
+(*Visualise known solution*)
+
+
+Module[
+  {
+    radMin, radMax,
+    angMin, angMax,
+    dummyForTrailingCommas
+  },
+  (* Plot range (\[Zeta]-space) *)
+  {radMin, radMax} = {rho0, 1};
+  {angMin, angMax} = {0, 2 Pi};
+  (* Make plot *)
+  ParametricPlot3D[
+    Append[
+      xyOfZeta[#],
+      temperature[#]
+    ] & [
+      rad Exp[I ang]
+    ]
+    , {rad, radMin, radMax}
+    , {ang, angMin, angMax}
+    , BoxRatios -> {Automatic, Automatic, 2.5}
+    , Exclusions -> None
   ]
 ]
