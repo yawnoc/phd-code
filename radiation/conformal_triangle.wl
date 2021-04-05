@@ -70,7 +70,7 @@ zOfZeta'[\[FormalZeta]] == zOfZetaDerivative[\[FormalZeta]] // FullSimplify
 
 
 (* ::Subsubsection:: *)
-(*W(\[Zeta])*)
+(*Analytical function, W(\[Zeta])*)
 
 
 rho0 = 1/5;
@@ -78,10 +78,37 @@ w[zeta_] := Log[zeta / rho0] // Evaluate;
 
 
 (* ::Subsubsection:: *)
-(*Physical temperature*)
+(*Physical temperature, Re{W}*)
 
 
 temperature[zeta_] := Re @ w[zeta] // Evaluate;
+
+
+(* ::Subsection:: *)
+(*Boundary condition*)
+
+
+(* ::Subsubsection:: *)
+(*Flux*)
+
+
+a = 1;
+flux[zeta_] := -temperature[zeta]^4 / a // Evaluate;
+
+
+(* ::Subsubsection:: *)
+(*Gradient squared*)
+
+
+gradSquared[zeta_] := Abs[w'[zeta] / zOfZetaDerivative[zeta]] ^ 2 // Evaluate;
+gradSquared[\[FormalZeta]] * constant^2
+
+
+(* ::Subsubsection:: *)
+(*Viability*)
+
+
+viability[zeta_] := gradSquared[zeta] - flux[zeta]^2 // Evaluate;
 
 
 (* ::Section:: *)
@@ -96,9 +123,9 @@ Module[
     dummyForTrailingCommas
   },
   (* Plot range (z-space) *)
-  {xMin, xMax} = {yMin, yMax} = 3 {-1, 1};
+  {xMin, xMax} = {yMin, yMax} = Norm[xyOfZeta[rho0]] {-1, 1};
   (* Contours (\[Zeta]-space) *)
-  radValues = Subdivide[0, 1, 8] // Rest;
+  radValues = Subdivide[rho0, 1, 6];
   {radMin, radMax} = MinMax[radValues];
   angValues = Subdivide[0, 2 Pi, 12];
   {angMin, angMax} = MinMax[angValues];
