@@ -111,6 +111,27 @@ gradSquared[\[FormalZeta]] * constant^2
 viability[zeta_] := gradSquared[zeta] - flux[zeta]^2 // Evaluate;
 
 
+(* ::Subsection:: *)
+(*Hyperbolic critical terminal point*)
+
+
+(* Principal point *)
+angHyperbolic = Pi/3;
+radHyperbolic = SeekRoot[
+  viability[# Exp[I angHyperbolic]] &,
+  {rho0, 1}
+];
+zetaHyperbolic = radHyperbolic * Exp[I angHyperbolic];
+
+
+(* ::Subsection:: *)
+(*Principal cubic root of unity*)
+
+
+omega = Exp[I 2 Pi/3];
+omega^3
+
+
 (* ::Section:: *)
 (*Visualise transformation*)
 
@@ -199,7 +220,7 @@ Module[
   angValues = Subdivide[0, 2 Pi, 12];
   {angMin, angMax} = MinMax[angValues];
   (* Styles *)
-  zetaContourStyle = Blue;
+  zetaContourStyle = Lighter[Blue];
   (* Make plot *)
   Show[
     (* Radial contours *)
@@ -227,6 +248,11 @@ Module[
       , PlotPoints -> 50
       , PlotStyle -> BoundaryTracingStyle["NonViable"]
     ],
+    (* Hyperbolic critical terminal points *)
+    Graphics @ {
+      Black, PointSize[Large],
+      Point @ Table[zetaHyperbolic * omega^k // ReIm, {k, 0, 2}]
+    },
     {}
   ]
 ]
