@@ -86,7 +86,7 @@ zOfZeta'[\[FormalZeta]] == zOfZetaDerivative[\[FormalZeta]] // FullSimplify
 (*Analytical function, W(\[Zeta])*)
 
 
-rho0 = 1/5;
+rho0 = 1/4;
 w[zeta_] := Log[zeta / rho0] // Evaluate;
 
 
@@ -105,7 +105,7 @@ temperature[zeta_] := Re @ w[zeta] // Evaluate;
 (*Flux*)
 
 
-a = 1;
+a = 1/2;
 flux[zeta_] := -temperature[zeta]^4 / a // Evaluate;
 
 
@@ -129,7 +129,7 @@ viability[zeta_] := gradSquared[zeta] - flux[zeta]^2 // Evaluate;
 
 
 (* Principal point *)
-viabilityTolerance = 10^-8;
+viabilityTolerance = 10^-6;
 angHyperbolic = Pi/3;
 radHyperbolic = SeekRootBisection[
   viability[# Exp[I angHyperbolic]] - viabilityTolerance &,
