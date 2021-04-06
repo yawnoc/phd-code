@@ -129,12 +129,91 @@ viability[zeta_] := gradSquared[zeta] - flux[zeta]^2 // Evaluate;
 
 
 (* Principal point *)
+viabilityTolerance = 10^-8;
 angHyperbolic = Pi/3;
-radHyperbolic = SeekRoot[
-  viability[# Exp[I angHyperbolic]] &,
+radHyperbolic = SeekRootBisection[
+  viability[# Exp[I angHyperbolic]] - viabilityTolerance &,
   {rho0, 1}
+  , viabilityTolerance / 1000
 ];
 zetaHyperbolic = radHyperbolic * Exp[I angHyperbolic];
+
+
+viability[zetaHyperbolic]
+
+
+(* ::Subsection:: *)
+(*Traced boundaries*)
+
+
+(* ::Subsubsection:: *)
+(*Solvers for ODE*)
+
+
+tracedRHS[zeta_, branchSign_: 1] :=
+  Divide[
+    I flux[zeta] + branchSign Sqrt[viability[zeta]],
+    w'[zeta]
+  ] // Evaluate;
+
+
+sMax = 1.5 zOfZeta[rho0] // Ceiling;
+
+
+tracedBoundary[zeta0_, branchSign_: 1, terminationViability_: 0] :=
+  Module[{zeta},
+    NDSolveValue[
+      {
+        zeta'[s] == tracedRHS[zeta[s], branchSign],
+        zeta[0] == zeta0,
+        WhenEvent[
+          {
+            Abs[zeta[s]] < rho0,
+            Abs[zeta[s]] > 1,
+            viability[zeta[s]] < terminationViability
+          },
+          "StopIntegration"
+        ]
+      },
+      zeta, {s, -sMax, sMax}
+      , NoExtrapolation
+    ]
+  ];
+
+
+(* ::Subsubsection:: *)
+(*Actual boundaries*)
+
+
+(* ::Subsubsubsection:: *)
+(*Starting points*)
+
+
+tracedTypeList = {"general", "hyperbolic"};
+
+
+zetaStartList["general"] =
+  Module[{rad, angValues},
+    rad = Way[rho0, radHyperbolic];
+    angValues = Subdivide[0, 2 Pi / 3, 5] // Most;
+    Table[rad Exp[I ang], {ang, angValues}]
+  ];
+
+
+zetaStartList["hyperbolic"] = {zetaHyperbolic};
+
+
+(* ::Subsubsubsection:: *)
+(*Boundaries*)
+
+
+Table[
+  zetaTracedList[type, branchSign] =
+    Table[tracedBoundary[zeta0, branchSign], {zeta0, zetaStartList[type]}
+    ];
+  , {type, tracedTypeList}
+  , {branchSign, {-1, 1}}
+];
 
 
 (* ::Section:: *)
@@ -217,6 +296,7 @@ Module[
     radValues, radMin, radMax,
     angValues, angMin, angMax,
     zetaContourStyle,
+    upperStyle, lowerStyle, hyperbolicStyle,
     dummyForTrailingCommas
   },
   (* Contours *)
@@ -225,7 +305,10 @@ Module[
   angValues = Subdivide[0, 2 Pi, 12];
   {angMin, angMax} = MinMax[angValues];
   (* Styles *)
-  zetaContourStyle = Lighter[Blue];
+  zetaContourStyle = Nest[Lighter, Blue, 3];
+  hyperbolicStyle = Directive[Thick, Black];
+  upperStyle = Blue;
+  lowerStyle = Red;
   (* Make plot *)
   Show[
     (* Radial contours *)
@@ -258,6 +341,25 @@ Module[
       Black, PointSize[Large],
       Point @ Table[zetaHyperbolic * omega^k // ReIm, {k, 0, 2}]
     },
+    (* Traced boundaries *)
+    Table[
+      Table[
+        ParametricPlot[
+          zeta[s] * omega^k // ReIm // Evaluate
+          , {s, DomainStart[zeta], DomainEnd[zeta]}
+          , PlotStyle -> Which[
+              type == "hyperbolic", hyperbolicStyle,
+              branchSign == 1, upperStyle,
+              branchSign == -1, lowerStyle,
+              True, Automatic
+            ]
+        ]
+        , {zeta, zetaTracedList[type, branchSign]}
+      ]
+      , {type, tracedTypeList}
+      , {branchSign, {-1, 1}}
+      , {k, 0, 2}
+    ],
     {}
   ]
 ]
