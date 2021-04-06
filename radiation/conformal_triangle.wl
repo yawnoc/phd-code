@@ -86,7 +86,7 @@ zOfZeta'[\[FormalZeta]] == zOfZetaDerivative[\[FormalZeta]] // FullSimplify
 (*Analytical function, W(\[Zeta])*)
 
 
-rho0 = 1/4;
+rho0 = 0.2;
 w[zeta_] := Log[zeta / rho0] // Evaluate;
 
 
@@ -105,8 +105,8 @@ temperature[zeta_] := Re @ w[zeta] // Evaluate;
 (*Flux*)
 
 
-a = 1/2;
-flux[zeta_] := -temperature[zeta]^4 / a // Evaluate;
+a = 1.5;
+flux[zeta_] := -temperature[zeta] / a // Evaluate;
 
 
 (* ::Subsubsection:: *)
