@@ -363,3 +363,79 @@ Module[
     {}
   ]
 ]
+
+
+(* ::Section:: *)
+(*z-space visualisation*)
+
+
+Module[
+  {
+    xMin, xMax, yMin, yMax,
+    radValues, radMin, radMax,
+    angValues, angMin, angMax,
+    zetaContourStyle,
+    upperStyle, lowerStyle, hyperbolicStyle,
+    dummyForTrailingCommas
+  },
+  (* Plot range (z-space) *)
+  {xMin, xMax} = {yMin, yMax} = Norm[xyOfZeta[rho0]] {-1, 1};
+  (* Contours (\[Zeta]-space) *)
+  radValues = Subdivide[rho0, 1, 6];
+  {radMin, radMax} = MinMax[radValues];
+  angValues = Subdivide[0, 2 Pi, 12];
+  {angMin, angMax} = MinMax[angValues];
+  (* Styles *)
+  zetaContourStyle = Nest[Lighter, Blue, 3];
+  hyperbolicStyle = Directive[Thick, Black];
+  upperStyle = Blue;
+  lowerStyle = Red;
+  (* Make plot *)
+  Show[
+    EmptyFrame[{xMin, xMax}, {yMin, yMax}
+      , ImageSize -> 360
+    ],
+    (* Radial contours *)
+    ParametricPlot[
+      Table[rad Exp[I ang] // xyOfZeta, {rad, radValues}]
+      , {ang, angMin, angMax}
+      , PlotPoints -> 2
+      , PlotRange -> Full
+      , PlotStyle -> zetaContourStyle
+    ],
+    (* Azimuthal contours *)
+    ParametricPlot[
+      Table[rad Exp[I ang] // xyOfZeta, {ang, angValues}]
+      , {rad, radMin, radMax}
+      , PlotPoints -> 2
+      , PlotRange -> Full
+      , PlotStyle -> zetaContourStyle
+    ],
+    (* Hyperbolic critical terminal points *)
+    Graphics @ {
+      Black, PointSize[Large],
+      Point @ Table[zetaHyperbolic * omega^k // xyOfZeta, {k, 0, 2}]
+    },
+    (* Traced boundaries *)
+    Table[
+      Table[
+        ParametricPlot[
+          zeta[s] * omega^k // xyOfZeta // Evaluate
+          , {s, DomainStart[zeta], DomainEnd[zeta]}
+          , PlotPoints -> 2
+          , PlotStyle -> Which[
+              type == "hyperbolic", hyperbolicStyle,
+              branchSign == 1, upperStyle,
+              branchSign == -1, lowerStyle,
+              True, Automatic
+            ]
+        ]
+        , {zeta, zetaTracedList[type, branchSign]}
+      ]
+      , {type, tracedTypeList}
+      , {branchSign, {-1, 1}}
+      , {k, 0, 2}
+    ],
+    {}
+  ]
+]
