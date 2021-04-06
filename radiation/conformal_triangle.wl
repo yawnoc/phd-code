@@ -180,3 +180,53 @@ Module[
     , Exclusions -> None
   ]
 ]
+
+
+(* ::Section:: *)
+(*\[Zeta]-space visualisation*)
+
+
+Module[
+  {
+    radValues, radMin, radMax,
+    angValues, angMin, angMax,
+    zetaContourStyle,
+    dummyForTrailingCommas
+  },
+  (* Contours *)
+  radValues = Subdivide[rho0, 1, 6];
+  {radMin, radMax} = MinMax[radValues];
+  angValues = Subdivide[0, 2 Pi, 12];
+  {angMin, angMax} = MinMax[angValues];
+  (* Styles *)
+  zetaContourStyle = Blue;
+  (* Make plot *)
+  Show[
+    (* Radial contours *)
+    ParametricPlot[
+      Table[rad Exp[I ang] // ReIm, {rad, radValues}]
+      , {ang, angMin, angMax}
+      , PlotPoints -> 2
+      , PlotRange -> Full
+      , PlotStyle -> zetaContourStyle
+    ],
+    (* Azimuthal contours *)
+    ParametricPlot[
+      Table[rad Exp[I ang] // ReIm, {ang, angValues}]
+      , {rad, radMin, radMax}
+      , PlotPoints -> 2
+      , PlotRange -> Full
+      , PlotStyle -> zetaContourStyle
+    ],
+    (* Non-viable domain *)
+    RegionPlot[
+      viability[xx + I yy] < 0
+      , {xx, -2 radMax, 2 radMax}
+      , {yy, -2 radMax, 2 radMax}
+      , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
+      , PlotPoints -> 50
+      , PlotStyle -> BoundaryTracingStyle["NonViable"]
+    ],
+    {}
+  ]
+]
