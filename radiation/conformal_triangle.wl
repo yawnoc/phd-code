@@ -195,7 +195,7 @@ tracedTypeList = {"general", "hyperbolic"};
 zetaStartList["general"] =
   Module[{rad, angValues},
     rad = Way[rho0, radHyperbolic];
-    angValues = Subdivide[0, 2 Pi / 3, 5] // Most;
+    angValues = 2 Pi / 3 {0.25, 0.5, 0.75};
     Table[rad Exp[I ang], {ang, angValues}]
   ];
 
