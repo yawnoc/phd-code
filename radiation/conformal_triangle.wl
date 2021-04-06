@@ -60,8 +60,21 @@ zOfZeta[zeta_] := zOfZeta[zeta, constant] // Evaluate;
 xyOfZeta[zeta_] := ReIm @ zOfZeta[zeta] // Evaluate;
 
 
-(* Check *)
+(* ::Subsubsection:: *)
+(*Principal cubic root of unity*)
+
+
+omega = Exp[I 2 Pi/3];
+omega^3
+
+
+(* ::Subsubsection:: *)
+(*Checks*)
+
+
 zOfZeta[1] == 1
+zOfZeta[omega^2] == omega
+zOfZeta[omega] == omega^2
 zOfZeta'[\[FormalZeta]] == zOfZetaDerivative[\[FormalZeta]] // FullSimplify
 
 
@@ -122,14 +135,6 @@ radHyperbolic = SeekRoot[
   {rho0, 1}
 ];
 zetaHyperbolic = radHyperbolic * Exp[I angHyperbolic];
-
-
-(* ::Subsection:: *)
-(*Principal cubic root of unity*)
-
-
-omega = Exp[I 2 Pi/3];
-omega^3
 
 
 (* ::Section:: *)
