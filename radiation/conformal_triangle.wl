@@ -690,3 +690,102 @@ Module[
     , PlotRange -> Full
   ]
 ]
+
+
+(* ::Section:: *)
+(*Figure: polar grid (conformal_triangle-grid-*-space)*)
+
+
+(* ::Subsection:: *)
+(*\[Zeta]-space*)
+
+
+Module[
+  {
+    radValues, radMin, radMax,
+    angValues, angMin, angMax,
+    radMarkerRad, angMarkerRad,
+    radMarkerAng, angMarkerAng,
+    axesLabel, textStyle,
+    dummyForTrailingCommas
+  },
+  (* Contours *)
+  radValues = Subdivide[0, 1, 6];
+  {radMin, radMax} = MinMax[radValues];
+  angValues = Subdivide[0, 2 Pi, 12];
+  {angMin, angMax} = MinMax[angValues];
+  (* Polar coordinate markers *)
+  radMarkerRad = radValues[[-2]];
+  angMarkerRad = radValues[[-4]];
+  radMarkerAng = angMarkerAng = angValues[[2]];
+  (* Make plot *)
+  axesLabel[string_] := Row @ {string, " ", "\[Zeta]" // LaTeXStyle};
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  Show[
+    EmptyFrame[{-1, 1}, {-1, 1}
+      , FrameLabel -> {
+          axesLabel["Re"] // Margined @ {{0, 0}, {0, -15}},
+          axesLabel["Im"] // Margined @ {{0, -4}, {0, 0}}
+        }
+      , FrameTicksStyle -> LabelSize["Tick"]
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+      , PlotRangePadding -> Scaled[0.03]
+    ],
+    (* Azimuthal contours *)
+    ParametricPlot[
+      Table[rad Exp[I ang] // ReIm, {ang, angValues}]
+      , {rad, radMin, radMax}
+      , PlotPoints -> 2
+      , PlotRange -> Full
+      , PlotStyle -> BoundaryTracingStyle["Background"]
+    ],
+    (* Radial contours (\[Rho] < 1) *)
+    ParametricPlot[
+      Table[rad Exp[I ang] // ReIm, {rad, radValues // Most}]
+      , {ang, angMin, angMax}
+      , PlotPoints -> 2
+      , PlotRange -> Full
+      , PlotStyle -> BoundaryTracingStyle["Background"]
+    ],
+    (* Radial contours (\[Rho] == 1) *)
+    ParametricPlot[
+      Table[rad Exp[I ang] // ReIm, {rad, radValues // Last // List}]
+      , {ang, angMin, angMax}
+      , PlotPoints -> 2
+      , PlotRange -> Full
+      , PlotStyle -> BoundaryTracingStyle["Contour"]
+    ],
+    (* Radial coordinate marker *)
+    ParametricPlot[
+      Table[rad Exp[I ang] // ReIm, {ang, {radMarkerAng}}]
+      , {rad, radMin, radMarkerRad}
+      , PlotPoints -> 2
+      , PlotRange -> Full
+      , PlotStyle -> Black
+    ] /. {line_Line :> {Arrowheads @ {{0.06, 1}}, Arrow[line]}},
+    Graphics @ {
+      Text[
+        "\[Rho]" // textStyle
+        , 0.83 radMarkerRad * Exp[I radMarkerAng] // ReIm
+        , {0, -1.1}
+      ]
+    },
+    (* Angular coordinate marker *)
+    ParametricPlot[
+      Table[rad Exp[I ang] // ReIm, {rad, {angMarkerRad}}]
+      , {ang, angMin, angMarkerAng}
+      , PlotPoints -> 2
+      , PlotRange -> Full
+      , PlotStyle -> Black
+    ] /. {line_Line :> {Arrowheads @ {{0.06, 0.97}}, Arrow[line]}},
+    Graphics @ {
+      Text[
+        "\[CurlyPhi]" // textStyle
+        , angMarkerRad * Exp[I 2/3 angMarkerAng] // ReIm
+        , {-2.25, 0}
+      ]
+    },
+    {}
+    , ImageSize -> 0.47 ImageSizeTextWidth
+  ]
+] // Ex["conformal_triangle-grid-zeta-space.pdf"]
