@@ -9,6 +9,7 @@
 
 
 SetDirectory @ ParentDirectory @ NotebookDirectory[];
+<< NDSolve`FEM`
 << Conway`
 << FigureStyles`
 SetDirectory @ FileNameJoin @ {NotebookDirectory[], "conformal_triangle"};
@@ -410,6 +411,48 @@ Module[
       , PlotPoints -> 2
       , PlotRange -> Full
       , PlotStyle -> zetaContourStyle
+    ],
+    (* Non-viable domain *)
+    (*
+      The inverse map \[Zeta](z) is expensive to compute,
+      so we instead generate the region in \[Zeta]-space
+      and map forward to z-space, which is cheap.
+      Credit to Michael E2 for the implementation,
+      see <https://mathematica.stackexchange.com/a/85922>.
+    *)
+    Module[
+      {
+        zetaRegion, zetaBoundaryRegion,
+        fun, zBoundaryMesh, zMesh, zRegion,
+        dummyForTrailingCommas1
+      },
+      (* \[Zeta]-space *)
+      zetaRegion =
+        DiscretizeGraphics @ RegionPlot[
+          viability[xx + I yy] < 0 && rho0 < Abs[xx + I yy] < 1
+          , {xx, -2 radMax, 2 radMax}
+          , {yy, -2 radMax, 2 radMax}
+        ];
+      zetaBoundaryRegion = BoundaryMesh[zetaRegion];
+      (* Forward transformation *)
+      fun = Function[{xx, yy}, xyOfZeta[xx + I yy]];
+      zBoundaryMesh =
+        ToBoundaryMesh[
+          "Coordinates" -> fun @@@ MeshCoordinates[zetaBoundaryRegion],
+          "BoundaryElements" -> {LineElement @@ Thread[MeshCells[zetaBoundaryRegion, 1], Line]}
+        ];
+      (* z-space *)
+      zMesh =
+        ToElementMesh[zBoundaryMesh
+          , MaxCellMeasure -> {"Area" -> Infinity}
+          , "MeshOrder" -> 1
+        ];
+      zRegion = MeshRegion[zMesh];
+      (* Plot *)
+      RegionPlot[zRegion
+        , BoundaryStyle -> None(*BoundaryTracingStyle["Terminal"]*)
+        , PlotStyle -> BoundaryTracingStyle["NonViable"]
+      ]
     ],
     (* Hyperbolic critical terminal points *)
     Graphics @ {
