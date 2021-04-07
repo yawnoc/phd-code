@@ -923,7 +923,7 @@ Module[
     , Boxed -> {Back, Bottom, Left}
     , BoxRatios -> {Automatic, Automatic, 3.5}
     , Exclusions -> None
-    , ImageSize -> 0.4 ImageSizeTextWidth
+    , ImageSize -> 0.48 ImageSizeTextWidth
     , LabelStyle -> LatinModernLabelStyle[LabelSize["Axis"] - 1]
     , Lighting -> GeneralStyle["AmbientLighting"]
     , Mesh -> {5, 8}
