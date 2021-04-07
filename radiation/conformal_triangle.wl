@@ -601,7 +601,18 @@ Module[
 
 
 (* ::Section:: *)
-(*Verification comparison*)
+(*Numerical verification*)
+
+
+(* ::Subsection:: *)
+(*Visualise mesh*)
+
+
+verificationMesh["Wireframe"]
+
+
+(* ::Subsection:: *)
+(*Comparison direct plot*)
 
 
 Module[
@@ -635,5 +646,40 @@ Module[
       , PlotStyle -> Directive[Opacity[0.7], Blue]
     ],
     {}
+  ]
+]
+
+
+(* ::Subsubsection:: *)
+(*Relative error on mesh (by z-coordinates)*)
+
+
+Module[
+  {
+    radValues, angValues,
+    zetaValues, exactSolution,
+    relativeError,
+    x, y,
+    dummyForTrailingCommas
+  },
+  (* Exact solution on mesh (z-space) *)
+  radValues = Subdivide[rho0, 1, 100];
+  angValues = Subdivide[0, 2 Pi, 100];
+  zetaValues = Join @@ Table[
+    rad Exp[I ang]
+    , {rad, radValues}
+    , {ang, angValues}
+  ];
+  exactSolution = Interpolation[
+    Table[
+      {xyOfZeta[zeta], temperature[zeta]}
+      , {zeta, zetaValues // DeleteDuplicates}
+    ]
+    , InterpolationOrder -> 1
+  ];
+  (* Relative error *)
+  relativeError[x_, y_] := verificationSolution[x, y] / exactSolution[x, y] - 1;
+  Plot3D[relativeError[x, y], Element[{x, y}, verificationMesh]
+    , PlotRange -> Full
   ]
 ]
