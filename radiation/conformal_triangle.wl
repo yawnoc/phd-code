@@ -817,13 +817,13 @@ Module[
   angMarkerRad = radValues[[-4]];
   radMarkerAng = angMarkerAng = angValues[[2]];
   (* Make plot *)
-  axesLabel[string_] := Row @ {string, " ", Italicise["z"]};
+  axesLabel[string_] := Row @ {string, "\[ThinSpace]", Italicise["z"]};
   textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   Show[
     EmptyFrame[{xMin, xMax}, {yMin, yMax}
       , FrameLabel -> {
           axesLabel["Re"] // Margined @ {{0, 0}, {0, -15}},
-          axesLabel["Im"] // Margined @ {{0, -3}, {0, 0}}
+          axesLabel["Im"] // Margined @ {{0, -2}, {0, 0}}
         }
       , FrameTicksStyle -> LabelSize["Tick"]
       , LabelStyle -> LatinModernLabelStyle[LabelSize["Axis"] - 1]
