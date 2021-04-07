@@ -419,6 +419,8 @@ Module[
       and map forward to z-space, which is cheap.
       Credit to Michael E2 for the implementation,
       see <https://mathematica.stackexchange.com/a/85922>.
+      Re-use permission granted in comments, see archived version:
+      <https://web.archive.org/web/20210407060154/https://mathematica.stackexchange.com/questions/85919/transforming-a-region-obtained-with-regionplot>
     *)
     Module[
       {
