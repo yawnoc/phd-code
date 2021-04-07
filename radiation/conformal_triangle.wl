@@ -87,7 +87,8 @@ zOfZeta'[\[FormalZeta]] == zOfZetaDerivative[\[FormalZeta]] // FullSimplify
 (*Analytical function, W(\[Zeta])*)
 
 
-rho0 = 0.2;
+b = 1.6;
+rho0 = Exp[-b];
 w[zeta_] := Log[zeta / rho0] // Evaluate;
 
 
