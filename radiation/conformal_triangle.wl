@@ -728,7 +728,7 @@ Module[
           axesLabel["Im"] // Margined @ {{0, -4}, {0, 0}}
         }
       , FrameTicksStyle -> LabelSize["Tick"]
-      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+      , LabelStyle -> LatinModernLabelStyle[LabelSize["Axis"] - 1]
       , PlotRangePadding -> Scaled[0.03]
     ],
     (* Azimuthal contours *)
@@ -767,7 +767,7 @@ Module[
       Text[
         "\[Rho]" // textStyle
         , 0.83 radMarkerRad * Exp[I radMarkerAng] // ReIm
-        , {0, -1.1}
+        , {0, -1.15}
       ]
     },
     (* Angular coordinate marker *)
@@ -826,7 +826,7 @@ Module[
           axesLabel["Im"] // Margined @ {{0, -3}, {0, 0}}
         }
       , FrameTicksStyle -> LabelSize["Tick"]
-      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+      , LabelStyle -> LatinModernLabelStyle[LabelSize["Axis"] - 1]
     ],
     (* Azimuthal contours *)
     ParametricPlot[
