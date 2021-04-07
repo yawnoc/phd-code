@@ -312,6 +312,25 @@ Module[
 ]
 
 
+(* ::Subsubsection:: *)
+(*Solve boundary value problem*)
+
+
+verificationSolution =
+  With[{x = \[FormalX], y = \[FormalY], t = \[FormalCapitalT]},
+    NDSolveValue[
+      {
+        (* Steady state heat equation *)
+        -Laplacian[t[x, y], {x, y}] ==
+          (* Outer (flux) boundary condition *)
+          NeumannValue[-t[x, y] / a, verificationPredicateOuter[x, y]],
+        (* Inner (constant temperature) boundary condition *)
+        DirichletCondition[t[x, y] == Log[1 / rho0], verificationPredicateInner[x, y]]
+      }, t, Element[{x, y}, verificationMesh]
+    ]
+  ];
+
+
 (* ::Section:: *)
 (*Visualise transformation*)
 
@@ -575,6 +594,45 @@ Module[
       , {type, tracedTypeList}
       , {branchSign, {-1, 1}}
       , {k, 0, 2}
+    ],
+    {}
+  ]
+]
+
+
+(* ::Section:: *)
+(*Verification comparison*)
+
+
+Module[
+  {
+    radMin, radMax,
+    angMin, angMax,
+    x, y,
+    dummyForTrailingCommas
+  },
+  (* Plot range (\[Zeta]-space) for exact solution *)
+  {radMin, radMax} = {rho0, 1};
+  {angMin, angMax} = {0, 2 Pi};
+  (* Make plot *)
+  Show[
+    (* Exact solution *)
+    ParametricPlot3D[
+      Append[
+        xyOfZeta[#],
+        temperature[#]
+      ] & [
+        rad Exp[I ang]
+      ]
+      , {rad, radMin, radMax}
+      , {ang, angMin, angMax}
+      , BoxRatios -> {Automatic, Automatic, 2.5}
+      , Exclusions -> None
+    ],
+    (* Numerical solution *)
+    Plot3D[
+      verificationSolution[x, y], Element[{x, y}, verificationMesh]
+      , PlotStyle -> Directive[Opacity[0.7], Blue]
     ],
     {}
   ]
