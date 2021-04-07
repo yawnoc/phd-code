@@ -1176,3 +1176,62 @@ Module[{legendLabelStyle},
     , ItemAspectRatio -> 0.11
   ]
 ] // Ex["conformal_triangle-traced-boundaries-legend.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: domain (conformal_triangle-domain)*)
+
+
+Module[
+  {
+    xMin, xMax, yMin, yMax,
+    radValues, radMin, radMax,
+    angValues, angMin, angMax,
+    axesLabel,
+    dummyForTrailingCommas
+  },
+  (* Plot range (z-space) *)
+  {xMin, xMax} = {yMin, yMax} =
+    1.15 Abs[zOfZeta @ zetaTracedVerification[sVerificationEnd]] {-1, 1};
+  (* Contours (\[Zeta]-space) *)
+  radValues = Subdivide[0, 1, 6] /. {0 -> rho0/2};
+  {radMin, radMax} = MinMax[radValues];
+  angValues = Subdivide[0, 2 Pi, 12];
+  {angMin, angMax} = MinMax[angValues];
+  (* Make plot *)
+  axesLabel[string_] := Row @ {string, "\[ThinSpace]", Italicise["z"]};
+  Show[
+    EmptyFrame[{xMin, xMax}, {yMin, yMax}
+      , FrameLabel -> {
+          axesLabel["Re"] // Margined @ {{0, 0}, {0, -15}},
+          axesLabel["Im"] // Margined @ {{0, -1}, {0, 0}}
+        }
+      , FrameTicksStyle -> LabelSize["Tick"]
+      , LabelStyle -> LatinModernLabelStyle[LabelSize["Axis"] - 1]
+    ],
+    (* Radial contour \[Rho] == 1 (which is the triangle in z-space) *)
+    ParametricPlot[
+      Table[rad Exp[I ang] // xyOfZeta, {rad, radValues // Last // List}]
+      , {ang, angMin, angMax}
+      , PlotPoints -> 2
+      , PlotRange -> Full
+      , PlotStyle -> BoundaryTracingStyle["Contour"]
+    ],
+    (* Traced boundaries *)
+    Table[
+      Table[
+        ParametricPlot[
+          reflect[zeta[s]] * omega^k // xyOfZeta // Evaluate
+          , {s, sVerificationStart, sVerificationEnd}
+          , PlotPoints -> 2
+          , PlotStyle -> BoundaryTracingStyle["Traced"]
+        ]
+        , {zeta, {zetaTracedVerification}}
+        , {reflect, {Identity, Conjugate}}
+      ]
+      , {k, 0, 2}
+    ],
+    {}
+    , ImageSize -> 0.44 ImageSizeTextWidth
+  ]
+] // Ex["conformal_triangle-domain.pdf"]
