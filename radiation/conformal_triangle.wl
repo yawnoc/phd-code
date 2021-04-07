@@ -326,7 +326,7 @@ verificationSolution =
           (* Outer (flux) boundary condition *)
           NeumannValue[-t[x, y] / a, verificationPredicateOuter[x, y]],
         (* Inner (constant temperature) boundary condition *)
-        DirichletCondition[t[x, y] == Log[1 / rho0], verificationPredicateInner[x, y]]
+        DirichletCondition[t[x, y] == b, verificationPredicateInner[x, y]]
       }, t, Element[{x, y}, verificationMesh]
     ]
   ];
