@@ -786,7 +786,7 @@ Module[
       ]
     },
     {}
-    , ImageSize -> 0.47 ImageSizeTextWidth
+    , ImageSize -> {0.47, 0.48} ImageSizeTextWidth
   ]
 ] // Ex["conformal_triangle-grid-zeta-space.pdf"]
 
@@ -883,6 +883,6 @@ Module[
       ]
     },
     {}
-    , ImageSize -> 0.47 ImageSizeTextWidth
+    , ImageSize -> {0.47, 0.48} ImageSizeTextWidth
   ]
 ] // Ex["conformal_triangle-grid-z-space.pdf"]
