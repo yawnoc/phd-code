@@ -939,7 +939,7 @@ Module[
 
 
 (* ::Section:: *)
-(*Figure: traced boundaries (conformal_triangle-traced-boundaries-*-space)*)
+(*Figure: traced boundaries (conformal_triangle-traced-boundaries-*)*)
 
 
 (* ::Subsection:: *)
@@ -1144,3 +1144,35 @@ Module[
     , ImageSize -> {0.47, 0.48} ImageSizeTextWidth
   ]
 ] // Ex["conformal_triangle-traced-boundaries-z-space.pdf"]
+
+
+(* ::Subsection:: *)
+(*Legend*)
+
+
+Module[{legendLabelStyle},
+  legendLabelStyle = LatinModernLabelStyle @ LabelSize["Legend"];
+  GraphicsGrid[
+    Transpose @ {
+      CurveLegend[
+        {BoundaryTracingStyle["Traced"]},
+        {"traced boundary"}
+        , LabelStyle -> legendLabelStyle
+      ],
+      RegionLegend[
+        {BoundaryTracingStyle["NonViable"]},
+        {"non\[Hyphen]viable domain"}
+        , LabelStyle -> legendLabelStyle
+      ],
+      RegionLegend[
+        {BoundaryTracingStyle["Unphysical"]},
+        {"unphysical region"}
+        , LabelStyle -> legendLabelStyle
+      ],
+      Nothing
+    }
+    , Alignment -> Left
+    , ImageSize -> ImageSizeTextWidth
+    , ItemAspectRatio -> 0.11
+  ]
+] // Ex["conformal_triangle-traced-boundaries-legend.pdf"]
