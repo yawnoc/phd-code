@@ -886,3 +886,53 @@ Module[
     , ImageSize -> {0.47, 0.48} ImageSizeTextWidth
   ]
 ] // Ex["conformal_triangle-grid-z-space.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: known solution (conformal_triangle-known-solution)*)
+
+
+Module[
+  {
+    radMin, radMax,
+    angMin, angMax,
+    axesLabel,
+    dummyForTrailingCommas
+  },
+  (* Plot range (\[Zeta]-space) *)
+  {radMin, radMax} = {rho0, 1};
+  {angMin, angMax} = {0, 2 Pi};
+  (* Make plot *)
+  axesLabel[string_] := Row @ {string, "\[ThinSpace]", Italicise["z"]};
+  ParametricPlot3D[
+    Append[
+      xyOfZeta[#],
+      temperature[#]
+    ] & [
+      rad Exp[I ang]
+    ]
+    , {rad, radMin, radMax}
+    , {ang, angMin, angMax}
+    , AxesEdge -> {{-1, -1}, {+1, -1}, {-1, -1}}
+    , AxesLabel -> {
+        axesLabel["Re"] // Margined @ {{5, 0}, {0, -2}},
+        axesLabel["Im"] // Margined @ {{3, 0}, {0, 0}},
+        Italicise["T"] // Margined @ {{0, 0}, {0, 30}}
+      }
+    , BoundaryStyle -> BoundaryTracingStyle["Edge3D"]
+    , Boxed -> {Back, Bottom, Left}
+    , BoxRatios -> {Automatic, Automatic, 3.5}
+    , Exclusions -> None
+    , ImageSize -> 0.4 ImageSizeTextWidth
+    , LabelStyle -> LatinModernLabelStyle[LabelSize["Axis"] - 1]
+    , Lighting -> GeneralStyle["AmbientLighting"]
+    , Mesh -> {5, 8}
+    , MeshStyle -> BoundaryTracingStyle["Edge3D"]
+    , PlotPoints -> 50
+    , PlotStyle -> Directive[GeneralStyle["Translucent"], BoundaryTracingStyle["Solution3D"]]
+    , TicksStyle -> LabelSize["Tick"]
+  ]
+] // Ex["conformal_triangle-known-solution.png"
+  , Background -> None
+  , ImageResolution -> 4 BasicImageResolution
+]
