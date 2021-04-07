@@ -217,6 +217,101 @@ Table[
 ];
 
 
+(* ::Subsection:: *)
+(*Numerical verification*)
+
+
+(* ::Subsubsection:: *)
+(*Portion of hyperbolic traced boundary*)
+
+
+zetaTracedVerification = zetaTracedList["hyperbolic", -1] // First;
+
+
+sVerificationStart = 0;
+sVerificationEnd =
+  SeekRoot[
+    Arg @ zetaTracedVerification[#] &,
+    {sVerificationStart, DomainEnd[zetaTracedVerification]}
+  ];
+
+
+(* ::Subsubsection:: *)
+(*Finite element mesh*)
+
+
+Module[
+  {
+    spacingZeta, spacingZ,
+    outerZetaListOneSixth, outerZetaListOneThird, outerZetaList,
+    outerZList, outerXYList, outerInradius,
+    innerZListOneThird, innerZList, innerXYList, innerCircumradius,
+    numPointsOuter, numPointsInner, mod,
+    boundaryMesh, mesh,
+    discriminatingRadius, predicateOuter, predicateInner,
+    dummyForTrailingCommas
+  },
+  (* Spacing of points in \[Zeta]- and z-space *)
+  spacingZeta = 0.1;
+  spacingZ = 0.1;
+  (* Outer boundary (flux condition) *)
+  outerZetaListOneSixth =
+    Table[
+      zetaTracedVerification[s]
+      , {s, UniformRange[sVerificationStart, sVerificationEnd, spacingZeta]}
+    ];
+  outerZetaListOneThird =
+    Join[
+      outerZetaListOneSixth,
+      outerZetaListOneSixth // Conjugate // Most // Reverse,
+      {}
+    ] // Most;
+  outerZetaList = Join @@ Table[outerZetaListOneThird / omega^k, {k, 0, 2}];
+  outerZList = zOfZeta /@ outerZetaList;
+  outerXYList = ReIm[outerZList];
+  outerInradius = Min @ Abs[outerZList];
+  (* Inner boundary (constant temperature) *)
+  innerZListOneThird = Subdivide[1, omega, Abs[omega - 1] / spacingZ // Ceiling] // Most;
+  innerZList = Join @@ Table[innerZListOneThird * omega^k, {k, 0, 2}];
+  innerXYList = ReIm[innerZList];
+  innerCircumradius = Max @ Abs[innerZList];
+  (* Numbering *)
+  numPointsOuter = Length[outerXYList];
+  numPointsInner = Length[innerXYList];
+  mod[n_] := Mod[#, n, 1] &;
+  (* Build boundary mesh *)
+  boundaryMesh = ToBoundaryMesh[
+    "Coordinates" -> Join[outerXYList, innerXYList],
+    "BoundaryElements" -> {
+      LineElement[
+        Table[{n, n+1}, {n, numPointsOuter}] // mod[numPointsOuter]
+      ],
+      LineElement[
+        numPointsOuter
+          +
+        (Table[{n, n+1}, {n, numPointsInner}] // mod[numPointsInner])
+      ]
+    }
+  ];
+  (* Build mesh *)
+  mesh = ToElementMesh[boundaryMesh
+    , "ImproveBoundaryPosition" -> True
+    , "RegionHoles" -> {0, 0}
+  ];
+  (* Predicate functions for boundaries *)
+  discriminatingRadius = Way[innerCircumradius, outerInradius];
+  If[Not[innerCircumradius < discriminatingRadius < outerInradius],
+    Print["WARNING: bad discriminatingRadius for boundary predicate functions"];
+  ];
+  predicateOuter = Function[{x, y}, Abs[x + I y] > discriminatingRadius // Evaluate];
+  predicateInner = Function[{x, y}, Abs[x + I y] < discriminatingRadius // Evaluate];
+  (* Store in global variables *)
+  verificationMesh = mesh;
+  verificationPredicateOuter = predicateOuter;
+  verificationPredicateInner = predicateInner;
+]
+
+
 (* ::Section:: *)
 (*Visualise transformation*)
 
