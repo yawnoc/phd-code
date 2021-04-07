@@ -47,6 +47,12 @@ zOfZeta[\[FormalZeta], \[FormalCapitalC]]
 
 
 constant = 1 / zOfZeta[1, 1];
+-1/constant == Hypergeometric2F1[-2/3, -1/3, 2/3, 1]
+zOfZeta[\[FormalZeta]] ==
+  Divide[
+    Hypergeometric2F1[-2/3, -1/3, 2/3, \[FormalZeta]^3],
+    \[FormalZeta] Hypergeometric2F1[-2/3, -1/3, 2/3, 1]
+  ]
 {constant, constant // N}
 
 
