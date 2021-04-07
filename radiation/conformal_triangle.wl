@@ -936,3 +936,85 @@ Module[
   , Background -> None
   , ImageResolution -> 4 BasicImageResolution
 ]
+
+
+(* ::Section:: *)
+(*Figure: traced boundaries (conformal_triangle-traced-boundaries-*-space)*)
+
+
+(* ::Subsection:: *)
+(*\[Zeta]-space*)
+
+
+Module[
+  {
+    radValues, radMin, radMax,
+    angValues, angMin, angMax,
+    radMarkerRad, angMarkerRad,
+    radMarkerAng, angMarkerAng,
+    axesLabel, textStyle,
+    dummyForTrailingCommas
+  },
+  (* Contours *)
+  radValues = Subdivide[0, 1, 6];
+  {radMin, radMax} = MinMax[radValues];
+  angValues = Subdivide[0, 2 Pi, 12];
+  {angMin, angMax} = MinMax[angValues];
+  (* Polar coordinate markers *)
+  radMarkerRad = radValues[[-2]];
+  angMarkerRad = radValues[[-4]];
+  radMarkerAng = angMarkerAng = angValues[[2]];
+  (* Make plot *)
+  axesLabel[string_] := Row @ {string, " ", "\[Zeta]" // LaTeXStyle};
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  Show[
+    EmptyFrame[{-1, 1}, {-1, 1}
+      , FrameLabel -> {
+          axesLabel["Re"] // Margined @ {{0, 0}, {0, -15}},
+          axesLabel["Im"] // Margined @ {{0, -4}, {0, 0}}
+        }
+      , FrameTicksStyle -> LabelSize["Tick"]
+      , LabelStyle -> LatinModernLabelStyle[LabelSize["Axis"] - 1]
+      , PlotRangePadding -> Scaled[0.03]
+    ],
+    (* Non-viable domain *)
+    RegionPlot[
+      viability[xx + I yy] < 0
+        && Abs[xx + I yy] < 1
+        && temperature[xx + I yy] > 0
+      , {xx, -radMax, radMax}
+      , {yy, -radMax, radMax}
+      , BoundaryStyle -> None
+      , PlotPoints -> 15
+      , PlotStyle -> BoundaryTracingStyle["NonViable"]
+    ],
+    (* Radial contour \[Rho] == 1 *)
+    ParametricPlot[
+      Table[rad Exp[I ang] // ReIm, {rad, radValues // Last // List}]
+      , {ang, angMin, angMax}
+      , PlotPoints -> 2
+      , PlotStyle -> BoundaryTracingStyle["Contour"]
+    ],
+    (* Traced boundaries *)
+    Table[
+      Table[
+        ParametricPlot[
+          zeta[s] * omega^k // ReIm // Evaluate
+          , {s, DomainStart[zeta], DomainEnd[zeta]}
+          , PlotPoints -> 2
+          , PlotStyle -> BoundaryTracingStyle["Traced"]
+        ]
+        , {zeta, zetaTracedList[type, branchSign]}
+      ]
+      , {type, tracedTypeList}
+      , {branchSign, {-1, 1}}
+      , {k, 0, 2}
+    ],
+    (* Unphysical region *)
+    Graphics @ {BoundaryTracingStyle["Unphysical"],
+      Disk[{0, 0}, rho0]
+    },
+    {}
+    , ImageSize -> {0.47, 0.48} ImageSizeTextWidth
+  ]
+] // Ex["conformal_triangle-traced-boundaries-zeta-space.pdf"]
