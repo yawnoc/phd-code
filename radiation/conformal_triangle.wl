@@ -950,8 +950,6 @@ Module[
   {
     radValues, radMin, radMax,
     angValues, angMin, angMax,
-    radMarkerRad, angMarkerRad,
-    radMarkerAng, angMarkerAng,
     axesLabel, textStyle,
     dummyForTrailingCommas
   },
@@ -960,10 +958,6 @@ Module[
   {radMin, radMax} = MinMax[radValues];
   angValues = Subdivide[0, 2 Pi, 12];
   {angMin, angMax} = MinMax[angValues];
-  (* Polar coordinate markers *)
-  radMarkerRad = radValues[[-2]];
-  angMarkerRad = radValues[[-4]];
-  radMarkerAng = angMarkerAng = angValues[[2]];
   (* Make plot *)
   axesLabel[string_] := Row @ {string, " ", "\[Zeta]" // LaTeXStyle};
   textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
@@ -1018,3 +1012,135 @@ Module[
     , ImageSize -> {0.47, 0.48} ImageSizeTextWidth
   ]
 ] // Ex["conformal_triangle-traced-boundaries-zeta-space.pdf"]
+
+
+(* ::Subsection:: *)
+(*z-space*)
+
+
+Module[
+  {
+    xMin, xMax, yMin, yMax,
+    radValues, radMin, radMax,
+    angValues, angMin, angMax,
+    axesLabel, textStyle,
+      rHyperbolic,
+      more,
+    dummyForTrailingCommas
+  },
+  (* Plot range (z-space) *)
+  {xMin, xMax} = {yMin, yMax} = Abs[zOfZeta[rho0]] {-1, 1};
+  (* Contours (\[Zeta]-space) *)
+  radValues = Subdivide[0, 1, 6] /. {0 -> rho0/2};
+  {radMin, radMax} = MinMax[radValues];
+  angValues = Subdivide[0, 2 Pi, 12];
+  {angMin, angMax} = MinMax[angValues];
+  (* Make plot *)
+  axesLabel[string_] := Row @ {string, "\[ThinSpace]", Italicise["z"]};
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  Show[
+    EmptyFrame[{xMin, xMax}, {yMin, yMax}
+      , FrameLabel -> {
+          axesLabel["Re"] // Margined @ {{0, 0}, {0, -15}},
+          axesLabel["Im"] // Margined @ {{0, -2}, {0, 0}}
+        }
+      , FrameTicksStyle -> LabelSize["Tick"]
+      , LabelStyle -> LatinModernLabelStyle[LabelSize["Axis"] - 1]
+    ],
+    (* Non-viable domain *)
+    (*
+      The inverse map \[Zeta](z) is expensive to compute,
+      so we instead generate the region in \[Zeta]-space
+      and map forward to z-space, which is cheap.
+      Credit to Michael E2 for the implementation,
+      see <https://mathematica.stackexchange.com/a/85922>.
+      Re-use permission granted in comments, see archived version:
+      <https://web.archive.org/web/20210407060154/https://mathematica.stackexchange.com/questions/85919/transforming-a-region-obtained-with-regionplot>
+    *)
+    Module[
+      {
+        zetaRegion, zetaBoundaryRegion,
+        fun, zBoundaryMesh, zMesh, zRegion,
+        dummyForTrailingCommas1
+      },
+      (* \[Zeta]-space *)
+      zetaRegion =
+        DiscretizeGraphics @ RegionPlot[
+          viability[xx + I yy] < 0
+            && Abs[xx + I yy] < 1
+            && temperature[xx + I yy] > 0
+          , {xx, -radMax, radMax}
+          , {yy, -radMax, radMax}
+        ];
+      zetaBoundaryRegion = BoundaryMesh[zetaRegion];
+      (* Forward transformation *)
+      fun = Function[{xx, yy}, xyOfZeta[xx + I yy]];
+      zBoundaryMesh =
+        ToBoundaryMesh[
+          "Coordinates" -> fun @@@ MeshCoordinates[zetaBoundaryRegion],
+          "BoundaryElements" -> {LineElement @@ Thread[MeshCells[zetaBoundaryRegion, 1], Line]}
+        ];
+      (* z-space *)
+      zMesh =
+        ToElementMesh[zBoundaryMesh
+          , MaxCellMeasure -> {"Area" -> Infinity}
+          , "MeshOrder" -> 1
+        ];
+      zRegion = DiscretizeRegion[MeshRegion[zMesh], MaxCellMeasure -> 1];
+      (* Plot *)
+      rHyperbolic = Abs @ zOfZeta[radHyperbolic];
+      Quiet[
+        RegionPlot[RegionMember[zRegion, {x, y}]
+          , {x, -rHyperbolic, rHyperbolic}
+          , {y, -rHyperbolic, rHyperbolic}
+          , BoundaryStyle -> None
+          , PlotStyle -> BoundaryTracingStyle["NonViable"]
+        ]
+        , {ImplicitRegion::bcond}
+          (*
+            Using RegionMember raises the warning ImplicitRegion::bcond,
+            but reduces the file size by over 600 kB.
+          *)
+      ]
+    ],
+    (* Radial contour \[Rho] == 1 (which is the triangle in z-space) *)
+    ParametricPlot[
+      Table[rad Exp[I ang] // xyOfZeta, {rad, radValues // Last // List}]
+      , {ang, angMin, angMax}
+      , PlotPoints -> 2
+      , PlotRange -> Full
+      , PlotStyle -> BoundaryTracingStyle["Contour"]
+    ],
+    (* Traced boundaries *)
+    Table[
+      Table[
+        ParametricPlot[
+          zeta[s] * omega^k // xyOfZeta // Evaluate
+          , {s, DomainStart[zeta], DomainEnd[zeta]}
+          , PlotPoints -> 2
+          , PlotStyle -> BoundaryTracingStyle["Traced"]
+        ]
+        , {zeta, zetaTracedList[type, branchSign]}
+      ]
+      , {type, tracedTypeList}
+      , {branchSign, {-1, 1}}
+      , {k, 0, 2}
+    ],
+    (* Unphysical region *)
+    (*
+      We cheat and pretend the boundary is circular.
+      Close enough for practical purposes.
+    *)
+    more = 1.2;
+    RegionPlot[
+      Abs[x + I y] > Abs[zOfZeta[rho0]]
+      , {x, more * xMin, more * xMax}
+      , {y, more * yMin, more * yMax}
+      , BoundaryStyle -> None
+      , PlotStyle -> BoundaryTracingStyle["Unphysical"]
+      , PlotPoints -> 5
+    ],
+    {}
+    , ImageSize -> {0.47, 0.48} ImageSizeTextWidth
+  ]
+] // Ex["conformal_triangle-traced-boundaries-z-space.pdf"]
