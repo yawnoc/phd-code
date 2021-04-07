@@ -762,7 +762,7 @@ Module[
       , PlotPoints -> 2
       , PlotRange -> Full
       , PlotStyle -> Black
-    ] /. {line_Line :> {Arrowheads @ {{0.06, 1}}, Arrow[line]}},
+    ] /. {line_Line :> {Arrowheads @ {{0.063, 1}}, Arrow[line]}},
     Graphics @ {
       Text[
         "\[Rho]" // textStyle
@@ -777,15 +777,112 @@ Module[
       , PlotPoints -> 2
       , PlotRange -> Full
       , PlotStyle -> Black
-    ] /. {line_Line :> {Arrowheads @ {{0.06, 0.97}}, Arrow[line]}},
+    ] /. {line_Line :> {Arrowheads @ {{0.055, 0.98}}, Arrow[line]}},
     Graphics @ {
       Text[
         "\[CurlyPhi]" // textStyle
-        , angMarkerRad * Exp[I 2/3 angMarkerAng] // ReIm
-        , {-2.25, 0}
+        , angMarkerRad * Exp[I 3/5 angMarkerAng] // ReIm
+        , {-2, 0}
       ]
     },
     {}
     , ImageSize -> 0.47 ImageSizeTextWidth
   ]
 ] // Ex["conformal_triangle-grid-zeta-space.pdf"]
+
+
+(* ::Subsection:: *)
+(*z-space*)
+
+
+Module[
+  {
+    xMin, xMax, yMin, yMax,
+    radValues, radMin, radMax,
+    angValues, angMin, angMax,
+    radMarkerRad, angMarkerRad,
+    radMarkerAng, angMarkerAng,
+    axesLabel, textStyle,
+    dummyForTrailingCommas
+  },
+  (* Plot range (z-space) *)
+  {xMin, xMax} = {yMin, yMax} = Abs[zOfZeta[rho0]] {-1, 1};
+  (* Contours (\[Zeta]-space) *)
+  radValues = Subdivide[0, 1, 6] /. {0 -> rho0/2};
+  {radMin, radMax} = MinMax[radValues];
+  angValues = Subdivide[0, 2 Pi, 12];
+  {angMin, angMax} = MinMax[angValues];
+  (* Polar coordinate markers *)
+  radMarkerRad = radValues[[-2]];
+  angMarkerRad = radValues[[-4]];
+  radMarkerAng = angMarkerAng = angValues[[2]];
+  (* Make plot *)
+  axesLabel[string_] := Row @ {string, " ", Italicise["z"]};
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  Show[
+    EmptyFrame[{xMin, xMax}, {yMin, yMax}
+      , FrameLabel -> {
+          axesLabel["Re"] // Margined @ {{0, 0}, {0, -15}},
+          axesLabel["Im"] // Margined @ {{0, -3}, {0, 0}}
+        }
+      , FrameTicksStyle -> LabelSize["Tick"]
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+    ],
+    (* Azimuthal contours *)
+    ParametricPlot[
+      Table[rad Exp[I ang] // xyOfZeta, {ang, angValues}]
+      , {rad, radMin/2, radMax}
+      , PlotPoints -> 2
+      , PlotRange -> Full
+      , PlotStyle -> BoundaryTracingStyle["Background"]
+    ],
+    (* Radial contours (\[Rho] < 1) *)
+    ParametricPlot[
+      Table[rad Exp[I ang] // xyOfZeta, {rad, radValues // Most}]
+      , {ang, angMin, angMax}
+      , PlotPoints -> 2
+      , PlotRange -> Full
+      , PlotStyle -> BoundaryTracingStyle["Background"]
+    ],
+    (* Radial contours (\[Rho] == 1) *)
+    ParametricPlot[
+      Table[rad Exp[I ang] // xyOfZeta, {rad, radValues // Last // List}]
+      , {ang, angMin, angMax}
+      , PlotPoints -> 2
+      , PlotRange -> Full
+      , PlotStyle -> BoundaryTracingStyle["Contour"]
+    ],
+    (* Radial coordinate marker *)
+    ParametricPlot[
+      Table[rad Exp[I ang] // xyOfZeta, {ang, {radMarkerAng}}]
+      , {rad, radMin, radMarkerRad}
+      , PlotPoints -> 2
+      , PlotRange -> Full
+      , PlotStyle -> Black
+    ] /. {line_Line :> {Arrowheads @ {{0.065, 0.7}}, Arrow[line]}},
+    Graphics @ {
+      Text[
+        "\[Rho]" // textStyle
+        , 0.3 radMarkerRad * Exp[I radMarkerAng] // xyOfZeta
+        , {1.2, 0.5}
+      ]
+    },
+    (* Angular coordinate marker *)
+    ParametricPlot[
+      Table[rad Exp[I ang] // xyOfZeta, {rad, {angMarkerRad}}]
+      , {ang, angMin, angMarkerAng}
+      , PlotPoints -> 2
+      , PlotRange -> Full
+      , PlotStyle -> Black
+    ] /. {line_Line :> {Arrowheads @ {{0.06, 0.97}}, Arrow[line]}},
+    Graphics @ {
+      Text[
+        "\[CurlyPhi]" // textStyle
+        , angMarkerRad * Exp[I 1/2 angMarkerAng] // xyOfZeta
+        , {-2.25, 0}
+      ]
+    },
+    {}
+    , ImageSize -> 0.47 ImageSizeTextWidth
+  ]
+] // Ex["conformal_triangle-grid-z-space.pdf"]
