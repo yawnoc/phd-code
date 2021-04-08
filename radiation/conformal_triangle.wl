@@ -964,7 +964,7 @@ Module[
   Show[
     EmptyFrame[{-1, 1}, {-1, 1}
       , FrameLabel -> {
-          axesLabel["Re"] // Margined @ {{0, 0}, {0, -15}},
+          axesLabel["Re"] // Margined @ {{0, 0}, {0, -10}},
           axesLabel["Im"] // Margined @ {{0, -4}, {0, 0}}
         }
       , FrameTicksStyle -> LabelSize["Tick"]
@@ -1009,7 +1009,7 @@ Module[
       Disk[{0, 0}, rho0]
     },
     {}
-    , ImageSize -> {0.47, 0.48} ImageSizeTextWidth
+    , ImageSize -> 0.47 ImageSizeTextWidth
   ]
 ] // Ex["conformal_triangle-traced-boundaries-zeta-space.pdf"]
 
@@ -1141,7 +1141,7 @@ Module[
       , PlotPoints -> 5
     ],
     {}
-    , ImageSize -> {0.47, 0.48} ImageSizeTextWidth
+    , ImageSize -> 0.47 ImageSizeTextWidth
   ]
 ] // Ex["conformal_triangle-traced-boundaries-z-space.pdf"]
 
