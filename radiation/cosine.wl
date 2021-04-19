@@ -6373,7 +6373,7 @@ Module[
             },
             Graphics @ {
               Text[
-                Subscript[Italicise["x"], "\[Natural]"] // textStylePoint
+                Subscript[Italicise["x"], "\[VeryThinSpace]\[VeryThinSpace]\[Natural]"] // textStylePoint
                 , {N @ xNat[a], 0}
                 , {0.3, -1.35}
              ]
@@ -6397,7 +6397,7 @@ Module[
             },
             Graphics @ {
               Text[
-                Subscript[Italicise["x"], "\[Flat]"] // textStylePoint
+                Subscript[Italicise["x"], "\[VeryThinSpace]\[VeryThinSpace]\[Flat]"] // textStylePoint
                 , {N @ xFlat[a, b], 0}
                 , {-0.15, -1.25}
              ]
@@ -6407,7 +6407,7 @@ Module[
             },
             Graphics @ {
               Text[
-                Subscript[Italicise["x"], "\[Sharp]"] // textStylePoint
+                Subscript[Italicise["x"], "\[VeryThinSpace]\[VeryThinSpace]\[Sharp]"] // textStylePoint
                 , {N @ xSharp[a, b], 0}
                 , {0.9, -1.25}
              ]
@@ -6428,7 +6428,7 @@ Module[
             },
             Graphics @ {
               Text[
-                Subscript[Italicise["x"], "\[Flat]"] // textStylePoint
+                Subscript[Italicise["x"], "\[VeryThinSpace]\[VeryThinSpace]\[Flat]"] // textStylePoint
                 , {N @ xFlat[a, b], 0}
                 , {-2.1, -0.2}
              ]
@@ -6438,7 +6438,7 @@ Module[
             },
             Graphics @ {
               Text[
-                Subscript[Italicise["x"], "\[Sharp]"] // textStylePoint
+                Subscript[Italicise["x"], "\[VeryThinSpace]\[VeryThinSpace]\[Sharp]"] // textStylePoint
                 , {N @ xSharp[a, b], 0}
                 , {1.9, -0.2}
              ]
@@ -6452,7 +6452,7 @@ Module[
             },
             Graphics @ {White,
               Text[
-                Subscript[Italicise["x"], "\[Flat]"] // textStylePoint
+                Subscript[Italicise["x"], "\[VeryThinSpace]\[VeryThinSpace]\[Flat]"] // textStylePoint
                 , {N @ xFlat[a, b], 0}
                 , {-2, -0.2}
              ]
@@ -6462,7 +6462,7 @@ Module[
             },
             Graphics @ {
               Text[
-                Subscript[Italicise["x"], "\[Sharp]"] // textStylePoint
+                Subscript[Italicise["x"], "\[VeryThinSpace]\[VeryThinSpace]\[Sharp]"] // textStylePoint
                 , {N @ xSharp[a, b], 0}
                 , {1.9, -0.2}
              ]
