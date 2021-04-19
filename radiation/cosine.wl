@@ -5460,7 +5460,7 @@ Module[
       Text[
         Row @ {
           "(" // textStyleBracket,
-          Subscript[Italicise["x"], 0],
+          Subscript[Italicise["x"], "\[VeryThinSpace]\[VeryThinSpace]0"],
           ",\[ThinSpace]",
           0,
           ")" // textStyleBracket
@@ -5578,7 +5578,7 @@ Module[
       Text[
         Row @ {
           "(" // textStyleBracket,
-          Subscript[Italicise["x"], 0],
+          Subscript[Italicise["x"], "\[VeryThinSpace]\[VeryThinSpace]0"],
           ",\[ThinSpace]",
           0,
           ")" // textStyleBracket
