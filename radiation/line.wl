@@ -1453,12 +1453,13 @@ Module[{textStyle},
   textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   Show[
     Plot[psi[r], {r, 0, 1}
+      , AspectRatio -> 0.5
       , AxesLabel -> {rIt // Margined @ {{3, 0}, {5, 0}}, LaTeXStyle["\[Psi]"]}
-      , ImageSize -> 0.6 ImageSizeTextWidth
+      , ImageSize -> 0.75 ImageSizeTextWidth
       , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
       , PlotRange -> All
       , PlotRangeClipping -> False
-      , PlotRangePadding -> {Automatic, {0.05, Automatic}}
+      , PlotRangePadding -> {None, {0.05, Automatic}}
       , PlotStyle -> Directive[Black, GeneralStyle["Thick"]]
       , PlotOptions[Axes] // Evaluate
       , TicksStyle -> LabelSize["Tick"]
@@ -1471,7 +1472,7 @@ Module[{textStyle},
       Text[
         Subscript[rIt, "Nat"] // textStyle,
         {rNat, 0},
-        {-0.2, 1.0}
+        {-0.2, 0.9}
       ],
       (* aNat *)
       Text[
