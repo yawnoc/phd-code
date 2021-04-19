@@ -6883,9 +6883,9 @@ Module[
     },
     Graphics @ {
       Text[
-        Subscript[Italicise["x"], "\[Flat]"] // textStylePoint
+        Subscript[Italicise["x"], "\[VeryThinSpace]\[VeryThinSpace]\[Flat]"] // textStylePoint
         , {N @ xFlatAsymm, 0}
-        , {-1.8, -0.25}
+        , {-1.85, -0.15}
       ]
     },
     (* Critical terminal point (x_\[Sharp], 0) *)
@@ -6894,9 +6894,9 @@ Module[
     },
     Graphics @ {
       Text[
-        Subscript[Italicise["x"], "\[Sharp]"] // textStylePoint
+        Subscript[Italicise["x"], "\[VeryThinSpace]\[VeryThinSpace]\[Sharp]"] // textStylePoint
         , {N @ xSharpAsymm, 0}
-        , {1.75, -0.25}
+        , {1.7, -0.15}
       ]
     },
     {}
