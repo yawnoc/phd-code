@@ -6550,8 +6550,8 @@ Module[
       }
     , Epilog -> {
         (* Hot regime *)
-        aHotLabel = Way[aMin, aNatPi];
-        asymmHotLabel = 1/2 asymmInterpolation[aHotLabel];
+        aHotLabel = Way[aMin, aNatPi, 0.49];
+        asymmHotLabel = 0.53 asymmInterpolation[aHotLabel];
         Text[
           "hot" // textStyle
           , {aHotLabel, asymmHotLabel}
@@ -6598,7 +6598,7 @@ Module[
           Way[
             {aHotLabel, asymmHotLabel},
             {aWarmLabel, asymmWarmLabel}
-            , 2
+            , 1.96
           ];
         Text[
           "cold" // textStyle
