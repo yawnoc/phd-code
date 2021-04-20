@@ -5422,7 +5422,7 @@ Module[
       {
         SeparatedRow["VeryThin"][
           SeparatedRow["VeryThin"]["cosh", vIt],
-          Style["\[ThinSpace]\[PlusMinus]\[ThinSpace]", Magnification -> 1.4],
+          Style["\[ThinSpace]\[PlusMinus]\[VeryThinSpace]\[VeryThinSpace]", Magnification -> 1.4],
           1
         ],
         SeparatedRow[][vIt^4, Style["/", Magnification -> 1.2], aIt]
