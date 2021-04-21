@@ -1692,6 +1692,7 @@ Module[
     apd, alpha,
     mesh, meshWireframe,
     rMax, xMax, yMax,
+    rTickValues, tickLength,
     tickTextStyle, axesTextStyle,
     plotDetail,
     dummyForTrailingCommas
@@ -1704,29 +1705,33 @@ Module[
   meshWireframe = mesh["Wireframe"];
   rMax = 0.25;
   {xMax, yMax} = XYPolar[rMax, alpha];
+  (* Ticks *)
+  rTickValues = FindDivisions[{0, rMax}, 4] // N;
+  tickLength = 0.02 rMax;
   (* Plot mesh detail *)
   tickTextStyle = Style[#, LabelSize["Tick"]] & @* LaTeXStyle;
   axesTextStyle = Style[#, LabelSize["Axis"]] & @* LaTeXStyle;
   plotDetail = Show[
-    PolarPlot[rMax, {phi, -alpha, alpha}
-      , PlotStyle -> None
-      , PolarAxes -> {False, True}
-      , PolarAxesOrigin -> {-alpha, rMax}
-      , PolarTicks -> List @
-          Table[
-            {r, N[r], {0, 0.04 rMax}}
-            , {r, FindDivisions[{0, rMax}, 4]}
-          ]
-    ]
-      (* Tweak radial labels *)
-      /. {Text[Style[r_, {}], coords_, offset_, opts__] :>
-        Text[r, coords, offset + {If[r == 0, 0.5, 1.2], -0.2}, opts]
-      }
-      (* Font for labels *)
-      /. {Text[str_, seq__] :> Text[str // tickTextStyle, seq]}
-    ,
     meshWireframe,
-    (* Manual coordinate labels *)
+    (* Radial ticks *)
+    Graphics @ {
+      Table[
+        {
+          Line @ {
+            XYPolar[r, -alpha],
+            XYPolar[r, -alpha] + XYPolar[tickLength, -alpha - Pi/2]
+          },
+          Text[
+            r // tickTextStyle
+            , XYPolar[r, -alpha] + XYPolar[5 tickLength, -alpha - Pi/2]
+            , If[r == 0, {-0.5, -0.1}, {0.2, -0.15}]
+          ],
+          {}
+        }
+        , {r, rTickValues}
+      ]
+    },
+    (* Radial axis label *)
     Graphics @ {
       Text[
         Italicise["r"] // axesTextStyle
