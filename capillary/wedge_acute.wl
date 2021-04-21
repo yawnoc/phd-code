@@ -1558,8 +1558,9 @@ Module[
     wallDistanceSimplified, polygonSimplified,
     posSimplified, meshWireframeSimplified,
     xMin, xMax, yMin, yMax, rMax,
+    rTickValuesMajor, rTickValuesMinor, phiTickValues,
+    tickLengthMajor, tickLengthMinor,
     tickTextStyle, axesTextStyle,
-    phiPattern,
     plotFull,
     dummyForTrailingCommas
   },
@@ -1593,52 +1594,83 @@ Module[
         x Sin[alpha] + y Cos[alpha] > wallDistanceSimplified
     ];
   meshWireframeSimplified = mesh["Wireframe"[posSimplified]];
+  (* Ticks *)
+  rTickValuesMajor = FindDivisions[{0, rMax}, 5];
+  rTickValuesMinor = FindDivisions[{0, rMax}, 20] // Complement[#, rTickValuesMajor] &;
+  phiTickValues = FindDivisions[{-apd, apd}, 8] Degree;
+  tickLengthMajor = 0.01 rMax;
+  tickLengthMinor = 1/2 tickLengthMajor;
   (* Plot full mesh *)
   tickTextStyle = Style[#, LabelSize["Tick"]] & @* LaTeXStyle;
   axesTextStyle = Style[#, LabelSize["Axis"]] & @* LaTeXStyle;
-  phiPattern = _Integer Degree | 0;
   plotFull = Show[
-    PolarPlot[rMax, {phi, -alpha, alpha}
-      , PlotStyle -> None
-      , PolarAxes -> {True, True}
-      , PolarAxesOrigin -> {-alpha, rMax}
-      , PolarTicks -> {Range[-alpha, alpha, 10 Degree], Automatic}
-    ]
-      (* Angular PlotRange *)
-      /. {Circle[seq__, {0, 2 Pi}] :> Circle[seq, {-alpha, alpha}]}
-      (* Tweak radial labels *)
-      /. {Text[Style[r : Except[phiPattern], {}], coords_, offset_] :>
-        Text[r, coords, offset + If[r == 10, {1.2, -0.4}, {0, -0.2}]]
-      }
-      (* Tweak azimuthal labels *)
-      /. {Text[Style[phi : phiPattern, {}], coords_, offset_, opts___] :>
-        Text[
-          SeparatedRow["VeryThin"][phi / Degree, Magnify["\[Degree]", 1.2]],
-          coords,
-          offset + Which[
-            phi == -alpha, {0, -0.9},
-            phi < 0, {0.3, -0.6},
-            phi == 0, {-0.1, -0.2},
-            True, {0.2, 0.1}
-          ]
-          , opts
-        ]
-      }
-      (* Font for labels *)
-      /. {Text[str_, seq__] :> Text[str // tickTextStyle, seq]}
-    ,
     meshWireframeSimplified, polygonSimplified,
-    (* Manual coordinate labels *)
+    (* Radial ticks *)
+    Graphics @ {
+      Table[
+        {
+          Line @ {
+            XYPolar[r, -alpha],
+            XYPolar[r, -alpha] + XYPolar[tickLengthMajor, -alpha - Pi/2]
+          },
+          Text[
+            r // tickTextStyle
+            , XYPolar[r, -alpha] + XYPolar[3 tickLengthMajor, -alpha - Pi/2]
+            , {0, 0.15} + If[r == 10, {0.5, 0}, {0, 0}]
+          ],
+          {}
+        }
+        , {r, rTickValuesMajor}
+      ]
+    },
+    Graphics @ {
+      Table[
+        {
+          Line @ {
+            XYPolar[r, -alpha],
+            XYPolar[r, -alpha] + XYPolar[tickLengthMinor, -alpha - Pi/2]
+          },
+          {}
+        }
+        , {r, rTickValuesMinor}
+      ]
+    },
+    (* Azimuthal ticks *)
+    Graphics @ {
+      Table[
+        {
+          Line @ {
+            XYPolar[rMax, phi],
+            XYPolar[rMax + tickLengthMajor, phi]
+          },
+          Text[
+            SeparatedRow["VeryThin"][phi / Degree, Magnify["\[Degree]", 1.2]] // tickTextStyle
+            , XYPolar[rMax + 5.5 tickLengthMajor, phi]
+            , Which[
+                phi == 0, {0.3, -0.15},
+                phi < 0, {-0.15, -0.3 + 0.15 (phi/alpha)},
+                True, {0, 0}
+              ]
+          ],
+          {}
+        }
+        , {phi, phiTickValues}
+      ]
+    },
+    (* Radial axis label *)
     Graphics @ {
       Text[
         Italicise["r"] // axesTextStyle
         , XYPolar[rMax / 2, -alpha]
         , {4, 1.5}
-      ],
+      ]
+    },
+    (* Azimuthal axis label *)
+    Graphics @ {
       Text[
         "\[Phi]" // axesTextStyle // Margined[{{0, 1}, {0, 0}}]
         , {rMax, 0}
-        , {-6.5, -0.1}
+        , {-6.5, -0.05}
       ],
       {}
     },
