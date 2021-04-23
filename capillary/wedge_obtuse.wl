@@ -2079,6 +2079,7 @@ Module[
         symmetryHeightData, symmetrySlopeData,
         wallHeightData, wallSlopeData,
     rMaxPlot, xMinPlot, yMaxPlot, xMaxPlot,
+    rTickValues, tickLength,
     tickTextStyle, axisTextStyle,
     dummyForTrailingCommas
   },
@@ -2151,21 +2152,27 @@ Module[
   tickTextStyle = Style[#, LabelSize["Tick"]] & @* LaTeXStyle;
   axisTextStyle = Style[#, LabelSize["Axis"]] & @* LaTeXStyle;
   Show[
-    PolarPlot[rMaxPlot, {phi, -alpha, alpha}
-      , PlotStyle -> None
-      , PolarAxes -> {False, True}
-      , PolarAxesOrigin -> {alpha, rMaxPlot}
-      , PolarTicks -> List @
-          Table[
-            {r, N[r], {0.02, 0}}
-            , {r, FindDivisions[{0, rMaxPlot}, 4] // Rest}
-          ]
-    ]
-      /. {Text[Style[r_, {}], coords_, offset_, opts__] :>
-        Text[r // tickTextStyle, coords, {2.3, 2.2}, opts]
-      }
-    ,
     mesh["Wireframe"],
+    (* Ticks *)
+    rTickValues = Range[0, rMaxPlot, 0.02] // Rest;
+    tickLength = 0.03 rMaxPlot;
+    Graphics @ {
+      Table[
+        {
+          Line @ {
+            XYPolar[r, alpha],
+            XYPolar[r, alpha] + XYPolar[tickLength, alpha + Pi/2]
+          },
+          Text[
+            r // tickTextStyle
+            , XYPolar[r, alpha] + XYPolar[1 tickLength, alpha + Pi/2]
+            , {1.2, 0.65}
+          ],
+          {}
+        }
+        , {r, rTickValues}
+      ]
+    },
     {}
     , ImageSize -> 0.4 ImageSizeTextWidth
     , PlotRange -> {{xMinPlot, xMaxPlot}, {-yMaxPlot, yMaxPlot}}
