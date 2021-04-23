@@ -1919,6 +1919,7 @@ Module[
     apd, alpha,
     mesh, meshWireframe,
     rMax, xMin, yMax, xMax,
+    rTickValues, tickLength,
     tickTextStyle, axisTextStyle,
     dummyForTrailingCommas
   },
@@ -1935,21 +1936,27 @@ Module[
   tickTextStyle = Style[#, LabelSize["Tick"]] & @* LaTeXStyle;
   axisTextStyle = Style[#, LabelSize["Axis"]] & @* LaTeXStyle;
   Show[
-    PolarPlot[rMax, {phi, -alpha, alpha}
-      , PlotStyle -> None
-      , PolarAxes -> {False, True}
-      , PolarAxesOrigin -> {alpha, rMax}
-      , PolarTicks -> List @
-          Table[
-            {r, N[r], {0.075 rMax, 0}}
-            , {r, FindDivisions[{0, rMax}, 4] // Rest}
-          ]
-    ]
-      /. {Text[Style[r_, {}], coords_, offset_, opts__] :>
-        Text[r // tickTextStyle, coords, {2.7, 1.8}, opts]
-      }
-    ,
     meshWireframe,
+    (* Ticks *)
+    rTickValues = Range[0, rMax, 0.1] // Rest;
+    tickLength = 0.03 rMax;
+    Graphics @ {
+      Table[
+        {
+          Line @ {
+            XYPolar[r, alpha],
+            XYPolar[r, alpha] + XYPolar[tickLength, alpha + Pi/2]
+          },
+          Text[
+            r // tickTextStyle
+            , XYPolar[r, alpha] + XYPolar[1 tickLength, alpha + Pi/2]
+            , {1.2, 0.65}
+          ],
+          {}
+        }
+        , {r, rTickValues}
+      ]
+    },
     {}
     , ImageSize -> 0.48 * 0.85 ImageSizeTextWidth
     , PlotRange -> {{xMin, xMax}, {-yMax, yMax}}
