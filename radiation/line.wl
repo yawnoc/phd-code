@@ -1460,7 +1460,7 @@ Module[{textStyle},
       , PlotRange -> All
       , PlotRangeClipping -> False
       , PlotRangePadding -> {None, {0.05, Automatic}}
-      , PlotStyle -> Directive[Black, GeneralStyle["Thick"]]
+      , PlotStyle -> Directive[Black, Thick]
       , PlotOptions[Axes] // Evaluate
       , TicksStyle -> LabelSize["Tick"]
     ],
