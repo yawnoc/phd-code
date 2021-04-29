@@ -138,12 +138,18 @@ Module[
           Frame -> None,
           ImageSize -> imageSize
         ],
-        (* Non-viable domain and terminal curve *)
+        (* Non-viable domain *)
         RegionPlot[vi < 0,
-          {x, -xMaxMore, xMaxMore}, {y, -yMaxMore, yMaxMore},
-          BoundaryStyle -> BoundaryTracingStyle["Terminal"],
-          PlotPoints -> 15,
+          {x, -xMaxMore, xMaxMore}, {y, -yMaxMore, 0},
+          BoundaryStyle -> None,
+          PlotPoints -> 4,
           PlotStyle -> BoundaryTracingStyle["NonViable"]
+        ],
+        (* Terminal curve *)
+        ContourPlot[vi == 0,
+          {x, -xMaxMore, xMaxMore}, {y, -yMaxMore, 0},
+          ContourStyle -> BoundaryTracingStyle["Terminal"],
+          PlotPoints -> 8
         ],
         (* Local T-contour *)
         ContourPlot[t == 0,
