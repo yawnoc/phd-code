@@ -90,6 +90,7 @@ Module[
     ParametricPlot[
       {XHalfPlane[gamma][t], t}
       , {t, tStart, tEnd}
+      , PlotPoints -> 2
       , PlotStyle -> Directive[Black, GeneralStyle["Thick"]]
     ],
     Graphics @ {
@@ -105,7 +106,7 @@ Module[
       Text[
         Italicise["\[CapitalOmega]"] // textStyleGreek
         , {Way[xMin - wallThickness/2, xMax], tMin}
-        , If[$OperatingSystem == "Windows", {0, 0.235}, {0.8}]
+        , If[$OperatingSystem == "Windows", {0, 0.225}, {0.8}]
       ]
     },
     (* Outward normal *)
