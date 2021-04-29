@@ -835,6 +835,15 @@ Module[
       , Frame -> None
       , PlotRangePadding -> {{Scaled[0.05], Scaled[0.04]}, None}
     ],
+    (* Non-viable domain *)
+    RegionPlot[
+      vi[x, y] < 0 && Abs[y] < x
+      , {x, 0, xMaxMore}
+      , {y, -yMaxMore, yMaxMore}
+      , BoundaryStyle -> None
+      , PlotPoints -> 3
+      , PlotStyle -> BoundaryTracingStyle["NonViable"]
+    ],
     (* Contours *)
     Table[
       ParametricPlot[
@@ -847,14 +856,13 @@ Module[
       ]
       , {xy, xyContourList}
     ],
-    (* Non-viable domain *)
-    RegionPlot[
-      vi[x, y] < 0 && Abs[y] < x
+    (* Terminal curve *)
+    ContourPlot[
+      vi[x, y] == 0
       , {x, 0, xMaxMore}
       , {y, -yMaxMore, yMaxMore}
-      , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
+      , ContourStyle -> BoundaryTracingStyle["Terminal"]
       , PlotPoints -> 5
-      , PlotStyle -> BoundaryTracingStyle["NonViable"]
     ],
     (* Critical terminal point (x_0, 0) *)
     Graphics @ {
@@ -877,7 +885,7 @@ Module[
       Text[
         "critical",
         {x0, 0},
-        {-1.42, textVerticalShift}
+        {-1.35, textVerticalShift}
       ] // textStyle,
       {}
     },
@@ -890,7 +898,7 @@ Module[
       Text[
         "ordinary",
         xyOrdinary,
-        {-1.35, textVerticalShift}
+        {-1.3, textVerticalShift}
       ] // textStyle,
       {}
     },
