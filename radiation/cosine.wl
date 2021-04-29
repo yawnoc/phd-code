@@ -5499,6 +5499,7 @@ Module[
   xMin, xMax, yMax,
   xMinCont, xMaxCont, yMaxCont,
   xMinViable, xMaxViable, yMaxViable,
+  xMaxTerminal,
   contNum, tContMin, tContStep, tContValues,
   tContOrd, xOrdGuess, yOrdGuess, xOrd, yOrd,
   textStyle, textStyleBracket, textVerticalShift,
@@ -5531,6 +5532,12 @@ Module[
   xMinViable = x0 - eps;
   xMaxViable = xMax + eps;
   yMaxViable = yMax + eps;
+  (* Plot range for terminal curve *)
+  xMaxTerminal =
+    SeekFirstRootBisection[
+      vi[a, b][#, yMax] &,
+      {xMinViable, xMax}
+    ] + eps;
   (* Determine ordinary terminal point *)
   tContOrd = tContMin + tContStep;
   xOrdGuess = Way[x0, xMax];
@@ -5552,6 +5559,13 @@ Module[
       Frame -> None,
       PlotRangePadding -> None
     ],
+    (* Non-viable domain *)
+    RegionPlot[vi[a, b][x, y] < 0 && tKnown[b][x, y] > 0,
+      {x, xMinViable, xMaxViable}, {y, -yMaxViable, yMaxViable},
+      BoundaryStyle -> None,
+      PlotPoints -> 3,
+      PlotStyle -> BoundaryTracingStyle["NonViable"]
+    ],
     (* Known solution contours *)
     ContourPlot[
       tKnown[b][x, y],
@@ -5562,12 +5576,11 @@ Module[
       ContourStyle -> BoundaryTracingStyle["ContourPlain"],
       PlotPoints -> 8
     ],
-    (* Non-viable domain *)
-    RegionPlot[vi[a, b][x, y] < 0 && tKnown[b][x, y] > 0,
-      {x, xMinViable, xMaxViable}, {y, -yMaxViable, yMaxViable},
-      BoundaryStyle -> BoundaryTracingStyle["Terminal"],
-      PlotPoints -> 9,
-      PlotStyle -> BoundaryTracingStyle["NonViable"]
+    (* Terminal curve *)
+    ContourPlot[vi[a, b][x, y] == 0,
+      {x, xMinViable, xMaxTerminal}, {y, -yMaxViable, yMaxViable},
+      ContourStyle -> BoundaryTracingStyle["Terminal"],
+      PlotPoints -> 9
     ],
     (* Ordinary terminal point (x_ord, y_ord) *)
     Graphics @ {
