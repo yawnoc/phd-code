@@ -5049,6 +5049,7 @@ Module[
   xMinUnphys, xMaxUnphys, yMaxUnphys,
   xMinCont, xMaxCont, yMaxCont,
   xMinViable, xMaxViable, yMaxViable,
+  xMaxTerminal,
   yMaxContStraight,
   numTo1, numBeyond1,
   plotList,
@@ -5090,6 +5091,12 @@ Module[
       xMinViable = x0Simp[a] - eps;
       xMaxViable = xMax + eps;
       yMaxViable = yMax + eps;
+      (* Plot range for terminal curve *)
+      xMaxTerminal =
+        SeekFirstRootBisection[
+          vi[a, b][#, yMax] &,
+          {xMinViable, xMax}
+        ] + eps;
       (* Plot *)
       Show[
         EmptyFrame[{xMin, xMax}, {-yMax, yMax},
@@ -5104,6 +5111,13 @@ Module[
           BoundaryStyle -> BoundaryTracingStyle["Unphysical"],
           PlotPoints -> 12,
           PlotStyle -> BoundaryTracingStyle["Unphysical"]
+        ],
+        (* Non-viable domain *)
+        RegionPlot[vi[a, b][x, y] < 0 && tKnown[b][x, y] > 0,
+          {x, xMinViable, xMaxViable}, {y, -yMaxViable, yMaxViable},
+          BoundaryStyle -> None,
+          PlotPoints -> 5,
+          PlotStyle -> BoundaryTracingStyle["NonViable"]
         ],
         (* Known solution contours *)
         ContourPlot[
@@ -5122,12 +5136,11 @@ Module[
           PlotRange -> Full,
           PlotStyle -> BoundaryTracingStyle["ContourImportant"]
         ],
-        (* Non-viable domain *)
-        RegionPlot[vi[a, b][x, y] < 0 && tKnown[b][x, y] > 0,
-          {x, xMinViable, xMaxViable}, {y, -yMaxViable, yMaxViable},
-          BoundaryStyle -> BoundaryTracingStyle["Terminal"],
-          PlotPoints -> 8,
-          PlotStyle -> BoundaryTracingStyle["NonViable"]
+        (* Terminal curve *)
+        ContourPlot[vi[a, b][x, y] == 0,
+          {x, xMinViable, xMaxTerminal}, {y, -yMaxViable, yMaxViable},
+          ContourStyle -> BoundaryTracingStyle["Terminal"],
+          PlotPoints -> 5
         ]
       ]
     , {a, aValues}];
