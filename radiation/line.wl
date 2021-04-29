@@ -2180,7 +2180,7 @@ Module[
 
 
 (* ::Section:: *)
-(*Figure: concave spikes near r = 1 (line-traced-boundaries-hot-spikes)*)
+(*Figure: concave spike near r = 1 (line-traced-boundaries-hot-spike)*)
 
 
 Module[
@@ -2276,7 +2276,7 @@ Module[
       {}
     },
     {}
-  ] // Ex["line-traced-boundaries-hot-spikes.pdf"]
+  ] // Ex["line-traced-boundaries-hot-spike.pdf"]
 ]
 
 
