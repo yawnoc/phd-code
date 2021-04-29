@@ -1460,7 +1460,7 @@ Module[{textStyle},
       , PlotRange -> All
       , PlotRangeClipping -> False
       , PlotRangePadding -> {None, {0.05, Automatic}}
-      , PlotStyle -> Directive[Black, GeneralStyle["Thick"]]
+      , PlotStyle -> Directive[Black, Thick]
       , PlotOptions[Axes] // Evaluate
       , TicksStyle -> LabelSize["Tick"]
     ],
@@ -1850,8 +1850,8 @@ Module[
   textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   (* Plot *)
   plotStyles = {
-    Directive[Black, GeneralStyle["Thick"]],
-    Directive[Black, GeneralStyle["Thick"], GeneralStyle["Dashed"]]
+    Directive[Black, Thick],
+    Directive[Black, Thick, GeneralStyle["Dashed"]]
   };
   plot = Show[
     (* Terminal radii *)

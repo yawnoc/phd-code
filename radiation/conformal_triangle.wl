@@ -1094,7 +1094,7 @@ Module[
           , {x, -rHyperbolic, rHyperbolic}
           , {y, -rHyperbolic, rHyperbolic}
           , BoundaryStyle -> None
-          , PlotStyle -> BoundaryTracingStyle["NonViable"]
+          , PlotStyle -> Directive[BoundaryTracingStyle["NonViable"], GrayLevel[0.7]]
         ]
         , {ImplicitRegion::bcond}
           (*
