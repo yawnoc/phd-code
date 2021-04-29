@@ -3294,7 +3294,7 @@ Module[
       },
       (* Non-viable domain *)
       RegionPlot[
-        vi[x, y] < 0
+        vi[x, ySign * y] < 0
         , {x, xMinMore, xMaxMore}
         , {y, -yMaxMore, yMaxMore}
         , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
