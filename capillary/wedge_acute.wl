@@ -3052,7 +3052,7 @@ Module[
         vi[x, y] < 0
         , {x, xCritical, xMaxMore}
         , {y, -yMaxMore, yMaxMore}
-        , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
+        , BoundaryStyle -> None
         , PlotPoints -> 17
         , PlotStyle -> BoundaryTracingStyle["NonViable"]
       ],
@@ -3073,6 +3073,14 @@ Module[
           , PlotStyle -> BoundaryTracingStyle["ContourPlain"]
         ]
         , {xy, xyContourList}
+      ],
+      (* Non-viable domain *)
+      ContourPlot[
+        vi[x, y] == 0
+        , {x, xCritical, xMaxMore}
+        , {y, -yMaxMore, yMaxMore}
+        , ContourStyle -> BoundaryTracingStyle["Terminal"]
+        , PlotPoints -> 14
       ],
       (* Critical terminal point (x_0, 0) *)
       Graphics @ {
