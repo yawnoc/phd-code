@@ -1600,6 +1600,7 @@ Module[
       // Through
       // Evaluate
     , {phi, -Pi, Pi}
+    , AspectRatio -> 0.4
     , AxesLabel -> {
         "\[CurlyPhi]" // LaTeXStyle // Margined @ {{0, 0}, {4, 0}},
         SeparatedRow["Thick"]["Normalised", Italicise["I"]]
@@ -1609,16 +1610,16 @@ Module[
         Text[
           "fin" // textStyle
           , {#, finDependenceNormalised[#]} & [-125 Degree]
-          , {1.9, 0}
+          , {2.4, 0}
         ],
         Text[
           "strip" // textStyle
-          , {#, stripDependenceNormalised[#]} & [25 Degree]
-          , {-1.5, 0}
+          , {#, stripDependenceNormalised[#]} & [20 Degree]
+          , {-1.8, 0}
         ],
         {}
       }
-    , ImageSize -> 0.4 ImageSizeTextWidth
+    , ImageSize -> 0.65 ImageSizeTextWidth
     , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
     , PlotPoints -> 2
     , PlotRange -> {0, Automatic}
