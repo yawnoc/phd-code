@@ -294,12 +294,22 @@ Module[
   (* Text functions *)
   constText[coord_] := Italicise[coord] == "const";
   vectorText[coord_] :=
-    Subscript[Embolden["a"], Italicise[coord]];
-  displacedLengthText[coord_] :=
-    SeparatedRow["Thin"][
-      Subscript[Italicise["h"], Italicise[coord]],
-      {"d", Italicise[coord]}
+    Subscript[
+      Embolden["a"],
+      Row @ {"\[NegativeVeryThinSpace]", Spacer[0.2], Italicise[coord]}
     ];
+  displacedLengthText[coord_] :=
+    Row @ {
+      Subscript[
+        Italicise["h"],
+        Row @ {"\[NegativeThinSpace]", Spacer[0.8], Italicise[coord]}
+      ],
+      "\[ThinSpace]",
+      Row @ {
+        "d", "\[NegativeThinSpace]",
+        Spacer[0.85], Italicise[coord]
+      }
+    };
   (* Plot *)
   Show[
     (* Contours *)
