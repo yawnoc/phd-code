@@ -1386,7 +1386,7 @@ Module[
   (* Dimension markers *)
   dimensionMarkerStyle = Arrowheads @ {-Small, Small};
   lengthMarkerY = -1.5 y2;
-  thicknessMarkerX = Way[x1, x2, 1.06];
+  thicknessMarkerX = Way[x1, x2, 1.045];
   textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   textStyleBracket = Style[#, LabelSize["PointBracket"]] & @* LaTeXStyle;
   (* Make diagram *)
@@ -1457,9 +1457,10 @@ Module[
     {}
     , AspectRatio -> Automatic
     , Axes -> False
-    , ImageSize -> 0.6 ImageSizeTextWidth
+    , ImageSize -> 0.72 ImageSizeTextWidth
     , PlotRange -> All
     , PlotRangeClipping -> False
+    , PlotRangePadding -> {Automatic, {Automatic, Scaled[0.4]}}
   ]
 ] // Ex["plane-fin-dimensions.pdf"]
 
