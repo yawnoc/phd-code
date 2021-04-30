@@ -728,7 +728,7 @@ Module[
       Text[
         "radiation" // textStyle
         , {xRadiation - radiationArrowSize, ySlabMid}
-        , {1.3, 0}
+        , {1.3, -0.2}
       ],
       {}
     },
