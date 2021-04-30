@@ -1504,6 +1504,7 @@ Plot[
   , ImageSize -> 0.48 ImageSizeTextWidth
   , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
   , PlotStyle -> Black
+  , PlotPoints -> 3
   , TicksStyle -> LabelSize["Tick"]
 ]
 ] // Ex["plane-fin-temperature.pdf"]
@@ -1545,6 +1546,7 @@ Plot[
     }
   , ImageSize -> 0.48 ImageSizeTextWidth
   , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+  , PlotPoints -> 3
   , PlotRange -> {0, Automatic}
   , PlotStyle -> Black
   , TicksStyle -> LabelSize["Tick"]
