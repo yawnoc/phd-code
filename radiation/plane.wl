@@ -1263,7 +1263,7 @@ Module[{legendCurves},
     , Alignment -> Left
     , ImageSize -> ImageSizeTextWidth
     , ItemAspectRatio -> 0.11
-    , Spacings -> {{0, -0.3, 0.1} ImageSizeTextWidth, 0}
+    , Spacings -> {{0, -0.24, 0.1} ImageSizeTextWidth, 0}
   ]
 ] // Ex["plane-domains-legend.pdf"]
 
