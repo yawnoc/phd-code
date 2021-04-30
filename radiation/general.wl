@@ -189,7 +189,7 @@ Module[
       positionStyle, Point[project /@ {r}],
         Text[Embolden["r"] // textStyle
           , project[r]
-          , {2.7, -0.23}
+          , {2.35, -0.27}
         ],
       elementStyle, Polygon[project /@ element],
         Text[SeparatedRow[""] @ {"d", Italicise["A"]} // textStyle
@@ -224,7 +224,7 @@ Module[
         Text[
           Embolden["r"] // starred // textStyle
           , project[rStar]
-          , {-1.6, -0.7}
+          , {-1.5, -0.65}
         ],
       elementStyle, Polygon[project /@ elementStar],
         Text[SeparatedRow[""] @ {"d", Italicise["A"] // starred} // textStyle
@@ -234,7 +234,7 @@ Module[
       normalVectorStyle, Arrow[project /@ {rStar, nStarTip}],
         Text[Embolden["n"] // starred // textStyle
           , project[nStarTip]
-          , {-1, -1}
+          , {-1, -0.9}
         ],
       {}
     },
