@@ -391,6 +391,7 @@ Module[
           Nothing
         }
         , {x, 0, xMaxFin}
+        , PlotPoints -> 2
         , PlotStyle -> finStyle
       ],
       (* Straight edges *)
@@ -418,7 +419,7 @@ Module[
       Text[
         SeparatedRow[""] @ {"d", Italicise["A"]} // textStyle
         , project[normalBase]
-        , {-3.4, -0.5}
+        , {-3.25, -0.5}
       ],
       {}
     },
@@ -434,7 +435,7 @@ Module[
       Text[
         SeparatedRow[""] @ {"d", Italicise["A"] // starred} // textStyle
         , project[normalStarBase]
-        , {1.8, -0.5}
+        , {1.8, -0.4}
       ],
       {}
     },
