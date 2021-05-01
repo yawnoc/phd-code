@@ -6854,7 +6854,7 @@ Module[
       , {x, xMinNon, xMaxNon}
       , {y, -yMaxNon, yMaxNon}
       , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
-      , PlotPoints -> 12
+      , PlotPoints -> 4
       , PlotStyle -> BoundaryTracingStyle["NonViable"]
     ],
     (* Straight contour *)
