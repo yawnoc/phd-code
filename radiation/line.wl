@@ -1857,7 +1857,7 @@ Module[
     (* Terminal radii *)
     Plot[{rSharp[a], rFlat[a]}, {a, 0, aNat}
       (* Non-viable domain *)
-      , AspectRatio -> 1
+      , AspectRatio -> 1.05
       , AxesLabel -> {aIt, rIt}
       , Filling -> {1 -> {2}}
       , FillingStyle -> BoundaryTracingStyle["NonViable"]
@@ -1885,7 +1885,7 @@ Module[
       Text[
         Subscript[rIt, "\[Natural]"] // textStyle,
         {0, rNat},
-        {2, -0.1}
+        {2, -0.15}
       ],
       (* rNat *)
       Text[
