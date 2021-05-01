@@ -5241,7 +5241,7 @@ Module[
   eps = 0.05;
   (* Plot range for unphysical domain *)
   xMinUnphys = xMin;
-  xMaxUnphys = yMax;
+  xMaxUnphys = xMax;
   yMaxUnphys = yMax;
   (* Plot range for viable domain *)
   xMinViable = x0Simp[a] - eps;
