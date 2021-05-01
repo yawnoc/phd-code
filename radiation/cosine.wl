@@ -7261,8 +7261,9 @@ Module[
     GraphicsGrid[
       List @ Join[legendCurves]
       , Alignment -> Left
-      , ImageSize -> ImageSizeTextWidth
-      , ItemAspectRatio -> 0.11
+      , ImageSize -> 0.65 ImageSizeTextWidth
+      , ItemAspectRatio -> 0.12
+      , Spacings -> -0.1 ImageSizeTextWidth
     ] // Ex["cosine-verification-legend.pdf"]
     ,
     Nothing
