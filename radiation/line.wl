@@ -2033,8 +2033,8 @@ Module[
   rMaxShow = 1 rSharp[a];
   rMaxNon = rSharp[a];
   (* Location of concave corner *)
-  rCorner = 0.37 rFlat[a];
-  phiCorner = 227 Degree;
+  rCorner = 0.27 rFlat[a];
+  phiCorner = 222 Degree;
   (* Traced boundaries *)
   phiMin = -0.75 Pi;
   phiMax = 0;
@@ -2052,7 +2052,7 @@ Module[
   textStyleBigger = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   (* Branch label proportions of traced boundary *)
   pUpperLabel = 0.3;
-  pLowerLabel = 0.48;
+  pLowerLabel = 0.55;
   (* Plot *)
   Show[
     EmptyFrame[{-rMaxShow, rMaxShow}, {-rMaxShow, rMaxShow}
@@ -2071,6 +2071,7 @@ Module[
     ParametricPlot[
       {xyUpper[p], xyLower[p]} // Evaluate
       , {p, 0, 1}
+      , PlotPoints -> 2
       , PlotStyle -> BoundaryTracingStyle["Traced"]
     ] /. line_Line :> {Arrowheads[{0, 0.06, 0}], Arrow[line]},
     (* Branch labels *)
