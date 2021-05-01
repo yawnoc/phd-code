@@ -7011,6 +7011,7 @@ Module[
       ParametricPlot[
         xyTraAsymm[id][s] // Through,
         {s, DomainStart @ xyTraAsymm[id], DomainEnd @ xyTraAsymm[id]}
+        , PlotPoints -> 2
         , PlotStyle -> BoundaryTracingStyle["Traced"]
       ]
       , {id, {"upper", "lower"}}
