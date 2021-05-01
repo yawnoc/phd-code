@@ -6666,7 +6666,10 @@ Module[
     {xSharp[a, b], xFlat[a, b], xFillingFunction[b]}
     , {b, bMin, bMax}
     , AspectRatio -> 1 / 1.5
-    , AxesLabel -> {bIt, xIt}
+    , AxesLabel -> {
+        bIt,
+        xIt // Margined @ {{0, 0}, {-5, 0}}
+      }
     , Epilog -> {
         (* Guiding lines for critical values *)
         BoundaryTracingStyle["Contour"],
