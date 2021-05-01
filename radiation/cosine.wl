@@ -5577,13 +5577,13 @@ Module[
       Contours -> tContValues,
       ContourShading -> None,
       ContourStyle -> BoundaryTracingStyle["ContourPlain"],
-      PlotPoints -> 8
+      PlotPoints -> 6
     ],
     (* Terminal curve *)
     ContourPlot[vi[a, b][x, y] == 0,
       {x, xMinViable, xMaxTerminal}, {y, -yMaxViable, yMaxViable},
       ContourStyle -> BoundaryTracingStyle["Terminal"],
-      PlotPoints -> 9
+      PlotPoints -> 5
     ],
     (* Ordinary terminal point (x_ord, y_ord) *)
     Graphics @ {
@@ -5647,7 +5647,7 @@ Module[
       ]
     }
     , ItemAspectRatio -> 2 (* took a while to figure this out *)
-    , ImageSize -> 0.63 ImageSizeTextWidth
+    , ImageSize -> 0.58 ImageSizeTextWidth
     , Spacings -> {0.1 ImageSizeTextWidth, 0}
   ]
 ] // Ex["cosine_simple-terminal-points.pdf"]
