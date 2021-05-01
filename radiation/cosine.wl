@@ -5901,7 +5901,7 @@ Module[
     dummyForTrailingCommas
   },
   (* Radiation boundary range *)
-  {yStart, yEnd} = {-1.3, 2};
+  {yStart, yEnd} = {-1.2, 2};
   {xStart, xEnd} = {0.2, xStraight};
   (* Fake traced boundary for a radiation boundary *)
   fun[y_] := Tanh[2.5y];
@@ -6014,7 +6014,7 @@ Module[
         {}
       },
       {}
-      , ImageSize -> 0.325 ImageSizeTextWidth
+      , ImageSize -> 0.32 ImageSizeTextWidth
       , PlotRange -> {{xStart, xEnd}, {yStart, yEnd}}
       , PlotRangePadding -> {
           {Scaled[0.05], Scaled[0.17]},
@@ -6026,7 +6026,7 @@ Module[
     We use the intersection of the tangent line in case (b)
     as the local position for case (c), because reciprocity.
   *)
-  ya = Way[yStart, yView, 0.3];
+  ya = Way[yStart, yView, 0.25];
   xa = xTraced[ya];
   yb = Way[yView, yInflection, 0.45];
   xb = xTraced[yb];
@@ -6044,6 +6044,7 @@ Module[
       ParametricPlot[
         {xTraced[y], y}
         , {y, yStart, yEnd}
+        , PlotPoints -> 2
         , PlotStyle -> goodStyle
       ],
       (* Tangent line through (x_v, y_v) *)
@@ -6102,11 +6103,13 @@ Module[
       ParametricPlot[
         {xTraced[y], y}
         , {y, yStart, y1}
+        , PlotPoints -> 2
         , PlotStyle -> goodStyle
       ],
       ParametricPlot[
         {xTraced[y], y}
         , {y, y1, y2}
+        , PlotPoints -> 2
         , PlotStyle -> selfStyle
       ],
       (* Tangent line through (x_b, y_y) *)
@@ -6171,11 +6174,13 @@ Module[
       ParametricPlot[
         {xTraced[y], y}
         , {y, yStart, y1}
+        , PlotPoints -> 2
         , PlotStyle -> goodStyle
       ],
       ParametricPlot[
         {xTraced[y], y}
         , {y, y1, y2}
+        , PlotPoints -> 2
         , PlotStyle -> selfStyle
       ],
       (* Tangent line through (x_b, y_y) *)
