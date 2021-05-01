@@ -5695,8 +5695,8 @@ Module[
   xMaxFrame = 1.1 xStraight;
   (* Image width arithmetic *)
   numCandidates = Length[aValues];
-  imageSize["Main"] = 0.6 ImageSizeTextWidth;
-  imageSize["Legend"] = ImageSizeTextWidth - imageSize["Main"];
+  imageSize["Main"] = 0.55 ImageSizeTextWidth;
+  imageSize["Legend"] = 0.4 ImageSizeTextWidth;
   imageSize["Candidate"] = imageSize["Main"] / (numCandidates + 1);
   (* List of plots *)
   plotList =
@@ -5764,11 +5764,11 @@ Module[
         ]
       },
       (* A == A_infl *)
-      xGraphicsAInfl = 0.38;
+      xGraphicsAInfl = 0.388;
       Graphics @ {arrowStyle,
         Line @ {
           {xGraphicsAInfl, 0},
-          {xGraphicsAInfl, -0.01}
+          {xGraphicsAInfl, -0.02}
         }
       },
       Graphics @ {
@@ -5776,22 +5776,22 @@ Module[
           Subscript[Italicise["A"], "i"] == SignificantFiguresForm[5][aInflSimp]
             // textStyle
           , {xGraphicsAInfl, 0}
-          , {0, 1.3}
+          , {0, 1.2}
         ]
       },
       (* A == 1 *)
-      xGraphicsA1 = 0.85;
+      xGraphicsA1 = 0.859;
       Graphics @ {arrowStyle,
         Line @ {
           {xGraphicsA1, 0},
-          {xGraphicsA1, -0.01}
+          {xGraphicsA1, -0.02}
         }
       },
       Graphics @ {
         Text[
           1 // textStyle
           , {xGraphicsA1, 0}
-          , {0, 1.3}
+          , {0, 1.2}
         ]
       },
       (* Convexity-interval labels *)
@@ -5799,13 +5799,13 @@ Module[
         Text[
           "non\[Hyphen]convex" // textStyle
           (* NOTE: use '\\[Hyphen]' to prevent parsing as minus sign *)
-          , {Way[0, xGraphicsAInfl], 0}
-          , {0, -1.3}
+          , {Way[0, xGraphicsAInfl, 0.47], 0}
+          , {0, -1.2}
         ],
         Text[
           "convex" // textStyle
           , {Way[xGraphicsAInfl, xGraphicsA1], 0}
-          , {0, -1.3}
+          , {0, -1.2}
         ],
         {}
       },
@@ -5846,23 +5846,27 @@ Module[
   (* Export *)
   {
     (* Main *)
-    Column @ {
-      Grid[
-        List @ Append[
-          plotList,
-          Graphics[ImageSize -> imageSize["Candidate"]]
-        ]
-        , Spacings -> 0
-      ],
-      parameterArrow
-    } // Ex["cosine_simple-candidate-domains.pdf"]
+    Column[
+      {
+        Grid[
+          List @ Append[
+            plotList,
+            Graphics[ImageSize -> imageSize["Candidate"]]
+          ]
+          , Spacings -> 0
+        ],
+        parameterArrow
+      }
+      , Spacings -> 0.1
+    ] // Ex["cosine_simple-candidate-domains.pdf"]
     ,
     (* Legend *)
     GraphicsColumn[
       Join[legendCurves, legendNodes]
       , Alignment -> Left
       , ImageSize -> imageSize["Legend"]
-      , ItemAspectRatio -> 0.11
+      , ItemAspectRatio -> 0.1
+      , Spacings -> 0
     ]
       // Ex["cosine_simple-candidate-domains-legend.pdf"]
   }
