@@ -6674,15 +6674,12 @@ Module[
         (* Guiding lines for critical values *)
         BoundaryTracingStyle["Contour"],
         Line @ {{0, xN}, {bN, xN}, {bN, 0}},
-        (* Points for regime transitions *)
-        GeneralStyle["Point"],
-        Point @ {{bN, xN}, {1, 0}},
         {}
       }
     , Filling -> {1 -> xMaxFilling, 2 -> xMin, 3 -> xMaxFilling}
     , FillingStyle -> BoundaryTracingStyle["NonViable"]
     , LabelStyle -> LatinModernLabelStyle @ LabelSize["Label"]
-    , PlotPoints -> 2
+    , PlotPoints -> 5
     , PlotRange -> {xMin, xMax}
     , PlotRangeClipping -> False
     , PlotStyle -> Append[visiblePlotStyles, None]
