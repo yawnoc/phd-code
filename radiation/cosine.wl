@@ -6679,6 +6679,7 @@ Module[
     , Filling -> {1 -> xMaxFilling, 2 -> xMin, 3 -> xMaxFilling}
     , FillingStyle -> BoundaryTracingStyle["NonViable"]
     , LabelStyle -> LatinModernLabelStyle @ LabelSize["Label"]
+    , PlotPoints -> 2
     , PlotRange -> {xMin, xMax}
     , PlotRangeClipping -> False
     , PlotStyle -> Append[visiblePlotStyles, None]
@@ -6712,7 +6713,7 @@ Module[
   {
     Show[
       plot
-      , ImageSize -> 0.45 ImageSizeTextWidth
+      , ImageSize -> 0.5 ImageSizeTextWidth
     ]
       // Ex["cosine_general-critical.pdf"]
     ,
@@ -6720,7 +6721,7 @@ Module[
       Join[legendCurves, legendRegions]
       , Alignment -> Left
       , ImageSize -> 0.2 ImageSizeTextWidth
-      , ItemAspectRatio -> 0.2
+      , ItemAspectRatio -> 0.17
     ]
       // Ex["cosine_general-critical-legend.pdf"]
   }
