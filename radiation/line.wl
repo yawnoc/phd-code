@@ -1924,6 +1924,7 @@ Module[
       , Alignment -> Left
       , ImageSize -> 0.2 ImageSizeTextWidth
       , ItemAspectRatio -> 0.2
+      , Spacings -> -0.02 ImageSizeTextWidth
     ] // Ex["line-critical-legend.pdf"]
   }
 ]
