@@ -6344,15 +6344,15 @@ Module[
   plotList =
     Table[
       (* Plot range for unphysical domain *)
-      xMinUnphys = xMin - eps;
-      xMaxUnphys = SeekRoot[tKnown[b][#, yMax] &, {0, xStraight}] + eps;
-      yMaxUnphys = yMax + eps;
-      plotPointsUnphys = If[b == 1, 9, 5];
+      xMinUnphys = xMin;
+      xMaxUnphys = xMax;
+      yMaxUnphys = yMax;
+      plotPointsUnphys = If[b == 1, 5, 7];
       (* Plot range for viable domain *)
       xMinViable = If[b < 1, xMin - eps, xSharp[a, b] - eps];
       xMaxViable = xMax + eps;
       yMaxViable = yMax + eps;
-      plotPointsViable = If[b < 1, 7, 8];
+      plotPointsViable = If[b < 1, 7, 4];
       (* Plot *)
       Show[
         EmptyFrame[{xMin, xMax}, {-yMax, yMax}
