@@ -1637,13 +1637,13 @@ Module[
     GraphicsGrid[
       List @ Join[
         RegionLegend[
-          {BoundaryTracingStyle["Viable"]},
-          {"viable domain"}
+          {BoundaryTracingStyle["NonViable"]},
+          {"non\[Hyphen]viable domain"}
           , LabelStyle -> legendLabelStyle
         ],
         RegionLegend[
-          {BoundaryTracingStyle["NonViable"]},
-          {"non\[Hyphen]viable domain"}
+          {BoundaryTracingStyle["Viable"]},
+          {"viable domain"}
           , LabelStyle -> legendLabelStyle
         ],
         CurveLegend[
@@ -1655,8 +1655,8 @@ Module[
       ]
       , Alignment -> Left
       , ImageSize -> ImageSizeTextWidth
-      , ItemAspectRatio -> 0.15
-      , Spacings -> {{0, -0.05} ImageSizeTextWidth, 0}
+      , ItemAspectRatio -> 0.1
+      , Spacings -> {{0, 0, -0.12} ImageSizeTextWidth, 0}
     ]
       // Ex["line-viable-legend.pdf"]
     ,
