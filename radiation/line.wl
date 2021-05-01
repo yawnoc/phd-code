@@ -2144,14 +2144,14 @@ Module[
       Line @ {{0, 0}, {rSharp, 0}},
       Text[
         Subscript[rIt, "\[Sharp]"] // textStyle
-        , {rSharp/2, 0}
+        , {rSharp/1.9, 0}
         , {0, 0.6}
       ],
       (* Radius at azimuthal angle *)
       Line @ {{0, 0}, XYPolar[rSharp + xi, phi]},
       Text[
         Subscript[rIt, "\[Sharp]"] // textStyle
-        , XYPolar[rSharp/2, phi]
+        , XYPolar[rSharp/1.9, phi]
         , XYPolar[1.5, 0.8 phi - Pi/2]
       ],
       Text[
@@ -2179,7 +2179,7 @@ Module[
       ],
       {}
     }
-    , ImageSize -> 0.3 ImageSizeTextWidth
+    , ImageSize -> 0.33 ImageSizeTextWidth
   ]
 ] // Ex["line-hot-outer-tangent-line.pdf"]
 
