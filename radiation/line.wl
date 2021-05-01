@@ -1976,7 +1976,10 @@ Module[
     ParametricPlot[
       {xyUpper[p], xyLower[p]} // Evaluate
       , {p, 0, 1}
-      , AxesLabel -> Italicise @ {"x", "y"}
+      , AxesLabel -> {
+          Italicise["x"] // Margined @ {{-1, 0}, {3, 0}},
+          Italicise["y"]
+        }
       , AxesStyle -> Darker[Gray]
       , ImageSize -> 0.4 ImageSizeTextWidth
       , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
