@@ -5074,9 +5074,9 @@ Module[
   (* Margin *)
   eps = 0.05;
   (* Plot range for unphysical domain *)
-  xMinUnphys = xMin - eps;
-  xMaxUnphys = SeekRoot[tKnown[b][#, yMax] &, {0, xStraight}] + eps;
-  yMaxUnphys = yMax + eps;
+  xMinUnphys = xMin;
+  xMaxUnphys = xMax;
+  yMaxUnphys = yMax;
   (* Plot range for contours *)
   xMinCont = xMin - eps;
   xMaxCont = xMax + eps;
@@ -5111,14 +5111,14 @@ Module[
           tKnown[b][x, y] < 0,
           {x, xMinUnphys, xMaxUnphys}, {y, -yMaxUnphys, yMaxUnphys},
           BoundaryStyle -> BoundaryTracingStyle["Unphysical"],
-          PlotPoints -> 12,
+          PlotPoints -> 6,
           PlotStyle -> BoundaryTracingStyle["Unphysical"]
         ],
         (* Non-viable domain *)
         RegionPlot[vi[a, b][x, y] < 0 && tKnown[b][x, y] > 0,
           {x, xMinViable, xMaxViable}, {y, -yMaxViable, yMaxViable},
           BoundaryStyle -> None,
-          PlotPoints -> 5,
+          PlotPoints -> 2,
           PlotStyle -> BoundaryTracingStyle["NonViable"]
         ],
         (* Known solution contours *)
@@ -5135,6 +5135,7 @@ Module[
         (* Straight contour *)
         ParametricPlot[{xStraight, y},
           {y, -yMaxContStraight, yMaxContStraight},
+          PlotPoints -> 2,
           PlotRange -> Full,
           PlotStyle -> BoundaryTracingStyle["ContourImportant"]
         ],
@@ -5142,7 +5143,7 @@ Module[
         ContourPlot[vi[a, b][x, y] == 0,
           {x, xMinViable, xMaxTerminal}, {y, -yMaxViable, yMaxViable},
           ContourStyle -> BoundaryTracingStyle["Terminal"],
-          PlotPoints -> 5
+          PlotPoints -> 3
         ]
       ]
     , {a, aValues}];
@@ -5207,8 +5208,8 @@ Module[
     GraphicsGrid[{legendRegions, legendCurves}
       , Alignment -> Left
       , ImageSize -> ImageSizeTextWidth
-      , ItemAspectRatio -> 0.11
-      , Spacings -> {Automatic, -0.02 ImageSizeTextWidth}
+      , ItemAspectRatio -> 0.1
+      , Spacings -> {{0, -0.08} ImageSizeTextWidth, -0.02 ImageSizeTextWidth}
     ] // Ex["cosine_simple-physical-viable-legend.pdf"]
     ,
     Nothing
