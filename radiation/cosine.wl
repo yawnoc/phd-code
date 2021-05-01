@@ -6713,7 +6713,7 @@ Module[
   {
     Show[
       plot
-      , ImageSize -> 0.5 ImageSizeTextWidth
+      , ImageSize -> 0.45 ImageSizeTextWidth
     ]
       // Ex["cosine_general-critical.pdf"]
     ,
