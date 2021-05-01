@@ -4947,7 +4947,7 @@ Module[
           tKnown[b][x, y] < 0,
           {x, xMin, xMax}, {y, -yMax, yMax},
           BoundaryStyle -> BoundaryTracingStyle["Unphysical"],
-          PlotPoints -> 10,
+          PlotPoints -> 6,
           PlotStyle -> BoundaryTracingStyle["Unphysical"]
         ],
         (* Known solution contours *)
@@ -4958,12 +4958,13 @@ Module[
           Contours -> numTo1 + numBeyond1,
           ContourShading -> None,
           ContourStyle -> BoundaryTracingStyle["ContourPlain"],
-          PlotPoints -> 5,
+          PlotPoints -> If[b <= 1, 5, 4],
           PlotRange -> {0, 1 + (1 + numBeyond1) / numTo1}
         ],
         (* Straight contour *)
         ParametricPlot[{xStraight, y},
           {y, -yMaxContStraight, yMaxContStraight},
+          PlotPoints -> 2,
           PlotRange -> Full,
           PlotStyle -> BoundaryTracingStyle["ContourImportant"]
         ]
@@ -5030,6 +5031,7 @@ Module[
     GraphicsGrid[List @ Join[legendRegions, legendCurves]
       , AspectRatio -> 0.1
       , ImageSize -> ImageSizeTextWidth
+      , Spacings -> {{0, -0.3} ImageSizeTextWidth, 0}
     ] // Ex["cosine-physical-legend.pdf"]
     ,
     Nothing
