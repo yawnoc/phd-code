@@ -5409,9 +5409,9 @@ Module[
   (* Margin *)
   eps = 0.05;
   (* Plot range for unphysical domain *)
-  xMinUnphys = xMin - eps;
-  xMaxUnphys = SeekRoot[tKnown[b][#, yMax] &, {0, xStraight}] + eps;
-  yMaxUnphys = yMax + eps;
+  xMinUnphys = xMin;
+  xMaxUnphys = xMax;
+  yMaxUnphys = yMax;
   (* Plot range for viable domain *)
   xMinViable = x0Simp[a] - eps;
   xMaxViable = xMax + eps;
@@ -5445,7 +5445,7 @@ Module[
       tKnown[b][x, y] < 0,
       {x, xMinUnphys, xMaxUnphys}, {y, -yMaxUnphys, yMaxUnphys},
       BoundaryStyle -> BoundaryTracingStyle["Unphysical"],
-      PlotPoints -> 12,
+      PlotPoints -> 6,
       PlotStyle -> BoundaryTracingStyle["Unphysical"]
     ],
     (* Non-viable domain *)
