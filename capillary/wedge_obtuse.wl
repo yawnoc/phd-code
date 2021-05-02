@@ -3279,7 +3279,7 @@ Module[
   branchCases = {"upper", "lower"};
   branchYSigns = {1, -1};
   arrowify[proportion_] :=
-    # /. {line_Line :> {Arrowheads @ {{-0.08, proportion}}, Arrow[line]}} &;
+    # /. {line_Line :> {Arrowheads @ {{-0.09, proportion}}, Arrow[line]}} &;
   nonManifoldStyle = Directive[
     BoundaryTracingStyle["Traced"],
     BoundaryTracingStyle["Background"] // Last
@@ -3313,6 +3313,7 @@ Module[
         ParametricPlot[
           EvaluatePair[xy, s, ySign] // Evaluate
           , {s, DomainStart[xy], DomainEnd[xy]}
+          , PlotPoints -> 2
           , PlotStyle -> nonManifoldStyle
         ]
           // arrowify[0.3]
@@ -3323,6 +3324,7 @@ Module[
         ParametricPlot[
           EvaluatePair[xy, s, ySign] // Evaluate
           , {s, DomainStart[xy], DomainEnd[xy]}
+          , PlotPoints -> 2
           , PlotStyle -> nonManifoldStyle
         ]
           // arrowify[0.45]
@@ -3333,6 +3335,7 @@ Module[
         ParametricPlot[
           EvaluatePair[xy, s, ySign] // Evaluate
           , {s, DomainStart[xy], DomainEnd[xy]}
+          , PlotPoints -> 2
           , PlotStyle -> nonManifoldStyle
         ]
           // arrowify[0.15]
@@ -3343,6 +3346,7 @@ Module[
         ParametricPlot[
           EvaluatePair[xy, s, ySign] // Evaluate
           , {s, DomainStart[xy], DomainEnd[xy]}
+          , PlotPoints -> 2
           , PlotStyle -> BoundaryTracingStyle["Traced"]
         ]
           // arrowify[0.56]
