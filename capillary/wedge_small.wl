@@ -2040,7 +2040,7 @@ Module[
     dummyForTrailingCommas
   },
   (* Angular parameters *)
-  {apd, gpd, gpdTracing} = {30, 45, 55};
+  {apd, gpd, gpdTracing} = {30, 45, 60};
   {alpha, gamma, gammaTracing} = {apd, gpd, gpdTracing} Degree;
   (* Import wedge_small solution H == H (r, \[Phi]) *)
   hSmall =
@@ -2099,7 +2099,7 @@ Module[
         Text[
           "\[Xi]" // textStyleLabel
           , {xArrowBase, yArrowBase} + XYPolar[arrowLength, alpha - Pi/2]
-          , {-2.5, -0.4}
+          , {-2.5, -0.5}
         ],
         {}
       },
@@ -2176,7 +2176,7 @@ Module[
           Row @ {
             "(" // textStylePointBracket,
             "\[NegativeVeryThinSpace]",
-            Subscript[Italicise["x"], 0],
+            Subscript[Italicise["x"], "\[VeryThinSpace]\[VeryThinSpace]0"],
             ",\[ThinSpace]",
             0,
             ")" // textStylePointBracket
