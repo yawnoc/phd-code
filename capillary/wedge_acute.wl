@@ -3956,6 +3956,7 @@ Module[
             {d[gpd] / Sin[alpha], 0}
           ]
           , {s, -DomainEnd[xy], DomainEnd[xy]}
+          , PlotPoints -> If[apd < apdValues[[3]], 5, 4]
           , PlotStyle -> Directive[
               BoundaryTracingStyle["Traced"],
               GeneralStyle["DefaultThick"]
