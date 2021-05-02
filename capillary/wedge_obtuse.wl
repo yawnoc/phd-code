@@ -4241,6 +4241,7 @@ Module[
   Plot[
     {1, rhoIndentationsRawProfile[s]}
     , {s, -sMax, sMax}
+    , AspectRatio -> 0.7
     , AxesLabel -> {Italicise["s"], "\[Rho]" // LaTeXStyle}
     , ImageSize -> 0.5 ImageSizeTextWidth
     , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
