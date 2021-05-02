@@ -2222,6 +2222,7 @@ Module[
   ];
   (* Plot options *)
   opts = {
+    AspectRatio -> 0.5,
     AxesLabel -> {Italicise["r"], "Slope"},
     ImageSize -> 0.45 ImageSizeTextWidth,
     Joined -> True,
@@ -2324,6 +2325,7 @@ Module[
   ];
   (* Plot options *)
   opts = {
+    AspectRatio -> 0.5,
     AxesLabel -> {Italicise["r"], "Height"},
     ImageSize -> 0.45 ImageSizeTextWidth,
     Joined -> True,
