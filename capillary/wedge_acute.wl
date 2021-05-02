@@ -3468,6 +3468,7 @@ Module[
       , {t, tStart, tEnd}
       , Axes -> None
       , ImageSize -> 0.5 ImageSizeTextWidth
+      , PlotPoints -> 2
       , PlotRange -> All
       , PlotRangeClipping -> False
       , PlotStyle -> Directive[Black, GeneralStyle["Thick"]]
