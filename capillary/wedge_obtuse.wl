@@ -4014,6 +4014,7 @@ Module[
     (*, AxesOrigin -> {-sMaxPlot, Automatic}*)
     , ImageSize -> 0.6 ImageSizeTextWidth
     , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+    , PlotPoints -> 4
     , PlotRange -> {Floor[tCorner, 0.1], All}
     (*, PlotRangePadding -> {None, Scaled /@ {0.01, 0.05}}*)
     , PlotStyle ->
