@@ -4285,7 +4285,7 @@ Module[
           Italicise["y"]
         }
       , FrameTicksStyle -> LabelSize["Tick"]
-      , ImageSize -> 0.8 * 0.45 ImageSizeTextWidth
+      , ImageSize -> 0.85 * 0.45 ImageSizeTextWidth
       , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
     ];
   (* Make domain plot *)
