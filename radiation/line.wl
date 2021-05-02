@@ -2051,7 +2051,7 @@ Module[
   textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   textStyleBigger = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   (* Branch label proportions of traced boundary *)
-  pUpperLabel = 0.3;
+  pUpperLabel = 0.28;
   pLowerLabel = 0.55;
   (* Plot *)
   Show[
@@ -2073,7 +2073,7 @@ Module[
       , {p, 0, 1}
       , PlotPoints -> 2
       , PlotStyle -> BoundaryTracingStyle["Traced"]
-    ] /. line_Line :> {Arrowheads[{0, 0.06, 0}], Arrow[line]},
+    ] /. line_Line :> {Arrowheads[{0, {0.07, 0.52}, 0}], Arrow[line]},
     (* Branch labels *)
     Graphics @ {
       Text[
