@@ -2470,6 +2470,7 @@ Module[
     Show[
       EmptyFrame[{-xMax, xMax}, {-yMax, yMax}
         , Frame -> None
+        , PlotRangePadding -> {{Scaled[-0.07], Scaled[0.03]}, None}
       ],
       (* Outer terminal curve (effective incircle) *)
       Graphics @ {
@@ -2513,9 +2514,10 @@ Module[
   ];
   (* Final figure *)
   GraphicsRow[plotList
-    , ImageSize -> ImageSizeTextWidth
+    , Alignment -> Left
+    , ImageSize -> 0.95 ImageSizeTextWidth
     , PlotRangePadding -> 0
-    , Spacings -> -0.1 ImageSizeTextWidth
+    , Spacings -> 0
   ]
 ] // Ex["line-domains.pdf"]
 
