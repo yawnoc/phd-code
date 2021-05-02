@@ -2666,7 +2666,7 @@ Module[
       , {x, xMinMore, xMaxMore}
       , {y, -yMaxMore, yMaxMore}
       , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
-      , PlotPoints -> 5
+      , PlotPoints -> 3
       , PlotStyle -> BoundaryTracingStyle["NonViable"]
     ],
     (* Traced boundaries *)
@@ -2677,6 +2677,7 @@ Module[
           // IncludeYReflection
           // Evaluate
         , {s, DomainStart[xy], DomainEnd[xy]}
+        , PlotPoints -> 2
         , PlotStyle -> BoundaryTracingStyle["Traced"]
       ]
       , {xy, xyTracedList}
