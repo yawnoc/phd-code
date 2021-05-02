@@ -3529,7 +3529,7 @@ Module[
         Row @ {
           "(" // textStylePointBracket,
           "\[NegativeVeryThinSpace]",
-          Subscript[Italicise["x"], "\[VeryThinSpace]c"],
+          Subscript[Italicise["x"], "\[VeryThinSpace]\[VeryThinSpace]c"],
           ",\[ThinSpace]",
           0,
           ")" // textStylePointBracket
