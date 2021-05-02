@@ -3173,6 +3173,7 @@ Module[
               // IncludeYReflection
               // Evaluate
             , {s, DomainStart[xy], DomainEnd[xy]}
+            , PlotPoints -> 2
             , PlotStyle -> BoundaryTracingStyle["Traced"]
           ]
           , {xy, xyTracedList}
