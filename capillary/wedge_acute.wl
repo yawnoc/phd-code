@@ -3802,6 +3802,7 @@ Module[
         EvaluatePair[xy, Abs[s], Sign[s]]
           // Evaluate
         , {s, -DomainEnd[xy], DomainEnd[xy]}
+        , PlotPoints -> 2
         , PlotStyle -> BoundaryTracingStyle["Traced"]
       ]
       , {xy, xyTracedAss}
@@ -3817,6 +3818,7 @@ Module[
           // IncludeYReflection
           // Evaluate
         , {prop, 0, 1}
+        , PlotPoints -> 2
         , PlotStyle -> BoundaryTracingStyle["Traced"]
       ]
       , {xy, xyTracedAss[gpdTracing] // List}
