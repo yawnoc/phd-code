@@ -3504,6 +3504,7 @@ Module[
     ParametricPlot[
       EvaluatePair[xyTraced, s] // IncludeYReflection // Evaluate
       , {s, DomainStart[xyTraced], DomainEnd[xyTraced]}
+      , PlotPoints -> 2
       , PlotStyle -> BoundaryTracingStyle["Traced"]
     ] /. {line_Line :> {Arrowheads @ {{0.1, 0.85}}, Arrow[line]}},
     {}
@@ -3519,6 +3520,7 @@ Module[
         , -Sign[s - sCorner]
       ] // Evaluate
       , {s, 0, 2 sCorner}
+      , PlotPoints -> 2
       , PlotStyle -> BoundaryTracingStyle["Traced"]
     ],
     (* Corner point (x_c, 0) *)
@@ -3527,7 +3529,7 @@ Module[
         Row @ {
           "(" // textStylePointBracket,
           "\[NegativeVeryThinSpace]",
-          Subscript[Italicise["x"], "c"],
+          Subscript[Italicise["x"], "\[VeryThinSpace]c"],
           ",\[ThinSpace]",
           0,
           ")" // textStylePointBracket
@@ -3540,8 +3542,8 @@ Module[
   ];
   (* Options (fix vertical sizing) *)
   opts = {
-    ImageSize -> {Automatic, 0.45 * 1.15 ImageSizeTextWidth},
-    PlotRange -> {{All, All}, {-1.2 yMaxWall, 1.4 yMaxWall}},
+    ImageSize -> {Automatic, 0.45 * 1 ImageSizeTextWidth},
+    PlotRange -> {{All, All}, {-1.2 yMaxWall, 1.35 yMaxWall}},
     {}
   };
   (* Export *)
