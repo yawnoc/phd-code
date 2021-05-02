@@ -4920,7 +4920,7 @@ Module[
       {}
       , ImageSize -> 0.35 ImageSizeTextWidth
       , PlotRange -> {{-xMax, xMax}, {yMin, yMax}}
-      , PlotRangePadding -> {{Scaled[0.12], Scaled[0.07]}, {Scaled[0.2], Scaled[0.03]}}
+      , PlotRangePadding -> {{Scaled[0.12], Scaled[0.07]}, {Scaled[0.15], Scaled[0.03]}}
     ]
       // Ex @ FString["bipolar-u-{case}-than-pi.pdf"]
     , {case, {"less", "more"}}
