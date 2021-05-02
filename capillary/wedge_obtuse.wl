@@ -2174,7 +2174,7 @@ Module[
       ]
     },
     {}
-    , ImageSize -> 0.4 ImageSizeTextWidth
+    , ImageSize -> 0.45 ImageSizeTextWidth
     , PlotRange -> {{xMinPlot, xMaxPlot}, {-yMaxPlot, yMaxPlot}}
   ]
 ] // Ex["wedge_obtuse-mesh-detail-additional-refinement.pdf"]
