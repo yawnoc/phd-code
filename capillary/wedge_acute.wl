@@ -2280,6 +2280,7 @@ Module[
             // Through
             // Evaluate
           , {s, DomainStart[xy], DomainEnd[xy]}
+          , PlotPoints -> 2
           , PlotStyle -> BoundaryTracingStyle["Background"]
         ]
         , {xy, xyTracedUpperList[n]}
@@ -2291,6 +2292,7 @@ Module[
             // Through
             // Evaluate
           , {s, DomainStart[xy], DomainEnd[xy]}
+          , PlotPoints -> 2
           , PlotStyle -> BoundaryTracingStyle["Background"]
         ]
         , {xy, xyTracedLowerList[n]}
@@ -2319,6 +2321,7 @@ Module[
               // Through
               // Evaluate
             , {s, sIntersectionLower[n][k], 0}
+            , PlotPoints -> 2
             , PlotStyle -> BoundaryTracingStyle["Traced"]
           ],
           (* Upper branch portions *)
@@ -2327,6 +2330,7 @@ Module[
               // Through
               // Evaluate
             , {s, 0, sIntersectionUpper[n][k]}
+            , PlotPoints -> 2
             , PlotStyle -> BoundaryTracingStyle["Traced"]
           ],
           {}
