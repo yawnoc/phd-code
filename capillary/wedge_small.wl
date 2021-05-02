@@ -1059,7 +1059,7 @@ Module[
   },
   (* Geometry *)
   rMax = 2;
-  alpha = 30 Degree;
+  alpha = 25 Degree;
   numSubdivisions = 4;
   (* Options *)
   textStyleLabel = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
