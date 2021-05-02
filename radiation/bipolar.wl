@@ -6327,6 +6327,7 @@ Module[
       XYBipolar @@ EvaluatePair[uvTraced, s]
         // IncludeYReflection
       , {s, DomainStart[uvTraced], DomainEnd[uvTraced]}
+      , PlotPoints -> 2
       , PlotStyle -> BoundaryTracingStyle["Traced"]
     ],
     (* Internal (heat bath) boundary *)
@@ -6355,7 +6356,7 @@ Module[
   (* Export *)
   GraphicsRow[
     {domainGraphic, meshGraphic}
-    , ImageSize -> 0.968 ImageSizeTextWidth
+    , ImageSize -> 0.9 ImageSizeTextWidth
     , Spacings -> Scaled[0.05]
   ]
     // Ex["bipolar-verification-domain-mesh.pdf"]
