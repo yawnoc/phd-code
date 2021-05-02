@@ -3099,7 +3099,7 @@ Module[
           Row @ {
             "(" // textStyleBracket,
             "\[NegativeVeryThinSpace]",
-            Subscript[Italicise["x"], 0],
+            Subscript[Italicise["x"], "\[VeryThinSpace]\[VeryThinSpace]0"],
             ",\[ThinSpace]",
             0,
             ")" // textStyleBracket
@@ -3220,7 +3220,7 @@ Module[
           Row @ {
             "(" // textStyleBracket,
             "\[NegativeVeryThinSpace]",
-            Subscript[Italicise["x"], 0],
+            Subscript[Italicise["x"], "\[VeryThinSpace]\[VeryThinSpace]0"],
             ",\[ThinSpace]",
             0,
             ")" // textStyleBracket
@@ -3403,7 +3403,7 @@ Module[
           Row @ {
             "(" // textStylePointBracket,
             "\[NegativeVeryThinSpace]",
-            Subscript[Italicise["x"], 0],
+            Subscript[Italicise["x"], "\[VeryThinSpace]\[VeryThinSpace]0"],
             ",\[ThinSpace]",
             0,
             ")" // textStylePointBracket
