@@ -1901,7 +1901,7 @@ Module[
     {}
     , Axes -> True
     , AxesLabel -> Italicise /@ {"x", "y"}
-    , ImageSize -> 0.48 ImageSizeTextWidth
+    , ImageSize -> 0.48 * 0.9 ImageSizeTextWidth
     , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
     , Method -> {"AxesInFront" -> False}
     , PlotRangePadding -> Scaled[0.067]
