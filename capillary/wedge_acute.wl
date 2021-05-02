@@ -1983,7 +1983,7 @@ Module[
       , {x, xCritical, xMaxMore}
       , {y, -yMaxMore, yMaxMore}
       , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
-      , PlotPoints -> 7
+      , PlotPoints -> 5
       , PlotStyle -> BoundaryTracingStyle["NonViable"]
     ],
     (* Traced boundaries *)
@@ -1994,6 +1994,7 @@ Module[
           // IncludeYReflection
           // Evaluate
         , {s, DomainStart[xy], DomainEnd[xy]}
+        , PlotPoints -> 2
         , PlotStyle -> BoundaryTracingStyle["Traced"]
       ]
       , {xy, xyTracedList}
@@ -2032,7 +2033,7 @@ Module[
     GraphicsColumn[Join[legendCurves, legendRegions]
       , Alignment -> Left
       , ImageSize -> 0.3 ImageSizeTextWidth
-      , ItemAspectRatio -> 0.15
+      , ItemAspectRatio -> 0.13
       , Spacings -> {0, 0}
     ] // Ex["wedge_acute-traced-boundaries-legend.pdf"]
   }
