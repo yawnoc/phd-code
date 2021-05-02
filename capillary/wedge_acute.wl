@@ -4302,6 +4302,7 @@ Module[
     , AxesLabel -> Italicise /@ {"s", "T"}
     , ImageSize -> 0.6 ImageSizeTextWidth
     , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
+    , PlotPoints -> 4
     , PlotRange -> {0, All}
     , PlotStyle ->
         Join[
