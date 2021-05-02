@@ -6738,7 +6738,7 @@ Module[
 Module[
   {
     vSpecial, omegaSpecial,
-    textStyle,
+    textStyle, textStyleSmaller,
     dummyForTrailingCommas
   },
   (* Special values *)
@@ -6746,6 +6746,7 @@ Module[
   omegaSpecial = omega[vSpecial];
   (* Make plot *)
   textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  textStyleSmaller = Style[#, LabelSize["Label"] - 2] & @* LaTeXStyle;
   Plot[omega[v], {v, 0, 20}
     , AxesLabel -> {
         vIt // Margined @ {{-2, 0}, {3, 0}},
@@ -6757,9 +6758,9 @@ Module[
           Line @ {{vSpecial, 0}, {vSpecial, omegaSpecial}}
         },
         Text[
-          SeparatedRow["VeryThin"][1, "/", 4] // textStyle
+          SeparatedRow["VeryThin"][1, Style["/", Larger], 4] // textStyleSmaller
           , {0, omegaSpecial}
-          , {1.4, -0.07}
+          , {1.5, -0.07}
         ],
         Text[
           Subscript[vIt, Row @ {"\[Natural]\[VeryThinSpace]", 0}] // textStyle
