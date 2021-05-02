@@ -6723,7 +6723,7 @@ Module[
     {}
     , AspectRatio -> Automatic
     , Axes -> None
-    , ImageSize -> 0.56 ImageSizeTextWidth
+    , ImageSize -> 0.52 ImageSizeTextWidth
     , PlotRange -> All
     , PlotRangeClipping -> False
   ]
