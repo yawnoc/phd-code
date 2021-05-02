@@ -3880,6 +3880,7 @@ Module[
         ]
           // Evaluate
         , {s, 0, 2 sMax}
+        , PlotPoints -> 3
         , PlotStyle -> BoundaryTracingStyle["Traced"]
       ]
       , {gpd, gpdValues}
@@ -3904,7 +3905,7 @@ Module[
       ]
     },
     {}
-    , ImageSize -> 0.38 ImageSizeTextWidth
+    , ImageSize -> 0.35 ImageSizeTextWidth
   ]
 ] // Ex["wedge_obtuse-pseudo-roundings-offset.pdf"]
 
