@@ -2224,7 +2224,7 @@ Module[
   opts = {
     AspectRatio -> 0.5,
     AxesLabel -> {Italicise["r"], "Slope"},
-    ImageSize -> 0.45 ImageSizeTextWidth,
+    ImageSize -> 0.4 ImageSizeTextWidth,
     Joined -> True,
     LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"],
     TicksStyle -> LabelSize["Tick"],
@@ -2327,7 +2327,7 @@ Module[
   opts = {
     AspectRatio -> 0.5,
     AxesLabel -> {Italicise["r"], "Height"},
-    ImageSize -> 0.45 ImageSizeTextWidth,
+    ImageSize -> 0.4 ImageSizeTextWidth,
     Joined -> True,
     LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"],
     TicksStyle -> LabelSize["Tick"],
@@ -2404,7 +2404,7 @@ Module[
   opts = {
     AspectRatio -> 0.5,
     AxesLabel -> {Italicise["r"], "Slope"},
-    ImageSize -> 0.45 ImageSizeTextWidth,
+    ImageSize -> 0.4 ImageSizeTextWidth,
     Joined -> True,
     LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"],
     TicksStyle -> LabelSize["Tick"],
@@ -2485,7 +2485,7 @@ Module[
   opts = {
     AspectRatio -> 0.5,
     AxesLabel -> {Italicise["r"], "Height"},
-    ImageSize -> 0.45 ImageSizeTextWidth,
+    ImageSize -> 0.4 ImageSizeTextWidth,
     Joined -> True,
     LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"],
     TicksStyle -> LabelSize["Tick"],
