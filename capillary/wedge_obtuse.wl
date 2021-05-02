@@ -4160,7 +4160,7 @@ Module[
           // IncludeYReflection
           // Evaluate
         , {s, DomainStart[xy], DomainEnd[xy]}
-        , PlotPoints -> 9
+        , PlotPoints -> 2
         , PlotStyle -> BoundaryTracingStyle["Background"]
         , RegionFunction -> regionFunctionTraced
       ]
