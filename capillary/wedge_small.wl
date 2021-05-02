@@ -1469,7 +1469,7 @@ Module[
     GraphicsColumn[Join[legendCurves, legendRegions]
       , Alignment -> Left
       , ImageSize -> 0.3 ImageSizeTextWidth
-      , ItemAspectRatio -> 0.15
+      , ItemAspectRatio -> 0.135
       , Spacings -> {0, 0}
     ]
       // Ex["wedge_small-viable-legend.pdf"]
