@@ -3009,6 +3009,7 @@ Module[
         ParametricPlot[
           EvaluatePair[xy, s, ySign] // Evaluate
           , {s, DomainStart[xy], DomainEnd[xy]}
+          , PlotPoints -> 2
           , PlotStyle -> BoundaryTracingStyle["Traced"]
         ]
           /. line_Line :> {Arrowheads @ {{-0.08, 0.33}}, Arrow[line]}
