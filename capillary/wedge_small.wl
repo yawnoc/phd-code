@@ -2326,7 +2326,7 @@ Module[
       ]
     },
     {}
-    , ImageSize -> 0.45 ImageSizeTextWidth
+    , ImageSize -> 0.5 ImageSizeTextWidth
   ] // Ex["wedge_small-candidates.pdf"]
 ]
 
