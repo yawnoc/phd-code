@@ -1578,7 +1578,7 @@ Module[
       , {x, rCritical, xMaxMore}
       , {y, -yMaxMore, yMaxMore}
       , BoundaryStyle -> BoundaryTracingStyle["Terminal"]
-      , PlotPoints -> 8
+      , PlotPoints -> 6
       , PlotStyle -> BoundaryTracingStyle["NonViable"]
     ],
     (* Traced boundaries *)
@@ -1614,7 +1614,7 @@ Module[
         Row @ {
           "(" // textStyleBracket,
           "\[NegativeVeryThinSpace]",
-          Subscript[Italicise["x"], 0],
+          Subscript[Italicise["x"], "\[VeryThinSpace]\[VeryThinSpace]0"],
           ",\[ThinSpace]",
           0,
           ")" // textStyleBracket
