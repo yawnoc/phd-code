@@ -2002,7 +2002,7 @@ Module[
       , AxesEdge -> {{-1, -1}, {+1, -1}, {-1, -1}}
       , AxesLabel -> {
           Italicise["x"],
-          Italicise["y"],
+          Italicise["y"] // Margined @ {{10, 0}, {0, -15}},
           Italicise["T"] // Margined @ {{0, 5}, {0, 0}}
         }
       , BoundaryStyle -> BoundaryTracingStyle["Edge3D"]
