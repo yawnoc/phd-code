@@ -2304,7 +2304,7 @@ Module[
   (* Value of A *)
   a = 0.75 aNat;
   (* Plot range *)
-  imageSize = 0.35 ImageSizeTextWidth;
+  imageSize = 0.33 ImageSizeTextWidth;
   rMaxShow = rInfl;
   rSh = rSharp[a];
   (* Location of (convex) protrusion corner *)
