@@ -464,7 +464,10 @@ Module[
   textStyleZero = Style[#, labelSize - 1] & @* LaTeXStyle;
   Show[
     EmptyAxes[{xMin, xMax}, {tStart, tEnd}
-      , AxesLabel -> Italicise /@ {"x", "T"}
+      , AxesLabel -> {
+          Italicise["x"],
+          Italicise["T"] // Margined @ {{0, 0}, {-4, 0}}
+        }
       , ImageSize -> 0.48 ImageSizeTextWidth
       , LabelStyle -> LatinModernLabelStyle[labelSize]
       , PlotRange -> All
