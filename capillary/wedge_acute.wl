@@ -3060,7 +3060,7 @@ Module[
         , {x, xCritical, xMaxMore}
         , {y, -yMaxMore, yMaxMore}
         , BoundaryStyle -> None
-        , PlotPoints -> 17
+        , PlotPoints -> 8
         , PlotStyle -> BoundaryTracingStyle["NonViable"]
       ],
       (* Wedge walls *)
@@ -3081,7 +3081,7 @@ Module[
         ]
         , {xy, xyContourList}
       ],
-      (* Non-viable domain *)
+      (* Terminal curve *)
       ContourPlot[
         vi[x, y] == 0
         , {x, xCritical, xMaxMore}
