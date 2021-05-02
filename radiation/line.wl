@@ -2304,7 +2304,7 @@ Module[
   (* Value of A *)
   a = 0.75 aNat;
   (* Plot range *)
-  imageSize = 0.4 ImageSizeTextWidth;
+  imageSize = 0.35 ImageSizeTextWidth;
   rMaxShow = rInfl;
   rSh = rSharp[a];
   (* Location of (convex) protrusion corner *)
@@ -2326,8 +2326,8 @@ Module[
   textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   textStyleBigger = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
   (* Branch label proportions of traced boundary *)
-  pUpperLabel = 0.6;
-  pLowerLabel = 0.4;
+  pUpperLabel = 0.7;
+  pLowerLabel = 0.27;
   (* Plot *)
   Show[
     EmptyFrame[{-rMaxShow, rMaxShow}, {-rMaxShow, rMaxShow}
@@ -2350,24 +2350,28 @@ Module[
     ParametricPlot[
       xyLower[p]
       , {p, 0, 1}
+      , PlotPoints -> 2
       , PlotStyle -> BoundaryTracingStyle["Traced"]
-    ] /. line_Line :> {Arrowheads[{0, {0.06, 0.7}, 0}], Arrow[line]},
+    ] /. line_Line :> {Arrowheads[{0, {0.08, 0.75}, 0}], Arrow[line]},
     ParametricPlot[
       xyUpper[p]
       , {p, 0, 1}
+      , PlotPoints -> 2
       , PlotStyle -> BoundaryTracingStyle["Traced"]
-    ] /. line_Line :> {Arrowheads[{0, 0.06, 0}], Arrow[line]},
+    ] /. line_Line :> {Arrowheads[{0, {0.08, 0.52}, 0}], Arrow[line]},
     (* Branch labels *)
     Graphics @ {
       Text[
         "upper" // textStyle
         , xyUpper[pUpperLabel]
-        , {1.5, 0}
+        , {0, -1.3}
+        , -xyUpper'[pUpperLabel]
       ],
       Text[
         "lower" // textStyle
         , xyLower[pLowerLabel]
-        , {-1.6, 0}
+        , {0, -1.1}
+        , -xyLower'[pLowerLabel]
       ],
       {}
     },
