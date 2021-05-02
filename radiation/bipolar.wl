@@ -5931,9 +5931,9 @@ Module[{legendLabelStyle},
       ],
       {}
     ]
-    , ImageSize -> ImageSizeTextWidth
+    , ImageSize -> 0.85 ImageSizeTextWidth
     , ItemAspectRatio -> 0.15
-    , Spacings -> {{0, -0.05} ImageSizeTextWidth, 0}
+    , Spacings -> {{0, -0.04} ImageSizeTextWidth, 0}
   ]
     // Ex["bipolar-critical-terminal-points-legend.pdf"]
 ]
