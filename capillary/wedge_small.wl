@@ -2909,7 +2909,7 @@ Module[
     ],
     {}
     , FrameLabel -> {
-        Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
+        Italicise["x"] // Margined @ {{0, 0}, {0, -18}},
         Italicise["y"]
       }
     , ImageSize -> 0.45 * 0.7 ImageSizeTextWidth
