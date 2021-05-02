@@ -2006,7 +2006,7 @@ Module[
     (* Export *)
     caseName = AssociationThread[gpdTracingValues, caseNameList][gpdTracing];
     Show[plot
-      , ImageSize -> 0.4 ImageSizeTextWidth
+      , ImageSize -> 0.43 ImageSizeTextWidth
     ] // Ex @ FString["wedge_small-traced-boundaries-different-angle-{caseName}.pdf"]
     (* END Table content *)
     , {gpdTracing, gpdTracingValues}
