@@ -3687,7 +3687,7 @@ Module[
   xCriticalMax = x0[tNumerical, Max[gpdTracingValues] Degree];
   xMin = -2 xCriticalMax;
   xMax = 1.5 xCriticalMax;
-  yMax = 1.2 xMin Tan[alpha];
+  yMax = 1.1 xMin Tan[alpha];
   (* Plot range but more *)
   more = 0.05;
   xMinMore = xMin - more;
@@ -3724,7 +3724,7 @@ Module[
   Show[
     EmptyFrame[{xMin, xMax}, {-yMax, yMax}
       , FrameLabel -> {
-          Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
+          Italicise["x"] // Margined @ {{0, 0}, {0, -24}},
           Italicise["y"]
         }
       , FrameTicksStyle -> LabelSize["Tick"]
@@ -3746,6 +3746,7 @@ Module[
         EvaluatePair[xy, sMax - Abs[s - sMax], -Sign[s - sMax]]
           // Evaluate
         , {s, 0, 2 sMax}
+        , PlotPoints -> 3
         , PlotStyle -> BoundaryTracingStyle["Traced"]
       ]
       , {gpdTracing, gpdTracingValues}
