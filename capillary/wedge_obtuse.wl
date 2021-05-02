@@ -4079,7 +4079,7 @@ Module[
   (* Plot range *)
   xMax = 1.1 xCritical;
   xMin = xMinWall;
-  yMax = 1.7 yMaxWall;
+  yMax = 1.65 yMaxWall;
   (* Maxmimum arc length *)
   sMax = 4 rMaxWall;
   (* Contour T == h_tracing *)
@@ -4138,12 +4138,12 @@ Module[
     , {n, Keys[intersectionCurveAss]}
   ];
   (* Make plots *)
-  yMaxTraced = Way[yMaxWall, yMax];
+  yMaxTraced = Way[yMaxWall, yMax, 0.42];
   regionFunctionTraced = Function[{x, y}, Abs[y] < yMaxTraced // Evaluate];
   plot["common"] = Show[
     EmptyFrame[{xMin, xMax}, {-yMax, yMax}
       , FrameLabel -> {
-          Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
+          Italicise["x"] // Margined @ {{0, 0}, {0, -17}},
           Italicise["y"]
         }
       , FrameTicksStyle -> LabelSize["Tick"]
@@ -4182,7 +4182,7 @@ Module[
   plot["contour"] = Show[
     plot["common"],
     (* Label for contour *)
-    yContourLabel = Way[yMaxTraced, yMax, 0.75];
+    yContourLabel = Way[yMaxTraced, yMax, 0.78];
     sContourLabel = SeekRoot[
       xyContour[[2]][#] - yContourLabel &,
       {0, DomainEnd[xyContour]}
