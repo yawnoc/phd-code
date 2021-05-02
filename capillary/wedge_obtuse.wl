@@ -3012,11 +3012,11 @@ Module[
           , PlotPoints -> 2
           , PlotStyle -> BoundaryTracingStyle["Traced"]
         ]
-          /. line_Line :> {Arrowheads @ {{-0.08, 0.33}}, Arrow[line]}
+          /. line_Line :> {Arrowheads @ {{-0.1, 0.33}}, Arrow[line]}
         , {xy, xyTracedList}
       ],
       {}
-      , ImageSize -> 0.45 * 0.65 ImageSizeTextWidth
+      , ImageSize -> 0.45 * 0.6 ImageSizeTextWidth
     ] // Ex @ FString["wedge_obtuse-traced-boundaries-{case}-branch.pdf"]
     , {case, branchCases}
   ]
