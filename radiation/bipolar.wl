@@ -6003,6 +6003,7 @@ Module[
             // IncludeYReflection
             // Evaluate
           , {u, DomainStart[v], DomainEnd[v]}
+          , PlotPoints -> 2
           , PlotStyle -> Directive[Black, GeneralStyle["Thick"]]
         ]
         , {v, {vInner, If[merged, Nothing, vOuter]}}
@@ -6046,7 +6047,7 @@ Module[
       , Axes -> False
       , ImageSize -> {Automatic, 0.25 ImageSizeTextWidth}
       , PlotRange -> {{If[closed, All, xMin], All}, {-yMax, yMax}}
-      , PlotRangePadding -> {None, Scaled[0.01]}
+      , PlotRangePadding -> {None, {Scaled[0.01], Scaled[0.25]}}
       , PlotRangeClipping -> False
     ]
     , {a, aValues}
