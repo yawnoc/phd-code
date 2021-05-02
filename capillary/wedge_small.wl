@@ -1356,7 +1356,7 @@ Module[
         Italicise["r"] // Margined @ {{0, 1}, {5, 0}},
         Style["Relative discrepancy", Smaller]
       }
-    , ImageSize -> {Automatic, 0.35 ImageSizeTextWidth}
+    , ImageSize -> {Automatic, 0.375 ImageSizeTextWidth}
     , Joined -> True
     , LabelStyle -> LatinModernLabelStyle @ LabelSize["Axis"]
     , PlotLegends -> LineLegend[
