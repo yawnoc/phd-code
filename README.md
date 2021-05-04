@@ -23,7 +23,7 @@ identical copies on a large number of computers.
 While such a setup was reasonable using a USB stick as a shared Git remote,
 fetching 200 MB per clone over the internet is *not* a good thing.
 
-**To save bandwidth, CLONE [yawnoc/phd-code-no-output] INSTEAD,**
+**To save bandwidth, consider cloning [yawnoc/phd-code-no-output] instead,**
 which is a debloated version of this repository with no output files.
 Only download the large output files individually as needed.
 
@@ -32,7 +32,7 @@ Only download the large output files individually as needed.
 
 ## Figure fonts
 
-LaTeX fonts in the figures were produced ***without*** Szabolcs's [MaTeX][].
+LaTeX fonts in the figures were produced ***without*** Szabolcs's [MaTeX].
 While MaTeX is an excellent package outputting vector text labels,
 one needs a TeX system and Ghostscript.
 Instead I used a simple character mapping
@@ -55,6 +55,7 @@ capital Greek letters fail to be italicised when exporting to PDF.
 Therefore use Windows for [radiation-conduction-bvp.pdf],
 [capillary-contact-angle.pdf], and [helmholtz-wedge-domain.pdf].
 
+[MaTeX]: https://github.com/szhorvat/MaTeX
 [greek]: https://mathematica.stackexchange.com/q/219745
 [radiation-conduction-bvp.pdf]: radiation/general/radiation-conduction-bvp.pdf
 [capillary-contact-angle.pdf]: capillary/general/capillary-contact-angle.pdf
@@ -73,20 +74,21 @@ and some are complete dead ends.
 **Don't simply run all the code in a notebook.**
 This will not be very illuminating,
 not to mention time-consuming since you will end up
-doing computations which needn't be redone.
+doing computations which needn't be redone
+(assuming you aren't using the [debloated version]).
 Usually you want to run *only* the initialisation section.
 This is the section I have called
 "Initialisation section (always run this first)";
 select its cell bracket and evaluate.
 **Do NOT use "Evaluate Initialization Cells".**
-(Cells in a `.wl` file are automatically styled as Code cells,
+(All cells in a `.wl` file are automatically styled as Code cells,
 which are Initialization Cells by default.)
 
 Timings referred to in the comments are for an
 Intel(R) Core(TM) i7-7700 CPU @ 3.60 GHz (8 GB RAM)
 with a `Benchmark[]` score of about 2.4.
 
-[MaTeX]: https://github.com/szhorvat/MaTeX
+[debloated version]: https://github.com/yawnoc/phd-code-no-output
 
 
 ## License
