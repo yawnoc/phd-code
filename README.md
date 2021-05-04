@@ -8,6 +8,27 @@ For the thesis, see [yawnoc/phd-thesis].
 [yawnoc/phd-thesis]: https://github.com/yawnoc/phd-thesis
 
 
+## BEFORE CLONING THIS REPOSITORY
+
+**WARNING.**
+**This repository contains upwards of 200 MB in objects**
+(with a 500 MB working tree),
+mostly compressed `` NDSolve`FEM` `` solutions,
+which take a long time to compute.
+In hindsight, it would have been better to store these files separately,
+so as to not bloat this repository.
+
+Including the large files was a stupid way of ensuring
+identical copies on a large number of computers.
+While such a setup was reasonable using a USB stick as a shared Git remote,
+fetching 200 MB per clone over the internet is not a good thing.
+
+**To save bandwidth, consider cloning [yawnoc/phd-code-no-output] instead,**
+which is a debloated version of this repository where all output is ignored.
+
+[yawnoc/phd-code-no-output]: https://github.com/yawnoc/phd-code-no-output
+
+
 ## Figure fonts
 
 LaTeX fonts in the figures were produced ***without*** Szabolcs's [MaTeX][].
