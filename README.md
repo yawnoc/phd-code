@@ -1,7 +1,7 @@
 # phd-code
 
 
-Code for Conway's Ph.D., for Mathematica Version&nbsp;12.
+Code for Conway's Ph.D., for Mathematica Version 12.
 
 For the thesis, see [phd-thesis](https://github.com/yawnoc/phd-thesis).
 
