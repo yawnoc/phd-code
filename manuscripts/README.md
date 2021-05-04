@@ -8,5 +8,5 @@ denominator > square root: "O(ξ)" should read "O(ξ²)".
 
 For better writing, see [the actual thesis].
 
-[radiation-2-line.pdf]: manuscripts/radiation-2-line.pdf
+[radiation-2-line.pdf]: radiation-2-line.pdf
 [the actual thesis]: https://github.com/yawnoc/phd-thesis
