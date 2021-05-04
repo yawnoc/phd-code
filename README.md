@@ -1,8 +1,10 @@
 # phd-code
 
+
 Code for Conway's Ph.D., for Mathematica Version&nbsp;12.
 
 For the thesis, see [phd-thesis](https://github.com/yawnoc/phd-thesis).
+
 
 ## Figure fonts
 
@@ -34,6 +36,7 @@ Therefore use Windows for [radiation-conduction-bvp.pdf],
 [capillary-contact-angle.pdf]: capillary/general/capillary-contact-angle.pdf
 [helmholtz-wedge-domain.pdf]: capillary/helmholtz/helmholtz-wedge-domain.pdf
 
+
 ## Workflow
 
 Using Mathematica to do applied maths is an exploratory process.
@@ -60,6 +63,7 @@ Intel(R) Core(TM) i7-7700 CPU @ 3.60 GHz (8 GB RAM)
 with a `Benchmark[]` score of about 2.4.
 
 [MaTeX]: https://github.com/szhorvat/MaTeX
+
 
 ## License
 
