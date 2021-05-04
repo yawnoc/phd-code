@@ -38,7 +38,7 @@ one needs a TeX system and Ghostscript.
 Instead I used a simple character mapping
 along with Mathematica's own string formatting capabilities
 (see the functions `LatinModernFont`, `LatinModernLabelStyle`,
-`LatinModernFontStyle`, and `LaTeXStyle` in [`Conway.wl`](Conway.wl)).
+`LatinModernFontStyle`, and `LaTeXStyle` in [Conway.wl]).
 This approach only requires the installation of the following fonts:
 
 * "Latin Modern Math" `latinmodern-math.otf` <br>
@@ -56,6 +56,7 @@ Therefore use Windows for [radiation-conduction-bvp.pdf],
 [capillary-contact-angle.pdf], and [helmholtz-wedge-domain.pdf].
 
 [MaTeX]: https://github.com/szhorvat/MaTeX
+[Conway.wl]: Conway.wl
 [greek]: https://mathematica.stackexchange.com/q/219745
 [radiation-conduction-bvp.pdf]: radiation/general/radiation-conduction-bvp.pdf
 [capillary-contact-angle.pdf]: capillary/general/capillary-contact-angle.pdf
