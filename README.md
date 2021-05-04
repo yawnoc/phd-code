@@ -21,9 +21,9 @@ so as to not bloat this repository.
 Including the large output files was a stupid way of ensuring
 identical copies on a large number of computers.
 While such a setup was reasonable using a USB stick as a shared Git remote,
-fetching 200 MB per clone over the internet is not a good thing.
+fetching 200 MB per clone over the internet is *not* a good thing.
 
-**To save bandwidth, consider cloning [yawnoc/phd-code-no-output] instead,**
+**To save bandwidth, CLONE [yawnoc/phd-code-no-output] INSTEAD,**
 which is a debloated version of this repository with no output files.
 Only download the large output files individually as needed.
 
