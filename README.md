@@ -14,7 +14,7 @@ For the thesis, see [yawnoc/phd-thesis].
 **This repository contains upwards of 200 MB in objects**
 (with a 500 MB working tree),
 mostly compressed `` NDSolve`FEM` `` solutions,
-which take a long time to compute.
+which took a long time to compute.
 In hindsight, it would have been better to store these files separately,
 so as to not bloat this repository.
 
