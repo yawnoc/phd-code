@@ -18,13 +18,14 @@ which take a long time to compute.
 In hindsight, it would have been better to store these files separately,
 so as to not bloat this repository.
 
-Including the large files was a stupid way of ensuring
+Including the large output files was a stupid way of ensuring
 identical copies on a large number of computers.
 While such a setup was reasonable using a USB stick as a shared Git remote,
 fetching 200 MB per clone over the internet is not a good thing.
 
 **To save bandwidth, consider cloning [yawnoc/phd-code-no-output] instead,**
-which is a debloated version of this repository where all output is ignored.
+which is a debloated version of this repository with no output files.
+Only download the large output files individually as needed.
 
 [yawnoc/phd-code-no-output]: https://github.com/yawnoc/phd-code-no-output
 
