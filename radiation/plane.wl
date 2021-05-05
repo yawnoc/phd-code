@@ -1380,6 +1380,127 @@ Module[
 ] // Ex["plane-traced-boundaries-patched.pdf"]
 
 
+(* ::Subsection:: *)
+(*Version for slides*)
+
+
+Module[
+ {xTerm,
+  xMin, xMax, yMin, yMax,
+  plotList,
+  plotPointsGeneral, plotPointsPatched,
+  textStyle,
+  n, cUpperList, cLowerList, xCornerList, xIntList,
+  cUpper, cLower,
+  xLeft, xRight
+ },
+  (* Critical terminal curve *)
+  xTerm = 1;
+  (* Plot range *)
+  xMin = 0.2;
+  xMax = 1.1 xTerm;
+  yMax = 0.7;
+  (* Plot points *)
+  plotPointsGeneral = 3;
+  plotPointsPatched = 2;
+  (* Styles *)
+  textStyle = Style[#, 9] &;
+  (* Build a plot for each list of corners *)
+  plotList = Table[
+    (* *)
+    n = patchedCornerNum[id];
+    cUpperList = patchedCUpperList[id];
+    cLowerList = patchedCLowerList[id];
+    xCornerList = patchedCornerXList[id];
+    xIntList = patchedIntXList[id];
+    (* Plot *)
+    Show[
+      EmptyFrame[{xMin, xMax}, {-yMax, yMax},
+        AspectRatio -> Automatic,
+        Frame -> None,
+        ImageSize -> Automatic
+      ],
+      (* General boundaries: upper-branch(i) *)
+      Table[
+        cUpper = cUpperList[[i]];
+        Plot[
+          yTraUpper[cUpper][x],
+          {x, 0, 1},
+          PlotPoints -> plotPointsGeneral,
+          PlotRange -> {-yMax, yMax},
+          PlotStyle -> BoundaryTracingStyle["Background"]
+        ]
+      , {i, n}],
+      (* General boundaries: lower-branch(i) *)
+      Table[
+        cLower = cLowerList[[i]];
+        Plot[
+          yTraLower[cLower][x],
+          {x, 0, 1},
+          PlotPoints -> plotPointsGeneral,
+          PlotRange -> {-yMax, yMax},
+          PlotStyle -> BoundaryTracingStyle["Background"]
+        ]
+      , {i, n}],
+      (* Patched portions: upper-branch(i) *)
+      Table[
+        xLeft = xCornerList[[i]];
+        xRight = If[i > 1,
+          xIntList[[i - 1]],
+          Max[xIntList]
+        ];
+        cUpper = cUpperList[[i]];
+        Plot[
+          yTraUpper[cUpper][x],
+          {x, xLeft, xRight},
+          PlotPoints -> plotPointsPatched,
+          PlotRange -> {-yMax, yMax},
+          PlotStyle -> Directive[BoundaryTracingStyle["Traced"], SlidesStyle["Boundary"]]
+        ]
+      , {i, n}],
+      (* Patched portions: lower-branch(i) *)
+      Table[
+        xLeft = xCornerList[[i]];
+        xRight = If[i < n,
+          xIntList[[i]],
+          Max[xIntList]
+        ];
+        cLower = cLowerList[[i]];
+        Plot[
+          yTraLower[cLower][x],
+          {x, xLeft, xRight},
+          PlotPoints -> plotPointsPatched,
+          PlotRange -> {-yMax, yMax},
+          PlotStyle -> Directive[BoundaryTracingStyle["Traced"], SlidesStyle["Boundary"]]
+        ]
+      , {i, n}],
+      (* Critical terminal curve *)
+      ParametricPlot[
+        {xTerm, y}, {y, -yMax, yMax},
+        PlotPoints -> 2,
+        PlotStyle -> BoundaryTracingStyle["Terminal"]
+      ],
+      Graphics @ {
+        Text[
+          Italicise["x"] == 1
+          , {1, 0}
+          , {0, 1.2}
+          , {0, 1}
+        ] // textStyle
+      },
+      {}
+    ]
+  , {id, patchedIdList}]
+  // GraphicsRow[#,
+    Spacings -> {
+      0.2 ImageSizeTextWidthBeamer,
+      Automatic
+    }
+  ] &
+  // Show[#, ImageSize -> ImageSizeTextWidthBeamer] &
+] // Ex["plane-traced-boundaries-patched-slides.pdf"];
+
+
 (* ::Section:: *)
 (*Figure: Domains (plane-domains.pdf)*)
 
