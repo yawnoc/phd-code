@@ -1085,6 +1085,180 @@ Module[
 ] // Ex["plane-traced-boundaries.pdf"]
 
 
+(* ::Subsection:: *)
+(*Version for slides*)
+
+
+(* ::Subsubsection:: *)
+(*Everything*)
+
+
+Module[
+ {xMin, xMax, yMax,
+  xMinPlot, xMaxPlot, yMaxPlot,
+  xTerm,
+  cMax, cList
+ },
+  (* Viable & physical range *)
+  xMin = 0;
+  xMax = 1;
+  yMax = Ceiling[2 yTraMax, 0.2];
+  (* Actual plot range *)
+  xMinPlot = -0.267;
+  xMaxPlot = +1.27;
+  yMaxPlot = 0.95 yMax;
+  (* Critical terminal curve *)
+  xTerm = 1;
+  (* Values of integration constant *)
+  cMax = 0.95 yMax;
+  cList = Subdivide[-yMax, yMax, 8];
+  Show[
+    EmptyFrame[{xMinPlot, xMaxPlot}, {-yMaxPlot, yMaxPlot},
+      AspectRatio -> Automatic,
+      FrameLabel -> {
+        Italicise["x"] // Margined @ {{0, 0}, {0, -10}},
+        Italicise["y"]
+      },
+      FrameTicksStyle -> 8,
+      ImageSize -> 0.85 * 0.5 ImageSizeTextWidthBeamer,
+      LabelStyle -> 10
+    ],
+    (* Unphysical region *)
+    Graphics @ {BoundaryTracingStyle["Unphysical"],
+      Rectangle[
+        {Way[xMinPlot, xMin, -1], -2 yMaxPlot},
+        {xMin, +2 yMaxPlot}
+      ]
+    },
+    (* Non-viable domain *)
+    Graphics @ {BoundaryTracingStyle["NonViable"],
+      Rectangle[
+        {xMax, -2 yMaxPlot},
+        {Way[xMax, xMaxPlot, 2], +2 yMaxPlot}
+      ]
+    },
+    (* Traced boundaries *)
+    Table[
+      Plot[c + yTra[x] {1, -1}, {x, xMin, xMax},
+        PlotPoints -> 3,
+        PlotRange -> {-yMax, yMax},
+        PlotStyle -> Directive[BoundaryTracingStyle["Traced"], SlidesStyle["Boundary"]]
+      ]
+    , {c, cList}],
+    (* Critical terminal curve *)
+    ParametricPlot[
+      {xTerm, y}, {y, -yMax, yMax},
+      PlotPoints -> 2,
+      PlotStyle -> Directive[BoundaryTracingStyle["Traced"], SlidesStyle["Boundary"]]
+    ]
+  ]
+] // Ex["plane-traced-boundaries-slides_everything.pdf"];
+
+
+(* ::Subsubsection:: *)
+(*Both regions (unphysical and non-viable)*)
+
+
+Module[
+ {xMin, xMax, yMax,
+  xMinPlot, xMaxPlot, yMaxPlot,
+  xTerm,
+  cMax, cList
+ },
+  (* Viable & physical range *)
+  xMin = 0;
+  xMax = 1;
+  yMax = Ceiling[2 yTraMax, 0.2];
+  (* Actual plot range *)
+  xMinPlot = -0.267;
+  xMaxPlot = +1.27;
+  yMaxPlot = 0.95 yMax;
+  (* Critical terminal curve *)
+  xTerm = 1;
+  (* Values of integration constant *)
+  cMax = 0.95 yMax;
+  cList = Subdivide[-yMax, yMax, 8];
+  Show[
+    EmptyFrame[{xMinPlot, xMaxPlot}, {-yMaxPlot, yMaxPlot},
+      AspectRatio -> Automatic,
+      FrameLabel -> {
+        Italicise["x"] // Margined @ {{0, 0}, {0, -10}},
+        Italicise["y"]
+      },
+      FrameTicksStyle -> 8,
+      ImageSize -> 0.85 * 0.5 ImageSizeTextWidthBeamer,
+      LabelStyle -> 10
+    ],
+    (* Unphysical region *)
+    Graphics @ {BoundaryTracingStyle["Unphysical"],
+      Rectangle[
+        {Way[xMinPlot, xMin, -1], -2 yMaxPlot},
+        {xMin, +2 yMaxPlot}
+      ]
+    },
+    (* Non-viable domain *)
+    Graphics @ {BoundaryTracingStyle["NonViable"],
+      Rectangle[
+        {xMax, -2 yMaxPlot},
+        {Way[xMax, xMaxPlot, 2], +2 yMaxPlot}
+      ]
+    },
+    (* Critical terminal curve *)
+    ParametricPlot[
+      {xTerm, y}, {y, -yMax, yMax},
+      PlotPoints -> 2,
+      PlotStyle -> Directive[BoundaryTracingStyle["Traced"], SlidesStyle["Boundary"]]
+    ]
+  ]
+] // Ex["plane-traced-boundaries-slides_regions.pdf"];
+
+
+(* ::Subsubsection:: *)
+(*Unphysical region*)
+
+
+Module[
+ {xMin, xMax, yMax,
+  xMinPlot, xMaxPlot, yMaxPlot,
+  xTerm,
+  cMax, cList
+ },
+  (* Viable & physical range *)
+  xMin = 0;
+  xMax = 1;
+  yMax = Ceiling[2 yTraMax, 0.2];
+  (* Actual plot range *)
+  xMinPlot = -0.267;
+  xMaxPlot = +1.27;
+  yMaxPlot = 0.95 yMax;
+  (* Critical terminal curve *)
+  xTerm = 1;
+  (* Values of integration constant *)
+  cMax = 0.95 yMax;
+  cList = Subdivide[-yMax, yMax, 8];
+  Show[
+    EmptyFrame[{xMinPlot, xMaxPlot}, {-yMaxPlot, yMaxPlot},
+      AspectRatio -> Automatic,
+      FrameLabel -> {
+        Italicise["x"] // Margined @ {{0, 0}, {0, -10}},
+        Italicise["y"]
+      },
+      FrameTicksStyle -> 8,
+      ImageSize -> 0.85 * 0.5 ImageSizeTextWidthBeamer,
+      LabelStyle -> 10
+    ],
+    (* Unphysical region *)
+    Graphics @ {BoundaryTracingStyle["Unphysical"],
+      Rectangle[
+        {Way[xMinPlot, xMin, -1], -2 yMaxPlot},
+        {xMin, +2 yMaxPlot}
+      ]
+    },
+    {}
+  ]
+] // Ex["plane-traced-boundaries-slides_unphysical.pdf"];
+
+
 (* ::Section:: *)
 (*Figure: Traced boundaries, patched (plane-traced-boundaries-patched.pdf)*)
 
