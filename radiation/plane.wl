@@ -1891,6 +1891,105 @@ Module[
 ] // Ex["plane-self-viewing-ratio.pdf"]
 
 
+(* ::Subsection:: *)
+(*Version for slides*)
+
+
+Module[
+  {
+    labelPlacementFromInterval, intervalList,
+    numPoints, data,
+    x1, x2, xValues,
+    textStyle, textStyleBracket,
+    intervalText,
+    proportion, offset, xLabel, rLabel,
+    dummyForTrailingCommas
+  },
+  (* List of intervals {x1, x2} to plot the ratio for *)
+  labelPlacementFromInterval = Association[
+    {0, 0.3} -> {0.8, {1.35, 0}},
+    {0.2, 0.5} -> {0.1, {-1.2, -0.7}},
+    {0.5, 0.8} -> {0, {-0.55, -0.9}},
+    {0.7, 1} -> {0.3, {0, -1.4}},
+    {0.3, 0.4} -> {1, {-1, 0.6}},
+    {0.5, 0.6} -> {0.7, {-0.8, 0.8}},
+    {0.65, 0.75} -> {0.7, {-1, 0.65}},
+    {0.8, 0.9} -> {0.8, {-1, 0.6}},
+    Nothing
+  ];
+  intervalList = Keys[labelPlacementFromInterval];
+  (* Number of points for sampling *)
+  numPoints = 50;
+  (* Compute data points to plot *)
+  Table[
+    {x1, x2} = interval;
+    xValues = Subdivide[x1, x2, numPoints];
+    If[x1 == 0,
+      xValues = Join[
+        Subdivide[x1, xValues[[4]], 20],
+        xValues[[5 ;;]]
+      ];
+    ];
+    If[x2 == 1,
+      xValues = Join[
+        xValues[[;; -5]],
+        Subdivide[xValues[[-4]], x2, 20]
+      ];
+    ];
+    data[interval] =
+      Cases[
+        Table[{x, boundaryRatio[x1, x2][x]}, {x, xValues}],
+        {_?NumericQ, _?NumericQ}
+      ] // Quiet;
+    , {interval, intervalList}
+  ];
+  (* Text style *)
+  textStyle = Style[#, 6] &;
+  textStyleBracket = Style[#, 6] &;
+  intervalText[interval_] :=
+    Text[
+      {x1, x2} = interval;
+      {proportion, offset} = labelPlacementFromInterval[interval];
+      Row @ {
+        "(" // textStyleBracket,
+        "\[NegativeVeryThinSpace]",
+        x1,
+        ",\[ThinSpace]",
+        x2,
+        ")" // textStyleBracket
+      } // textStyle
+      ,
+        xLabel = Way[x1, x2, proportion];
+        rLabel = Interpolation[data[interval], xLabel];
+        {xLabel, Log[rLabel]}
+      , offset
+    ];
+  (* Make plot *)
+  ListLogPlot[
+    Table[data[interval], {interval, intervalList}]
+    , AxesLabel -> {
+        Italicise["x"] // Margined @ {{0, 1}, {5, 0}},
+        Italicise["R"]
+      }
+    , Epilog -> {
+        {
+          BoundaryTracingStyle["Contour"],
+          Line @ {{0, #}, {1, #}} & [1/100 // Log]
+        },
+        Table[intervalText[interval], {interval, intervalList}],
+        {}
+      }
+    , ImageSize -> 0.5 ImageSizeTextWidthBeamer
+    , Joined -> True
+    , LabelStyle -> 10
+    , PlotRange -> {{0, 1}, {All, 10}}
+    , PlotRangeClipping -> False
+    , PlotStyle -> SlidesStyle["Boundary"]
+    , TicksStyle -> 7
+  ]
+] // Ex["plane-self-viewing-ratio-slides.pdf"];
+
+
 (* ::Section:: *)
 (*Figure: example fin dimensions (plane-fin-dimensions)*)
 
