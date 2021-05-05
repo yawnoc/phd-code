@@ -115,6 +115,103 @@ Module[
 ] // Ex["radiation-conduction-bvp.pdf"]
 
 
+(* ::Subsection:: *)
+(*Version for slides*)
+
+
+Module[
+  {
+    conductionA, conductionB, conductionPhi,
+    conductionXY, conductionNormalPhi,
+    bathX, bathY, bathA, bathB,
+    textStyle, textStyleGreek,
+    radiationArrowClearanceFactor,
+    dummyForTrailingCommas
+  },
+  (* Conduction ellipse *)
+  {conductionA, conductionB} = {8, 5};
+  conductionPhi = 20 Degree;
+  (* Geometry *)
+  (* (see <https://math.stackexchange.com/a/990013> for angle of normal) *)
+  conductionXY[ang_] := {conductionA Cos[ang], conductionB Sin[ang]};
+  conductionNormalPhi[ang_] := ArcTan[conductionB Cos[ang], conductionA Sin[ang]];
+  (* Heat bath ellipse *)
+  {bathX, bathY} = {-3, -2};
+  {bathA, bathB} = {2.5, 1.5};
+  (* Diagram *)
+  textStyle = Style[#, 11] &;
+  textStyleGreek = Style[#, 11] &;
+  Show[
+    (* Conduction ellipse *)
+    Graphics @ {
+      EdgeForm @ Directive[BoundaryTracingStyle["Traced"], SlidesStyle["Boundary"]],
+      FaceForm @ SlidesStyle["InteriorRegion"],
+      Disk[{0, 0}, {conductionA, conductionB}]
+        // Rotate[#, conductionPhi] &
+    },
+    Graphics @ {
+      Text[
+        SeparatedRow["\[VeryThinSpace]" // textStyle] @@ {
+          "conduction" // textStyle,
+          Italicise["\[CapitalOmega]"] // textStyleGreek
+        }
+        , -{0.3 bathX, 0.8bathY}
+      ]
+    },
+    (* Radiation arrows *)
+    radiationArrowClearanceFactor = 1.1;
+    Graphics @ {Arrowheads[0.03],
+      Table[
+        SquigglyArrow[
+          radiationArrowClearanceFactor * conductionXY[ang]
+          , conductionNormalPhi[ang]
+          , 2.5
+        ]
+        , {ang, Subdivide[0, 2 Pi, 8]}
+      ]
+        // Rotate[#, conductionPhi] &
+    },
+    Graphics @ {
+      Text[
+        Column[
+          {
+            "radiation" // textStyle,
+            SeparatedRow[
+              If[$OperatingSystem == "Windows",
+                StringRepeat["\[NegativeThickSpace]", 9] <> "\[NegativeVeryThinSpace]" // textStyle,
+                ""
+              ]
+            ] @@ {
+              "\[PartialD]" // textStyleGreek,
+              Italicise["\[CapitalOmega]"] // textStyleGreek
+            }
+          }
+          , Alignment -> Right
+          , Spacings -> 0
+        ]
+        , conductionXY[4.8/8 Pi] // RotationTransform[conductionPhi]
+        , {1.1, -1}
+      ]
+    },
+    (* Heat bath ellipse *)
+    Graphics @ {
+      FaceForm @ SlidesStyle["SourceRegion"],
+      EdgeForm @ SlidesStyle["Source"],
+      Disk[{bathX, bathY}, {bathA, bathB}]
+    },
+    Graphics @ {
+      Text[
+        "heat" // textStyle
+        , {bathX, bathY}
+        , {0, 0}
+      ]
+    },
+    {}
+    , ImageSize -> 0.5 ImageSizeTextWidthBeamer
+  ]
+] // Ex["radiation-conduction-bvp-slides.pdf"];
+
+
 (* ::Section:: *)
 (*Figure: self viewing radiation elements (self-viewing-radiation-elements)*)
 
