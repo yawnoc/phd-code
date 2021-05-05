@@ -139,8 +139,8 @@ Module[
   {bathX, bathY} = {-3, -2};
   {bathA, bathB} = {2.5, 1.5};
   (* Diagram *)
-  textStyle = Style[#, 11] &;
-  textStyleGreek = Style[#, 11] &;
+  textStyle = Style[#, 10] &;
+  textStyleGreek = Style[#, 10] &;
   Show[
     (* Conduction ellipse *)
     Graphics @ {
