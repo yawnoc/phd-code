@@ -2233,6 +2233,53 @@ Plot[
 ] // Ex["plane-fin-temperature.pdf"]
 
 
+(* ::Subsection:: *)
+(*Version for slides*)
+
+
+Module[{textStyle},
+textStyle = Style[#, 10] &;
+Plot[
+  {exampleT1[l], exampleT2[l]} - celsiusOffset
+  , {l, 0, 4}
+  , AspectRatio -> 0.8
+  , AxesLabel -> {
+      (* L / m *)
+      SeparatedRow["Thin"][
+        Italicise["L"],
+        Style["/", Magnification -> 1],
+        "m"
+      ] // Margined @ {{-2, 0}, {2, 0}},
+      (* t / \[Degree]C *)
+      SeparatedRow["Thin"][
+        Italicise["t\[ThinSpace]"],
+        Style["/", Magnification -> 1],
+        SeparatedRow[][Style["\[Degree]", Magnification -> 1], "C"]
+      ] // Margined @ {{0, 0}, {-10, -5}}
+    }
+  , Epilog -> {
+      Text[
+        "base" // textStyle
+        , {#, exampleT2[#] - celsiusOffset} & [1]
+        , {-1, -1}
+      ],
+      Text[
+        "tip" // textStyle
+        , {#, exampleT1[#] - celsiusOffset} & [0.9]
+        , {1.3, 0.4}
+      ],
+      {}
+    }
+  , ImageSize -> 0.5 ImageSizeTextWidthBeamer
+  , LabelStyle -> 10
+  , PlotLabel -> "Aluminium"
+  , PlotStyle -> Black
+  , PlotPoints -> 3
+  , TicksStyle -> 8
+]
+] // Ex["plane-fin-temperature-slides.pdf"];
+
+
 (* ::Section:: *)
 (*Figure: example fin power per length (plane-fin-power-per-length)*)
 
