@@ -2088,6 +2088,106 @@ Module[
 ] // Ex["plane-fin-dimensions.pdf"]
 
 
+(* ::Subsection:: *)
+(*Version for slides*)
+
+
+Module[
+  {
+    x1, x2, y, y2,
+    dimensionMarkerStyle,
+    lengthMarkerY, thicknessMarkerX,
+    textStyle, textStyleBracket,
+    dummyForTrailingCommas
+  },
+  (* Abbreviations *)
+  {x1, x2} = {exampleX1, exampleX2};
+  y = exampleYTraced;
+  y2 = exampleY2;
+  (* Dimension markers *)
+  dimensionMarkerStyle = Arrowheads @ {-Small, Small};
+  lengthMarkerY = -1.5 y2;
+  thicknessMarkerX = Way[x1, x2, 1.045];
+  textStyle = Style[#, 8] &;
+  textStyleBracket = Style[#, 8] &;
+  (* Make diagram *)
+  Show[
+    (* Constant-temperature boundary *)
+    Graphics @ {
+      BoundaryTracingStyle["Contour"],
+      SlidesStyle["Source"],
+      Line @ {{x2, -y2}, {x2, +y2}}
+    },
+    (* Radiation boundaries *)
+    Plot[{-1, 1} y[x], {x, x1, x2}
+      , PlotPoints -> 2
+      , PlotStyle -> Directive[BoundaryTracingStyle["Traced"], SlidesStyle["Boundary"]]
+    ],
+    (* Length L marker *)
+    Graphics @ {dimensionMarkerStyle,
+      Arrow @ {
+        {x1, lengthMarkerY},
+        {x2, lengthMarkerY}
+      },
+      Text[
+        Italicise["L"] // textStyle
+        , {Way[x1, x2], lengthMarkerY}
+        , {0, 1}
+      ]
+    },
+    (* Thickness H marker *)
+    Graphics @ {dimensionMarkerStyle,
+      Arrow @ {
+        {thicknessMarkerX, -y2},
+        {thicknessMarkerX, y2}
+      },
+      Text[
+        Italicise["H"] // textStyle
+        , {thicknessMarkerX, 0}
+        , {-1.85, -0.15}
+      ]
+    },
+    (* Tip coordinate *)
+    Graphics @ {
+      Text[
+        Row @ {
+          "(" // textStyleBracket,
+          "\[NegativeVeryThinSpace]",
+          Subscript[Italicise["x"], 1],
+          ",\[ThinSpace]",
+          0,
+          ")" // textStyleBracket
+        } // textStyle
+        , {x1, 0}
+        , {1.5, -0.15}
+      ]
+    },
+    (* Base coordinate *)
+    Graphics @ {
+      Text[
+        Row @ {
+          "(" // textStyleBracket,
+          "\[NegativeVeryThinSpace]",
+          Subscript[Italicise["x"], 2],
+          ",\[VeryThinSpace]\[VeryThinSpace]",
+          Subscript[Italicise["y"], 2],
+          ")" // textStyleBracket
+        } // textStyle
+        , {x2, y2}
+        , {0, -1.4}
+      ]
+    },
+    {}
+    , AspectRatio -> Automatic
+    , Axes -> False
+    , ImageSize -> 0.5 ImageSizeTextWidthBeamer
+    , PlotRange -> All
+    , PlotRangeClipping -> False
+    , PlotRangePadding -> Automatic
+  ]
+] // Ex["plane-fin-dimensions-slides.pdf"];
+
+
 (* ::Section:: *)
 (*Figure: example fin base temperature (plane-fin-base-temperature)*)
 
