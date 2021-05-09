@@ -2189,7 +2189,7 @@ Module[
 
 
 (* ::Section:: *)
-(*Figure: example fin base temperature (plane-fin-base-temperature)*)
+(*Figure: example fin temperature (plane-fin-temperature)*)
 
 
 Module[{textStyle},
