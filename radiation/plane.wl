@@ -2594,3 +2594,202 @@ Module[
     ] // Ex["plane-directional-dependence-geometry-strip.pdf"]
   }
 ]
+
+
+(* ::Subsection:: *)
+(*Version for slides*)
+
+
+Module[
+  {
+    x1, x2, y, y2,
+    xFinCentre,
+    yDer,
+    yDerMaxFin, phiMaxFin,
+    finDependence, finConstant,
+    finDependenceNormalised,
+    yMaxStrip,
+    stripDependence, stripConstant, stripDependenceNormalised,
+    rho,
+    gammaCorrect,
+    dependenceColourFunction,
+    dependenceThicknessFunction, replaceData,
+    thicken,
+    commonPlot,
+      rMinDirectionReference, rMaxDirectionReference,
+      rMidDirectionReference,
+      phiMarker,
+      textStyle,
+    directionalOptions,
+    radiationArrowheadSize,
+    radiationArrowSize, radiationArrowClearance,
+    radiationXValuesFin, radiationYValuesStrip,
+    dummyForTrailingCommas
+  },
+  (* Fin *)
+  {x1, x2} = {exampleX1, exampleX2};
+  y = exampleYTraced;
+  y2 = exampleY2;
+  xFinCentre = Way[x1, x2];
+  yDer = -yTraDer[#] &;
+  yDerMaxFin = yDer[x2];
+  phiMaxFin = Pi - ArcTan[yDerMaxFin];
+  finDependence[phi_] := directionalDependence[x1, x2] @ Abs[phi];
+  finConstant = NIntegrate[finDependence[phi], {phi, -phiMaxFin, phiMaxFin}];
+  finDependenceNormalised[phi_] := finDependence[phi] / finConstant;
+  (* Strip *)
+  yMaxStrip = 1.5 y2;
+  stripDependence[phi_] := Cos[phi];
+  stripConstant = Integrate[stripDependence[phi], {phi, -Pi/2, Pi/2}];
+  stripDependenceNormalised[phi_] := stripDependence[phi] / stripConstant;
+  (* Cylinder at infinity *)
+  rho = 0.97 (x2 - x1);
+  (* Dependence colouring *)
+  gammaCorrect[level_] := Clip[level, {0, 1}] ^ 0.3;
+  dependenceColourFunction[dependence_, phi_, {minPhi_, maxPhi_}] :=
+    GrayLevel @ gammaCorrect[1 - Rescale[dependence[phi], dependence /@ {minPhi, maxPhi}]];
+  (* Dependence thickening *)
+  (*
+    `thicken` below is a modified version of Kuba's `thick$color` function
+    in <https://mathematica.stackexchange.com/a/28207>.
+    Re-use permission granted in comments, see archived version:
+    <https://web.archive.org/web/20210315151008/https://mathematica.stackexchange.com/questions/28202/vary-the-thickness-of-a-plotted-function/>
+  *)
+  dependenceThicknessFunction[dependence_][x_, y_] := dependence[Abs @ ArcTan[-x, y]];
+  thicken[referenceThickness_][dependence_] := ReplaceAll[
+    GraphicsComplex[points_List, data_List, options : OptionsPattern[__]] :>
+    GraphicsComplex[
+      points,
+      data /. {
+       Line[linePoints_List, OptionsPattern[]] :>
+         Sequence @@ (
+           {
+             AbsoluteThickness[
+               referenceThickness *
+               dependenceThicknessFunction[dependence] @@
+                 (Mean /@ Transpose @ points[[#]])
+             ],
+             Line[#, VertexColors -> Automatic]
+           } & /@
+             Partition[linePoints, 2, 1]
+         )
+      },
+      options
+    ]
+  ];
+  (* Make plots *)
+  rMinDirectionReference = 1.15 rho;
+  rMaxDirectionReference = 1.25 rho;
+  rMidDirectionReference = Way[rMinDirectionReference, rMaxDirectionReference];
+  phiMarker = 17 Degree;
+  textStyle = Style[#, 10] &;
+  commonPlot = EmptyFrame[{-rho, rho}, {-rho, rho}
+    , Epilog -> {
+        (* Reference direction (minus x) *)
+        Line @ {{-rMinDirectionReference, 0}, {-rMaxDirectionReference, 0}},
+        (* Arc *)
+        Circle[{0, 0}, rMidDirectionReference, {Pi, Pi - phiMarker}],
+        {Arrowheads[0.04],
+          Arrow @ Table[
+            XYPolar[rMidDirectionReference, Pi - phi]
+            , {phi, Subdivide[0.7, 1.1, 2] phiMarker}
+          ]
+        },
+        (* Label *)
+        Text[
+          "\[CurlyPhi]" // textStyle
+          , XYPolar[rMidDirectionReference, Pi - phiMarker]
+          , {-0.5, -1.7}
+        ],
+        {}
+      }
+    , Frame -> None
+    , ImageSize -> 0.8 * 0.5 ImageSizeTextWidthBeamer
+    , LabelStyle -> Directive[11, SlidesStyle["Boundary"]]
+    , PlotRangePadding -> {Scaled /@ {0.15, 0.03}, Scaled[0.03]}
+  ];
+  directionalOptions = {Nothing
+    , ColorFunctionScaling -> False
+    , PlotPoints -> 3
+  };
+  radiationArrowheadSize = 0.025;
+  radiationArrowSize = 0.25 (x2 - x1);
+  radiationArrowClearance = 0.35 radiationArrowSize;
+  radiationXValuesFin = Way[x1, x2, Subdivide[0.1, 0.9, 3]];
+  radiationYValuesStrip = {-1, 1} 0.7 yMaxStrip;
+  {
+    (* Fin *)
+    Show[
+      commonPlot,
+      (* Directional dependence *)
+      ParametricPlot[
+        XYPolar[rho, Pi - phi]
+        , {phi, -phiMaxFin, phiMaxFin}
+        , ColorFunction -> Function[{x, y, phi},
+            dependenceColourFunction[
+              finDependenceNormalised, phi,
+              {phiMaxFin, Pi/2}
+            ]
+          ]
+        , directionalOptions // Evaluate
+      ] // thicken[13][finDependenceNormalised],
+      (* Radiation boundaries *)
+      ParametricPlot[
+        {{x - xFinCentre, -y[x]}, {x - xFinCentre, y[x]}}
+        , {x, x1, x2}
+        , PlotPoints -> 2
+        , PlotStyle -> Directive[BoundaryTracingStyle["Traced"], SlidesStyle["Boundary"]]
+      ],
+      (* Radiation arrows *)
+      Graphics @ {Arrowheads[radiationArrowheadSize],
+        Table[
+          SquigglyArrow[
+            {x - xFinCentre, sign * y[x]} + XYPolar[radiationArrowClearance, #],
+            #,
+            radiationArrowSize
+          ] & [
+            sign * (ArcTan[yDer[x]] + Pi/2)
+          ]
+          , {x, radiationXValuesFin}
+          , {sign, {-1, 1}}
+        ]
+      },
+      {}
+      , PlotLabel -> ("Fin" // Margined @ {{0, 0}, {5, 0}})
+    ] // Ex["plane-directional-dependence-geometry-fin-slides.pdf"]
+    ,
+    (* Strip *)
+    Show[
+      commonPlot,
+      (* Directional dependence *)
+      ParametricPlot[
+        XYPolar[rho, Pi - phi]
+        , {phi, -Pi/2, Pi/2}
+        , ColorFunction -> Function[{x, y, phi},
+            dependenceColourFunction[
+              stripDependenceNormalised, phi,
+              {Pi/2, 0}
+            ]
+          ]
+        , directionalOptions // Evaluate
+      ] // thicken[8][stripDependenceNormalised],
+      (* Radiation strip *)
+      Graphics @ {Directive[BoundaryTracingStyle["Traced"], SlidesStyle["Boundary"]],
+        Line @ {{0, -yMaxStrip}, {0, +yMaxStrip}}
+      },
+      (* Radiation arrows *)
+      Graphics @ {Arrowheads[1.15 radiationArrowheadSize],
+        Table[
+          SquigglyArrow[
+            {-radiationArrowClearance, y},
+            -Pi,
+            1.15 radiationArrowSize
+          ]
+          , {y, radiationYValuesStrip}
+        ]
+      },
+      {}
+      , PlotLabel -> ("Strip" // Margined @ {{0, 0}, {5, 0}})
+    ] // Ex["plane-directional-dependence-geometry-strip-slides.pdf"]
+  }
+];
