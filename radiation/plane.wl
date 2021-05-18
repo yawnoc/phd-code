@@ -2208,7 +2208,13 @@ Plot[
       SeparatedRow["VeryThin"][
         Italicise["t"],
         Style["/", Magnification -> 1.25],
-        SeparatedRow[][Style["\[Degree]", Magnification -> 1.25], "C"]
+        SeparatedRow["VeryThin"][
+          AdjustmentBox[
+            Style["\[Degree]", Magnification -> 1.2]
+            , BoxBaselineShift -> -0.2
+          ],
+          "C"
+        ] // DisplayForm
       ] // Margined @ {{0, 0}, {-5, -5}}
     }
   , Epilog -> {
