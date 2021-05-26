@@ -5923,6 +5923,219 @@ Module[
 ]
 
 
+(* ::Subsection:: *)
+(*Version for slides*)
+
+
+Module[
+  {
+    b,
+    numA,
+    aStep, aValues,
+    aMin, xRadAMin, yEndAMin,
+    eps,
+    yMaxFrame, xMinFrame, xMaxFrame,
+    numCandidates, imageSize,
+    plotList,
+    xRad, yEnd,
+    xRadEvenExtension,
+    yInfl, xInfl,
+    textStyle, arrowStyle,
+    parameterArrow,
+    xGraphicsAInfl, xGraphicsA1,
+    legendLabelStyle,
+    legendCurves, legendNodes,
+    textStyleBracket,
+    dummyForTrailingCommas
+   },
+  (* Value of B *)
+  b = 1;
+  (* Number of A from A_i to 1 inclusive *)
+  numA = 4;
+  (* Values of A *)
+  aStep = (1 - aInflSimp) / (numA - 1);
+  aValues = aInflSimp + aStep * Range[-2, numA - 1];
+  (* Plot range *)
+  aMin = Min[aValues];
+  xRadAMin = xTraCandSimp[aMin, True];
+  yEndAMin = DomainEnd[xRadAMin];
+  eps = 0.02;
+  yMaxFrame = yEndAMin;
+  xMinFrame = (1 - eps) x0Simp[aMin];
+  xMaxFrame = 1.1 xStraight;
+  (* Image width arithmetic *)
+  numCandidates = Length[aValues];
+  imageSize["Main"] = 0.5 ImageSizeTextWidthBeamer;
+  imageSize["Legend"] = 0.4 ImageSizeTextWidth;
+  imageSize["Candidate"] = imageSize["Main"] / (numCandidates + 1);
+  (* List of plots *)
+  plotList =
+    Table[
+      (* Radiation boundary x == x(y) for convex domain *)
+      xRad = xTraCandSimp[a, True];
+      yEnd = DomainEnd[xRad];
+      xRadEvenExtension = Function[{y}, xRad[Abs @ y] // Evaluate];
+      (* Point of inflection *)
+      Which[
+        a < aInflSimp,
+          yInfl = SeekRoot[
+            curTra[a, b][xRad[#], #] &,
+            {DomainStart[xRad], DomainEnd[xRad]}
+          ],
+        a == aInflSimp,
+          yInfl = DomainEnd[xRad],
+        True,
+          yInfl = Indeterminate
+      ];
+      xInfl = xRad[yInfl];
+      (* Plot *)
+      Show[
+        EmptyFrame[
+          {xMinFrame, xMaxFrame}, {-yMaxFrame, yMaxFrame}
+          , Frame -> None
+          , ImageSize -> imageSize["Candidate"]
+          , PlotRangePadding -> None
+        ],
+        (* Convex domain *)
+        ParametricPlot[
+          {
+            {xStraight, y},
+            {xRadEvenExtension[y], y}
+          }
+          , {y, -yEnd, yEnd}
+          , PlotPoints -> 2
+          , PlotStyle -> {
+              Directive[BoundaryTracingStyle["Contour"], SlidesStyle["Source"]],
+              Directive[BoundaryTracingStyle["Traced"], SlidesStyle["Boundary"]]
+            }
+        ],
+        (* Point of inflection *)
+        If[NumericQ[yInfl],
+          Graphics @ {GeneralStyle["Point"],
+            Point @ {{xInfl, yInfl}, {xInfl, -yInfl}}
+          },
+          {}
+        ],
+        {}
+      ]
+      , {a, aValues}
+    ];
+  (* Parameter (A) increase indicator arrow *)
+  textStyle = Style[#, 10] &;
+  arrowStyle = Directive[Thickness[0.005], Arrowheads[0.07]];
+  parameterArrow =
+    Show[
+      (* A-axis *)
+      Graphics @ {arrowStyle,
+        Arrow @ {{0, 0}, {1, 0}}
+      },
+      Graphics @ {
+        Text[
+          Italicise["A"] // textStyle
+          , {1, 0}
+          , {-1.5, 0}
+        ]
+      },
+      (* A == A_infl *)
+      xGraphicsAInfl = 0.38;
+      Graphics @ {arrowStyle,
+        Line @ {
+          {xGraphicsAInfl, 0},
+          {xGraphicsAInfl, -0.02}
+        }
+      },
+      Graphics @ {
+        Text[
+          Subscript[Italicise["A"], "i"] == SignificantFiguresForm[5][aInflSimp]
+            // textStyle
+          , {xGraphicsAInfl, 0}
+          , {0, 1.5}
+        ]
+      },
+      (* A == 1 *)
+      xGraphicsA1 = 0.84;
+      Graphics @ {arrowStyle,
+        Line @ {
+          {xGraphicsA1, 0},
+          {xGraphicsA1, -0.02}
+        }
+      },
+      Graphics @ {
+        Text[
+          1 // textStyle
+          , {xGraphicsA1, 0}
+          , {0, 1.5}
+        ]
+      },
+      (* Convexity-interval labels *)
+      Graphics @ {
+        Text[
+          "non\[Hyphen]convex" // textStyle
+          (* NOTE: use '\\[Hyphen]' to prevent parsing as minus sign *)
+          , {Way[0, xGraphicsAInfl, 0.47], 0}
+          , {0, -1.2}
+        ],
+        Text[
+          "convex" // textStyle
+          , {Way[xGraphicsAInfl, xGraphicsA1], 0}
+          , {0, -1.2}
+        ],
+        {}
+      },
+      {}
+      , ImageSize -> imageSize["Main"]
+      , PlotRange -> All
+      , PlotRangePadding -> None
+    ];
+  (* Legend *)
+  legendLabelStyle = LatinModernLabelStyle @ LabelSize["Legend"];
+  legendCurves =
+    CurveLegend[
+      BoundaryTracingStyle /@ {"Traced", "Contour"},
+      {"radiation", "constant temperature"}
+      , LabelStyle -> legendLabelStyle
+    ];
+  legendNodes =
+    NodeLegend[
+      {Automatic},
+      {
+        textStyleBracket = Style[#, LabelSize["Legend"] + 2] &;
+        Row @ {
+          "inflection",
+          " ",
+          "(" // textStyleBracket,
+            "\[NegativeVeryThinSpace]",
+          Subscript[Italicise["x"], "\[VeryThinSpace]i"],
+          ",",
+          "\[VeryThinSpace]",
+          Subscript[Italicise["y"], "i"],
+          ")" // textStyleBracket,
+          Nothing
+        }
+      }
+      , LabelStyle -> legendLabelStyle
+      , LegendMarkerSize -> Automatic
+    ];
+  (* Export *)
+  {
+    (* Main *)
+    Column[
+      {
+        Grid[
+          List @ Append[
+            plotList,
+            Graphics[ImageSize -> imageSize["Candidate"]]
+          ]
+          , Spacings -> 0
+        ],
+        parameterArrow
+      }
+      , Spacings -> 0.1
+    ] // Ex["cosine_simple-candidate-domains-slides.pdf"]
+  }
+];
+
+
 (* ::Section:: *)
 (*Figure: Simple case self-viewing bounds (cosine_simple-self-viewing-bounds-*.pdf)*)
 
