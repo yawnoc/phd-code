@@ -1832,6 +1832,166 @@ Module[
 ]
 
 
+(* ::Subsection:: *)
+(*Version for slides*)
+
+
+Module[
+  {
+    aStep, aValues, aMin,
+    imageSize, rMaxShow,
+    tracedStyle,
+    rMaxNon,
+    inequality,
+    regimeName,
+    dummyForTrailingCommas
+  },
+  (* Values of A *)
+  aStep = 0.13;
+  aValues = aNat + aStep * Range[-1, 1];
+  aMin = Min[aValues];
+  (* Plot range *)
+  imageSize = 0.33 ImageSizeTextWidthBeamer;
+  rMaxShow = 1.35 rSharp[aMin];
+  (* Slightly less thick traced boundaries *)
+  tracedStyle = (
+    Directive[BoundaryTracingStyle["Traced"], SlidesStyle["Boundary"]]
+      /. {AbsoluteThickness[d_] :> AbsoluteThickness[0.9 d]}
+  );
+  (* Plots *)
+  Table[
+    rMaxNon = If[a < aNat, rSharp[a], rNat];
+    inequality = Which[a < aNat, Less, a == aNat, Equal, a > aNat, Greater];
+    regimeName = Which[a < aNat, "hot", a == aNat, "cold_hot", a > aNat, "cold"];
+    Show[
+      EmptyFrame[{-rMaxShow, rMaxShow}, {-rMaxShow, rMaxShow}
+        , Frame -> None
+        , ImageSize -> imageSize
+      ],
+      (* Non-viable domain *)
+      If[a < aNat,
+        Graphics @ {
+          EdgeForm @ tracedStyle,
+          FaceForm @ BoundaryTracingStyle["NonViable"],
+          Annulus[{0, 0}, {rFlat[a], rSharp[a]}]
+        },
+        {}
+      ],
+      (* Traced boundaries *)
+      Which[
+        (* Hot regime || Cold-to-hot transition *)
+        a <= aNat,
+        {
+          (* Inner viable island *)
+          With[{r = \[FormalR]},
+            Module[{eps, rMin, rMax, rInit, phiMin, phiMax, rTraced, phiOffsetValues},
+              eps = 10.^-4;
+              rMin = eps;
+              rMax = (1 - eps) rFlat[a];
+              rInit = Way[rMin, rMax];
+              phiMin = -2 Pi;
+              phiMax = 2 Pi;
+              rTraced = NDSolveValue[
+                {
+                  r'[phi] == 1 / phiTraDer[a][r[phi]],
+                  r[0] == rInit,
+                  WhenEvent[{r[phi] < rMin, r[phi] > rMax}, "StopIntegration"]
+                },
+                r, {phi, phiMin, phiMax},
+                NoExtrapolation
+              ];
+              phiOffsetValues = Subdivide[0, 2 Pi, 3] // Most;
+              (* Traced boundaries *)
+              Table[
+                ParametricPlot[
+                  {
+                    XYPolar[rTraced[phi], phi + phiOffset],
+                    XYPolar[rTraced[phi], -phi + phiOffset]
+                  } // Evaluate, {phi, phiMin, phiMax}
+                  , PlotPoints -> 3
+                  , PlotStyle -> tracedStyle
+                ]
+              , {phiOffset, phiOffsetValues}]
+            ]
+          ],
+          (* Outer viable mainland *)
+          With[{r = \[FormalR]},
+            Module[{eps, rMin, rMax, rInit, phiMin, phiMax, rTraced, phiOffsetValues},
+              eps = 10.^-4;
+              rMin = (1 + eps) rSharp[a];
+              rMax = 1.5 rMaxShow;
+              rInit = Way[rMin, rMax];
+              phiMin = -Pi;
+              phiMax = 1.5 Pi;
+              rTraced = NDSolveValue[
+                {
+                  r'[phi] == 1 / phiTraDer[a][r[phi]],
+                  r[0] == rInit,
+                  WhenEvent[{r[phi] < rMin, r[phi] > rMax}, "StopIntegration"]
+                },
+                r, {phi, phiMin, phiMax},
+                NoExtrapolation
+              ];
+              phiOffsetValues = Subdivide[0, 2 Pi, 6] // Most;
+              (* Traced boundaries *)
+              Table[
+                ParametricPlot[
+                  {
+                    XYPolar[rTraced[phi], phi + phiOffset],
+                    XYPolar[rTraced[phi], -phi + phiOffset]
+                  } // Evaluate, {phi, phiMin, phiMax}
+                  , PlotPoints -> 3
+                  , PlotStyle -> tracedStyle
+                ]
+              , {phiOffset, phiOffsetValues}]
+            ]
+          ],
+          {}
+        },
+        (* Cold regime *)
+        a > aNat,
+        {
+          With[{r = \[FormalR]},
+            Module[{eps, rMin, rMax, rInit, phiMin, phiMax, rTraced, phiOffsetValues},
+              eps = 10.^-4;
+              rMin = eps;
+              rMax = 1.5 rMaxShow;
+              rInit = Way[rMin, rMax];
+              phiMin = -Pi;
+              phiMax = 2.5 Pi;
+              rTraced = NDSolveValue[
+                {
+                  r'[phi] == 1 / phiTraDer[a][r[phi]],
+                  r[0] == rInit,
+                  WhenEvent[{r[phi] < rMin, r[phi] > rMax}, "StopIntegration"]
+                },
+                r, {phi, phiMin, phiMax},
+                NoExtrapolation
+              ];
+              phiOffsetValues = Subdivide[0, 2 Pi, 3] // Most;
+              (* Traced boundaries *)
+              Table[
+                ParametricPlot[
+                  {
+                    XYPolar[rTraced[phi], phi + phiOffset],
+                    XYPolar[rTraced[phi], -phi + phiOffset]
+                  } // Evaluate, {phi, phiMin, phiMax}
+                  , PlotPoints -> 3
+                  , PlotStyle -> tracedStyle
+                ]
+              , {phiOffset, phiOffsetValues}]
+            ]
+          ]
+        },
+        True, {}
+      ],
+      {}
+    ] // Ex @ FString["line-traced-boundaries-{regimeName}-slides.pdf"]
+    , {a, aValues}
+  ]
+];
+
+
 (* ::Section:: *)
 (*Figure: critical terminal radii (line-critical)*)
 
