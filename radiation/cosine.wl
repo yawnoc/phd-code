@@ -4891,6 +4891,56 @@ Module[{a, b, source, tSol, mesh, dest},
 
 
 (* ::Section:: *)
+(*Figure: known solution (known-solution)*)
+
+
+(* ::Subsection:: *)
+(*Version for slides*)
+
+
+Module[
+  {
+    b,
+    xMin, xMax, yMax,
+    dummyForTrailingCommas
+  },
+  (* Values of B *)
+  b = 1;
+  (* Plot range *)
+  xMin = 0;
+  xMax = xStraight;
+  yMax = 2;
+  (* Make plot *)
+  Show[
+    Plot3D[
+      tKnown[b][x, y]
+      , {x, xMin, xMax}
+      , {y, -yMax, yMax}
+      , AxesEdge -> {{-1, -1}, {-1, -1}, {-1, +1}}
+      , AxesLabel -> {xIt, yIt, Italicise["T"] // Margined @ {{0, 5}, {0, 0}}}
+      , ClippingStyle -> BoundaryTracingStyle["Unphysical"]
+      , LabelStyle -> Directive[Black, 18]
+      , Lighting -> GeneralStyle["AmbientLighting"]
+      , PlotPoints -> 50
+      , PlotRange -> {0, Full}
+      , PlotStyle -> SlidesStyle["InteriorRegion"]
+      , TicksStyle -> 14
+      , ViewPoint -> {-2.6, -1.4, 1}
+    ],
+    Graphics3D @ {
+      Dashed, SlidesStyle["Source"], Thickness[0.01],
+      Line @ {{xStraight, -yMax, 1}, {xStraight, +yMax, 1}},
+      {}
+    },
+    {}
+    , ImageSize -> 360
+  ]
+] // Ex["cosine_simple-solution-slides.png"
+  , Background -> None
+];
+
+
+(* ::Section:: *)
 (*Figure: (Un)physical region (cosine-physical.pdf)*)
 
 
