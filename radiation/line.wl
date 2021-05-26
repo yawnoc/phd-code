@@ -2925,6 +2925,125 @@ Module[
 ] // Ex["line-domains-slides_plain.pdf"]
 
 
+(* ::Subsection:: *)
+(*Version for slides, with non-singular sources*)
+
+
+Module[
+  {
+    a, rSh,
+    caseList,
+    mod2Pi, phi,
+    xMax, yMax,
+    numSpikes, modNumSpikes,
+    rSpike, phiSpike, phiCentre, phiHalfWidth,
+    plotList, caseIsRegular,
+    phiPlotted,
+    dummyForTrailingCommas
+  },
+  (* Constants *)
+  a = aHot;
+  rSh = rSharp[a];
+  (* Cases to be plotted *)
+  caseList = {"pentagon", "square", "generic"};
+  (* Abbreviations *)
+  mod2Pi = Mod[#, 2 Pi] &;
+  phi[r_] := phiTraHot["outer"][r];
+  (* List of plots *)
+  xMax = rInfl;
+  yMax = 0.9 rInfl;
+  plotList = Table[
+    (* Define spikes *)
+    ClearAll[numSpikes, rSpike, phiSpike, phiHalfWidth, phiCentre];
+    caseIsRegular = case != "generic";
+    Which[
+      caseIsRegular,
+        numSpikes = <|"pentagon" -> 5, "square" -> 4|> @ case;
+        rSpike[n_] := SeekRoot[
+          phi[(1 + 10^-6) rSh] - phi[#] - Pi / numSpikes &,
+          {rSh, rInfl}
+        ] // Evaluate;
+        phiSpike[n_] = phi[rSpike[1]];
+        phiHalfWidth[n_] = Pi / numSpikes;
+        phiCentre[n_] := (n - 1) * 2 phiHalfWidth[n];
+      ,
+      Not[caseIsRegular],
+        numSpikes = 2;
+        modNumSpikes = Mod[#, numSpikes, 1] &;
+        rSpike[1] = rInfl;
+        rSpike[2] = Way[rSh, rInfl, 3/4];
+        Table[
+          phiSpike[n] = phiTraHot["outer"] @ rSpike[n]
+          , {n, numSpikes}
+        ];
+        phiCentre[1] = 0;
+        phiCentre[2] = 135 Degree;
+        phiCentre[n_] := phiCentre[n // modNumSpikes];
+        Table[
+          phiHalfWidth[n] =
+            phiTraHot["outer"][(1 + 10^-6) rSh] - phiSpike[n]
+          , {n, numSpikes}
+        ];
+        phiHalfWidth[n_] := phiHalfWidth[n // modNumSpikes];
+      ,
+      True, {}
+    ];
+    (* Plot of constructed domain *)
+    Show[
+      EmptyFrame[{-xMax, xMax}, {-yMax, yMax}
+        , Frame -> None
+        , PlotRangePadding -> {{Scaled[-0.07], Scaled[0.03]}, None}
+      ],
+      (* Traced boundaries (spikes) *)
+      Table[
+        phiPlotted[r_] := phiTraHot["outer"][r] - phiSpike[n];
+        ParametricPlot[
+          {
+            XYPolar[r, phiCentre[n] + phiPlotted[r]],
+            XYPolar[r, phiCentre[n] - phiPlotted[r]]
+          } // Evaluate
+          , {r, rSh, rSpike[n]}
+          , PlotPoints -> 2
+          , PlotStyle -> Directive[BoundaryTracingStyle["Traced"], SlidesStyle["Boundary"]]
+        ]
+        , {n, numSpikes}
+      ],
+      (* Traced boundaries (terminal curve portions) *)
+      If[Not[caseIsRegular],
+        Table[
+          ParametricPlot[
+            XYPolar[rSh, ph] // Evaluate,
+            {
+              ph,
+              phiCentre[n] + phiHalfWidth[n] // mod2Pi,
+              phiCentre[n + 1] - phiHalfWidth[n + 1] // mod2Pi
+            }
+            , PlotPoints -> 2
+            , PlotStyle -> Directive[BoundaryTracingStyle["Traced"], SlidesStyle["Boundary"]]
+          ]
+          , {n, numSpikes}
+        ]
+        , {}
+      ],
+      (* Constant-temperature boundary *)
+      Graphics @ {
+        BoundaryTracingStyle["Contour"], SlidesStyle["Source"],
+        Circle[{0, 0}, 0.5 rSh]
+      },
+      {}
+    ]
+    , {case, caseList}
+  ];
+  (* Final figure *)
+  GraphicsRow[plotList
+    , Alignment -> Left
+    , ImageSize -> ImageSizeTextWidthBeamer
+    , PlotRangePadding -> 0
+    , Spacings -> 0
+  ]
+] // Ex["line-domains-slides_sources.pdf"];
+
+
 (* ::Section:: *)
 (*Figure: verification domain and mesh (line-verification-domain-mesh.pdf)*)
 
