@@ -1446,6 +1446,43 @@ Module[{source, tSol, mesh, tExact},
 
 
 (* ::Section:: *)
+(*Figure: known solution (line-known-solution)*)
+
+
+(* ::Subsection:: *)
+(*Version for slides*)
+
+
+Module[
+  {
+    rMax, tMax,
+    dummyForTrailingCommas
+  },
+  (* Plot range *)
+  rMax = 1.1;
+  tMax = 2.5;
+  (* Make plot *)
+  Plot3D[
+    Log[1 / RPolar[x, y]]
+    , {x, -rMax, rMax}
+    , {y, -rMax, rMax}
+    , AxesEdge -> {{-1, -1}, {+1, -1}, {-1, -1}}
+    , AxesLabel -> Italicise /@ {"x", "y", "T"}
+    , Boxed -> {Back, Bottom, Left}
+    , BoxRatios -> {Automatic, Automatic, Automatic}
+    , ClippingStyle -> {BoundaryTracingStyle["Unphysical"], None}
+    , ImageSize -> 360
+    , LabelStyle -> Directive[Black, 16]
+    , Lighting -> GeneralStyle["AmbientLighting"]
+    , PlotPoints -> 50
+    , PlotRange -> {0, tMax}
+    , PlotStyle -> SlidesStyle["InteriorRegion"]
+    , TicksStyle -> 12
+  ]
+] // Ex["line-known-solution-slides.png"];
+
+
+(* ::Section:: *)
 (*Figure: Auxiliary function (line-auxiliary-function)*)
 
 
