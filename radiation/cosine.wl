@@ -4935,7 +4935,7 @@ Module[
     {}
     , ImageSize -> 360
   ]
-] // Ex["cosine_simple-solution-slides.png"
+] // Ex["cosine_simple-known-solution-slides.png"
   , Background -> None
 ];
 
