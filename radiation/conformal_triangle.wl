@@ -791,6 +791,100 @@ Module[
 ] // Ex["conformal_triangle-grid-zeta-space.pdf"]
 
 
+(* ::Subsubsection:: *)
+(*Version for slides*)
+
+
+Module[
+  {
+    radValues, radMin, radMax,
+    angValues, angMin, angMax,
+    radMarkerRad, angMarkerRad,
+    radMarkerAng, angMarkerAng,
+    axesLabel, textStyle,
+    dummyForTrailingCommas
+  },
+  (* Contours *)
+  radValues = Subdivide[0, 1, 6];
+  {radMin, radMax} = MinMax[radValues];
+  angValues = Subdivide[0, 2 Pi, 12];
+  {angMin, angMax} = MinMax[angValues];
+  (* Polar coordinate markers *)
+  radMarkerRad = radValues[[-2]];
+  angMarkerRad = radValues[[-4]];
+  radMarkerAng = angMarkerAng = angValues[[2]];
+  (* Make plot *)
+  axesLabel[string_] := Row @ {string, " ", "\[Zeta]" // LaTeXStyle};
+  textStyle = Style[#, 12] &;
+  Show[
+    EmptyFrame[{-1, 1}, {-1, 1}
+      , FrameLabel -> None
+      , FrameTicksStyle -> LabelSize["Tick"]
+      , LabelStyle -> 10
+      , PlotRangePadding -> Scaled[0.03]
+    ],
+    (* Azimuthal contours *)
+    ParametricPlot[
+      Table[rad Exp[I ang] // ReIm, {ang, angValues}]
+      , {rad, radMin, radMax}
+      , PlotPoints -> 2
+      , PlotRange -> Full
+      , PlotStyle -> BoundaryTracingStyle["Background"]
+    ],
+    (* Radial contours (\[Rho] < 1) *)
+    ParametricPlot[
+      Table[rad Exp[I ang] // ReIm, {rad, radValues // Most}]
+      , {ang, angMin, angMax}
+      , PlotPoints -> 2
+      , PlotRange -> Full
+      , PlotStyle -> BoundaryTracingStyle["Background"]
+    ],
+    (* Radial contours (\[Rho] == 1) *)
+    ParametricPlot[
+      Table[rad Exp[I ang] // ReIm, {rad, radValues // Last // List}]
+      , {ang, angMin, angMax}
+      , PlotPoints -> 2
+      , PlotRange -> Full
+      , PlotStyle -> Directive[BoundaryTracingStyle["Contour"], SlidesStyle["Source"]]
+    ],
+    (* Radial coordinate marker *)
+    ParametricPlot[
+      Table[rad Exp[I ang] // ReIm, {ang, {radMarkerAng}}]
+      , {rad, radMin, radMarkerRad}
+      , PlotPoints -> 2
+      , PlotRange -> Full
+      , PlotStyle -> Directive[Thick, SlidesStyle["Interior"]]
+    ] /. {line_Line :> {Arrowheads @ {{0.063, 1}}, Arrow[line]}},
+    Graphics @ {
+      SlidesStyle["Interior"],
+      Text[
+        "\[Rho]" // textStyle
+        , 0.83 radMarkerRad * Exp[I radMarkerAng] // ReIm
+        , {0.3, -1.2}
+      ]
+    },
+    (* Angular coordinate marker *)
+    ParametricPlot[
+      Table[rad Exp[I ang] // ReIm, {rad, {angMarkerRad}}]
+      , {ang, angMin, angMarkerAng}
+      , PlotPoints -> 2
+      , PlotRange -> Full
+      , PlotStyle -> Directive[Thick, SlidesStyle["Interior"]]
+    ] /. {line_Line :> {Arrowheads @ {{0.055, 0.98}}, Arrow[line]}},
+    Graphics @ {
+      SlidesStyle["Interior"],
+      Text[
+        "\[CurlyPhi]" // textStyle
+        , angMarkerRad * Exp[I 3/5 angMarkerAng] // ReIm
+        , {-1.7, 0}
+      ]
+    },
+    {}
+    , ImageSize -> 0.5 ImageSizeTextWidthBeamer {1, 1}
+  ]
+] // Ex["conformal_triangle-grid-zeta-space-slides.pdf"];
+
+
 (* ::Subsection:: *)
 (*z-space*)
 
@@ -886,6 +980,102 @@ Module[
     , ImageSize -> 0.47 ImageSizeTextWidth
   ]
 ] // Ex["conformal_triangle-grid-z-space.pdf"]
+
+
+(* ::Subsubsection:: *)
+(*Version for slides*)
+
+
+Module[
+  {
+    xMin, xMax, yMin, yMax,
+    radValues, radMin, radMax,
+    angValues, angMin, angMax,
+    radMarkerRad, angMarkerRad,
+    radMarkerAng, angMarkerAng,
+    axesLabel, textStyle,
+    dummyForTrailingCommas
+  },
+  (* Plot range (z-space) *)
+  {xMin, xMax} = {yMin, yMax} = Abs[zOfZeta[rho0]] {-1, 1};
+  (* Contours (\[Zeta]-space) *)
+  radValues = Subdivide[0, 1, 6] /. {0 -> rho0/2};
+  {radMin, radMax} = MinMax[radValues];
+  angValues = Subdivide[0, 2 Pi, 12];
+  {angMin, angMax} = MinMax[angValues];
+  (* Polar coordinate markers *)
+  radMarkerRad = radValues[[-2]];
+  angMarkerRad = radValues[[-4]];
+  radMarkerAng = angMarkerAng = angValues[[2]];
+  (* Make plot *)
+  axesLabel[string_] := Row @ {string, "\[ThinSpace]", Italicise["z"]};
+  textStyle = Style[#, 12] &;
+  Show[
+    EmptyFrame[{xMin, xMax}, {yMin, yMax}
+      , FrameLabel -> None
+      , FrameTicksStyle -> LabelSize["Tick"]
+      , LabelStyle -> 10
+    ],
+    (* Azimuthal contours *)
+    ParametricPlot[
+      Table[rad Exp[I ang] // xyOfZeta, {ang, angValues}]
+      , {rad, radMin/2, radMax}
+      , PlotPoints -> 2
+      , PlotRange -> Full
+      , PlotStyle -> BoundaryTracingStyle["Background"]
+    ],
+    (* Radial contours (\[Rho] < 1) *)
+    ParametricPlot[
+      Table[rad Exp[I ang] // xyOfZeta, {rad, radValues // Most}]
+      , {ang, angMin, angMax}
+      , PlotPoints -> 2
+      , PlotRange -> Full
+      , PlotStyle -> BoundaryTracingStyle["Background"]
+    ],
+    (* Radial contours (\[Rho] == 1) *)
+    ParametricPlot[
+      Table[rad Exp[I ang] // xyOfZeta, {rad, radValues // Last // List}]
+      , {ang, angMin, angMax}
+      , PlotPoints -> 2
+      , PlotRange -> Full
+      , PlotStyle -> Directive[BoundaryTracingStyle["Contour"], SlidesStyle["Source"]]
+    ],
+    (* Radial coordinate marker *)
+    ParametricPlot[
+      Table[rad Exp[I ang] // xyOfZeta, {ang, {radMarkerAng}}]
+      , {rad, radMin, radMarkerRad}
+      , PlotPoints -> 2
+      , PlotRange -> Full
+      , PlotStyle -> Directive[Thick, SlidesStyle["Interior"]]
+    ] /. {line_Line :> {Arrowheads @ {{0.065, 0.7}}, Arrow[line]}},
+    Graphics @ {
+      SlidesStyle["Interior"],
+      Text[
+        "\[Rho]" // textStyle
+        , 0.3 radMarkerRad * Exp[I radMarkerAng] // xyOfZeta
+        , {1.2, 0.7}
+      ]
+    },
+    (* Angular coordinate marker *)
+    ParametricPlot[
+      Table[rad Exp[I ang] // xyOfZeta, {rad, {angMarkerRad}}]
+      , {ang, angMin, angMarkerAng}
+      , PlotPoints -> 2
+      , PlotRange -> Full
+      , PlotStyle -> Directive[Thick, SlidesStyle["Interior"]]
+    ] /. {line_Line :> {Arrowheads @ {{0.06, 0.97}}, Arrow[line]}},
+    Graphics @ {
+      SlidesStyle["Interior"],
+      Text[
+        "\[CurlyPhi]" // textStyle
+        , angMarkerRad * Exp[I 1/2 angMarkerAng] // xyOfZeta
+        , {-1.7, 0}
+      ]
+    },
+    {}
+    , ImageSize -> 0.5 ImageSizeTextWidthBeamer {1, 1}
+  ]
+] // Ex["conformal_triangle-grid-z-space-slides.pdf"];
 
 
 (* ::Section:: *)
