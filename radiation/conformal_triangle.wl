@@ -1703,3 +1703,58 @@ Module[
     , ImageSize -> 0.44 ImageSizeTextWidth
   ]
 ] // Ex["conformal_triangle-domain.pdf"]
+
+
+(* ::Subsection:: *)
+(*Version for slides*)
+
+
+Module[
+  {
+    xMin, xMax, yMin, yMax,
+    radValues, radMin, radMax,
+    angValues, angMin, angMax,
+    axesLabel,
+    dummyForTrailingCommas
+  },
+  (* Plot range (z-space) *)
+  {xMin, xMax} = {yMin, yMax} = Abs[zOfZeta[rho0]] {-1, 1};
+  (* Contours (\[Zeta]-space) *)
+  radValues = Subdivide[0, 1, 6] /. {0 -> rho0/2};
+  {radMin, radMax} = MinMax[radValues];
+  angValues = Subdivide[0, 2 Pi, 12];
+  {angMin, angMax} = MinMax[angValues];
+  (* Make plot *)
+  axesLabel[string_] := Row @ {string, "\[ThinSpace]", Italicise["z"]};
+  Show[
+    EmptyFrame[{xMin, xMax}, {yMin, yMax}
+      , FrameLabel -> None
+      , FrameTicksStyle -> LabelSize["Tick"]
+      , LabelStyle -> 10
+    ],
+    (* Radial contour \[Rho] == 1 (which is the triangle in z-space) *)
+    ParametricPlot[
+      Table[rad Exp[I ang] // xyOfZeta, {rad, radValues // Last // List}]
+      , {ang, angMin, angMax}
+      , PlotPoints -> 2
+      , PlotRange -> Full
+      , PlotStyle -> Directive[BoundaryTracingStyle["Contour"], SlidesStyle["Source"]]
+    ],
+    (* Traced boundaries *)
+    Table[
+      Table[
+        ParametricPlot[
+          reflect[zeta[s]] * omega^k // xyOfZeta // Evaluate
+          , {s, sVerificationStart, sVerificationEnd}
+          , PlotPoints -> 2
+          , PlotStyle -> Directive[BoundaryTracingStyle["Traced"], SlidesStyle["Boundary"]]
+        ]
+        , {zeta, {zetaTracedVerification}}
+        , {reflect, {Identity, Conjugate}}
+      ]
+      , {k, 0, 2}
+    ],
+    {}
+    , ImageSize -> 0.5 ImageSizeTextWidthBeamer {1, 1}
+  ]
+] // Ex["conformal_triangle-domain-slides.pdf"];
