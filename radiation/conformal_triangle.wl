@@ -1128,6 +1128,86 @@ Module[
 ]
 
 
+(* ::Subsection:: *)
+(*Version for slides*)
+
+
+Module[
+  {
+    radMin, radMax,
+    angMin, angMax,
+    axesLabel,
+    dummyForTrailingCommas
+  },
+  (* Plot range (\[Zeta]-space) *)
+  {radMin, radMax} = {rho0, 1};
+  {angMin, angMax} = {0, 2 Pi};
+  (* Make plot *)
+  axesLabel[string_] := Row @ {string, "\[ThinSpace]", Italicise["z"]};
+  Show[
+    ParametricPlot3D[
+      Append[
+        xyOfZeta[#],
+        temperature[#]
+      ] & [
+        rad Exp[I ang]
+      ]
+      , {rad, radMin, radMax}
+      , {ang, angMin, angMax}
+      , AxesEdge -> {{-1, -1}, {+1, -1}, {-1, -1}}
+      , AxesLabel -> {
+          axesLabel["Re"] // Margined @ {{0, 5}, {0, -2}},
+          axesLabel["Im"] // Margined @ {{3, 0}, {0, 0}},
+          Italicise["T"] // Margined @ {{0, 0}, {0, 30}}
+        }
+      , BoundaryStyle -> BoundaryTracingStyle["Edge3D"]
+      , Boxed -> {Back, Bottom, Left}
+      , BoxRatios -> {Automatic, Automatic, 3.5}
+      , Exclusions -> None
+      , ImageSize -> 360
+      , LabelStyle -> Directive[Black, 16]
+      , Lighting -> GeneralStyle["AmbientLighting"]
+      , Mesh -> {5, 8}
+      , MeshStyle -> Thickness[0.005]
+      , PlotPoints -> 50
+      , PlotRange -> {0, Automatic}
+      , PlotStyle -> SlidesStyle["InteriorRegion"]
+      , TicksStyle -> 12
+    ],
+    ParametricPlot3D[
+      Append[
+        xyOfZeta[#],
+        0
+      ] & [
+        rad Exp[I ang]
+      ]
+      , {rad, 1/2 radMin, radMin}
+      , {ang, angMin, angMax}
+      , Exclusions -> None
+      , Lighting -> GeneralStyle["AmbientLighting"]
+      , Mesh -> None
+      , PlotPoints -> 20
+      , PlotStyle -> Directive[GeneralStyle["Translucent"], BoundaryTracingStyle["Unphysical"]]
+    ],
+    (* Triangular source *)
+    Graphics3D @ {
+      SlidesStyle["Source"], Thickness[0.015],
+      Line @ {
+        Table[
+          ReIm @ Exp[I 2 Pi k/3] // Append[b]
+          , {k, 0, 3}
+        ]
+      },
+      {}
+    },
+    {}
+    , ViewPoint -> {1.25, -2.7, 1.6}
+  ]
+] // Ex["conformal_triangle-known-solution-slides.png"
+  , Background -> None
+];
+
+
 (* ::Section:: *)
 (*Figure: traced boundaries (conformal_triangle-traced-boundaries-*)*)
 
