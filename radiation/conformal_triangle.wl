@@ -1119,6 +1119,7 @@ Module[
     , Mesh -> {5, 8}
     , MeshStyle -> BoundaryTracingStyle["Edge3D"]
     , PlotPoints -> 50
+    , PlotRange -> {0, Automatic}
     , PlotStyle -> Directive[GeneralStyle["Translucent"], BoundaryTracingStyle["Solution3D"]]
     , TicksStyle -> LabelSize["Tick"]
   ]
