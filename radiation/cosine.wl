@@ -7391,6 +7391,99 @@ Module[
 ] // Ex["cosine_general-asymmetric_domain-slides.pdf"];
 
 
+(* ::Subsubsection:: *)
+(*Version for slides, with mesh*)
+
+
+Module[
+  {
+    a, b,
+    mesh,
+    yReflection, includeYReflection,
+    textStyle,
+    xMin, xMax, yMax,
+    margin,
+    yTop, yBottom,
+    dummyForTrailingCommas
+  },
+  (* Values of A and B *)
+  a = aAsymm;
+  b = bAsymm;
+  (* Finite element mesh *)
+  mesh = Import["cosine_general-verification-mesh-asymmetric.txt"] // Uncompress // First;
+  (* Reflection in y (across x-axis) *)
+  yReflection = # * {1, -1} &;
+  includeYReflection = {#, yReflection[#]} &;
+  (* Text style *)
+  textStyle = Style[#, 9] &;
+  (* Plot range *)
+  xMin = Floor[0.9 xFlat[a, b], 0.2];
+  xMax = Ceiling[1.1 xSharp[a, b], 0.2];
+  yMax = Ceiling[0.7 (xMax - xMin), 0.2];
+  (* Absolute plot range margin *)
+  margin = 0.1;
+  (* Endpoints for constant temperature boundary *)
+  yTop = xyTraAsymm["lower"][[2]] @ DomainStart @ xyTraAsymm["lower"];
+  yBottom = xyTraAsymm["upper"][[2]] @ DomainEnd @ xyTraAsymm["upper"];
+  (* Plot *)
+  Show[
+    EmptyFrame[{xMin, xMax}, {-yMax, yMax}
+      , FrameLabel -> {
+          Italicise["x"] // Margined @ {{0, 0}, {0, -15}},
+          Italicise["y"]
+        }
+      , FrameTicksStyle -> 8
+      , LabelStyle -> 11
+    ],
+    (* Line of symmetry *)
+    Graphics @ {
+      Gray, Dashed,
+      Line @ {{xMin, 0}, {xMax, 0}}
+    },
+    (* Straight contour *)
+    ParametricPlot[
+      {xStraight, y},
+      {y, yTop, yBottom}
+      , PlotPoints -> 2
+      , PlotStyle -> Directive[BoundaryTracingStyle["Contour"], SlidesStyle["Source"]]
+    ],
+    (* Domain radiation boundaries *)
+    Table[
+      ParametricPlot[
+        xyTraAsymm[id][s] // Through,
+        {s, DomainStart @ xyTraAsymm[id], DomainEnd @ xyTraAsymm[id]}
+        , PlotPoints -> 2
+        , PlotStyle -> Directive[BoundaryTracingStyle["Traced"], SlidesStyle["Boundary"]]
+      ]
+      , {id, {"upper", "lower"}}
+    ],
+    (* Straight contour and constant temperature labels *)
+    Graphics @ {
+      SlidesStyle["Source"],
+      Text[
+        xIt == SeparatedRow["VeryThin"]["\[Pi]", "/", 2] // textStyle
+        , {xStraight, Way[yBottom, yTop, 7/10]}
+        , {0, 1.3}
+        , {0, 1}
+      ]
+    },
+    Graphics @ {
+      SlidesStyle["Source"],
+      Text[
+        Italicise["T"] == 1 // textStyle
+        , {xStraight, Way[yBottom, yTop, 3/10]}
+        , {0, 1.5}
+        , {0, 1}
+      ]
+    },
+    (* Finite element mesh *)
+    mesh["Wireframe"],
+    {}
+    , ImageSize -> 0.5 * 0.8 ImageSizeTextWidthBeamer
+  ]
+] // Ex["cosine_general-asymmetric_mesh-slides.pdf"];
+
+
 (* ::Subsection:: *)
 (*Legend (cosine_general-asymmetric-construction-legend.pdf)*)
 
