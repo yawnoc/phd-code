@@ -10,6 +10,7 @@
 
 SetDirectory @ ParentDirectory @ NotebookDirectory[];
 << Conway`
+<< FigureStyles`
 SetDirectory @ FileNameJoin @ {NotebookDirectory[], "isoflux"};
 
 
@@ -64,6 +65,14 @@ f = 1;
 phiOfZ[z_] := Abs[wSlopeOfZ[z]]^2 - f // Evaluate;
 
 
+(* ::Subsection:: *)
+(*Solution-positive region function*)
+
+
+solutionPositiveRegionFunction =
+  Function[{x, y}, tOfZ[x + I y] > 0 // Evaluate];
+
+
 (* ::Section:: *)
 (*Checks*)
 
@@ -112,5 +121,41 @@ Plot3D[
   , {y, -2, 2}
   , AspectRatio -> {1, 1, Automatic}
   , PlotRange -> {0, Automatic}
-  , RegionFunction -> Function[{x, y}, tOfZ[x + I y] > 0 // Evaluate]
+  , RegionFunction -> solutionPositiveRegionFunction
+]
+
+
+(* ::Subsection:: *)
+(*Non-viable domain & solution contours*)
+
+
+Show[
+  EmptyFrame[
+    {0, 1}, {-1, 1}
+  ],
+  (* Non-viable domain *)
+  RegionPlot[
+    phiOfZ[x + I y] < 0 && tOfZ[x + I y] > 0
+    , {x, 0, 1}
+    , {y, -1, 1}
+    , BoundaryStyle -> None
+    , PlotStyle -> BoundaryTracingStyle["NonViable"]
+  ],
+  (* Terminal curve *)
+  ContourPlot[
+    phiOfZ[x + I y] == 0
+    , {x, 0, 1}
+    , {y, -1, 1}
+    , ContourStyle -> BoundaryTracingStyle["Terminal"]
+    , RegionFunction -> solutionPositiveRegionFunction
+  ],
+  (* Solution contours *)
+  ContourPlot[
+    tOfZ[x + I y]
+    , {x, 0, 1}
+    , {y, -1, 1}
+    , ContourShading -> None
+    , PlotRange -> {-1/1000, Automatic}
+  ],
+  {}
 ]
