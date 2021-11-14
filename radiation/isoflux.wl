@@ -24,25 +24,23 @@ ClearAll["Global`*"];
 (*Conformal mapping*)
 
 
-zMap[zeta_] := zeta^(1/2);
-zetaMap[z_] := z^2;
+zOfZeta[zeta_] := zeta^(1/2);
+zetaOfZ[z_] := z^2;
 
 
 (* ::Subsection:: *)
 (*Analytic function W*)
 
 
-w[zeta_] := zeta;
+wOfZeta[zeta_] := zeta;
 
 
 (* ::Subsection:: *)
 (*Known solution T = Re[W]*)
 
 
-t[z_] := Re[w[zetaMap[z]]] // Evaluate;
-
-
-t[\[FormalZ]]
+tOfZeta[zeta_] := Re[wOfZeta[zeta]] // Evaluate;
+tOfZ[z_] := tOfZeta[zetaOfZ[z]] // Evaluate;
 
 
 (* ::Section:: *)
@@ -54,7 +52,7 @@ t[\[FormalZ]]
 
 
 Plot3D[
-  t[x + I y] // Evaluate
+  tOfZ[x + I y] // Evaluate
   , {x, 0, 3}
   , {y, -3, 3}
   , AspectRatio -> {1, 1, Automatic}
