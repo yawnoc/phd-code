@@ -74,10 +74,10 @@ solutionPositiveRegionFunction =
 
 
 (* ::Subsection:: *)
-(*Critical terminal coordinate*)
+(*Critical terminal point*)
 
 
-xCritical = Module[{x},x /. First @ Solve[phiOfZ[x] == 0 && x > 0, x, Reals]];
+zCritical = Module[{z}, z /. First @ Solve[phiOfZ[z] == 0 && z > 0, z, Reals]];
 
 
 (* ::Section:: *)
@@ -101,7 +101,7 @@ f
 phiOfZ[\[FormalZ]]
 
 
-xCritical
+zCritical
 
 
 (* ::Section:: *)
@@ -173,7 +173,7 @@ Show[
             tSingleDivision,
             dummyForTrailingCommas
           },
-          tCriticalValue = tOfZ[xCritical];
+          tCriticalValue = tOfZ[zCritical];
           divisionsUntoCritical = 2;
           divisionsBeyondCritical = 5;
           tSingleDivision = tCriticalValue / divisionsUntoCritical;
