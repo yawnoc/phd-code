@@ -82,6 +82,40 @@ zCritical = Module[{z}, z /. First @ Solve[phiOfZ[z] == 0 && z > 0, z, Reals]];
 zetaCritical = zetaOfZ[zCritical];
 
 
+(* ::Subsection:: *)
+(*Traced boundary derivative d\[Zeta]/ds*)
+
+
+zetaTracedDerivative[zeta_, sign_] :=
+  Divide[
+    I * f + (sign) Sqrt[phiOfZeta[zeta]],
+    wOfZeta'[zeta]
+  ];
+
+
+(* ::Subsection:: *)
+(*Traced boundary \[Zeta](s)*)
+
+
+zetaTraced[zeta0_, {sStart_, sEnd_}, sign_, terminationPhi_: 0] :=
+  Module[{zeta},
+    NDSolveValue[
+      {
+        zeta'[s] == zetaTracedDerivative[zeta[s], sign],
+        zeta[0] == zeta0,
+        WhenEvent[phiOfZeta[zeta[s]] < 0, "StopIntegration"],
+        WhenEvent[tOfZeta[zeta[s]] < 0, "StopIntegration"],
+        Nothing
+      }
+      , zeta, {s, sStart, sEnd}
+    ]
+  ]
+
+
+zetaTracedCriticalUpper = zetaTraced[zetaCritical, {-3, 3}, +1];
+zetaTracedCriticalLower = zetaTraced[zetaCritical, {-3, 3}, -1];
+
+
 (* ::Section:: *)
 (*Checks*)
 
@@ -106,6 +140,10 @@ phiOfZeta[\[FormalZeta]]
 
 zCritical
 zetaCritical
+
+
+zetaTracedDerivative[\[FormalZeta], +1]
+zetaTracedDerivative[\[FormalZeta], -1]
 
 
 (* ::Section:: *)
@@ -140,7 +178,7 @@ Plot3D[
 
 
 (* ::Subsection:: *)
-(*Non-viable domain & solution contours*)
+(*Boundary tracing*)
 
 
 Show[
@@ -185,6 +223,15 @@ Show[
         ]
     , ContourShading -> None
     , ContourLabels -> None
+  ],
+  (* Traced boundaries *)
+  Table[
+    ParametricPlot[
+      zeta[s] // zOfZeta // ReIm // Evaluate
+      , {s, DomainStart[zeta], DomainEnd[zeta]}
+      , PlotStyle -> If[zeta === zetaTracedCriticalUpper, Blue, Red]
+    ]
+    , {zeta, {zetaTracedCriticalUpper, zetaTracedCriticalLower}}
   ],
   {}
 ]
