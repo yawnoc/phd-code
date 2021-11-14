@@ -42,6 +42,7 @@ wOfZeta[zeta_] := zeta;
 
 tOfZeta[zeta_] := Re[wOfZeta[zeta]] // Evaluate;
 tOfZ[z_] := tOfZeta[zetaOfZ[z]] // Evaluate;
+tOfXY[x_, y_] := tOfZ[x + I y] // ComplexExpand // Evaluate;
 
 
 (* ::Subsection:: *)
@@ -235,3 +236,18 @@ Show[
   ],
   {}
 ]
+
+
+(* ::Section:: *)
+(*Sanity check*)
+
+
+With[{x = \[FormalX], y = \[FormalY]},
+  {
+    {"Known solution T", tOfXY[x, y]},
+    {"T along positive diagonal", tOfXY[x, x]},
+    {"T along negative diagonal", tOfXY[x, -x]},
+    {"Flux along vertical line", {1, 0}.Grad[tOfXY[x, y], {x, y}] /. {x -> Re[zCritical]}},
+    Nothing
+  }
+] // TableForm
