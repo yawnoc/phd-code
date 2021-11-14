@@ -63,6 +63,7 @@ f = 1;
 
 
 phiOfZ[z_] := Abs[wSlopeOfZ[z]]^2 - f // Evaluate;
+phiOfZeta[zeta_] := phiOfZ[zOfZeta[zeta]] // Evaluate;
 
 
 (* ::Subsection:: *)
@@ -78,6 +79,7 @@ solutionPositiveRegionFunction =
 
 
 zCritical = Module[{z}, z /. First @ Solve[phiOfZ[z] == 0 && z > 0, z, Reals]];
+zetaCritical = zetaOfZ[zCritical];
 
 
 (* ::Section:: *)
@@ -99,9 +101,11 @@ f
 
 
 phiOfZ[\[FormalZ]]
+phiOfZeta[\[FormalZeta]]
 
 
 zCritical
+zetaCritical
 
 
 (* ::Section:: *)
