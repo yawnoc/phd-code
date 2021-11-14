@@ -112,4 +112,5 @@ Plot3D[
   , {y, -2, 2}
   , AspectRatio -> {1, 1, Automatic}
   , PlotRange -> {0, Automatic}
+  , RegionFunction -> Function[{x, y}, tOfZ[x + I y] > 0 // Evaluate]
 ]
