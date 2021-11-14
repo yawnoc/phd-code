@@ -73,6 +73,13 @@ solutionPositiveRegionFunction =
   Function[{x, y}, tOfZ[x + I y] > 0 // Evaluate];
 
 
+(* ::Subsection:: *)
+(*Critical terminal coordinate*)
+
+
+xCritical = Module[{x},x /. First @ Solve[phiOfZ[x] == 0 && x > 0, x, Reals]];
+
+
 (* ::Section:: *)
 (*Checks*)
 
@@ -92,6 +99,9 @@ f
 
 
 phiOfZ[\[FormalZ]]
+
+
+xCritical
 
 
 (* ::Section:: *)
@@ -154,8 +164,23 @@ Show[
     tOfZ[x + I y]
     , {x, 0, 1}
     , {y, -1, 1}
+    , Contours ->
+        Module[
+          {
+            tCriticalValue,
+            divisionsUntoCritical,
+            divisionsBeyondCritical,
+            tSingleDivision,
+            dummyForTrailingCommas
+          },
+          tCriticalValue = tOfZ[xCritical];
+          divisionsUntoCritical = 2;
+          divisionsBeyondCritical = 5;
+          tSingleDivision = tCriticalValue / divisionsUntoCritical;
+          tSingleDivision * Range[0, divisionsUntoCritical + divisionsBeyondCritical]
+        ]
     , ContourShading -> None
-    , PlotRange -> {-1/1000, Automatic}
+    , ContourLabels -> None
   ],
   {}
 ]
