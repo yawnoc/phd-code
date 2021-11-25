@@ -148,6 +148,38 @@ zetaTracedDerivative[\[FormalZeta], -1]
 
 
 (* ::Section:: *)
+(*Computer algebra*)
+
+
+With[{s = \[FormalS], a0 = \[FormalA]},
+  Module[
+    {
+      nMax, a, x, lhs, rhs,
+      dummyForTrailingCommas
+    },
+    nMax = 8;
+    a[0] = a0;
+    x = Sum[a[n] s^n, {n, 0, nMax}] + O[s]^(nMax + 1);
+    lhs = D[x, s];
+    rhs = Sqrt[4 Sqrt[x^2 + s^2] - 1];
+    Table[
+      {
+        n,
+        a[n] =
+          a[n] /. First @ Solve[
+            SeriesCoefficient[lhs - rhs, {s, 0, n - 1}] == 0
+              // FullSimplify[#, a0 > 0] &
+              // Evaluate
+            , a[n]
+          ]
+      }
+      , {n, nMax}
+    ]
+  ]
+] // TableForm
+
+
+(* ::Section:: *)
 (*Visualisation*)
 
 
