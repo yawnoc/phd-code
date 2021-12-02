@@ -297,7 +297,7 @@ Plot3D[
 
 Show[
   EmptyFrame[
-    {0, 1}, {-1, 1}
+    {0, 1.3}, {-1, 1}
   ],
   (* Non-viable domain *)
   RegionPlot[
@@ -319,7 +319,7 @@ Show[
   (* Solution contours *)
   ContourPlot[
     tOfZ[x + I y]
-    , {x, 0, 1}
+    , {x, 0, 1.5}
     , {y, -1, 1}
     , Contours ->
         Module[
@@ -332,7 +332,7 @@ Show[
           },
           tCriticalValue = tOfZ[zCritical];
           divisionsUntoCritical = 2;
-          divisionsBeyondCritical = 5;
+          divisionsBeyondCritical = 11;
           tSingleDivision = tCriticalValue / divisionsUntoCritical;
           tSingleDivision * Range[0, divisionsUntoCritical + divisionsBeyondCritical]
         ]
