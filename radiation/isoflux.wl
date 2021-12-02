@@ -450,7 +450,7 @@ Show[
     Point[zetaCritical // ReIm]
   },
   {}
-]
+] // Ex["isoflux-traced-boundaries-zeta-space.pdf"]
 
 
 (* ::Subsection:: *)
@@ -558,7 +558,7 @@ Show[
     Point[zCritical // ReIm]
   },
   {}
-]
+] // Ex["isoflux-traced-boundaries-z-space.pdf"]
 
 
 (* ::Section:: *)
