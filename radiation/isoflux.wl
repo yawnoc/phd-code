@@ -79,8 +79,8 @@ solutionPositiveRegionFunction =
 (*Terminal point of given phase*)
 
 
-zTerminal[phi_] := Module[{z}, z /. First @ Solve[phiOfZ[z] == 0 && Arg[z] == phi, z, Complexes]];
-zetaTerminal[phi_] := zetaOfZ @ zTerminal[phi];
+zTerminal[phase_] := Module[{z}, z /. First @ Solve[phiOfZ[z] == 0 && Arg[z] == phase, z, Complexes]];
+zetaTerminal[phase_] := zetaOfZ @ zTerminal[phase];
 
 
 (* ::Subsection:: *)
@@ -162,9 +162,9 @@ phiTracedTerminalList = Pi/4 {-1, -3/4, -1/2, 1/2, 3/4, 1};
 zetaTracedTerminalListUpper =
   Module[{zeta0},
     Table[
-      zeta0 = zetaTerminal[phi];
-      zetaTraced[zeta0, Sign[phi] {0, 3}, +1]
-      , {phi, phiTracedTerminalList // Rest}
+      zeta0 = zetaTerminal[phase];
+      zetaTraced[zeta0, Sign[phase] {0, 3}, +1]
+      , {phase, phiTracedTerminalList // Rest}
     ]
   ];
 
@@ -172,9 +172,9 @@ zetaTracedTerminalListUpper =
 zetaTracedTerminalListLower =
   Module[{zeta0},
     Table[
-      zeta0 = zetaTerminal[phi];
-      zetaTraced[zeta0, Sign[phi] {0, 3}, -1]
-      , {phi, phiTracedTerminalList // Most}
+      zeta0 = zetaTerminal[phase];
+      zetaTraced[zeta0, Sign[phase] {0, 3}, -1]
+      , {phase, phiTracedTerminalList // Most}
     ]
   ];
 
