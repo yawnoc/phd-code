@@ -80,6 +80,7 @@ solutionPositiveRegionFunction =
 
 
 zTerminal[phi_] := Module[{z}, z /. First @ Solve[phiOfZ[z] == 0 && Arg[z] == phi, z, Complexes]];
+zetaTerminal[phi_] := zetaOfZ @ zTerminal[phi];
 
 
 (* ::Subsection:: *)
@@ -118,6 +119,37 @@ zetaTraced[zeta0_, {sStart_, sEnd_}, sign_, terminationPhi_: 0] :=
       , zeta, {s, sStart, sEnd}
     ]
   ]
+
+
+(* ::Subsubsection:: *)
+(*(from terminal curve)*)
+
+
+phiTracedTerminalList = Pi/4 {-1, -3/4, -1/2, 1/2, 3/4, 1};
+
+
+zetaTracedTerminalListUpper =
+  Module[{zeta0},
+    Table[
+      zeta0 = zetaTerminal[phi];
+      zetaTraced[zeta0, Sign[phi] {0, 3}, +1]
+      , {phi, phiTracedTerminalList // Rest}
+    ]
+  ];
+
+
+zetaTracedTerminalListLower =
+  Module[{zeta0},
+    Table[
+      zeta0 = zetaTerminal[phi];
+      zetaTraced[zeta0, Sign[phi] {0, 3}, -1]
+      , {phi, phiTracedTerminalList // Most}
+    ]
+  ];
+
+
+(* ::Subsubsection:: *)
+(*(through critical terminal points)*)
 
 
 zetaTracedCriticalUpper = zetaTraced[zetaCritical, {-3, 3}, +1];
@@ -267,6 +299,23 @@ Show[
         ]
     , ContourLabels -> None
     , ContourShading -> None
+  ],
+  (* Traced boundaries (from terminal curve) *)
+  Table[
+    ParametricPlot[
+      zeta[s] // zOfZeta // ReIm // Evaluate
+      , {s, DomainStart[zeta], DomainEnd[zeta]}
+      , PlotStyle -> Blue
+    ]
+    , {zeta, zetaTracedTerminalListUpper}
+  ],
+  Table[
+    ParametricPlot[
+      zeta[s] // zOfZeta // ReIm // Evaluate
+      , {s, DomainStart[zeta], DomainEnd[zeta]}
+      , PlotStyle -> Red
+    ]
+    , {zeta, zetaTracedTerminalListLower}
   ],
   (* Traced boundaries (through critical terminal point) *)
   Table[
