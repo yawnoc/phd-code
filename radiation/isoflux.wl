@@ -278,6 +278,38 @@ With[{s = \[FormalS], a0 = \[FormalA]},
 ] // TableForm // Style[#, Background -> White] &
 
 
+(* ::Subsection:: *)
+(*Initial \[Zeta] = 1/4 and s > 0*)
+
+
+With[{s = \[FormalS], a0 = \[FormalA]},
+  Module[
+    {
+      nMax, a, x, lhs, rhs,
+      dummyForTrailingCommas
+    },
+    nMax = 16;
+    a[0] = a0;
+    x = 1/4 + 2 s^2 + Sum[a[n] s^n, {n, 4, nMax, 2}] + O[s]^(nMax + 2);
+    lhs = D[x, s];
+    rhs = Sqrt[4 Sqrt[x^2 + s^2] - 1];
+    Table[
+      {
+        Subscript[Italicise["a"], n],
+        a[n] =
+          a[n] /. First @ Solve[
+            SeriesCoefficient[lhs - rhs, {s, 0, n - 1}] == 0
+              // FullSimplify[#, s > 0] &
+              // Evaluate
+            , a[n]
+          ]
+      }
+      , {n, 4, nMax, 2}
+    ]
+  ] // ReplaceAll[a0 -> Subscript[Italicise["a"], 0]]
+] // TableForm // Style[#, Background -> White] &
+
+
 (* ::Section:: *)
 (*Visualisation*)
 
