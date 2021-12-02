@@ -306,6 +306,10 @@ Plot3D[
 (*Boundary tracing*)
 
 
+(* ::Subsection:: *)
+(*z-space*)
+
+
 Show[
   EmptyFrame[
     {0, 1.3}, {-1, 1}
