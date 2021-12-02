@@ -122,6 +122,37 @@ zetaTraced[zeta0_, {sStart_, sEnd_}, sign_, terminationPhi_: 0] :=
 
 
 (* ::Subsubsection:: *)
+(*(from walls)*)
+
+
+yWallList = Join[
+  Subdivide[1/2, 1, 5],
+  Subdivide[1/2, 1, 5] // Minus // Reverse,
+  {}
+];
+
+
+zetaTracedWallListUpper =
+  Module[{zeta0},
+    Table[
+      zeta0 = zetaOfZ[Abs[y] + I y];
+      zetaTraced[zeta0, {0, 3}, +1]
+      , {y, yWallList // Most}
+    ]
+  ];
+
+
+zetaTracedWallListLower =
+  Module[{zeta0},
+    Table[
+      zeta0 = zetaOfZ[Abs[y] + I y];
+      zetaTraced[zeta0, {0, -3}, -1]
+      , {y, yWallList // Rest}
+    ]
+  ];
+
+
+(* ::Subsubsection:: *)
 (*(from terminal curve)*)
 
 
@@ -299,6 +330,23 @@ Show[
         ]
     , ContourLabels -> None
     , ContourShading -> None
+  ],
+  (* Traced boundaries (from walls) *)
+  Table[
+    ParametricPlot[
+      zeta[s] // zOfZeta // ReIm // Evaluate
+      , {s, DomainStart[zeta], DomainEnd[zeta]}
+      , PlotStyle -> Blue
+    ]
+    , {zeta, zetaTracedWallListUpper}
+  ],
+  Table[
+    ParametricPlot[
+      zeta[s] // zOfZeta // ReIm // Evaluate
+      , {s, DomainStart[zeta], DomainEnd[zeta]}
+      , PlotStyle -> Red
+    ]
+    , {zeta, zetaTracedWallListLower}
   ],
   (* Traced boundaries (from terminal curve) *)
   Table[
