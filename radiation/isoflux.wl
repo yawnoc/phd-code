@@ -255,8 +255,8 @@ Show[
           tSingleDivision = tCriticalValue / divisionsUntoCritical;
           tSingleDivision * Range[0, divisionsUntoCritical + divisionsBeyondCritical]
         ]
-    , ContourShading -> None
     , ContourLabels -> None
+    , ContourShading -> None
   ],
   (* Traced boundaries (through critical terminal point) *)
   Table[
