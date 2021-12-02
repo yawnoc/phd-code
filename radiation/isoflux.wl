@@ -206,6 +206,9 @@ upperStyle = Blue;
 lowerStyle = Red;
 
 
+criticalStyle = Directive[Yellow, PointSize[Large]];
+
+
 (* ::Section:: *)
 (*Checks*)
 
@@ -406,6 +409,10 @@ Show[
     ]
     , {zeta, {zetaTracedCriticalUpper, zetaTracedCriticalLower}}
   ],
+  (* Critical terminal point *)
+  Graphics @ {criticalStyle,
+    Point[zetaCritical // ReIm]
+  },
   {}
 ]
 
@@ -510,6 +517,10 @@ Show[
     ]
     , {zeta, {zetaTracedCriticalUpper, zetaTracedCriticalLower}}
   ],
+  (* Critical terminal point *)
+  Graphics @ {criticalStyle,
+    Point[zCritical // ReIm]
+  },
   {}
 ]
 
