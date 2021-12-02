@@ -210,7 +210,7 @@ Plot3D[
 ]
 
 
-(* ::Subsection:: *)
+(* ::Section:: *)
 (*Boundary tracing*)
 
 
