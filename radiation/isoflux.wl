@@ -259,7 +259,7 @@ With[{s = \[FormalS], a0 = \[FormalA]},
     rhs = Sqrt[4 Sqrt[x^2 + s^2] - 1];
     Table[
       {
-        n,
+        Subscript[Italicise["a"], n],
         a[n] =
           a[n] /. First @ Solve[
             SeriesCoefficient[lhs - rhs, {s, 0, n - 1}] == 0
@@ -270,8 +270,8 @@ With[{s = \[FormalS], a0 = \[FormalA]},
       }
       , {n, nMax}
     ]
-  ]
-] // TableForm
+  ] // ReplaceAll[a0 -> Subscript[Italicise["a"], 0]]
+] // TableForm // Style[#, Background -> White] &
 
 
 (* ::Section:: *)
