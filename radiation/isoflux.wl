@@ -246,6 +246,10 @@ zetaTracedDerivative[\[FormalZeta], -1]
 (*Computer algebra*)
 
 
+(* ::Subsection:: *)
+(*Initial \[Zeta] != 1/4*)
+
+
 With[{s = \[FormalS], a0 = \[FormalA]},
   Module[
     {
