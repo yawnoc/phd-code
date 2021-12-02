@@ -180,6 +180,17 @@ zetaTracedTerminalListLower =
 
 
 (* ::Subsubsection:: *)
+(*(from axis)*)
+
+
+zetaAxisPoint = zetaOfZ[7/10];
+
+
+zetaTracedAxisUpper = zetaTraced[zetaAxisPoint, {-3, 3}, +1];
+zetaTracedAxisLower = zetaTraced[zetaAxisPoint, {-3, 3}, -1];
+
+
+(* ::Subsubsection:: *)
 (*(through critical terminal points)*)
 
 
@@ -372,6 +383,15 @@ Show[
       , PlotStyle -> lowerStyle
     ]
     , {zeta, zetaTracedTerminalListLower}
+  ],
+  (* Traced boundaries (from axis) *)
+  Table[
+    ParametricPlot[
+      zeta[s] // zOfZeta // ReIm // Evaluate
+      , {s, DomainStart[zeta], DomainEnd[zeta]}
+      , PlotStyle -> If[zeta === zetaTracedAxisUpper, upperStyle, lowerStyle]
+    ]
+    , {zeta, {zetaTracedAxisUpper, zetaTracedAxisLower}}
   ],
   (* Traced boundaries (through critical terminal point) *)
   Table[
