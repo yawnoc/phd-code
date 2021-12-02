@@ -307,7 +307,7 @@ With[{s = \[FormalS], a0 = \[FormalA]},
       , {n, 4, nMax, 2}
     ]
   ] // ReplaceAll[a0 -> Subscript[Italicise["a"], 0]]
-] // TableForm // Style[#, Background -> White] &
+] // TableForm // Ex["isoflux-special-series-positive.pdf"]
 
 
 (* ::Section:: *)
