@@ -307,6 +307,110 @@ Plot3D[
 
 
 (* ::Subsection:: *)
+(*\[Zeta]-space*)
+
+
+Show[
+  EmptyFrame[
+    {0, 1}, {-1, 1}
+    , FrameLabel -> ({"Re", "Im"}["\[Zeta]"] // Through)
+  ],
+  (* Non-viable domain *)
+  RegionPlot[
+    phiOfZeta[xx + I yy] < 0 && tOfZeta[xx + I yy] > 0
+    , {xx, 0, 1}
+    , {yy, -1, 1}
+    , BoundaryStyle -> None
+    , PlotStyle -> BoundaryTracingStyle["NonViable"]
+  ],
+  (* Terminal curve *)
+  ContourPlot[
+    phiOfZeta[xx + I yy] == 0
+    , {xx, 0, 1}
+    , {yy, -1, 1}
+    , ContourLabels -> None
+    , ContourStyle -> BoundaryTracingStyle["Terminal"]
+  ],
+  (* Solution contours *)
+  ContourPlot[
+    tOfZeta[xx + I yy]
+    , {xx, 0, 1}
+    , {yy, -1, 1}
+    , Contours ->
+        Module[
+          {
+            tCriticalValue,
+            divisionsUntoCritical,
+            divisionsBeyondCritical,
+            tSingleDivision,
+            dummyForTrailingCommas
+          },
+          tCriticalValue = tOfZ[zCritical];
+          divisionsUntoCritical = 2;
+          divisionsBeyondCritical = 11;
+          tSingleDivision = tCriticalValue / divisionsUntoCritical;
+          tSingleDivision * Range[0, divisionsUntoCritical + divisionsBeyondCritical]
+        ]
+    , ContourLabels -> None
+    , ContourShading -> None
+  ],
+  (* Traced boundaries (from walls) *)
+  Table[
+    ParametricPlot[
+      zeta[s] // ReIm // Evaluate
+      , {s, DomainStart[zeta], DomainEnd[zeta]}
+      , PlotStyle -> upperStyle
+    ]
+    , {zeta, zetaTracedWallListUpper}
+  ],
+  Table[
+    ParametricPlot[
+      zeta[s] // ReIm // Evaluate
+      , {s, DomainStart[zeta], DomainEnd[zeta]}
+      , PlotStyle -> lowerStyle
+    ]
+    , {zeta, zetaTracedWallListLower}
+  ],
+  (* Traced boundaries (from terminal curve) *)
+  Table[
+    ParametricPlot[
+      zeta[s] // ReIm // Evaluate
+      , {s, DomainStart[zeta], DomainEnd[zeta]}
+      , PlotStyle -> upperStyle
+    ]
+    , {zeta, zetaTracedTerminalListUpper}
+  ],
+  Table[
+    ParametricPlot[
+      zeta[s] // ReIm // Evaluate
+      , {s, DomainStart[zeta], DomainEnd[zeta]}
+      , PlotStyle -> lowerStyle
+    ]
+    , {zeta, zetaTracedTerminalListLower}
+  ],
+  (* Traced boundaries (from axis) *)
+  Table[
+    ParametricPlot[
+      zeta[s] // ReIm // Evaluate
+      , {s, DomainStart[zeta], DomainEnd[zeta]}
+      , PlotStyle -> If[zeta === zetaTracedAxisUpper, upperStyle, lowerStyle]
+    ]
+    , {zeta, {zetaTracedAxisUpper, zetaTracedAxisLower}}
+  ],
+  (* Traced boundaries (through critical terminal point) *)
+  Table[
+    ParametricPlot[
+      zeta[s] // ReIm // Evaluate
+      , {s, DomainStart[zeta], DomainEnd[zeta]}
+      , PlotStyle -> If[zeta === zetaTracedCriticalUpper, upperStyle, lowerStyle]
+    ]
+    , {zeta, {zetaTracedCriticalUpper, zetaTracedCriticalLower}}
+  ],
+  {}
+]
+
+
+(* ::Subsection:: *)
 (*z-space*)
 
 
