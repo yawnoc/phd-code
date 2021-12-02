@@ -275,7 +275,7 @@ With[{s = \[FormalS], a0 = \[FormalA]},
       , {n, nMax}
     ]
   ] // ReplaceAll[a0 -> Subscript[Italicise["a"], 0]]
-] // TableForm // Style[#, Background -> White] &
+] // TableForm // Ex["isoflux-ordinary-series.pdf"]
 
 
 (* ::Subsection:: *)
