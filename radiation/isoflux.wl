@@ -187,6 +187,14 @@ zetaTracedCriticalUpper = zetaTraced[zetaCritical, {-3, 3}, +1];
 zetaTracedCriticalLower = zetaTraced[zetaCritical, {-3, 3}, -1];
 
 
+(* ::Subsection:: *)
+(*Styles*)
+
+
+upperStyle = Blue;
+lowerStyle = Red;
+
+
 (* ::Section:: *)
 (*Checks*)
 
@@ -336,7 +344,7 @@ Show[
     ParametricPlot[
       zeta[s] // zOfZeta // ReIm // Evaluate
       , {s, DomainStart[zeta], DomainEnd[zeta]}
-      , PlotStyle -> Blue
+      , PlotStyle -> upperStyle
     ]
     , {zeta, zetaTracedWallListUpper}
   ],
@@ -344,7 +352,7 @@ Show[
     ParametricPlot[
       zeta[s] // zOfZeta // ReIm // Evaluate
       , {s, DomainStart[zeta], DomainEnd[zeta]}
-      , PlotStyle -> Red
+      , PlotStyle -> lowerStyle
     ]
     , {zeta, zetaTracedWallListLower}
   ],
@@ -353,7 +361,7 @@ Show[
     ParametricPlot[
       zeta[s] // zOfZeta // ReIm // Evaluate
       , {s, DomainStart[zeta], DomainEnd[zeta]}
-      , PlotStyle -> Blue
+      , PlotStyle -> upperStyle
     ]
     , {zeta, zetaTracedTerminalListUpper}
   ],
@@ -361,7 +369,7 @@ Show[
     ParametricPlot[
       zeta[s] // zOfZeta // ReIm // Evaluate
       , {s, DomainStart[zeta], DomainEnd[zeta]}
-      , PlotStyle -> Red
+      , PlotStyle -> lowerStyle
     ]
     , {zeta, zetaTracedTerminalListLower}
   ],
@@ -370,7 +378,7 @@ Show[
     ParametricPlot[
       zeta[s] // zOfZeta // ReIm // Evaluate
       , {s, DomainStart[zeta], DomainEnd[zeta]}
-      , PlotStyle -> If[zeta === zetaTracedCriticalUpper, Blue, Red]
+      , PlotStyle -> If[zeta === zetaTracedCriticalUpper, upperStyle, lowerStyle]
     ]
     , {zeta, {zetaTracedCriticalUpper, zetaTracedCriticalLower}}
   ],
