@@ -231,6 +231,7 @@ Show[
     phiOfZ[x + I y] == 0
     , {x, 0, 1}
     , {y, -1, 1}
+    , ContourLabels -> None
     , ContourStyle -> BoundaryTracingStyle["Terminal"]
     , RegionFunction -> solutionPositiveRegionFunction
   ],
