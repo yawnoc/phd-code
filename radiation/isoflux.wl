@@ -111,7 +111,7 @@ zetaTraced[zeta0_, {sStart_, sEnd_}, sign_, terminationPhi_: 0] :=
       {
         zeta'[s] == zetaTracedDerivative[zeta[s], sign],
         zeta[0] == zeta0,
-        WhenEvent[phiOfZeta[zeta[s]] < 0, "StopIntegration"],
+        WhenEvent[phiOfZeta[zeta[s]] < terminationPhi, "StopIntegration"],
         WhenEvent[tOfZeta[zeta[s]] < 0, "StopIntegration"],
         Nothing
       }
