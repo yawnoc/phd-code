@@ -76,6 +76,13 @@ solutionPositiveRegionFunction =
 
 
 (* ::Subsection:: *)
+(*Terminal point of given phase*)
+
+
+zTerminal[phi_] := Module[{z}, z /. First @ Solve[phiOfZ[z] == 0 && Arg[z] == phi, z, Complexes]];
+
+
+(* ::Subsection:: *)
 (*Critical terminal point*)
 
 
@@ -141,6 +148,9 @@ phiOfZeta[\[FormalZeta]]
 
 zCritical
 zetaCritical
+
+
+zTerminal[0] == zCritical
 
 
 zetaTracedDerivative[\[FormalZeta], +1]
