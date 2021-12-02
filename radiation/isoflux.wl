@@ -257,7 +257,7 @@ Show[
     , ContourShading -> None
     , ContourLabels -> None
   ],
-  (* Traced boundaries *)
+  (* Traced boundaries (through critical terminal point) *)
   Table[
     ParametricPlot[
       zeta[s] // zOfZeta // ReIm // Evaluate
