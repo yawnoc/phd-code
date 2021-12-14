@@ -1759,3 +1759,84 @@ Module[
     , ImageSize -> 0.5 ImageSizeTextWidthBeamer {1, 1}
   ]
 ] // Ex["conformal_triangle-domain-slides.pdf"];
+
+
+(* ::Section:: *)
+(*Figure: convection--conduction BVP (convection-conduction-bvp)*)
+
+
+Module[
+  {
+    conductionA, conductionB, conductionPhi,
+    conductionXY, conductionNormalPhi,
+    bathX, bathY, bathRadius,
+    textStyle,
+    convectionArrow, convectionArrowClearanceFactor,
+    dummyForTrailingCommas
+  },
+  (* Conduction ellipse *)
+  {conductionA, conductionB} = {8, 5};
+  conductionPhi = 20 Degree;
+  (* Geometry *)
+  (* (see <https://math.stackexchange.com/a/990013> for angle of normal) *)
+  conductionXY[ang_] := {conductionA Cos[ang], conductionB Sin[ang]};
+  conductionNormalPhi[ang_] := ArcTan[conductionB Cos[ang], conductionA Sin[ang]];
+  (* Heat bath triangle *)
+  {bathX, bathY} = {-2.5, -1};
+  bathRadius = 3.15;
+  (* Diagram *)
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  Show[
+    (* Conduction ellipse *)
+    Graphics @ {BoundaryTracingStyle["Traced"],
+      Circle[{0, 0}, {conductionA, conductionB}]
+        // Rotate[#, conductionPhi] &
+    },
+    Graphics @ {
+      Text[
+        "conduction" // textStyle
+        , {2.2, 2.7}
+      ]
+    },
+    (* Convection arrows *)
+    convectionArrow[{xBase_, yBase_}, phi_: 0, size_: 1] :=
+      Arrow[
+        {{0, 0}, {1, 0}}
+          // ScalingTransform @ {size, size}
+          // RotationTransform[phi, {0, 0}]
+          // TranslationTransform @ {xBase, yBase}
+      ];
+    convectionArrowClearanceFactor = 1.1;
+    Graphics @ {Arrowheads[0.04],
+      Table[
+        convectionArrow[
+          convectionArrowClearanceFactor * conductionXY[ang]
+          , conductionNormalPhi[ang]
+          , 2
+        ]
+        , {ang, Subdivide[0, 2 Pi, 8]}
+      ]
+        // Rotate[#, conductionPhi] &
+    },
+    Graphics @ {
+      Text[
+        "convection" // textStyle
+        , conductionXY[5/8 Pi] // RotationTransform[conductionPhi]
+        , {0.8, -1.5}
+      ]
+    },
+    (* Heat bath ellipse *)
+    Graphics @ {Directive[FaceForm @ GrayLevel[0.9], EdgeForm @ BoundaryTracingStyle["Contour"]],
+      RegularPolygon[{bathX, bathY}, {bathRadius, 0}, 3]
+    },
+    Graphics @ {
+      Text[
+        "heat" // textStyle
+        , {bathX, bathY}
+        , {-0.1, -0.15}
+      ]
+    },
+    {}
+    , ImageSize -> 0.45 ImageSizeTextWidth
+  ]
+] // Ex["convection-conduction-bvp.pdf"]
