@@ -1762,7 +1762,7 @@ Module[
 
 
 (* ::Section:: *)
-(*Figure: convection--conduction BVP (convection-conduction-bvp)*)
+(*Figure: convection--conduction BVP (conformal_triangle-convection-conduction-bvp)*)
 
 
 Module[
@@ -1839,4 +1839,4 @@ Module[
     {}
     , ImageSize -> 0.45 ImageSizeTextWidth
   ]
-] // Ex["convection-conduction-bvp.pdf"]
+] // Ex["conformal_triangle-convection-conduction-bvp.pdf"]
