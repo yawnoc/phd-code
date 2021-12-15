@@ -1792,6 +1792,12 @@ Module[
       , {k, 3}
       , {branchSign, {1, -1}}
     ] // Flatten,
+    (* Star-like *)
+    Table[
+      tracedBoundary[0.3 Exp[I * 2 Pi k/6], branchSign]
+      , {k, 6}
+      , {branchSign, {1, -1}}
+    ] // Flatten,
     Nothing
   };
   (* Make plots *)
@@ -1821,6 +1827,7 @@ Module[
           ParametricPlot[
             zeta[s] // zOfZeta // ReIm // Evaluate
             , {s, sIntersectionPrevious, sIntersectionNext}
+            (*, {s, DomainStart[zeta], DomainEnd[zeta]}*)
             , PlotPoints -> 2
             , PlotStyle -> BoundaryTracingStyle["Traced"]
           ]
