@@ -799,18 +799,18 @@ Module[
       zetaTracedAxisUpper,
       Nothing
     },
-    (* Kite asymmetric *)
-    {
-      zetaTracedWallListLower[[3]],
-      zetaTracedAxisUpper,
-      Nothing
-    },
     (* Cove *)
     {
       zetaTracedWallListLower[[2]],
       zetaTracedCriticalUpper,
       zetaTracedCriticalLower,
       zetaTracedWallListUpper[[-2]],
+      Nothing
+    },
+    (* Kite asymmetric *)
+    {
+      zetaTracedWallListLower[[3]],
+      zetaTracedAxisUpper,
       Nothing
     },
     (* Jagged irregular *)
@@ -888,6 +888,6 @@ Module[
   GraphicsGrid[
     {plotList}
     , ImageSize -> ImageSizeTextWidth
-    , Spacings -> {{0, -0.3, -0.2, 0, -0.1} ImageSizeTextWidth, 0}
+    , Spacings -> {{0, -0.35, -0.22, -0.15, 0} ImageSizeTextWidth, 0}
   ]
 ]
