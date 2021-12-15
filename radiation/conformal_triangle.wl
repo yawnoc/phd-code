@@ -1777,8 +1777,8 @@ Module[
     dummyForTrailingCommas
   },
   (* Plot range *)
-  xMax = 3;
-  yMax = 3;
+  xMax = 2.7;
+  yMax = 2.5;
   (* Contours (\[Zeta]-space) *)
   radValues = Subdivide[0, 1, 6] /. {0 -> rho0/2};
   {radMin, radMax} = MinMax[radValues];
@@ -1852,7 +1852,11 @@ Module[
       , {zetaTracedList, zetaTracedListList}
     ];
   (* Combined plot *)
-  plotList
+  GraphicsGrid[
+    {plotList}
+    , ImageSize -> ImageSizeTextWidth
+    , Spacings -> {{0, 0, 0.07} ImageSizeTextWidth, 0}
+  ]
 ]
 
 
