@@ -538,7 +538,7 @@ Module[
 
 
 (* ::Section:: *)
-(*Figure: boundary tracing (isoflux-traced-boundaries-*-space)*)
+(*Figure: traced boundaries (isoflux-traced-boundaries-*-space)*)
 
 
 (* ::Subsection:: *)
@@ -734,3 +734,30 @@ Module[
     , ImageSize -> 0.4 ImageSizeTextWidth
   ]
 ] // Ex["isoflux-traced-boundaries-z-space.pdf"]
+
+
+(* ::Subsection:: *)
+(*Legend*)
+
+
+Module[{legendLabelStyle},
+  legendLabelStyle = LatinModernLabelStyle @ LabelSize["Legend"];
+  GraphicsGrid[
+    Transpose @ {
+      CurveLegend[
+        {BoundaryTracingStyle["Traced"]},
+        {"traced boundary"}
+        , LabelStyle -> legendLabelStyle
+      ],
+      RegionLegend[
+        {BoundaryTracingStyle["NonViable"]},
+        {"non\[Hyphen]viable domain"}
+        , LabelStyle -> legendLabelStyle
+      ],
+      Nothing
+    }
+    , Alignment -> Left
+    , ImageSize -> 0.65 ImageSizeTextWidth
+    , ItemAspectRatio -> 0.15
+  ]
+] // Ex["isoflux-traced-boundaries-legend.pdf"]
