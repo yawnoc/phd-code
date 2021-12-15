@@ -1798,6 +1798,12 @@ Module[
       , {k, 6}
       , {branchSign, {1, -1}}
     ] // Flatten,
+    (* Butterfly-like *)
+    Table[
+      tracedBoundary[0.3 Exp[I * 2 Pi k/6], branchSign]
+      , {k, 6}
+      , {branchSign, {1, -1}}
+    ] // Flatten // Part[#, {3, 4, 5, 6, 9, 10, 11, 12}] &,
     Nothing
   };
   (* Make plots *)
@@ -1827,7 +1833,6 @@ Module[
           ParametricPlot[
             zeta[s] // zOfZeta // ReIm // Evaluate
             , {s, sIntersectionPrevious, sIntersectionNext}
-            (*, {s, DomainStart[zeta], DomainEnd[zeta]}*)
             , PlotPoints -> 2
             , PlotStyle -> BoundaryTracingStyle["Traced"]
           ]
