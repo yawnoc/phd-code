@@ -885,5 +885,9 @@ Module[
       , {zetaTracedList, zetaTracedListList}
     ];
   (* Combine plots *)
-  plotList
+  GraphicsGrid[
+    {plotList}
+    , ImageSize -> ImageSizeTextWidth
+    , Spacings -> {{0, -0.3, -0.2, 0, -0.1} ImageSizeTextWidth, 0}
+  ]
 ]
