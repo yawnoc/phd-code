@@ -861,6 +861,7 @@ Module[
           ParametricPlot[
             zeta[s] // zOfZeta // ReIm // Evaluate
             , {s, sIntersectionPrevious, sIntersectionNext}
+            , PlotPoints -> 2
             , PlotStyle -> BoundaryTracingStyle["Traced"]
           ]
           , {i, zetaTracedCount}
