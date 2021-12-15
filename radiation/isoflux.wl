@@ -770,7 +770,7 @@ Module[{legendLabelStyle},
 
 Module[
   {
-    xMin, xMax, yMax,
+    xMin, xMax, yMin, yMax,
     domainMiddle,
     zetaTracedListList,
     plotList,
@@ -783,7 +783,8 @@ Module[
   (* Plot range *)
   xMin = 0;
   xMax = 1.5;
-  yMax = 1;
+  yMin = -0.75;
+  yMax = 0.95;
   (* Choose boundaries (from top to bottom in z-space) *)
   domainMiddle[fun_] := Mean @ {DomainStart[fun], DomainEnd[fun]};
   zetaTracedListList = {
@@ -880,7 +881,7 @@ Module[
           Line @ {ReIm[zBottomRight], {0, 0}, ReIm[zTopRight]}
         },
         {}
-        , PlotRange -> {{xMin, xMax}, {-yMax, yMax}}
+        , PlotRange -> {{xMin, xMax}, {yMin, yMax}}
       ]
       , {zetaTracedList, zetaTracedListList}
     ];
@@ -890,4 +891,4 @@ Module[
     , ImageSize -> ImageSizeTextWidth
     , Spacings -> {{0, -0.35, -0.22, -0.15, 0} ImageSizeTextWidth, 0}
   ]
-]
+] // Ex["isoflux-domains.pdf"]
