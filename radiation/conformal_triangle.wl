@@ -1857,7 +1857,7 @@ Module[
     , ImageSize -> ImageSizeTextWidth
     , Spacings -> {{0, 0, 0.07} ImageSizeTextWidth, 0}
   ]
-]
+] // Ex["conformal_triangle-domains.pdf"]
 
 
 (* ::Section:: *)
