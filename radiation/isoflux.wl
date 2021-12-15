@@ -426,6 +426,118 @@ Module[
 
 
 (* ::Section:: *)
+(*Figure: grid (isoflux-grid-*-space)*)
+
+
+(* ::Subsection:: *)
+(*\[Zeta]-space*)
+
+
+Module[
+  {
+    xxValues,
+    xxMin, xxMax, yyMax,
+    axesLabel,
+    dummyForTrailingCommas
+  },
+  (* Grid lines (Re[zeta] == const) *)
+  xxValues = Subdivide[0, 3/2, 8] // Rest;
+  (* Make plot *)
+  xxMin = 0;
+  xxMax = 1.2;
+  yyMax = 1;
+  axesLabel[string_] := Row @ {string, " ", "\[Zeta]" // LaTeXStyle};
+  Show[
+    EmptyFrame[
+      {xxMin, xxMax}, {-yyMax, yyMax}
+      , FrameLabel -> {
+          axesLabel["Re"] // Margined @ {{0, 0}, {0, -10}},
+          axesLabel["Im"] // Margined @ {{0, -4}, {0, 0}}
+        }
+      , FrameLabel -> {
+          axesLabel["Re"] // Margined @ {{0, 0}, {0, -10}},
+          axesLabel["Im"] // Margined @ {{0, -4}, {0, 0}}
+        }
+      , FrameTicksStyle -> LabelSize["Tick"]
+      , LabelStyle -> LatinModernLabelStyle[LabelSize["Axis"] - 1]
+      , PlotRangePadding -> {Scaled[0.05], Scaled[0.03]}
+    ],
+    (* Generic grid lines *)
+    Graphics @ {
+      BoundaryTracingStyle["Background"],
+      Table[
+        Line @ {{xx, -#}, {xx, #}} & [1.1 yyMax]
+      , {xx, xxValues}]
+    },
+    (* Zero-value boundary *)
+    Graphics @ {
+      BoundaryTracingStyle["Contour"],
+      Table[
+        Line @ {{xx, -#}, {xx, #}} & [1.1 yyMax]
+      , {xx, {0}}]
+    },
+    {}
+    , ImageSize -> 0.4 ImageSizeTextWidth
+  ]
+] // Ex["isoflux-grid-zeta-space.pdf"]
+
+
+(* ::Subsection:: *)
+(*z-space*)
+
+
+Module[
+  {
+    xxValues, xValues, xCurve,
+    xMin, xMax, yMax,
+    axesLabel,
+    dummyForTrailingCommas
+  },
+  (* Grid lines (Re[zeta] == const) *)
+  (*
+      x_0^2 == x^2 - y^2
+      x == sqrt(x_0^2 + y^2)
+  *)
+  xxValues = Subdivide[0, 3/2, 8] // Rest;
+  xValues = Sqrt[xxValues];
+  xCurve[x0_][y_] := Sqrt[x0^2 + y^2];
+  (* Make plot *)
+  xMin = 0;
+  xMax = 1.2;
+  yMax = 1;
+  axesLabel[string_] := Row @ {string, "\[ThinSpace]", Italicise["z"]};
+  Show[
+    EmptyFrame[
+      {xMin, xMax}, {-yMax, yMax}
+      , FrameLabel -> {
+          axesLabel["Re"] // Margined @ {{0, 0}, {0, -15}},
+          axesLabel["Im"] // Margined @ {{0, -2}, {0, 0}}
+        }
+      , FrameTicksStyle -> LabelSize["Tick"]
+      , LabelStyle -> LatinModernLabelStyle[LabelSize["Axis"] - 1]
+    ],
+    (* Generic grid lines (curves) *)
+    ParametricPlot[
+      Table[{xCurve[x0][y], y}, {x0, xValues}] // Evaluate
+      , {y, -1.1 yMax, 1.1 yMax}
+      , PlotPoints -> 2
+      , PlotStyle -> BoundaryTracingStyle["Background"]
+    ],
+    (* Zero-value boundary *)
+    ParametricPlot[
+      Table[{xCurve[x0][y], y}, {x0, {0}}] // Evaluate
+      , {y, -1.1 yMax, 1.1 yMax}
+      , Exclusions -> None
+      , PlotPoints -> 2
+      , PlotStyle -> BoundaryTracingStyle["Contour"]
+    ],
+    {}
+    , ImageSize -> 0.4 ImageSizeTextWidth
+  ]
+] // Ex["isoflux-grid-z-space.pdf"]
+
+
+(* ::Section:: *)
 (*Figure: boundary tracing (isoflux-traced-boundaries-*-space)*)
 
 
