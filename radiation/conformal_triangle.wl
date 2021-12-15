@@ -1762,6 +1762,89 @@ Module[
 
 
 (* ::Section:: *)
+(*Figure: domains (conformal_triangle-domains)*)
+
+
+Module[
+  {
+    xMax, yMax,
+    radValues, radMin, radMax,
+    angValues, angMin, angMax,
+    zetaTracedListList, zeta, zetaPrevious, zetaNext,
+    sIntersectionPrevious, sIntersectionNext,
+    domainMiddle, plotList,
+    zetaTracedCount,
+    dummyForTrailingCommas
+  },
+  (* Plot range *)
+  xMax = 3;
+  yMax = 3;
+  (* Contours (\[Zeta]-space) *)
+  radValues = Subdivide[0, 1, 6] /. {0 -> rho0/2};
+  {radMin, radMax} = MinMax[radValues];
+  angValues = Subdivide[0, 2 Pi, 12];
+  {angMin, angMax} = MinMax[angValues];
+  (* Choose boundaries *)
+  zetaTracedListList = {
+    (* Triangle-like *)
+    Table[
+      tracedBoundary[zetaHyperbolic Exp[-I * 2 Pi k/3], branchSign]
+      , {k, 3}
+      , {branchSign, {1, -1}}
+    ] // Flatten,
+    Nothing
+  };
+  (* Make plots *)
+  domainMiddle[fun_] := Mean @ {DomainStart[fun], DomainEnd[fun]};
+  plotList =
+    Table[
+      Show[
+        Graphics[],
+        (* Patching of traced boundaries *)
+        zetaTracedCount = Length[zetaTracedList];
+        Table[
+          zeta = zetaTracedList[[ i ]];
+          zetaPrevious = zetaTracedList[[ Mod[i - 1, zetaTracedCount, 1] ]];
+          zetaNext = zetaTracedList[[ Mod[i + 1, zetaTracedCount, 1] ]];
+          sIntersectionPrevious =
+            FindRoot[
+              ReIm @ {zeta[#1] - zetaPrevious[#2]} &,
+              {{domainMiddle[zeta]}, {domainMiddle[zetaPrevious]}}
+              , Method -> "AffineCovariantNewton"
+            ] // First;
+          sIntersectionNext =
+            FindRoot[
+              ReIm @ {zeta[#1] - zetaNext[#2]} &,
+              {{domainMiddle[zeta]}, {domainMiddle[zetaNext]}}
+              , Method -> "AffineCovariantNewton"
+            ] // First;
+          ParametricPlot[
+            zeta[s] // zOfZeta // ReIm // Evaluate
+            , {s, sIntersectionPrevious, sIntersectionNext}
+            , PlotPoints -> 2
+            , PlotStyle -> BoundaryTracingStyle["Traced"]
+          ]
+          , {i, zetaTracedCount}
+        ],
+        (* Radial contour \[Rho] == 1 (which is the triangle in z-space) *)
+        ParametricPlot[
+          Table[rad Exp[I ang] // xyOfZeta, {rad, radValues // Last // List}]
+          , {ang, angMin, angMax}
+          , PlotPoints -> 2
+          , PlotRange -> Full
+          , PlotStyle -> BoundaryTracingStyle["Contour"]
+        ],
+        {}
+        , PlotRange -> {{-xMax, xMax}, {-yMax, yMax}}
+      ]
+      , {zetaTracedList, zetaTracedListList}
+    ];
+  (* Combined plot *)
+  plotList
+]
+
+
+(* ::Section:: *)
 (*Figure: convection--conduction BVP (conformal_triangle-convection-conduction-bvp)*)
 
 
