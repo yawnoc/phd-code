@@ -574,3 +574,72 @@ With[{x = \[FormalX], y = \[FormalY]},
     Nothing
   }
 ] // TableForm
+
+
+(* ::Section:: *)
+(*Figure: isoflux BVP (isoflux-bvp)*)
+
+
+Module[
+  {
+    yZeroValueUpper, yZeroValueLower,
+    xRight, yTopRight, yBottomRight,
+    xUnitFlux,
+    textStyle,
+    dummyForTrailingCommas
+  },
+  (* Zero-value boundaries *)
+  yZeroValueUpper[x_] := x;
+  yZeroValueLower[x_] := -yZeroValueUpper[x];
+  (* Corner coordinates *)
+  xRight = 1;
+  yTopRight = yZeroValueUpper[xRight];
+  yBottomRight = yZeroValueLower[xRight];
+  (* Unit-flux boundary *)
+  xUnitFlux[y_] := xRight + 1/7 Sin[Pi * y];
+  (* Plot *)
+  textStyle = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  Show[
+    Graphics[],
+    (* Zero-value boundaries *)
+    Plot[
+      {yZeroValueUpper[x], yZeroValueLower[x]}
+      , {x, 0, xRight}
+      , PlotPoints -> 2
+      , PlotStyle -> BoundaryTracingStyle["Contour"]
+    ],
+    Graphics @ {
+      Text[
+        "zero\[Hyphen]value" // textStyle
+        , {#, yZeroValueUpper[#]}
+        , {0.05, -1.1}
+        , {1, yZeroValueUpper'[#]}
+      ] & [xRight/2],
+      Text[
+        "zero\[Hyphen]value" // textStyle
+        , {#, yZeroValueLower[#]}
+        , {0.05, 0.75}
+        , {1, yZeroValueLower'[#]}
+      ] & [xRight/2],
+      {}
+    },
+    (* Unit-flux boundary *)
+    ParametricPlot[
+      {xUnitFlux[y], y}
+      , {y, yBottomRight, yTopRight}
+      , PlotPoints -> 3
+      , PlotStyle -> BoundaryTracingStyle["Traced"]
+    ],
+    Graphics @ {
+      Text[
+        "unit\[Hyphen]flux" // textStyle
+        , {xUnitFlux[#], #}
+        , {0, 0.9}
+        , {xUnitFlux'[#], 1}
+      ] & [0.03],
+      {}
+    },
+    {}
+    , ImageSize -> 0.25 ImageSizeTextWidth
+  ]
+] // Ex["isoflux-bvp.pdf"]
