@@ -117,6 +117,7 @@ zetaTraced[zeta0_, {sStart_, sEnd_}, sign_, terminationPhi_: 0] :=
         Nothing
       }
       , zeta, {s, sStart, sEnd}
+      , NoExtrapolation
     ]
   ]
 
@@ -761,3 +762,112 @@ Module[{legendLabelStyle},
     , ItemAspectRatio -> 0.15
   ]
 ] // Ex["isoflux-traced-boundaries-legend.pdf"]
+
+
+(* ::Section:: *)
+(*Figure: domains (isoflux-domains)*)
+
+
+Module[
+  {
+    xMin, xMax, yMax,
+    domainMiddle,
+    zetaTracedListList,
+    plotList,
+    zetaTracedCount, zeta, zetaPrevious, zetaNext,
+    sIntersectionPrevious, sIntersectionNext,
+    zTopRight, zBottomRight,
+    dummyForTrailingCommas
+  },
+  (* Plot range *)
+  xMin = 0;
+  xMax = 1.5;
+  yMax = 1;
+  (* Choose boundaries (from top to bottom in z-space) *)
+  domainMiddle[fun_] := Mean @ {DomainStart[fun], DomainEnd[fun]};
+  zetaTracedListList = {
+    (* Triangle *)
+    {
+      zetaTracedCriticalLower,
+      zetaTracedCriticalUpper,
+      Nothing
+    },
+    (* Kite *)
+    {
+      zetaTracedAxisLower,
+      zetaTracedAxisUpper,
+      Nothing
+    },
+    (* Kite asymmetric *)
+    {
+      zetaTracedWallListLower[[3]],
+      zetaTracedAxisUpper,
+      Nothing
+    },
+    (* Jagged irregular *)
+    {
+      zetaTracedWallListLower[[4]],
+      zetaTracedWallListUpper[[2]],
+      zetaTracedWallListLower[[3]],
+      zetaTracedAxisUpper
+    },
+    (* Dummy for trailing commas *)
+    Nothing
+  };
+  (* Make plots *)
+  plotList =
+    Table[
+      Show[
+        Graphics[],
+        (* Patching of traced boundaries *)
+        zetaTracedCount = Length[zetaTracedList];
+        Table[
+          zeta = zetaTracedList[[i]];
+          sIntersectionPrevious =
+            If[i == 1,
+              SelectFirst[
+                {DomainStart[zeta], DomainEnd[zeta]},
+                Im @ zeta[#] > 0 &
+              ]
+              ,
+              zetaPrevious = zetaTracedList[[i - 1]];
+              FindRoot[
+                ReIm @ {zeta[#1] - zetaPrevious[#2]} &,
+                {{domainMiddle[zeta]}, {domainMiddle[zetaPrevious]}}
+                , Method -> "AffineCovariantNewton"
+              ] // First
+            ];
+          sIntersectionNext =
+            If[i == zetaTracedCount,
+              SelectFirst[
+                {DomainStart[zeta], DomainEnd[zeta]},
+                Im @ zeta[#] < 0 &
+              ]
+              ,
+              zetaNext = zetaTracedList[[i + 1]];
+              FindRoot[
+                ReIm @ {zeta[#1] - zetaNext[#2]} &,
+                {{domainMiddle[zeta]}, {domainMiddle[zetaNext]}}
+                , Method -> "AffineCovariantNewton"
+              ] // First
+            ];
+          ParametricPlot[
+            zeta[s] // zOfZeta // ReIm // Evaluate
+            , {s, sIntersectionPrevious, sIntersectionNext}
+            , PlotStyle -> BoundaryTracingStyle["Traced"]
+          ]
+          , {i, zetaTracedCount}
+        ],
+        (* Zero-value boundary *)
+        Graphics @ {
+          BoundaryTracingStyle["Contour"],
+          Line @ {{#, #}, {0, 0}, {#, -#}} & [1.1 xMax]
+        },
+        {}
+        , PlotRange -> {{xMin, xMax}, {-yMax, yMax}}
+      ]
+      , {zetaTracedList, zetaTracedListList}
+    ];
+  (* Combine plots *)
+  plotList
+]
