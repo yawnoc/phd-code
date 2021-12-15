@@ -781,8 +781,8 @@ Module[
     dummyForTrailingCommas
   },
   (* Plot range *)
-  xMin = 0;
-  xMax = 1.5;
+  xMin = -0.05;
+  xMax = 1.3;
   yMin = -0.75;
   yMax = 0.95;
   (* Choose boundaries (from top to bottom in z-space) *)
@@ -806,12 +806,6 @@ Module[
       zetaTracedCriticalUpper,
       zetaTracedCriticalLower,
       zetaTracedWallListUpper[[-2]],
-      Nothing
-    },
-    (* Kite asymmetric *)
-    {
-      zetaTracedWallListLower[[3]],
-      zetaTracedAxisUpper,
       Nothing
     },
     (* Jagged irregular *)
@@ -889,6 +883,6 @@ Module[
   GraphicsGrid[
     {plotList}
     , ImageSize -> ImageSizeTextWidth
-    , Spacings -> {{0, -0.35, -0.22, -0.15, 0} ImageSizeTextWidth, 0}
+    , Spacings -> {{0, -0.35, -0.25, -0.15, 0} ImageSizeTextWidth, 0}
   ]
 ] // Ex["isoflux-domains.pdf"]
