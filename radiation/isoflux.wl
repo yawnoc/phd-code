@@ -776,6 +776,7 @@ Module[
     plotList,
     zetaTracedCount, zeta, zetaPrevious, zetaNext,
     sIntersectionPrevious, sIntersectionNext,
+    sWithCorrectYCoordinate,
     zTopRight, zBottomRight,
     dummyForTrailingCommas
   },
@@ -825,10 +826,13 @@ Module[
           zeta = zetaTracedList[[i]];
           sIntersectionPrevious =
             If[i == 1,
-              SelectFirst[
-                {DomainStart[zeta], DomainEnd[zeta]},
-                Im @ zeta[#] > 0 &
-              ]
+              sWithCorrectYCoordinate =
+                SelectFirst[
+                  {DomainStart[zeta], DomainEnd[zeta]},
+                  Im @ zeta[#] > 0 &
+                ];
+              zTopRight = zOfZeta @ zeta[sWithCorrectYCoordinate];
+              sWithCorrectYCoordinate
               ,
               zetaPrevious = zetaTracedList[[i - 1]];
               FindRoot[
@@ -839,10 +843,13 @@ Module[
             ];
           sIntersectionNext =
             If[i == zetaTracedCount,
-              SelectFirst[
-                {DomainStart[zeta], DomainEnd[zeta]},
-                Im @ zeta[#] < 0 &
-              ]
+              sWithCorrectYCoordinate =
+                SelectFirst[
+                  {DomainStart[zeta], DomainEnd[zeta]},
+                  Im @ zeta[#] < 0 &
+                ];
+              zBottomRight = zOfZeta @ zeta[sWithCorrectYCoordinate];
+              sWithCorrectYCoordinate
               ,
               zetaNext = zetaTracedList[[i + 1]];
               FindRoot[
@@ -861,7 +868,7 @@ Module[
         (* Zero-value boundary *)
         Graphics @ {
           BoundaryTracingStyle["Contour"],
-          Line @ {{#, #}, {0, 0}, {#, -#}} & [1.1 xMax]
+          Line @ {ReIm[zBottomRight], {0, 0}, ReIm[zTopRight]}
         },
         {}
         , PlotRange -> {{xMin, xMax}, {-yMax, yMax}}
