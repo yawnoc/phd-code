@@ -805,6 +805,14 @@ Module[
       zetaTracedAxisUpper,
       Nothing
     },
+    (* Cove *)
+    {
+      zetaTracedWallListLower[[2]],
+      zetaTracedCriticalUpper,
+      zetaTracedCriticalLower,
+      zetaTracedWallListUpper[[-2]],
+      Nothing
+    },
     (* Jagged irregular *)
     {
       zetaTracedWallListLower[[4]],
