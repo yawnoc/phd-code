@@ -1892,6 +1892,145 @@ Module[
 ] // Ex["plane-domains-slides.pdf"];
 
 
+(* ::Subsubsection:: *)
+(*Version for paper*)
+
+
+Module[
+ {xTerm,
+  xMin, xMax, yMin, yMax,
+  plotPointsPatched,
+  textStyle, textStyleLabel, textStyleBracket,
+  plotList,
+  n, cUpperList, cLowerList, xCornerList, xIntList,
+  iRangeList, xBathList,
+  iMin, iMax, xBath, yBathBottom, yBathTop,
+  cUpper, cLower,
+  xLeft, xRight,
+  domainLabel,
+  dummyForTrailingCommas
+ },
+  (* Critical terminal curve *)
+  xTerm = 1;
+  (* Plot range *)
+  xMin = 0.2;
+  xMax = 1.1 xTerm;
+  yMax = 0.7;
+  (* Plot points *)
+  plotPointsPatched = 2;
+  (* Styles *)
+  textStyle = Style[#, LabelSize["Straight"]] & @* LaTeXStyle;
+  textStyleLabel = Style[#, LabelSize["Label"]] & @* LaTeXStyle;
+  textStyleBracket = Style[#, LabelSize["PointBracket"]] &;
+  (* Build a plot for each list of corners *)
+  plotList = Table[
+    (* *)
+    n = patchedCornerNum[id];
+    cUpperList = patchedCUpperList[id];
+    cLowerList = patchedCLowerList[id];
+    xCornerList = patchedCornerXList[id];
+    xIntList = patchedIntXList[id];
+    iRangeList = domainCornerRangeList[id];
+    xBathList = domainXBathList[id];
+    (* Plot *)
+    Show[
+      EmptyAxes[{xMin, xMax}, {-yMax, yMax},
+        AspectRatio -> Automatic,
+        Axes -> None,
+        ImageSize -> Automatic
+      ],
+      (* Critical terminal curve *)
+      ParametricPlot[
+        {xTerm, y}, {y, -yMax, yMax},
+        PlotPoints -> 2,
+        PlotStyle -> BoundaryTracingStyle["Background"]
+      ],
+      Graphics @ {Gray,
+        Text[
+          Italicise["x"] == 1
+          , {1, 0}
+          , {0, 1}
+          , {0, 1}
+        ] // textStyle
+      },
+      (* Domains *)
+      Table[
+        {iMin, iMax} = iRangeList[[j]];
+        {
+          (* Constant-temperature (Dirichlet) boundary *)
+          xBath = xBathList[[j]];
+          yBathBottom = yTraUpper[cUpperList[[iMin]]] @ xBath;
+          yBathTop = yTraLower[cLowerList[[iMax]]] @ xBath;
+          ParametricPlot[
+            {xBath, y}, {y, yBathBottom, yBathTop},
+            PlotPoints -> 2,
+            PlotStyle -> BoundaryTracingStyle["Contour"]
+          ],
+          (* Patched portions: upper-branch(i) *)
+          Table[
+            xLeft = xCornerList[[i]];
+            xRight = If[i > iMin, xIntList[[i - 1]], xBath];
+            cUpper = cUpperList[[i]];
+            Plot[
+              yTraUpper[cUpper][x],
+              {x, xLeft, xRight},
+              PlotPoints -> plotPointsPatched,
+              PlotRange -> {-yMax, yMax},
+              PlotStyle -> BoundaryTracingStyle["Traced"]
+            ]
+          , {i, iMin, iMax}],
+          (* Patched portions: lower-branch(i) *)
+          Table[
+            xLeft = xCornerList[[i]];
+            xRight = If[i < iMax, xIntList[[i]], xBath];
+            cLower = cLowerList[[i]];
+            Plot[
+              yTraLower[cLower][x],
+              {x, xLeft, xRight},
+              PlotPoints -> plotPointsPatched,
+              PlotRange -> {-yMax, yMax},
+              PlotStyle -> BoundaryTracingStyle["Traced"]
+            ]
+          , {i, iMin, iMax}]
+        }
+      , {j, Length[iRangeList]}],
+      (* Domain labels *)
+      domainLabel[str_][scaledX_, scaledY_] :=
+        Text[
+          Row @ {
+            "(" // textStyleBracket,
+            str,
+            ")" // textStyleBracket,
+          } // textStyleLabel
+          , {Way[xMin, xMax, scaledX], scaledY * yMax}
+        ];
+      Graphics @ {
+        Which[
+          id == patchedIdList[[1]],
+            domainLabel["a"][0.4, 0],
+          id == patchedIdList[[2]],
+            domainLabel["b"][0.5, 0],
+          id == patchedIdList[[3]],
+            {
+              domainLabel["c"][0.3, 0.75],
+              domainLabel["d"][0.11, 0.05],
+              domainLabel["e"][0.5, -0.62],
+              Nothing
+            },
+          True, {}
+        ]
+      },
+      {}
+    ]
+  , {id, patchedIdList}];
+  (* Combine *)
+  GraphicsRow[plotList
+    , ImageSize -> ImageSizeTextWidth
+    , Spacings -> {0.3 ImageSizeTextWidth, Automatic}
+  ]
+] // Ex["plane-domains-paper.pdf"]
+
+
 (* ::Subsection:: *)
 (*Legend*)
 
