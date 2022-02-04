@@ -6372,6 +6372,56 @@ Module[
 
 
 (* ::Subsection:: *)
+(*Teardrop-shaped domain for paper*)
+
+
+Module[
+  {
+    source,
+    a, vBath, mesh, prExt, prInt,
+    vSh0,
+    sMax, uvTraced,
+    dummyForTrailingCommas
+  },
+  (* Import mesh *)
+  source = "bipolar-nice-verification-mesh.txt";
+  {a, vBath, mesh, prExt, prInt} = Import[source] // Uncompress;
+  (* Radiation (traced) boundary *)
+  vSh0 = vSharp0[a];
+  sMax = Pi (1 - XBipolar[-Pi, vTraCandCorn[a]]);
+  uvTraced = With[{u = \[FormalU], v = \[FormalV], s = \[FormalS]},
+    NDSolveValue[
+      {
+        uvTraSystem[a],
+        u[0] == 0, v[0] == vSh0,
+        WhenEvent[u[s] == -Pi, "StopIntegration"]
+      }, {u, v}, {s, -sMax, 0},
+      NoExtrapolation
+    ]
+  ];
+  Show[
+    (* Radiation (traced) boundary *)
+    ParametricPlot[
+      XYBipolar @@ EvaluatePair[uvTraced, s]
+        // IncludeYReflection
+      , {s, DomainStart[uvTraced], DomainEnd[uvTraced]}
+      , PlotPoints -> 2
+      , PlotStyle -> BoundaryTracingStyle["Traced"]
+    ],
+    (* Line source *)
+    Graphics @ {PointSize[Medium],
+      Point @ {1, 0}
+    },
+    {}
+    , Axes -> None
+    , ImageSize -> {0.25, 0.3} ImageSizeTextWidth
+    , PlotRangePadding -> {Scaled[0.05], Scaled[0.03]}
+  ]
+    // Ex["teardrop-shaped-domain.pdf"]
+]
+
+
+(* ::Subsection:: *)
 (*Domain details*)
 
 
