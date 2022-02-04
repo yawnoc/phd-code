@@ -2052,6 +2052,27 @@ Module[{legendCurves},
 ] // Ex["plane-domains-legend.pdf"]
 
 
+(* ::Subsubsection:: *)
+(*Version for paper*)
+
+
+Module[{legendCurves},
+  legendCurves =
+    CurveLegend[
+      BoundaryTracingStyle /@
+        {"Traced", "Contour"},
+      {"radiation", "constant temperature"}
+      , LabelStyle -> LatinModernLabelStyle @ LabelSize["Legend"]
+    ];
+  GraphicsGrid[{legendCurves}
+    , Alignment -> Left
+    , ImageSize -> ImageSizeTextWidth
+    , ItemAspectRatio -> 0.05
+    , Spacings -> {{0, -0.24, 0.1} ImageSizeTextWidth, 0}
+  ]
+] // Ex["plane-domains-legend-paper.pdf"]
+
+
 (* ::Section:: *)
 (*Figure: Self-viewing radiation ratio (plane-self-viewing-ratio.pdf)*)
 
