@@ -6137,6 +6137,35 @@ Module[
 
 
 (* ::Section:: *)
+(*Figure: Lens-shaped domain (lens-shaped-domain.pdf)*)
+
+
+(* ::Subsection:: *)
+(*For paper*)
+
+
+Module[{a, b, xRadiationBoundary, yEnd},
+  a = aInflSimp;
+  b = 1;
+  xRadiationBoundary = xTraCandSimp[a, True];
+  yEnd = DomainEnd[xRadiationBoundary];
+  ParametricPlot[
+    {
+      {xRadiationBoundary[Abs[y]], y},
+      {xStraight, y}
+    }
+    , {y, -yEnd, yEnd}
+    , Axes -> None
+    , ImageSize -> {0.05, 0.3} ImageSizeTextWidth
+    , PlotPoints -> 2
+    , PlotRange -> Full
+    , PlotRangePadding -> {Scaled[0.3], Scaled[0.05]}
+    , PlotStyle -> BoundaryTracingStyle /@ {"Traced", "Contour"}
+  ]
+] // Ex["lens-shaped-domain.pdf"]
+
+
+(* ::Section:: *)
 (*Figure: Simple case self-viewing bounds (cosine_simple-self-viewing-bounds-*.pdf)*)
 
 
