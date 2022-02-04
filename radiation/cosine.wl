@@ -6141,7 +6141,7 @@ Module[
 
 
 (* ::Subsection:: *)
-(*For paper*)
+(*Domain (for paper)*)
 
 
 Module[{a, b, xRadiationBoundary, yEnd},
@@ -6163,6 +6163,32 @@ Module[{a, b, xRadiationBoundary, yEnd},
     , PlotStyle -> BoundaryTracingStyle /@ {"Traced", "Contour"}
   ]
 ] // Ex["lens-shaped-domain.pdf"]
+
+
+(* ::Subsection:: *)
+(*Legend (for paper)*)
+
+
+Module[{legendLabelStyle, legendCurves, legendNodes},
+  legendLabelStyle = LatinModernLabelStyle @ LabelSize["Legend"];
+  legendCurves =
+    CurveLegend[
+      BoundaryTracingStyle /@ {"Traced", "Contour"},
+      {"radiation", "constant temperature"}
+      , LabelStyle -> legendLabelStyle
+    ];
+  legendNodes =
+    NodeLegend[
+      {PointSize[Medium]},
+      {"line source"}
+      , LabelStyle -> legendLabelStyle
+    ];
+  GraphicsRow[
+    Join[legendCurves, legendNodes]
+    , ImageSize -> ImageSizeTextWidth
+    , ItemAspectRatio -> 0.1
+  ]
+] // Ex["assorted-domains-legend.pdf"]
 
 
 (* ::Section:: *)
