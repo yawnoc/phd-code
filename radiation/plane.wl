@@ -881,7 +881,7 @@ Module[
   },
   (* Slab dimensions *)
   {xSlabMin, xSlabMax} = {0, 1};
-  {ySlabMin, ySlabMax} = {0, 1.7};
+  {ySlabMin, ySlabMax} = {0, 1.75};
   ySlabMid = Way[ySlabMin, ySlabMax];
   (* Radiation arrow specs *)
   xRadiation = Way[xSlabMin, xSlabMax, -0.15];
