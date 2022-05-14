@@ -875,6 +875,7 @@ Module[
     numRadiation, yRadiationValues,
     radiationArrowStyle, radiationArrowSize,
     xAxisMin, xAxisMax, yAxis,
+    xAxisZero, axisTickSize,
     axisStyle,
     textStyle,
     dummyForTrailingCommas
@@ -895,9 +896,11 @@ Module[
   radiationArrowStyle = Arrowheads[0.025];
   radiationArrowSize = 2.2 Abs[xRadiation];
   (* x-axis specs *)
-  xAxisMin = xRadiation - 2 radiationArrowSize;
-  xAxisMax = xSlabMax + 2 radiationArrowSize;
+  xAxisMin = xRadiation - 3.5 radiationArrowSize;
+  xAxisMax = xSlabMax + 3 radiationArrowSize;
   yAxis = ySlabMin - 0.7 radiationArrowSize;
+  xAxisZero = xRadiation - 2.5 radiationArrowSize;
+  axisTickSize = 0.2 radiationArrowSize;
   axisStyle = Directive[Arrowheads[0.05]];
   (* Make diagram *)
   textStyle = Style[#, LabelSize["Label"] - 1] & @* LaTeXStyle;
@@ -948,6 +951,20 @@ Module[
         , {-2.5, -0.2}
       ],
       {}
+    },
+    (* x == 0 tick *)
+    Graphics @ {axisStyle,
+      Line @ {
+        {xAxisZero, yAxis},
+        {xAxisZero, yAxis - axisTickSize}
+      }
+    },
+    Graphics @ {
+      Text[
+        0 // textStyle
+        , {xAxisZero, yAxis}
+        , {0, 1}
+      ]
     },
     {}
     , ImageSize -> 0.45 ImageSizeTextWidth
