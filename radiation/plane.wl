@@ -900,7 +900,7 @@ Module[
   xAxisMax = xSlabMax + 3 radiationArrowSize;
   yAxis = ySlabMin - 0.7 radiationArrowSize;
   xAxisZero = xRadiation - 2.5 radiationArrowSize;
-  axisTickSize = 0.2 radiationArrowSize;
+  axisTickSize = 0.15 radiationArrowSize;
   axisStyle = Directive[Arrowheads[0.05]];
   (* Make diagram *)
   textStyle = Style[#, LabelSize["Label"] - 1] & @* LaTeXStyle;
